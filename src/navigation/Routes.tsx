@@ -1,5 +1,6 @@
 export const Routes = {
   PrayerTime: 'PrayerTime',
+  Settings: 'Settings',
 };
 
 export const StackRoutes = {

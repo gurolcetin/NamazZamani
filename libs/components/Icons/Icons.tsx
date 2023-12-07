@@ -12,7 +12,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Foundation from 'react-native-vector-icons/Foundation';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import {scaleFontSize} from '../../utils';
+import {scaleFontSize} from '../../core/utils';
 
 export const Icons = {
   MaterialCommunityIcons,

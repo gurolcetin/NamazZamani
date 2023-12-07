@@ -1,10 +1,10 @@
-import {StackRoutes} from '../../src/navigation/Routes';
-import {PrayerTimeStack} from '../../src/navigation/Stack/PrayerTimeStack';
-import {Icons} from '../components/Icons/Icons';
-import {Colors} from './Colors';
+import {StackRoutes} from '../../../src/navigation/Routes';
+import {PrayerTimeStack} from '../../../src/navigation/Stack/PrayerTimeStack';
+import Settings from '../../../src/screens/Settings/Settings';
+import {Icons} from '../../components/Icons/Icons';
 import {MenuNameConstants, MenuIconConstants} from './string.contants';
 
-export const bottomTabMenuItems = [
+export const bottomTabMenuItems = currentTheme => [
   {
     id: 1,
     route: StackRoutes.PrayerTimeStack,
@@ -12,7 +12,7 @@ export const bottomTabMenuItems = [
     type: Icons.FontAwesome6,
     icon: MenuIconConstants.PrayerTime,
     component: PrayerTimeStack,
-    color: Colors.primary,
+    color: currentTheme.primary,
     size: 20,
   },
   {
@@ -22,7 +22,7 @@ export const bottomTabMenuItems = [
     type: Icons.FontAwesome6,
     icon: MenuIconConstants.MissedPrayer,
     component: PrayerTimeStack,
-    color: Colors.primary,
+    color: currentTheme.primary,
     solid: true,
   },
   {
@@ -31,7 +31,7 @@ export const bottomTabMenuItems = [
     label: MenuNameConstants.Settings,
     type: Icons.FontAwesome6,
     icon: MenuIconConstants.Settings,
-    component: PrayerTimeStack,
-    color: Colors.primary,
+    component: Settings,
+    color: currentTheme.primary,
   },
 ];

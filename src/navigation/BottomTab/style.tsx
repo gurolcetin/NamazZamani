@@ -1,5 +1,4 @@
 import {StyleSheet} from 'react-native';
-import {Colors} from '../../../libs/constants';
 
 const style = StyleSheet.create({
   tabBar: {
@@ -8,8 +7,9 @@ const style = StyleSheet.create({
     borderTopRightRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 0.5,
-    borderColor: Colors.gray,
+    borderTopWidth: 0.5,
+    borderLeftWidth: 0.5,
+    borderRightWidth: 0.5,
   },
 });
 

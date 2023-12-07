@@ -1,6 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {Colors} from '../../constants';
-import {scaleFontSize} from '../../utils/scaling';
+import {scaleFontSize} from '../../core/utils/scaling';
 
 const style = StyleSheet.create({
   container: {
@@ -15,7 +14,6 @@ const style = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     borderWidth: 4,
-    borderColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',

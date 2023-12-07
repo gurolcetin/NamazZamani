@@ -1,10 +1,12 @@
 import React, {useEffect, useRef} from 'react';
 import {Animated, TouchableOpacity} from 'react-native';
 import Icon from '../Icons/Icons';
-import {Colors} from '../../constants';
 import style from './style';
+import {useTheme} from '../../core/providers';
 
 const TabButton = ({item, accessibilityState, onPress}: any) => {
+  const {currentTheme} = useTheme();
+
   const animatedValues = {
     translate: useRef(new Animated.Value(0)).current,
     scale: useRef(new Animated.Value(0)).current,
@@ -58,7 +60,12 @@ const TabButton = ({item, accessibilityState, onPress}: any) => {
 
   return (
     <TouchableOpacity onPress={onPress} style={style.container}>
-      <Animated.View style={[style.button, translateStyles]}>
+      <Animated.View
+        style={[
+          style.button,
+          translateStyles,
+          {borderColor: currentTheme.menuBackgroundColor},
+        ]}>
         <Animated.View
           style={[
             style.animatedView,
@@ -69,7 +76,7 @@ const TabButton = ({item, accessibilityState, onPress}: any) => {
         <Icon
           type={item.type}
           name={item.icon}
-          color={accessibilityState.selected ? Colors.white : item.color}
+          color={accessibilityState.selected ? currentTheme.white : item.color}
           style={item.icon}
           size={item.size}
           solid={item.solid}

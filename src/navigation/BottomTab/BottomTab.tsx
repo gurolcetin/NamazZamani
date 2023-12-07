@@ -2,20 +2,31 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {StackRoutes} from '../Routes';
 import style from './style';
-import {bottomTabMenuItems} from '../../../libs/constants';
+import {bottomTabMenuItems} from '../../../libs/common/constants';
 import {TabButton} from '../../../libs/components';
+import {useTheme} from '../../../libs/core/providers';
 
 const Tab = createBottomTabNavigator();
 export const TabNavigator = () => {
+  const {currentTheme} = useTheme();
+
   return (
     <Tab.Navigator
       initialRouteName={StackRoutes.PrayerTimeStack}
       screenOptions={{
         headerShown: false,
-        tabBarStyle: style.tabBar,
+        tabBarStyle: [
+          style.tabBar,
+          {
+            backgroundColor: currentTheme.menuBackgroundColor,
+            borderTopColor: currentTheme.menuBorderColor,
+            borderLeftColor: currentTheme.menuBorderColor,
+            borderRightColor: currentTheme.menuBorderColor,
+          },
+        ],
         header: () => null,
       }}>
-      {bottomTabMenuItems.map((item, index) => (
+      {bottomTabMenuItems(currentTheme).map((item, index) => (
         <Tab.Screen
           key={item.id}
           name={item.route + item.id}
