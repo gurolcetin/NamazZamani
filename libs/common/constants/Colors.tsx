@@ -1,7 +1,7 @@
 import {ThemeType} from '../models';
 
 export const lightTheme: ThemeType = {
-  primary: '#247158',
+  primary: '#006667',
   backgroundColor: '#F2F2F7',
   statusBarColor: '#FFFFFF',
   menuBackgroundColor: '#FFFFFF',

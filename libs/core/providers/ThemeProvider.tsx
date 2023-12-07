@@ -6,6 +6,7 @@ import {SafeAreaView, StatusBar, useColorScheme} from 'react-native';
 import {ThemeType} from '../../common/models';
 import {darkTheme, lightTheme} from '../../common/constants';
 import {globalStyle} from '../../styles';
+import {SafeAreaWithStatusBar} from '../../components';
 
 const ThemeContext = createContext(
   {} as {
@@ -63,19 +64,7 @@ const ThemeProvider = ({children}) => {
 
   return (
     <ThemeContext.Provider value={{theme, toggleTheme, currentTheme}}>
-      <StatusBar
-        barStyle={theme === Theme.DARK ? 'light-content' : 'dark-content'} // iOS için
-        backgroundColor={currentTheme.statusBarColor} // Android için
-      />
-      <SafeAreaView
-        style={[
-          globalStyle.flex1,
-          {
-            backgroundColor: currentTheme.statusBarColor,
-          },
-        ]}>
-        {children}
-      </SafeAreaView>
+      <SafeAreaWithStatusBar>{children}</SafeAreaWithStatusBar>
     </ThemeContext.Provider>
   );
 };
