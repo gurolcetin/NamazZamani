@@ -2,8 +2,8 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {StackRoutes} from '../Routes';
 import style from './style';
-import TabButton from '../../../libs/components/TabButton/TabButton';
-import {bottomTabMenuItems} from '../../../libs/constants/menuItems';
+import {bottomTabMenuItems} from '../../../libs/constants';
+import {TabButton} from '../../../libs/components';
 
 const Tab = createBottomTabNavigator();
 export const TabNavigator = () => {
