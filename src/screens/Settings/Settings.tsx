@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {ScrollView, View} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Theme} from '../../../libs/common/enums';
 import {useTheme} from '../../../libs/core/providers';
 import {globalStyle} from '../../../libs/styles';
@@ -9,28 +8,21 @@ import {
   Icons,
   RadioButtonVerticalGroup,
 } from '../../../libs/components';
+import {useDispatch, useSelector} from 'react-redux';
+import {updateApplicationTheme} from '../../../libs/redux/reducers/ApplicationTheme';
 
 const Settings = () => {
-  const {theme, toggleTheme, currentTheme} = useTheme();
+  const dispatch = useDispatch();
+  const {toggleTheme, currentTheme} = useTheme();
   const [initialOption, setInitialOption] = useState<string>(Theme.SYSTEM);
+  const applicationTheme = useSelector((state: any) => state.applicationTheme);
   useEffect(() => {
-    getStoredTheme();
+    setInitialOption(applicationTheme.theme);
   }, []);
 
-  const setThemeAndClose = async selectedOptions => {
+  const setThemeAndClose = selectedOptions => {
     toggleTheme(selectedOptions.key);
-
-    try {
-      // AsyncStorage'e seçilen temayı kaydet
-      await AsyncStorage.setItem('theme', selectedOptions.key);
-    } catch (error) {
-      console.error('Error saving theme:', error);
-    }
-  };
-
-  const getStoredTheme = async () => {
-    const storedTheme = await AsyncStorage.getItem('theme');
-    setInitialOption(storedTheme || Theme.SYSTEM);
+    dispatch(updateApplicationTheme(selectedOptions.key));
   };
 
   const options = {
