@@ -31,7 +31,6 @@ const ThemeProvider = ({children}) => {
   }, [theme]);
 
   useEffect(() => {
-    console.log('useEffect');
     AsyncStorage.getItem('theme').then(storedTheme => {
       // AsyncStorage'den kaydedilen temayı al
       if (storedTheme) {

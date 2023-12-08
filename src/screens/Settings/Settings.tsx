@@ -1,6 +1,5 @@
-// Settings.js
-import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Theme} from '../../../libs/common/enums';
 import {useTheme} from '../../../libs/core/providers';
@@ -9,14 +8,16 @@ import {
   CardView,
   Icons,
   RadioButtonVerticalGroup,
-  RadioButtonVerticalGroupProps,
 } from '../../../libs/components';
 
 const Settings = () => {
   const {theme, toggleTheme, currentTheme} = useTheme();
+  const [initialOption, setInitialOption] = useState<string>(Theme.SYSTEM);
+  useEffect(() => {
+    getStoredTheme();
+  }, []);
 
   const setThemeAndClose = async selectedOptions => {
-    // console.log('selectedOptions', selectedOptions);
     toggleTheme(selectedOptions.key);
 
     try {
@@ -28,8 +29,8 @@ const Settings = () => {
   };
 
   const getStoredTheme = async () => {
-    // AsyncStorage'den kaydedilen temayı al
     const storedTheme = await AsyncStorage.getItem('theme');
+    setInitialOption(storedTheme || Theme.SYSTEM);
   };
 
   const options = {
@@ -83,11 +84,12 @@ const Settings = () => {
         globalStyle.flex1,
         {backgroundColor: currentTheme.backgroundColor},
       ]}>
-      <CardView>
+      <CardView title="Theme Settings">
         <RadioButtonVerticalGroup
           onSelect={setThemeAndClose}
           options={options.options}
           iconPropsRadioButton={options.iconPropsRadioButton}
+          initialOption={initialOption}
         />
       </CardView>
     </View>

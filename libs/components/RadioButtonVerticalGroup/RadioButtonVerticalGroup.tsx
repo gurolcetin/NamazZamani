@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import {IconProps} from '../Icons/Icons';
 import Icon from '../Icons/Icons';
@@ -17,15 +17,23 @@ export interface RadioButtonVerticalGroupProps {
   options: RadioButtonOption[];
   iconPropsRadioButton: IconProps;
   onSelect: () => void;
+  initialOption: string;
 }
 
 const RadioButtonVerticalGroup = ({
   options,
   iconPropsRadioButton,
   onSelect,
+  initialOption,
 }) => {
   const {currentTheme} = useTheme();
   const [selectedOption, setSelectedOption] = useState<RadioButtonOption>();
+
+  useEffect(() => {
+    setSelectedOption(
+      options.find(option => option.key === initialOption) || options[0],
+    );
+  }, [initialOption]);
 
   const handleSelect = option => {
     setSelectedOption(option);
@@ -35,7 +43,7 @@ const RadioButtonVerticalGroup = ({
   return (
     <View>
       {options.map((option, index) => (
-        <>
+        <View key={'container' + index}>
           <TouchableOpacity
             onPress={() => handleSelect(option)}
             key={index}
@@ -70,7 +78,7 @@ const RadioButtonVerticalGroup = ({
             />
           </TouchableOpacity>
           {index !== options.length - 1 && <Divider />}
-        </>
+        </View>
       ))}
     </View>
   );
