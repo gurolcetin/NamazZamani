@@ -46,8 +46,16 @@ const ThemeProvider = ({children}) => {
   useEffect(() => {
     if (colorScheme) {
       // Sistem teması değiştiğinde, sistem temasını al
-      const newTheme = colorScheme === Theme.DARK ? Theme.DARK : Theme.LIGHT;
-      setTheme(newTheme);
+      AsyncStorage.getItem('theme').then(storedTheme => {
+        // AsyncStorage'den kaydedilen temayı al
+        if (storedTheme) {
+          if (storedTheme === Theme.SYSTEM) {
+            // Eğer kaydedilen tema sistem teması ise, sistem temasını al
+            storedTheme = isDarkMode ? Theme.DARK : Theme.LIGHT;
+            setTheme(storedTheme as Theme);
+          }
+        }
+      });
     }
   }, [colorScheme]);
 

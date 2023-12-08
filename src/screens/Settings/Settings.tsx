@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Theme} from '../../../libs/common/enums';
 import {useTheme} from '../../../libs/core/providers';
@@ -84,14 +84,16 @@ const Settings = () => {
         globalStyle.flex1,
         {backgroundColor: currentTheme.backgroundColor},
       ]}>
-      <CardView title="Theme Settings">
-        <RadioButtonVerticalGroup
-          onSelect={setThemeAndClose}
-          options={options.options}
-          iconPropsRadioButton={options.iconPropsRadioButton}
-          initialOption={initialOption}
-        />
-      </CardView>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <CardView title="Theme Settings">
+          <RadioButtonVerticalGroup
+            onSelect={setThemeAndClose}
+            options={options.options}
+            iconPropsRadioButton={options.iconPropsRadioButton}
+            initialOption={initialOption}
+          />
+        </CardView>
+      </ScrollView>
     </View>
   );
 };

@@ -1,11 +1,18 @@
 import React from 'react';
-import {SafeAreaView, Text} from 'react-native';
+import {Text, View} from 'react-native';
+import {globalStyle} from '../../../libs/styles';
+import {useTheme} from '../../../libs/core/providers';
 
 const PrayerTime = () => {
+  const {currentTheme} = useTheme();
   return (
-    <SafeAreaView>
-      <Text>Home</Text>
-    </SafeAreaView>
+    <View
+      style={[
+        globalStyle.flex1,
+        {backgroundColor: currentTheme.backgroundColor},
+      ]}>
+      <Text>Prayer Time</Text>
+    </View>
   );
 };
 
