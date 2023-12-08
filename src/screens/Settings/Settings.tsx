@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Theme} from '../../../libs/common/enums';
 import {useTheme} from '../../../libs/core/providers';
 import {globalStyle} from '../../../libs/styles';
+import {CardView} from '../../../libs/components';
 
 const Settings = () => {
   const {theme, toggleTheme, currentTheme} = useTheme();
@@ -38,48 +39,27 @@ const Settings = () => {
         globalStyle.flex1,
         {backgroundColor: currentTheme.backgroundColor},
       ]}>
-      <View
-        style={{
-          marginTop: 50,
-          marginHorizontal: 10,
-          height: 50,
-          borderRadius: 15,
-          backgroundColor: currentTheme.menuBackgroundColor,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <TouchableOpacity onPress={() => setThemeAndClose(Theme.LIGHT)}>
+      <CardView>
+        <TouchableOpacity
+          style={{height: 70, alignItems: 'center', justifyContent: 'center'}}
+          onPress={() => setThemeAndClose(Theme.LIGHT)}>
           <Text style={{color: currentTheme.primary}}>Light Theme</Text>
         </TouchableOpacity>
-      </View>
-      <View
-        style={{
-          marginTop: 50,
-          marginHorizontal: 10,
-          height: 50,
-          borderRadius: 15,
-          backgroundColor: currentTheme.menuBackgroundColor,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <TouchableOpacity onPress={() => setThemeAndClose(Theme.DARK)}>
+      </CardView>
+      <CardView>
+        <TouchableOpacity
+          style={{height: 90, alignItems: 'center', justifyContent: 'center'}}
+          onPress={() => setThemeAndClose(Theme.DARK)}>
           <Text style={{color: currentTheme.primary}}>Dark Theme</Text>
         </TouchableOpacity>
-      </View>
-      <View
-        style={{
-          marginTop: 50,
-          marginHorizontal: 10,
-          height: 50,
-          borderRadius: 15,
-          backgroundColor: currentTheme.menuBackgroundColor,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <TouchableOpacity onPress={() => setThemeAndClose(Theme.SYSTEM)}>
+      </CardView>
+      <CardView>
+        <TouchableOpacity
+          style={{height: 110, alignItems: 'center', justifyContent: 'center'}}
+          onPress={() => setThemeAndClose(Theme.SYSTEM)}>
           <Text style={{color: currentTheme.primary}}>System Default</Text>
         </TouchableOpacity>
-      </View>
+      </CardView>
     </View>
   );
 };
