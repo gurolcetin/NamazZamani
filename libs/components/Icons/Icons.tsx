@@ -30,7 +30,23 @@ export const Icons = {
   EvilIcons,
 };
 
-const Icon = ({type, name, color, size = 24, style, solid = false}: any) => {
+export interface IconProps {
+  type: any;
+  name: string;
+  color: string;
+  size?: number;
+  style?: any;
+  solid?: boolean;
+}
+
+const Icon = ({
+  type,
+  name,
+  color,
+  size = 24,
+  style,
+  solid = false,
+}: IconProps) => {
   const fontSize = scaleFontSize(24);
   const Tag = type;
   return (

@@ -6,6 +6,7 @@ export type ThemeType = {
   menuBorderColor: string;
   cardViewBackgroundColor: string;
   cardViewBorderColor: string;
+  textColor: string;
   white: string;
   black: string;
   gray: string;
