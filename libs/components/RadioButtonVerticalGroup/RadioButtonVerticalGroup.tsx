@@ -1,17 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
-import {IconProps, Icons} from '../Icons/Icons';
-import Icon from '../Icons/Icons';
-import {globalStyle} from '../../styles';
-import {style} from './style';
+import {IconProps} from '../Icons/Icons';
 import {useTheme} from '../../core/providers';
-import Divider from '../Divider/Divider';
 import TableView from '../TableView/TableView';
 import TouchableFloatView from '../TouchableFloatView/TouchableFloatView';
 import {RadioButtonCheckIcon} from '../../common/constants';
 
 interface RadioButtonOption {
   iconProps: IconProps;
+  iconBackgroundColor?: string;
   title: string;
   key: string;
 }
@@ -47,6 +43,7 @@ const RadioButtonVerticalGroup = ({options, onSelect, initialOption}) => {
           }}
           title={option.title}
           iconLeft={option.iconProps}
+          iconLeftBackgroundColor={option.iconBackgroundColor}
           iconRight={{
             ...RadioButtonCheckIcon(currentTheme),
             name: selectedOption?.key === option.key ? 'check' : '',

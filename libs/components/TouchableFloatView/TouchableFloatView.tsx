@@ -26,14 +26,12 @@ const TouchableFloatView = ({
     <TouchableOpacity onPress={onPress} style={style.touchbaleOpacity}>
       <View style={style.viewContainer}>
         <View
-          style={
-            (globalStyle.flex025,
+          style={[
+            style.iconLeftViewContainer,
             {
               backgroundColor: iconLeftBackgroundColor,
-              borderRadius: 5,
-              padding: 5,
-            })
-          }>
+            },
+          ]}>
           <Icon
             type={iconLeft.type}
             name={iconLeft.name}

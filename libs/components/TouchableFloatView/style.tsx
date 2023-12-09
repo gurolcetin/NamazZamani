@@ -16,6 +16,14 @@ const style = StyleSheet.create({
   titleViewContainer: {
     marginLeft: horizontalScale(10),
   },
+  iconLeftViewContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+    padding: 5,
+    width: 30,
+    height: 30,
+  },
   iconRightViewContainer: {
     flex: 0.3,
     flexDirection: 'row',
