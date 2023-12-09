@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
-import {IconProps} from '../Icons/Icons';
+import {IconProps, Icons} from '../Icons/Icons';
 import Icon from '../Icons/Icons';
 import {globalStyle} from '../../styles';
 import {style} from './style';
@@ -15,17 +15,11 @@ interface RadioButtonOption {
 
 export interface RadioButtonVerticalGroupProps {
   options: RadioButtonOption[];
-  iconPropsRadioButton: IconProps;
   onSelect: () => void;
   initialOption: string;
 }
 
-const RadioButtonVerticalGroup = ({
-  options,
-  iconPropsRadioButton,
-  onSelect,
-  initialOption,
-}) => {
+const RadioButtonVerticalGroup = ({options, onSelect, initialOption}) => {
   const {currentTheme} = useTheme();
   const [selectedOption, setSelectedOption] = useState<RadioButtonOption>();
 
@@ -68,9 +62,9 @@ const RadioButtonVerticalGroup = ({
               </View>
             </View>
             <Icon
-              type={iconPropsRadioButton.type}
-              color={iconPropsRadioButton.color}
-              size={iconPropsRadioButton.size}
+              type={Icons.FontAwesome6}
+              color={currentTheme.primary}
+              size={selectedOption?.iconProps.size || 20}
               name={
                 selectedOption?.key === option.key ? 'circle-check' : 'circle'
               }

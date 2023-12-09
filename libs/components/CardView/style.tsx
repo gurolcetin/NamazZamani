@@ -6,11 +6,12 @@ export const style = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     marginTop: verticalScale(20),
-    marginHorizontal: horizontalScale(10),
+    marginHorizontal: horizontalScale(16),
   },
   cardContainer: {
     height: 'auto',
-    borderRadius: 15,
+    borderRadius: 10,
+    paddingVertical: verticalScale(5),
   },
   title: {
     marginBottom: verticalScale(10),
