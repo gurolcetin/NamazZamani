@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "SystemDefault": "Sistem Varsayılanı",
+    "Light": "Açık",
+    "Dark": "Koyu",
+    "ThemeSettings": "Tema Ayarları",
+    "LanguageSettings": "Dil Ayarları"
+  }
+}

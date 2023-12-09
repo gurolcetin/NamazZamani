@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "SystemDefault": "System Default",
+    "Light": "Light",
+    "Dark": "Dark",
+    "ThemeSettings": "Theme Settings",
+    "LanguageSettings": "Language Settings"
+  }
+}
