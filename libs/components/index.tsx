@@ -5,6 +5,7 @@ import RadioButtonVerticalGroup, {
   RadioButtonVerticalGroupProps,
 } from './RadioButtonVerticalGroup/RadioButtonVerticalGroup';
 import Icon, {Icons, IconProps} from './Icons/Icons';
+import TableView from './TableView/TableView';
 
 export {
   TabButton,
@@ -15,4 +16,5 @@ export {
   Icon,
   Icons,
   IconProps,
+  TableView,
 };
