@@ -6,6 +6,9 @@ import {globalStyle} from '../../styles';
 import {style} from './style';
 import {useTheme} from '../../core/providers';
 import Divider from '../Divider/Divider';
+import TableView from '../TableView/TableView';
+import TouchableFloatView from '../TouchableFloatView/TouchableFloatView';
+import {RadioButtonCheckIcon} from '../../common/constants';
 
 interface RadioButtonOption {
   iconProps: IconProps;
@@ -35,46 +38,22 @@ const RadioButtonVerticalGroup = ({options, onSelect, initialOption}) => {
   };
 
   return (
-    <View>
-      {options.map((option, index) => (
-        <View key={'container' + index}>
-          <TouchableOpacity
-            onPress={() => handleSelect(option)}
-            key={index}
-            style={style.container}>
-            <View style={style.leftContainer}>
-              <View style={globalStyle.flex025}>
-                <Icon
-                  type={option.iconProps.type}
-                  name={option.iconProps.name}
-                  color={option.iconProps.color}
-                  size={option.iconProps.size}
-                  solid={option.iconProps.solid}
-                />
-              </View>
-              <View style={globalStyle.flex075}>
-                <Text
-                  style={{
-                    color: currentTheme.textColor,
-                  }}>
-                  {option.title}
-                </Text>
-              </View>
-            </View>
-            <Icon
-              type={Icons.FontAwesome6}
-              color={currentTheme.primary}
-              size={selectedOption?.iconProps.size || 20}
-              name={
-                selectedOption?.key === option.key ? 'circle-check' : 'circle'
-              }
-              solid={selectedOption?.key === option.key}
-            />
-          </TouchableOpacity>
-          {index !== options.length - 1 && <Divider />}
-        </View>
+    <TableView
+      childrenList={options.map((option, index) => (
+        <TouchableFloatView
+          key={index}
+          onPress={() => {
+            handleSelect(option);
+          }}
+          title={option.title}
+          iconLeft={option.iconProps}
+          iconRight={{
+            ...RadioButtonCheckIcon(currentTheme),
+            name: selectedOption?.key === option.key ? 'check' : '',
+          }}
+        />
       ))}
-    </View>
+    />
   );
 };
 

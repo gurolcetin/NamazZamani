@@ -12,6 +12,7 @@ export const lightTheme: ThemeType = {
   black: '#000',
   white: 'white',
   gray: '#CCCCCC',
+  languageIconBackgroundColor: '#007AFF',
 };
 
 export const darkTheme: ThemeType = {
@@ -26,4 +27,5 @@ export const darkTheme: ThemeType = {
   black: '#000',
   white: 'white',
   gray: '#CCCCCC',
+  languageIconBackgroundColor: '#007AFF',
 };

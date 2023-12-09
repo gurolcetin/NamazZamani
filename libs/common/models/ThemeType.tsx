@@ -10,4 +10,5 @@ export type ThemeType = {
   white: string;
   black: string;
   gray: string;
+  languageIconBackgroundColor: string;
 };

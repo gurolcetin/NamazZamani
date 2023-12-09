@@ -21,4 +21,29 @@ const SettingsScreenLanguageIconRight = (theme: ThemeType) => {
   };
 };
 
-export {SettingsScreenLanguageIconLeft, SettingsScreenLanguageIconRight};
+const SettingsScreenThemeIconLeft = (theme: ThemeType) => {
+  return {
+    name: 'theme-light-dark',
+    type: Icons.MaterialCommunityIcons,
+    color: theme.white,
+    size: 20,
+    solid: true,
+  };
+};
+
+const RadioButtonCheckIcon = (theme: ThemeType) => {
+  return {
+    name: 'check',
+    type: Icons.FontAwesome6,
+    color: theme.primary,
+    size: 20,
+    solid: true,
+  };
+};
+
+export {
+  SettingsScreenLanguageIconLeft,
+  SettingsScreenLanguageIconRight,
+  SettingsScreenThemeIconLeft,
+  RadioButtonCheckIcon,
+};

@@ -14,7 +14,7 @@ const TableView = (props: TableViewProps) => {
     <CardView>
       {props.childrenList.map((item, index) => {
         return (
-          <>
+          <View key={index + 'container'}>
             <View key={index} style={style.container}>
               {item}
             </View>
@@ -24,7 +24,7 @@ const TableView = (props: TableViewProps) => {
                 key={index + 'divider'}
               />
             )}
-          </>
+          </View>
         );
       })}
     </CardView>

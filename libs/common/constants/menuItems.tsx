@@ -1,5 +1,6 @@
 import {StackRoutes} from '../../../src/navigation/Routes';
 import {PrayerTimeStack} from '../../../src/navigation/Stack/PrayerTimeStack';
+import {SettingsStack} from '../../../src/navigation/Stack/SettingsStack';
 import Settings from '../../../src/screens/Settings/Settings';
 import {Icons} from '../../components/Icons/Icons';
 import {MenuNameConstants, MenuIconConstants} from './string.contants';
@@ -31,7 +32,7 @@ export const bottomTabMenuItems = currentTheme => [
     label: MenuNameConstants.Settings,
     type: Icons.FontAwesome6,
     icon: MenuIconConstants.Settings,
-    component: Settings,
+    component: SettingsStack,
     color: currentTheme.primary,
   },
 ];
