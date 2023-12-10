@@ -8,15 +8,16 @@ import {useTranslation} from 'react-i18next';
 import {ScrollView} from 'react-native';
 import {globalStyle} from '../../../libs/styles';
 import {
+  ThemeSettingsConstants,
   ThemeSettingsMoonIcon,
   ThemeSettingsSunIcon,
   ThemeSettingsSystemIcon,
 } from '../../../libs/common/constants';
+import {Translate} from '../../../libs/core/helpers';
 
 const ThemeSettings = () => {
   const dispatch = useDispatch();
   const {currentTheme, toggleTheme} = useTheme();
-  const {t} = useTranslation();
   const [initialOption, setInitialOption] = useState<string>(Theme.SYSTEM);
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
 
@@ -33,19 +34,19 @@ const ThemeSettings = () => {
     options: [
       {
         iconProps: ThemeSettingsSunIcon(currentTheme),
-        title: t('settings.Light'),
+        title: Translate(ThemeSettingsConstants.Light),
         key: Theme.LIGHT,
         iconBackgroundColor: '#FDD835',
       },
       {
         iconProps: ThemeSettingsMoonIcon(currentTheme),
-        title: t('settings.Dark'),
+        title: Translate(ThemeSettingsConstants.Dark),
         key: Theme.DARK,
         iconBackgroundColor: '#333333',
       },
       {
         iconProps: ThemeSettingsSystemIcon(currentTheme),
-        title: t('settings.SystemDefault'),
+        title: Translate(ThemeSettingsConstants.SystemDefault),
         key: Theme.SYSTEM,
         iconBackgroundColor: currentTheme.gray,
       },

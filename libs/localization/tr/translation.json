@@ -7,5 +7,10 @@
     "LanguageSettings": "Dil Ayarları",
     "Turkish": "Türkçe",
     "English": "İngilizce"
+  },
+  "menu": {
+    "PrayerTime": "Namaz Vakitleri",
+    "MissedPrayer": "Kaza Takip",
+    "Settings": "Ayarlar"
   }
 }

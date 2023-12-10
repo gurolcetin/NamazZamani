@@ -7,5 +7,10 @@
     "LanguageSettings": "Language Settings",
     "Turkish": "Turkish",
     "English": "English"
+  },
+  "menu": {
+    "PrayerTime": "Prayer Time",
+    "MissedPrayer": "Missed Prayer",
+    "Settings": "Settings"
   }
 }

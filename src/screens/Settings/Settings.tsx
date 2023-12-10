@@ -2,18 +2,18 @@ import React from 'react';
 import {ScrollView, View} from 'react-native';
 import {globalStyle} from '../../../libs/styles';
 import {TableView, TouchableFloatView} from '../../../libs/components';
-import {useTranslation} from 'react-i18next';
 import {
+  SettingsConstants,
   SettingsScreenLanguageIconLeft,
   SettingsScreenLanguageIconRight,
   SettingsScreenThemeIconLeft,
 } from '../../../libs/common/constants';
 import {Routes} from '../../navigation/Routes';
 import {useTheme} from '../../../libs/core/providers';
+import {Translate} from '../../../libs/core/helpers';
 
 const Settings = ({navigation}) => {
   const {currentTheme} = useTheme();
-  const {i18n, t} = useTranslation();
 
   return (
     <View
@@ -28,7 +28,7 @@ const Settings = ({navigation}) => {
               onPress={() => {
                 navigation.navigate(Routes.LanguageSettings);
               }}
-              title={t('settings.LanguageSettings')}
+              title={Translate(SettingsConstants.LanguageSettings)}
               iconLeft={SettingsScreenLanguageIconLeft(currentTheme)}
               iconLeftBackgroundColor={currentTheme.languageIconBackgroundColor}
               iconRight={SettingsScreenLanguageIconRight(currentTheme)}
@@ -37,7 +37,7 @@ const Settings = ({navigation}) => {
               onPress={() => {
                 navigation.navigate(Routes.ThemeSettings);
               }}
-              title={t('settings.ThemeSettings')}
+              title={Translate(SettingsConstants.ThemeSettings)}
               iconLeft={SettingsScreenThemeIconLeft(currentTheme)}
               iconLeftBackgroundColor={currentTheme.black}
               iconRight={SettingsScreenLanguageIconRight(currentTheme)}

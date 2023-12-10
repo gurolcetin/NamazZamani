@@ -5,12 +5,12 @@ import Settings from '../../screens/Settings/Settings';
 import LanguageSettings from '../../screens/LanguageSettings/LanguageSettings';
 import ThemeSettings from '../../screens/ThemeSettings/ThemeSettings';
 import {useTheme} from '../../../libs/core/providers';
-import {useTranslation} from 'react-i18next';
+import {Translate} from '../../../libs/core/helpers';
+import {SettingsConstants} from '../../../libs/common/constants';
 
 const Stack = createStackNavigator();
 export const SettingsStack = () => {
   const {currentTheme} = useTheme();
-  const {t} = useTranslation();
   return (
     <Stack.Navigator initialRouteName={Routes.Settings}>
       <Stack.Screen
@@ -27,7 +27,7 @@ export const SettingsStack = () => {
         options={{
           headerStyle: {backgroundColor: currentTheme.statusBarColor},
           headerTintColor: currentTheme.textColor,
-          headerTitle: t('settings.LanguageSettings'),
+          headerTitle: Translate(SettingsConstants.LanguageSettings),
           headerLeftLabelVisible: false,
           headerLeftContainerStyle: {paddingLeft: 10},
         }}
@@ -38,7 +38,7 @@ export const SettingsStack = () => {
         options={{
           headerStyle: {backgroundColor: currentTheme.statusBarColor},
           headerTintColor: currentTheme.textColor,
-          headerTitle: t('settings.ThemeSettings'),
+          headerTitle: Translate(SettingsConstants.ThemeSettings),
           headerLeftLabelVisible: false,
           headerLeftContainerStyle: {paddingLeft: 10},
         }}

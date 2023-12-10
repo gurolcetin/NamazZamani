@@ -9,6 +9,7 @@ import style from './style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   AsyncStorageConstants,
+  LanguagePrefix,
   LanguageSettingsConstants,
 } from '../../../libs/common/constants';
 import {Translate} from '../../../libs/core/helpers';
@@ -16,7 +17,7 @@ import {Translate} from '../../../libs/core/helpers';
 const LanguageSettings = ({navigation}) => {
   const {currentTheme} = useTheme();
   const {i18n} = useTranslation();
-  const [initialOption, setInitialOption] = useState<string>('tr');
+  const [initialOption, setInitialOption] = useState<string>(LanguagePrefix.tr);
 
   useEffect(() => {
     AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
@@ -24,10 +25,10 @@ const LanguageSettings = ({navigation}) => {
         if (language) {
           return setInitialOption(language);
         }
-        return setInitialOption('tr');
+        return setInitialOption(LanguagePrefix.tr);
       })
       .catch(e => {
-        return setInitialOption('tr');
+        return setInitialOption(LanguagePrefix.tr);
       });
   }, []);
 
