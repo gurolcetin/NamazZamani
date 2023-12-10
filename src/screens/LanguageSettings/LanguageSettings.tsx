@@ -7,11 +7,15 @@ import {useTranslation} from 'react-i18next';
 import {ScrollView} from 'react-native-gesture-handler';
 import style from './style';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {AsyncStorageConstants} from '../../../libs/common/constants';
+import {
+  AsyncStorageConstants,
+  LanguageSettingsConstants,
+} from '../../../libs/common/constants';
+import {Translate} from '../../../libs/core/helpers';
 
 const LanguageSettings = ({navigation}) => {
   const {currentTheme} = useTheme();
-  const {i18n, t} = useTranslation();
+  const {i18n} = useTranslation();
   const [initialOption, setInitialOption] = useState<string>('tr');
 
   useEffect(() => {
@@ -50,7 +54,7 @@ const LanguageSettings = ({navigation}) => {
             />
           ),
         },
-        title: t('settings.Turkish'),
+        title: Translate(LanguageSettingsConstants.Turkish),
         key: 'tr',
       },
       {
@@ -63,7 +67,7 @@ const LanguageSettings = ({navigation}) => {
             />
           ),
         },
-        title: t('settings.English'),
+        title: Translate(LanguageSettingsConstants.English),
         key: 'en',
       },
     ],
