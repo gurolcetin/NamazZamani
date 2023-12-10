@@ -1,9 +1,8 @@
 import React from 'react';
 import {TouchableOpacity, View, Text} from 'react-native';
-import Icon, {IconProps, Icons} from '../Icons/Icons';
+import Icon, {IconProps} from '../Icons/Icons';
 import {globalStyle} from '../../styles';
 import {useTheme} from '../../core/providers';
-import {useTranslation} from 'react-i18next';
 import style from './style';
 
 interface TouchableFloatViewProps {
@@ -38,6 +37,7 @@ const TouchableFloatView = ({
             color={iconLeft.color}
             size={iconLeft.size}
             solid={iconLeft.solid}
+            image={iconLeft.image}
           />
         </View>
         <View style={[globalStyle.flex075, style.titleViewContainer]}>

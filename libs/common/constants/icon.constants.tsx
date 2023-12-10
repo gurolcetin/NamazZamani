@@ -1,7 +1,7 @@
 import {Icons} from '../../components';
 import {ThemeType} from '../models';
 
-const SettingsScreenLanguageIconLeft = (theme: ThemeType) => {
+export const SettingsScreenLanguageIconLeft = (theme: ThemeType) => {
   return {
     name: 'earth',
     type: Icons.AntDesign,
@@ -11,7 +11,7 @@ const SettingsScreenLanguageIconLeft = (theme: ThemeType) => {
   };
 };
 
-const SettingsScreenLanguageIconRight = (theme: ThemeType) => {
+export const SettingsScreenLanguageIconRight = (theme: ThemeType) => {
   return {
     name: 'angle-right',
     type: Icons.FontAwesome6,
@@ -21,7 +21,7 @@ const SettingsScreenLanguageIconRight = (theme: ThemeType) => {
   };
 };
 
-const SettingsScreenThemeIconLeft = (theme: ThemeType) => {
+export const SettingsScreenThemeIconLeft = (theme: ThemeType) => {
   return {
     name: 'theme-light-dark',
     type: Icons.MaterialCommunityIcons,
@@ -31,7 +31,7 @@ const SettingsScreenThemeIconLeft = (theme: ThemeType) => {
   };
 };
 
-const RadioButtonCheckIcon = (theme: ThemeType) => {
+export const RadioButtonCheckIcon = (theme: ThemeType) => {
   return {
     name: 'check',
     type: Icons.FontAwesome6,
@@ -41,9 +41,32 @@ const RadioButtonCheckIcon = (theme: ThemeType) => {
   };
 };
 
-export {
-  SettingsScreenLanguageIconLeft,
-  SettingsScreenLanguageIconRight,
-  SettingsScreenThemeIconLeft,
-  RadioButtonCheckIcon,
+export const ThemeSettingsSunIcon = (theme: ThemeType) => {
+  return {
+    name: 'sun',
+    type: Icons.FontAwesome6,
+    color: theme.white,
+    size: 20,
+    solid: true,
+  };
+};
+
+export const ThemeSettingsMoonIcon = (theme: ThemeType) => {
+  return {
+    name: 'moon',
+    type: Icons.FontAwesome6,
+    color: theme.white,
+    size: 20,
+    solid: true,
+  };
+};
+
+export const ThemeSettingsSystemIcon = (theme: ThemeType) => {
+  return {
+    name: 'gear',
+    type: Icons.FontAwesome6,
+    color: theme.white,
+    size: 20,
+    solid: true,
+  };
 };

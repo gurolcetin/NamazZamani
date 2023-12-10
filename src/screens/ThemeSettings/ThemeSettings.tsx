@@ -1,12 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {Icons, RadioButtonVerticalGroup} from '../../../libs/components';
+import {RadioButtonVerticalGroup} from '../../../libs/components';
 import {useTheme} from '../../../libs/core/providers';
 import {updateApplicationTheme} from '../../../libs/redux/reducers/ApplicationTheme';
 import {useDispatch, useSelector} from 'react-redux';
 import {Theme} from '../../../libs/common/enums';
 import {useTranslation} from 'react-i18next';
-import {View} from 'react-native';
+import {ScrollView} from 'react-native';
 import {globalStyle} from '../../../libs/styles';
+import {
+  ThemeSettingsMoonIcon,
+  ThemeSettingsSunIcon,
+  ThemeSettingsSystemIcon,
+} from '../../../libs/common/constants';
 
 const ThemeSettings = () => {
   const dispatch = useDispatch();
@@ -27,37 +32,19 @@ const ThemeSettings = () => {
   const options = {
     options: [
       {
-        iconProps: {
-          name: 'sun',
-          type: Icons.FontAwesome6,
-          color: currentTheme.white,
-          size: 20,
-          solid: true,
-        },
+        iconProps: ThemeSettingsSunIcon(currentTheme),
         title: t('settings.Light'),
         key: Theme.LIGHT,
         iconBackgroundColor: '#FDD835',
       },
       {
-        iconProps: {
-          name: 'moon',
-          type: Icons.FontAwesome6,
-          color: currentTheme.white,
-          size: 20,
-          solid: true,
-        },
+        iconProps: ThemeSettingsMoonIcon(currentTheme),
         title: t('settings.Dark'),
         key: Theme.DARK,
         iconBackgroundColor: '#333333',
       },
       {
-        iconProps: {
-          name: 'gear',
-          type: Icons.FontAwesome6,
-          color: currentTheme.white,
-          size: 20,
-          solid: true,
-        },
+        iconProps: ThemeSettingsSystemIcon(currentTheme),
         title: t('settings.SystemDefault'),
         key: Theme.SYSTEM,
         iconBackgroundColor: currentTheme.gray,
@@ -66,7 +53,8 @@ const ThemeSettings = () => {
   };
 
   return (
-    <View
+    <ScrollView
+      showsVerticalScrollIndicator={false}
       style={[
         globalStyle.flex1,
         {backgroundColor: currentTheme.backgroundColor},
@@ -76,7 +64,7 @@ const ThemeSettings = () => {
         options={options.options}
         initialOption={initialOption}
       />
-    </View>
+    </ScrollView>
   );
 };
 

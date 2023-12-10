@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -12,6 +12,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Foundation from 'react-native-vector-icons/Foundation';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import {Image} from 'react-native';
 import {scaleFontSize} from '../../core/utils';
 
 export const Icons = {
@@ -28,6 +29,7 @@ export const Icons = {
   Octicons,
   Foundation,
   EvilIcons,
+  Image,
 };
 
 export interface IconProps {
@@ -37,6 +39,7 @@ export interface IconProps {
   size?: number;
   style?: any;
   solid?: boolean;
+  image?: React.ReactNode;
 }
 
 const Icon = ({
@@ -46,20 +49,24 @@ const Icon = ({
   size = 24,
   style,
   solid = false,
+  image,
 }: IconProps) => {
   const fontSize = scaleFontSize(24);
   const Tag = type;
   return (
     <>
-      {type && name && (
-        <Tag
-          name={name}
-          size={size || fontSize}
-          color={color}
-          style={style}
-          solid={solid}
-        />
-      )}
+      {type &&
+        (type === Icons.Image ? (
+          image
+        ) : (
+          <Tag
+            name={name}
+            size={size || fontSize}
+            color={color}
+            style={style}
+            solid={solid}
+          />
+        ))}
     </>
   );
 };

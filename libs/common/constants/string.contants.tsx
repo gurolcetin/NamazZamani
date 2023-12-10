@@ -9,3 +9,7 @@ export const MenuIconConstants = {
   MissedPrayer: 'calendar-check',
   Settings: 'gear',
 };
+
+export const AsyncStorageConstants = {
+  LanguageKey: 'applicationLanguage',
+};

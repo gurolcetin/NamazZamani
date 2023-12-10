@@ -1,40 +1,61 @@
-import React, {useState} from 'react';
-import {View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Image} from 'react-native';
 import {globalStyle} from '../../../libs/styles';
 import {useTheme} from '../../../libs/core/providers';
 import {Icons, RadioButtonVerticalGroup} from '../../../libs/components';
 import {useTranslation} from 'react-i18next';
+import {ScrollView} from 'react-native-gesture-handler';
+import style from './style';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {AsyncStorageConstants} from '../../../libs/common/constants';
 
 const LanguageSettings = ({navigation}) => {
   const {currentTheme} = useTheme();
   const {i18n, t} = useTranslation();
   const [initialOption, setInitialOption] = useState<string>('tr');
 
+  useEffect(() => {
+    AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
+      .then(language => {
+        if (language) {
+          return setInitialOption(language);
+        }
+        return setInitialOption('tr');
+      })
+      .catch(e => {
+        return setInitialOption('tr');
+      });
+  }, []);
+
   const setThemeAndClose = selectedOptions => {
-    console.log('selectedOptions', selectedOptions);
     i18n.changeLanguage(selectedOptions.key);
+    navigation.goBack();
   };
 
   const options = {
     options: [
       {
         iconProps: {
-          name: 'sun',
-          type: Icons.FontAwesome6,
-          color: currentTheme.primary,
-          size: 20,
-          solid: true,
+          type: Icons.Image,
+          image: (
+            <Image
+              source={require('../../../assets/images/flags/turkey.png')}
+              style={style.image}
+            />
+          ),
         },
         title: t('settings.Turkish'),
         key: 'tr',
       },
       {
         iconProps: {
-          name: 'moon',
-          type: Icons.FontAwesome6,
-          color: currentTheme.primary,
-          size: 20,
-          solid: true,
+          type: Icons.Image,
+          image: (
+            <Image
+              source={require('../../../assets/images/flags/united-kingdom.png')}
+              style={style.image}
+            />
+          ),
         },
         title: t('settings.English'),
         key: 'en',
@@ -43,11 +64,8 @@ const LanguageSettings = ({navigation}) => {
   };
 
   return (
-    // Object.keys(i18n.options.resources as Resource).map(lang => () => {
-    //     console.log('lang', lang);
-
-    //     }
-    <View
+    <ScrollView
+      showsVerticalScrollIndicator={false}
       style={[
         globalStyle.flex1,
         {backgroundColor: currentTheme.backgroundColor},
@@ -57,7 +75,7 @@ const LanguageSettings = ({navigation}) => {
         options={options.options}
         initialOption={initialOption}
       />
-    </View>
+    </ScrollView>
   );
 };
 

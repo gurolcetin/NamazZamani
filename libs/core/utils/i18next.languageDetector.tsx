@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {LanguageDetectorAsyncModule} from 'i18next';
 import {NativeModules, Platform} from 'react-native';
-
-const languageKey = 'applicationLanguage';
+import {AsyncStorageConstants} from '../../common/constants';
 
 export const GetDeviceLang = () => {
   const appLanguage =
@@ -24,9 +23,8 @@ export const languageDetectorPlugin: LanguageDetectorAsyncModule = {
     const deviceLang = GetDeviceLang();
 
     try {
-      AsyncStorage.getItem(languageKey)
+      AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
         .then(language => {
-          console.log('applicationLanguage', language);
           if (language) {
             return callback(language);
           } else {
@@ -41,8 +39,10 @@ export const languageDetectorPlugin: LanguageDetectorAsyncModule = {
     }
   },
   cacheUserLanguage: (language: string) => {
-    AsyncStorage.setItem(languageKey, language).catch(e => {
-      console.log('[Cache user language error]', e);
-    });
+    AsyncStorage.setItem(AsyncStorageConstants.LanguageKey, language).catch(
+      e => {
+        console.log('[Cache user language error]', e);
+      },
+    );
   },
 };

@@ -1,9 +1,8 @@
 import React from 'react';
-import {ScrollView, TouchableOpacity, View, Text} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import {globalStyle} from '../../../libs/styles';
 import {TableView, TouchableFloatView} from '../../../libs/components';
 import {useTranslation} from 'react-i18next';
-import {Resource} from 'i18next';
 import {
   SettingsScreenLanguageIconLeft,
   SettingsScreenLanguageIconRight,

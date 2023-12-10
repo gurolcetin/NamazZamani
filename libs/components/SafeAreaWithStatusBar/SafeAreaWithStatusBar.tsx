@@ -13,7 +13,13 @@ export const SafeAreaWithStatusBar = (props: SafeAreaWithStatusBarProps) => {
   const {theme, currentTheme} = useTheme();
 
   return (
-    <>
+    <SafeAreaView
+      style={[
+        globalStyle.flex1,
+        {
+          backgroundColor: currentTheme.statusBarColor,
+        },
+      ]}>
       <StatusBar
         barStyle={
           theme === Theme.DARK
@@ -22,15 +28,7 @@ export const SafeAreaWithStatusBar = (props: SafeAreaWithStatusBarProps) => {
         }
         backgroundColor={currentTheme.statusBarColor}
       />
-      <SafeAreaView
-        style={[
-          globalStyle.flex1,
-          {
-            backgroundColor: currentTheme.statusBarColor,
-          },
-        ]}>
-        {children}
-      </SafeAreaView>
-    </>
+      {children}
+    </SafeAreaView>
   );
 };
