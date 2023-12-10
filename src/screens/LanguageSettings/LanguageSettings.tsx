@@ -28,8 +28,14 @@ const LanguageSettings = ({navigation}) => {
   }, []);
 
   const setThemeAndClose = selectedOptions => {
-    i18n.changeLanguage(selectedOptions.key);
-    navigation.goBack();
+    AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
+      .then(language => {
+        if (language && language !== selectedOptions.key) {
+          i18n.changeLanguage(selectedOptions.key);
+          return setInitialOption(language);
+        }
+      })
+      .catch(e => {});
   };
 
   const options = {
