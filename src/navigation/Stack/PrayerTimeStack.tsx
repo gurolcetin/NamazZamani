@@ -11,6 +11,13 @@ export const PrayerTimeStack = () => (
       headerShown: false,
       header: () => null,
     }}>
-    <Stack.Screen name={Routes.PrayerTime} component={PrayerTime} />
+    <Stack.Screen
+      name={Routes.PrayerTime}
+      component={PrayerTime}
+      options={{
+        header: () => null,
+        headerShown: false,
+      }}
+    />
   </Stack.Navigator>
 );

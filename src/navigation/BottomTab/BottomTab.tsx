@@ -32,6 +32,8 @@ export const TabNavigator = () => {
           name={item.route + item.id}
           component={item.component}
           options={{
+            headerShown: false,
+            header: () => null,
             tabBarShowLabel: false,
             // eslint-disable-next-line react/no-unstable-nested-components
             tabBarButton: props => <TabButton item={item} {...props} />,

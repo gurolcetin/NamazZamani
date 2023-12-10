@@ -71,7 +71,7 @@ const ThemeProvider = ({children}) => {
 
   return (
     <ThemeContext.Provider value={{theme, toggleTheme, currentTheme}}>
-      <SafeAreaWithStatusBar>{children}</SafeAreaWithStatusBar>
+      {children}
     </ThemeContext.Provider>
   );
 };

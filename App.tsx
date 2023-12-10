@@ -7,21 +7,24 @@ import {ThemeProvider} from './libs/core/providers';
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import store, {persistor} from './libs/redux/store';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <PersistGate persistor={persistor} loading={null}>
-        <ThemeProvider>
-          <NavigationContainer
-            onReady={() => {
-              BootSplash.hide();
-            }}>
-            <RootNavigation />
-          </NavigationContainer>
-        </ThemeProvider>
-      </PersistGate>
-    </Provider>
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <PersistGate persistor={persistor} loading={null}>
+          <ThemeProvider>
+            <NavigationContainer
+              onReady={() => {
+                BootSplash.hide();
+              }}>
+              <RootNavigation />
+            </NavigationContainer>
+          </ThemeProvider>
+        </PersistGate>
+      </Provider>
+    </SafeAreaProvider>
   );
 };
 

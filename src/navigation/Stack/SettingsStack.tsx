@@ -7,9 +7,10 @@ import ThemeSettings from '../../screens/ThemeSettings/ThemeSettings';
 import {useTheme} from '../../../libs/core/providers';
 import {Translate} from '../../../libs/core/helpers';
 import {SettingsConstants} from '../../../libs/common/constants';
+import {View, Text, TouchableOpacity} from 'react-native';
 
 const Stack = createStackNavigator();
-export const SettingsStack = () => {
+export const SettingsStack = ({navigation}) => {
   const {currentTheme} = useTheme();
   return (
     <Stack.Navigator initialRouteName={Routes.Settings}>
@@ -25,7 +26,10 @@ export const SettingsStack = () => {
         name={Routes.LanguageSettings}
         component={LanguageSettings}
         options={{
-          headerStyle: {backgroundColor: currentTheme.statusBarColor},
+          headerStyle: {
+            backgroundColor: currentTheme.statusBarColor,
+          },
+          headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.LanguageSettings),
           headerLeftLabelVisible: false,
@@ -36,7 +40,10 @@ export const SettingsStack = () => {
         name={Routes.ThemeSettings}
         component={ThemeSettings}
         options={{
-          headerStyle: {backgroundColor: currentTheme.statusBarColor},
+          headerStyle: {
+            backgroundColor: currentTheme.statusBarColor,
+          },
+          headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.ThemeSettings),
           headerLeftLabelVisible: false,
