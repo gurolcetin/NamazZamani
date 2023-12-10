@@ -33,14 +33,11 @@ const LanguageSettings = ({navigation}) => {
   }, []);
 
   const setThemeAndClose = selectedOptions => {
-    AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
-      .then(language => {
-        if (language && language !== selectedOptions.key) {
-          i18n.changeLanguage(selectedOptions.key);
-          return setInitialOption(language);
-        }
-      })
-      .catch(e => {});
+    if (selectedOptions.key === initialOption) {
+      return;
+    }
+    i18n.changeLanguage(selectedOptions.key);
+    return setInitialOption(selectedOptions.key);
   };
 
   const options = {
