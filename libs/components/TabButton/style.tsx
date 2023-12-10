@@ -1,5 +1,4 @@
 import {StyleSheet} from 'react-native';
-import {scaleFontSize} from '../../core/utils/scaling';
 
 const style = StyleSheet.create({
   container: {
@@ -19,7 +18,7 @@ const style = StyleSheet.create({
     overflow: 'hidden',
   },
   title: {
-    fontSize: scaleFontSize(10),
+    fontSize: 10,
     fontWeight: 'bold',
     textAlign: 'center',
     position: 'absolute',

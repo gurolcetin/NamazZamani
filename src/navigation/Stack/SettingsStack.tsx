@@ -7,10 +7,9 @@ import ThemeSettings from '../../screens/ThemeSettings/ThemeSettings';
 import {useTheme} from '../../../libs/core/providers';
 import {Translate} from '../../../libs/core/helpers';
 import {SettingsConstants} from '../../../libs/common/constants';
-import {View, Text, TouchableOpacity} from 'react-native';
 
 const Stack = createStackNavigator();
-export const SettingsStack = ({navigation}) => {
+export const SettingsStack = () => {
   const {currentTheme} = useTheme();
   return (
     <Stack.Navigator initialRouteName={Routes.Settings}>

@@ -56,17 +56,17 @@ const Icon = ({
   return (
     <>
       {type &&
-        (type === Icons.Image ? (
-          image
-        ) : (
-          <Tag
-            name={name}
-            size={size || fontSize}
-            color={color}
-            style={style}
-            solid={solid}
-          />
-        ))}
+        (type === Icons.Image
+          ? image
+          : name && (
+              <Tag
+                name={name}
+                size={size || fontSize}
+                color={color}
+                style={style}
+                solid={solid}
+              />
+            ))}
     </>
   );
 };

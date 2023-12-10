@@ -19,10 +19,7 @@ const TableView = (props: TableViewProps) => {
               {item}
             </View>
             {index !== props.childrenList.length - 1 && (
-              <Divider
-                marginLeft={horizontalScale(40)}
-                key={index + 'divider'}
-              />
+              <Divider marginLeft={50} key={index + 'divider'} />
             )}
           </View>
         );

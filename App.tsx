@@ -8,8 +8,9 @@ import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import store, {persistor} from './libs/redux/store';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-
+import {LogBox} from 'react-native';
 const App = () => {
+  LogBox.ignoreLogs(['Sending...']);
   return (
     <SafeAreaProvider>
       <Provider store={store}>
