@@ -6,7 +6,7 @@ const style = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 70,
+    height: 50,
     alignSelf: 'stretch',
   },
   button: {
@@ -23,7 +23,7 @@ const style = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     position: 'absolute',
-    bottom: 20,
+    bottom: 5,
   },
   animatedView: {
     width: 50,

@@ -38,7 +38,7 @@ const TabButton = ({item, accessibilityState, onPress}: any) => {
       {
         translateY: translate.interpolate({
           inputRange: [0, 1],
-          outputRange: [0, -30],
+          outputRange: [0, -20],
           extrapolate: 'clamp',
         }),
       },
