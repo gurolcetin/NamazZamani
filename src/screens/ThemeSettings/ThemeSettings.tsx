@@ -1,5 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {RadioButtonVerticalGroup} from '../../../libs/components';
+import {
+  RadioButtonVerticalGroup,
+  ScreenViewContainer,
+} from '../../../libs/components';
 import {useTheme} from '../../../libs/core/providers';
 import {updateApplicationTheme} from '../../../libs/redux/reducers/ApplicationTheme';
 import {useDispatch, useSelector} from 'react-redux';
@@ -54,18 +57,15 @@ const ThemeSettings = () => {
   };
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      style={[
-        globalStyle.flex1,
-        {backgroundColor: currentTheme.backgroundColor},
-      ]}>
-      <RadioButtonVerticalGroup
-        onSelect={setThemeAndClose}
-        options={options.options}
-        initialOption={initialOption}
-      />
-    </ScrollView>
+    <ScreenViewContainer>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <RadioButtonVerticalGroup
+          onSelect={setThemeAndClose}
+          options={options.options}
+          initialOption={initialOption}
+        />
+      </ScrollView>
+    </ScreenViewContainer>
   );
 };
 

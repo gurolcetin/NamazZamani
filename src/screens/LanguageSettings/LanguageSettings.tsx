@@ -2,7 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {Image} from 'react-native';
 import {globalStyle} from '../../../libs/styles';
 import {useTheme} from '../../../libs/core/providers';
-import {Icons, RadioButtonVerticalGroup} from '../../../libs/components';
+import {
+  Icons,
+  RadioButtonVerticalGroup,
+  ScreenViewContainer,
+} from '../../../libs/components';
 import {useTranslation} from 'react-i18next';
 import {ScrollView} from 'react-native-gesture-handler';
 import style from './style';
@@ -72,18 +76,15 @@ const LanguageSettings = ({navigation}) => {
   };
 
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      style={[
-        globalStyle.flex1,
-        {backgroundColor: currentTheme.backgroundColor},
-      ]}>
-      <RadioButtonVerticalGroup
-        onSelect={setThemeAndClose}
-        options={options.options}
-        initialOption={initialOption}
-      />
-    </ScrollView>
+    <ScreenViewContainer>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <RadioButtonVerticalGroup
+          onSelect={setThemeAndClose}
+          options={options.options}
+          initialOption={initialOption}
+        />
+      </ScrollView>
+    </ScreenViewContainer>
   );
 };
 

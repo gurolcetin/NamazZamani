@@ -7,6 +7,7 @@ import RadioButtonVerticalGroup, {
 import Icon, {Icons, IconProps} from './Icons/Icons';
 import TableView from './TableView/TableView';
 import TouchableFloatView from './TouchableFloatView/TouchableFloatView';
+import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
 
 export {
   TabButton,
@@ -19,4 +20,5 @@ export {
   IconProps,
   TableView,
   TouchableFloatView,
+  ScreenViewContainer,
 };

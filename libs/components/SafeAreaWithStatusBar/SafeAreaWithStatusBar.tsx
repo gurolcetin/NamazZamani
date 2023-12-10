@@ -1,8 +1,9 @@
 import React from 'react';
-import {SafeAreaView, StatusBar} from 'react-native';
+import {StatusBar} from 'react-native';
 import {useTheme} from '../../core/providers';
 import {globalStyle} from '../../styles';
 import {StatusBarBarStyle, Theme} from '../../common/enums';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 interface SafeAreaWithStatusBarProps {
   children: React.ReactNode;
@@ -19,7 +20,8 @@ export const SafeAreaWithStatusBar = (props: SafeAreaWithStatusBarProps) => {
         {
           backgroundColor: currentTheme.statusBarColor,
         },
-      ]}>
+      ]}
+      edges={['top', 'bottom']}>
       <StatusBar
         barStyle={
           theme === Theme.DARK

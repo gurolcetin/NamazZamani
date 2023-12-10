@@ -1,18 +1,12 @@
 import React from 'react';
-import {Text, View} from 'react-native';
-import {globalStyle} from '../../../libs/styles';
-import {useTheme} from '../../../libs/core/providers';
+import {Text} from 'react-native';
+import {ScreenViewContainer} from '../../../libs/components';
 
 const PrayerTime = () => {
-  const {currentTheme} = useTheme();
   return (
-    <View
-      style={[
-        globalStyle.flex1,
-        {backgroundColor: currentTheme.backgroundColor},
-      ]}>
+    <ScreenViewContainer>
       <Text>Prayer Time</Text>
-    </View>
+    </ScreenViewContainer>
   );
 };
 

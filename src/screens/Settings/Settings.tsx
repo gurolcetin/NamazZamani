@@ -1,7 +1,10 @@
 import React from 'react';
-import {ScrollView, View} from 'react-native';
-import {globalStyle} from '../../../libs/styles';
-import {TableView, TouchableFloatView} from '../../../libs/components';
+import {ScrollView} from 'react-native';
+import {
+  ScreenViewContainer,
+  TableView,
+  TouchableFloatView,
+} from '../../../libs/components';
 import {
   SettingsConstants,
   SettingsScreenLanguageIconLeft,
@@ -16,11 +19,7 @@ const Settings = ({navigation}) => {
   const {currentTheme} = useTheme();
 
   return (
-    <View
-      style={[
-        globalStyle.flex1,
-        {backgroundColor: currentTheme.backgroundColor},
-      ]}>
+    <ScreenViewContainer>
       <ScrollView showsVerticalScrollIndicator={false}>
         <TableView
           childrenList={[
@@ -45,7 +44,7 @@ const Settings = ({navigation}) => {
           ]}
         />
       </ScrollView>
-    </View>
+    </ScreenViewContainer>
   );
 };
 
