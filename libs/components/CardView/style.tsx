@@ -3,7 +3,6 @@ import {horizontalScale, scaleFontSize, verticalScale} from '../../core/utils';
 
 export const style = StyleSheet.create({
   container: {
-    flex: 1,
     flexDirection: 'column',
     marginTop: verticalScale(20),
     marginHorizontal: horizontalScale(16),

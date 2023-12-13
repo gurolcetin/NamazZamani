@@ -7,7 +7,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import styles from './style';
-import {getWidth} from '../../core/utils';
 import {useTheme} from '../../core/providers';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {globalStyle} from '../../styles';
@@ -19,16 +18,23 @@ interface TabProps {
 
 interface TabButtonGroupProps {
   tabs: TabProps[];
+  onTabChange: (index: string | number) => void;
 }
 
 const TabButtonGroup = (props: TabButtonGroupProps) => {
-  const {tabs} = props;
+  const {tabs, onTabChange} = props;
   const {height, width} = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const {currentTheme} = useTheme();
   const [isLandscape, setIsLandscape] = useState(false);
-  const [value, setValue] = useState(0);
-  const [tabViewWidth, setTabViewWidth] = useState(getWidth() - 84);
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [position, setPosition] = useState({
+    x: 0,
+    y: 0,
+    layoutWidth: 0,
+    layoutHeight: 0,
+  });
+  const [tabViewWidth, setTabViewWidth] = useState(position.layoutWidth);
   const translateX = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -37,25 +43,35 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
 
   useEffect(() => {
     handleAnimated();
-  }, [value, isLandscape, insets]);
+  }, [selectedTab, isLandscape, insets, position]);
 
   const handleAnimated = () => {
-    const paddingAndMargin = isLandscape ? insets.left + insets.right + 84 : 84;
-    const tabWidth = getWidth() - paddingAndMargin;
+    const tabWidth = position.layoutWidth - 14; // 14 is padding of container
     setTabViewWidth(tabWidth);
     const singleTabWidth = tabWidth / tabs.length;
-    const divider = value * singleTabWidth;
+    const animateToPosition = selectedTab * singleTabWidth;
     Animated.parallel([
       Animated.timing(translateX, {
-        toValue: divider,
+        toValue: animateToPosition,
         duration: 300,
         useNativeDriver: false,
       }),
     ]).start();
   };
 
+  const handleLayout = event => {
+    const {
+      x,
+      y,
+      width: layoutWidth,
+      height: layoutHeight,
+    } = event.nativeEvent.layout;
+    setPosition({x, y, layoutWidth, layoutHeight});
+  };
+
   return (
     <View
+      onLayout={handleLayout}
       style={[
         styles.container,
         {
@@ -77,7 +93,7 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
         ]}
       />
       {tabs.map((item, index) => {
-        const isActive = index === value;
+        const isActive = index === selectedTab;
 
         return (
           <View style={globalStyle.flex1} key={item.key}>
@@ -89,7 +105,8 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
                 },
               ]}
               onPress={() => {
-                setValue(index);
+                setSelectedTab(index);
+                onTabChange(item.key);
               }}>
               <View style={[styles.item]}>
                 <Text

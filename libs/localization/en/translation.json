@@ -10,7 +10,11 @@
   },
   "menu": {
     "PrayerTime": "Prayer Time",
-    "MissedPrayer": "Missed Prayer",
+    "MissedTracking": "Missed Tracking",
     "Settings": "Settings"
+  },
+  "MissedTracking": {
+    "PrayerTracking": "Prayer Tracking",
+    "FastingTracking": "Fasting Tracking"
   }
 }

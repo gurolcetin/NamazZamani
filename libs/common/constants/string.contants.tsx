@@ -1,6 +1,6 @@
 export const MenuIconConstants = {
   PrayerTime: 'mosque',
-  MissedPrayer: 'calendar-check',
+  MissedTracking: 'calendar-check',
   Settings: 'gear',
 };
 

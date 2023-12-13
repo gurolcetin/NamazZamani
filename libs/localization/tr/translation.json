@@ -10,7 +10,11 @@
   },
   "menu": {
     "PrayerTime": "Namaz Vakitleri",
-    "MissedPrayer": "Kaza Takip",
+    "MissedTracking": "Kaza Takip",
     "Settings": "Ayarlar"
+  },
+  "MissedTracking": {
+    "PrayerTracking": "Namaz Takip",
+    "FastingTracking": "Oruç Takip"
   }
 }

@@ -42,12 +42,23 @@ export class MenuNameLanguageConstants {
     key: 'menu.PrayerTime',
     defaultValue: 'Namaz Vakitleri',
   };
-  static MissedPrayer: LanguageModel = {
-    key: 'menu.MissedPrayer',
+  static MissedTracking: LanguageModel = {
+    key: 'menu.MissedTracking',
     defaultValue: 'Kaza Takip',
   };
   static Settings: LanguageModel = {
     key: 'menu.Settings',
     defaultValue: 'Ayarlar',
+  };
+}
+
+export class MissedTrackingLanguageConstants {
+  static MissedPrayer: LanguageModel = {
+    key: 'MissedTracking.PrayerTracking',
+    defaultValue: 'Kaza Takibi',
+  };
+  static MissedFasting: LanguageModel = {
+    key: 'MissedTracking.FastingTracking',
+    defaultValue: 'Oruç Takibi',
   };
 }
