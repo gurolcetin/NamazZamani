@@ -8,6 +8,7 @@ import Icon, {Icons, IconProps} from './Icons/Icons';
 import TableView from './TableView/TableView';
 import TouchableFloatView from './TouchableFloatView/TouchableFloatView';
 import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
+import TabButtonGroup from './TabButtonGroup/TabButtonGroup';
 
 export {
   TabButton,
@@ -21,4 +22,5 @@ export {
   TableView,
   TouchableFloatView,
   ScreenViewContainer,
+  TabButtonGroup,
 };

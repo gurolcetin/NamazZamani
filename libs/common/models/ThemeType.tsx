@@ -11,4 +11,8 @@ export type ThemeType = {
   black: string;
   gray: string;
   languageIconBackgroundColor: string;
+  activeTabTextColor: string;
+  passiveTabTextColor: string;
+  inputBackgroundColor: string;
+  inputColor: string;
 };

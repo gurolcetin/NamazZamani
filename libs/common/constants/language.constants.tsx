@@ -43,7 +43,7 @@ export class MenuNameLanguageConstants {
     defaultValue: 'Namaz Vakitleri',
   };
   static MissedPrayer: LanguageModel = {
-    key: 'menu.PrayerTime',
+    key: 'menu.MissedPrayer',
     defaultValue: 'Kaza Takip',
   };
   static Settings: LanguageModel = {

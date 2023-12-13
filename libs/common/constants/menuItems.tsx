@@ -1,6 +1,7 @@
 import {StackRoutes} from '../../../src/navigation/Routes';
 import {PrayerTimeStack} from '../../../src/navigation/Stack/PrayerTimeStack';
 import {SettingsStack} from '../../../src/navigation/Stack/SettingsStack';
+import MissedPrayer from '../../../src/screens/MissedPrayer/MissedPrayer';
 import {Icons} from '../../components/Icons/Icons';
 import {Translate} from '../../core/helpers';
 import {MenuNameLanguageConstants} from './language.constants';
@@ -23,7 +24,7 @@ export const bottomTabMenuItems = currentTheme => [
     label: Translate(MenuNameLanguageConstants.MissedPrayer),
     type: Icons.FontAwesome6,
     icon: MenuIconConstants.MissedPrayer,
-    component: PrayerTimeStack,
+    component: MissedPrayer,
     color: currentTheme.primary,
     solid: true,
   },

@@ -13,6 +13,10 @@ export const lightTheme: ThemeType = {
   white: 'white',
   gray: '#CCCCCC',
   languageIconBackgroundColor: '#007AFF',
+  activeTabTextColor: '#FFFFFF',
+  passiveTabTextColor: '#9EAAB6',
+  inputBackgroundColor: 'rgba(118, 118, 128, 0.12)',
+  inputColor: 'rgba(60, 60, 67, 0.6)',
 };
 
 export const darkTheme: ThemeType = {
@@ -28,4 +32,8 @@ export const darkTheme: ThemeType = {
   white: 'white',
   gray: '#CCCCCC',
   languageIconBackgroundColor: '#007AFF',
+  activeTabTextColor: '#FFFFFF',
+  passiveTabTextColor: '#9EAAB6',
+  inputBackgroundColor: 'rgba(118, 118, 128, 0.24)',
+  inputColor: 'rgba(235, 235, 245, 0.6)',
 };
