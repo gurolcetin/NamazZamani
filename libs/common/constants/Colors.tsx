@@ -17,6 +17,9 @@ export const lightTheme: ThemeType = {
   passiveTabTextColor: '#9EAAB6',
   inputBackgroundColor: 'rgba(118, 118, 128, 0.12)',
   inputColor: 'rgba(60, 60, 67, 0.6)',
+  segmentedControlTextColor: '#000000',
+  segmentedControlBackgroundColor: 'rgba(118, 118, 128, 0.12)',
+  segmentedControlSelectedBackgroundColor: '#FFFFFF',
 };
 
 export const darkTheme: ThemeType = {
@@ -36,4 +39,7 @@ export const darkTheme: ThemeType = {
   passiveTabTextColor: '#9EAAB6',
   inputBackgroundColor: 'rgba(118, 118, 128, 0.24)',
   inputColor: 'rgba(235, 235, 245, 0.6)',
+  segmentedControlTextColor: '#FFFFFF',
+  segmentedControlBackgroundColor: '#313136',
+  segmentedControlSelectedBackgroundColor: '#69696F',
 };

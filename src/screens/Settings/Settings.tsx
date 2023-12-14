@@ -22,6 +22,7 @@ const Settings = ({navigation}) => {
     <ScreenViewContainer>
       <ScrollView showsVerticalScrollIndicator={false}>
         <TableView
+          dividerMargin={35}
           childrenList={[
             <TouchableFloatView
               onPress={() => {

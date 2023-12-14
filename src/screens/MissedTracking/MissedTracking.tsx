@@ -1,15 +1,13 @@
 import React, {useState} from 'react';
-import {
-  CardView,
-  ScreenViewContainer,
-  TabButtonGroup,
-} from '../../../libs/components';
+import {ScreenViewContainer, TabButtonGroup} from '../../../libs/components';
 import {
   MissedTrackingLanguageConstants,
   MissedTrackingTabKeys,
 } from '../../../libs/common/constants';
 import {FastingForm, PrayerForm} from '../../../libs/core/sections';
 import {Translate} from '../../../libs/core/helpers';
+import {horizontalScale} from '../../../libs/core/utils';
+import {ScrollView} from 'react-native';
 
 const MissedTracking = () => {
   const tabs = [
@@ -29,11 +27,16 @@ const MissedTracking = () => {
 
   return (
     <ScreenViewContainer>
-      <CardView>
-        <TabButtonGroup tabs={tabs} onTabChange={onTabChange} />
-      </CardView>
-      {selectedTab === MissedTrackingTabKeys.Prayer && <PrayerForm />}
-      {selectedTab === MissedTrackingTabKeys.Fasting && <FastingForm />}
+      <TabButtonGroup
+        tabs={tabs}
+        onTabChange={onTabChange}
+        marginHorizontal={horizontalScale(20)}
+        marginTop={horizontalScale(20)}
+      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {selectedTab === MissedTrackingTabKeys.Prayer && <PrayerForm />}
+        {selectedTab === MissedTrackingTabKeys.Fasting && <FastingForm />}
+      </ScrollView>
     </ScreenViewContainer>
   );
 };

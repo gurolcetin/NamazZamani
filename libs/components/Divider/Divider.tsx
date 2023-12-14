@@ -26,7 +26,6 @@ const Divider = (props: DividerProps) => {
 const styles = StyleSheet.create({
   divider: {
     height: 0.5,
-    marginVertical: 10,
   },
 });
 

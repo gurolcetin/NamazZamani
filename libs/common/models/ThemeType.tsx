@@ -15,4 +15,7 @@ export type ThemeType = {
   passiveTabTextColor: string;
   inputBackgroundColor: string;
   inputColor: string;
+  segmentedControlBackgroundColor: string;
+  segmentedControlSelectedBackgroundColor: string;
+  segmentedControlTextColor: string;
 };

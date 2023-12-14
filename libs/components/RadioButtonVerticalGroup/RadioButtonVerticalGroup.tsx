@@ -35,6 +35,7 @@ const RadioButtonVerticalGroup = ({options, onSelect, initialOption}) => {
 
   return (
     <TableView
+      dividerMargin={35}
       childrenList={options.map((option, index) => (
         <TouchableFloatView
           key={index}

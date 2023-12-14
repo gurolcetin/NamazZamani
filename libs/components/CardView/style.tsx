@@ -4,16 +4,14 @@ import {horizontalScale, scaleFontSize, verticalScale} from '../../core/utils';
 export const style = StyleSheet.create({
   container: {
     flexDirection: 'column',
+    marginHorizontal: horizontalScale(20),
     marginTop: verticalScale(20),
-    marginHorizontal: horizontalScale(16),
   },
   cardContainer: {
     height: 'auto',
     borderRadius: 10,
-    paddingVertical: verticalScale(5),
   },
   title: {
-    marginBottom: verticalScale(10),
     fontSize: scaleFontSize(16),
     fontWeight: 'bold',
   },

@@ -9,7 +9,7 @@ import TableView from './TableView/TableView';
 import TouchableFloatView from './TouchableFloatView/TouchableFloatView';
 import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
 import TabButtonGroup from './TabButtonGroup/TabButtonGroup';
-
+import FormInput from './FormInput/FormInput';
 export {
   TabButton,
   SafeAreaWithStatusBar,
@@ -23,4 +23,5 @@ export {
   TouchableFloatView,
   ScreenViewContainer,
   TabButtonGroup,
+  FormInput,
 };

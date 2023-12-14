@@ -19,6 +19,9 @@ interface TabProps {
 interface TabButtonGroupProps {
   tabs: TabProps[];
   onTabChange: (index: string | number) => void;
+  marginHorizontal?: number;
+  marginTop?: number;
+  marginBottom?: number;
 }
 
 const TabButtonGroup = (props: TabButtonGroupProps) => {
@@ -46,14 +49,14 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
   }, [selectedTab, isLandscape, insets, position]);
 
   const handleAnimated = () => {
-    const tabWidth = position.layoutWidth - 14; // 14 is padding of container
+    const tabWidth = position.layoutWidth - 6; // is padding of container
     setTabViewWidth(tabWidth);
     const singleTabWidth = tabWidth / tabs.length;
     const animateToPosition = selectedTab * singleTabWidth;
     Animated.parallel([
       Animated.timing(translateX, {
         toValue: animateToPosition,
-        duration: 300,
+        duration: 200,
         useNativeDriver: false,
       }),
     ]).start();
@@ -75,7 +78,10 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
       style={[
         styles.container,
         {
-          backgroundColor: currentTheme.inputBackgroundColor,
+          backgroundColor: currentTheme.segmentedControlBackgroundColor,
+          marginHorizontal: props.marginHorizontal || 0,
+          marginTop: props.marginTop || 0,
+          marginBottom: props.marginBottom || 0,
         },
       ]}>
       <Animated.View
@@ -83,7 +89,8 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
           styles.animatedView,
           {
             width: tabViewWidth / tabs.length,
-            backgroundColor: currentTheme.primary,
+            backgroundColor:
+              currentTheme.segmentedControlSelectedBackgroundColor,
             transform: [
               {
                 translateX,
@@ -112,8 +119,7 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
                 <Text
                   style={[
                     styles.text,
-                    isActive && {color: currentTheme.activeTabTextColor},
-                    !isActive && {color: currentTheme.inputColor},
+                    {color: currentTheme.segmentedControlTextColor},
                   ]}>
                   {item.value}
                 </Text>

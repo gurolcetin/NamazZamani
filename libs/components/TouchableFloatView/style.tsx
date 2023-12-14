@@ -29,7 +29,6 @@ const style = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingRight: horizontalScale(15),
   },
 });
 

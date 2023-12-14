@@ -1,12 +1,14 @@
 import React from 'react';
 import CardView from '../CardView/CardView';
-import style from './style';
 import {View} from 'react-native';
 import Divider from '../Divider/Divider';
-import {horizontalScale} from '../../core/utils';
+import {horizontalScale, verticalScale} from '../../core/utils';
 
 interface TableViewProps {
   childrenList: React.ReactNode[];
+  dividerMargin?: number;
+  paddingVertical?: number;
+  marginRight?: number;
 }
 
 const TableView = (props: TableViewProps) => {
@@ -15,11 +17,19 @@ const TableView = (props: TableViewProps) => {
       {props.childrenList.map((item, index) => {
         return (
           <View key={index + 'container'}>
-            <View key={index} style={style.container}>
+            <View
+              key={index}
+              style={{
+                paddingVertical: props.paddingVertical || verticalScale(7.5),
+                marginRight: props.marginRight || horizontalScale(20),
+              }}>
               {item}
             </View>
             {index !== props.childrenList.length - 1 && (
-              <Divider marginLeft={50} key={index + 'divider'} />
+              <Divider
+                marginLeft={props.dividerMargin ? props.dividerMargin : 0}
+                key={index + 'divider'}
+              />
             )}
           </View>
         );
