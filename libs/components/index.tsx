@@ -8,7 +8,7 @@ import Icon, {Icons, IconProps} from './Icons/Icons';
 import TableView from './TableView/TableView';
 import TouchableFloatView from './TouchableFloatView/TouchableFloatView';
 import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
-import TabButtonGroup from './TabButtonGroup/TabButtonGroup';
+import SegmentedControl from './SegmentedControl/SegmentedControl';
 import FormInput from './FormInput/FormInput';
 export {
   TabButton,
@@ -22,6 +22,6 @@ export {
   TableView,
   TouchableFloatView,
   ScreenViewContainer,
-  TabButtonGroup,
+  SegmentedControl,
   FormInput,
 };

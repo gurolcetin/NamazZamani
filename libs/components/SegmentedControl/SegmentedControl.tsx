@@ -16,7 +16,7 @@ interface TabProps {
   value: string;
 }
 
-interface TabButtonGroupProps {
+interface SegmentedControlProps {
   tabs: TabProps[];
   onTabChange: (index: string | number) => void;
   marginHorizontal?: number;
@@ -24,7 +24,7 @@ interface TabButtonGroupProps {
   marginBottom?: number;
 }
 
-const TabButtonGroup = (props: TabButtonGroupProps) => {
+const SegmentedControl = (props: SegmentedControlProps) => {
   const {tabs, onTabChange} = props;
   const {height, width} = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -100,8 +100,6 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
         ]}
       />
       {tabs.map((item, index) => {
-        const isActive = index === selectedTab;
-
         return (
           <View style={globalStyle.flex1} key={item.key}>
             <TouchableWithoutFeedback
@@ -132,4 +130,4 @@ const TabButtonGroup = (props: TabButtonGroupProps) => {
   );
 };
 
-export default TabButtonGroup;
+export default SegmentedControl;

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ScreenViewContainer, TabButtonGroup} from '../../../libs/components';
+import {ScreenViewContainer, SegmentedControl} from '../../../libs/components';
 import {
   MissedTrackingLanguageConstants,
   MissedTrackingTabKeys,
@@ -27,7 +27,7 @@ const MissedTracking = () => {
 
   return (
     <ScreenViewContainer>
-      <TabButtonGroup
+      <SegmentedControl
         tabs={tabs}
         onTabChange={onTabChange}
         marginHorizontal={horizontalScale(20)}
