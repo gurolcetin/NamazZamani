@@ -35,8 +35,35 @@ const PrayerForm = () => {
             requiredMessage="Bu alan zorunludur."
             control={control}
             name="size"
-            label="Deneme"
-            infoText="Deneme"
+            label="Cinsiyet"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    textAlign: 'right',
+                    flex: 0.1,
+                    backgroundColor: '#ccc',
+                    borderRadius: 5,
+                    fontSize: 16,
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Doğum Tarihi"
             render={({field: {onChange, onBlur, value}}) => (
               <>
                 <TextInput
@@ -61,7 +88,7 @@ const PrayerForm = () => {
             requiredMessage="Bu alan zorunludur."
             control={control}
             name="size"
-            label="Deneme"
+            label="Buluğ Çağına Giriş Yaşı"
             render={({field: {onChange, onBlur, value}}) => (
               <>
                 <TextInput
@@ -86,32 +113,7 @@ const PrayerForm = () => {
             requiredMessage="Bu alan zorunludur."
             control={control}
             name="size"
-            label="Deneme"
-            render={({field: {onChange, onBlur, value}}) => (
-              <>
-                <TextInput
-                  style={{
-                    flex: 0.7,
-                    textAlign: 'right',
-                  }}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  value={value?.toString()}
-                  keyboardType="numeric"
-                  placeholder="Giriniz"
-                  placeholderTextColor={'#ccc'}
-                />
-              </>
-            )}
-          />,
-          <FormControl
-            rules={{
-              required: true,
-            }}
-            requiredMessage="Bu alan zorunludur."
-            control={control}
-            name="size"
-            label="Deneme"
+            label="Kılınan Namaz Sayısı"
             render={({field: {onChange, onBlur, value}}) => (
               <>
                 <TextInput

@@ -42,14 +42,22 @@ export const FormControl = <
           <View style={(styles.container, [style])}>
             <View style={styles.inputContainer}>
               {!!label && <Text style={styles.label}>{label}</Text>}
-              {render(props)}
               {extra}
-              {infoText && (
-                <Info
-                  infoText={infoText}
-                  styleTouchableOpacity={styles.infoIcon}
-                />
-              )}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flex: 0.7,
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                }}>
+                {render(props)}
+                {infoText && (
+                  <Info
+                    infoText={infoText}
+                    styleTouchableOpacity={styles.infoIcon}
+                  />
+                )}
+              </View>
             </View>
             <View>
               {!!props.formState.errors[props.field.name] &&
