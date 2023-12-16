@@ -6,9 +6,14 @@ import {useTheme} from '../../core/providers';
 interface SubmitButtonProps {
   onSubmit: () => void;
   label: string;
+  backgroundColor?: string;
 }
 
-const SubmitButton = ({onSubmit, label}: SubmitButtonProps) => {
+const SubmitButton = ({
+  onSubmit,
+  label,
+  backgroundColor,
+}: SubmitButtonProps) => {
   const {currentTheme} = useTheme();
   return (
     <View style={style.container}>
@@ -16,7 +21,7 @@ const SubmitButton = ({onSubmit, label}: SubmitButtonProps) => {
         style={[
           style.touchableOpacity,
           {
-            backgroundColor: currentTheme.primary,
+            backgroundColor: backgroundColor || currentTheme.primary,
           },
         ]}
         onPress={onSubmit}>

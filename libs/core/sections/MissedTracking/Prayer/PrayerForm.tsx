@@ -48,7 +48,307 @@ const PrayerForm = () => {
                   value={value?.toString()}
                   keyboardType="numeric"
                   placeholder="Giriniz"
-                  placeholderTextColor={'#000'}
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
+                />
+              </>
+            )}
+          />,
+          <FormControl
+            rules={{
+              required: true,
+            }}
+            requiredMessage="Bu alan zorunludur."
+            control={control}
+            name="size"
+            label="Deneme"
+            render={({field: {onChange, onBlur, value}}) => (
+              <>
+                <TextInput
+                  style={{
+                    flex: 0.7,
+                    textAlign: 'right',
+                  }}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value?.toString()}
+                  keyboardType="numeric"
+                  placeholder="Giriniz"
+                  placeholderTextColor={'#ccc'}
                 />
               </>
             )}
