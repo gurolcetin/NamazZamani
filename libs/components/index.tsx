@@ -9,7 +9,8 @@ import TableView from './TableView/TableView';
 import TouchableFloatView from './TouchableFloatView/TouchableFloatView';
 import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
 import SegmentedControl from './SegmentedControl/SegmentedControl';
-import FormInput from './FormInput/FormInput';
+import {FormControl} from './FormControl/FormControl';
+import SubmitButton from './SubmitButton/SubmitButton';
 export {
   TabButton,
   SafeAreaWithStatusBar,
@@ -23,5 +24,6 @@ export {
   TouchableFloatView,
   ScreenViewContainer,
   SegmentedControl,
-  FormInput,
+  FormControl,
+  SubmitButton,
 };

@@ -1,14 +1,17 @@
 import {StyleSheet} from 'react-native';
 
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
+    flexDirection: 'column',
+  },
+  inputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
   label: {
     fontSize: 16,
+    flex: 0.3,
   },
 });
 
-export default style;
+export default styles;

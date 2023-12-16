@@ -18,4 +18,5 @@ export type ThemeType = {
   segmentedControlBackgroundColor: string;
   segmentedControlSelectedBackgroundColor: string;
   segmentedControlTextColor: string;
+  formErrorColor: string;
 };

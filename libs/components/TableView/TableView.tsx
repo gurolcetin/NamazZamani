@@ -9,6 +9,7 @@ interface TableViewProps {
   dividerMargin?: number;
   paddingVertical?: number;
   marginRight?: number;
+  dividerSliceCount?: number;
 }
 
 const TableView = (props: TableViewProps) => {
@@ -25,7 +26,8 @@ const TableView = (props: TableViewProps) => {
               }}>
               {item}
             </View>
-            {index !== props.childrenList.length - 1 && (
+            {index <
+              props.childrenList.length - (props.dividerSliceCount || 1) && (
               <Divider
                 marginLeft={props.dividerMargin ? props.dividerMargin : 0}
                 key={index + 'divider'}
