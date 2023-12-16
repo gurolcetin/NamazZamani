@@ -14,4 +14,7 @@ export const globalStyle = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
   },
+  marginBottomScrollView: {
+    marginBottom: 25,
+  },
 });

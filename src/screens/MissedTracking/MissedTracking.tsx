@@ -8,6 +8,7 @@ import {FastingForm, PrayerForm} from '../../../libs/core/sections';
 import {Translate} from '../../../libs/core/helpers';
 import {horizontalScale} from '../../../libs/core/utils';
 import {ScrollView} from 'react-native';
+import {globalStyle} from '../../../libs/styles';
 
 const MissedTracking = () => {
   const tabs = [
@@ -33,7 +34,9 @@ const MissedTracking = () => {
         marginHorizontal={horizontalScale(20)}
         marginTop={horizontalScale(20)}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={globalStyle.marginBottomScrollView}>
         {selectedTab === MissedTrackingTabKeys.Prayer && <PrayerForm />}
         {selectedTab === MissedTrackingTabKeys.Fasting && <FastingForm />}
       </ScrollView>
