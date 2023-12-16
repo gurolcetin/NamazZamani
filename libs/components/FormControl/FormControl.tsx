@@ -9,6 +9,7 @@ import {Text, View} from 'react-native';
 import {ViewStyle} from 'react-native';
 import styles from './style';
 import FormError from '../FormError/FormError';
+import Info from '../Info/Info';
 
 interface FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -18,6 +19,7 @@ interface FormControlProps<
   style?: ViewStyle;
   extra?: ReactNode;
   requiredMessage?: string;
+  infoText?: string;
 }
 
 export const FormControl = <
@@ -29,6 +31,7 @@ export const FormControl = <
   render,
   extra,
   requiredMessage,
+  infoText,
   ...rest
 }: FormControlProps<TFieldValues, TName>) => {
   return (
@@ -39,8 +42,14 @@ export const FormControl = <
           <View style={(styles.container, [style])}>
             <View style={styles.inputContainer}>
               {!!label && <Text style={styles.label}>{label}</Text>}
-              {extra}
               {render(props)}
+              {extra}
+              {infoText && (
+                <Info
+                  infoText={infoText}
+                  styleTouchableOpacity={styles.infoIcon}
+                />
+              )}
             </View>
             <View>
               {!!props.formState.errors[props.field.name] &&

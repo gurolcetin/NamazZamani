@@ -21,6 +21,7 @@ export const lightTheme: ThemeType = {
   segmentedControlBackgroundColor: 'rgba(118, 118, 128, 0.12)',
   segmentedControlSelectedBackgroundColor: '#FFFFFF',
   formErrorColor: '#FF3B30',
+  infoIconColor: '#007AFF',
 };
 
 export const darkTheme: ThemeType = {
@@ -44,4 +45,5 @@ export const darkTheme: ThemeType = {
   segmentedControlBackgroundColor: '#313136',
   segmentedControlSelectedBackgroundColor: '#69696F',
   formErrorColor: '#FF453A',
+  infoIconColor: '#0A84FF',
 };

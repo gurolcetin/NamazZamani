@@ -11,6 +11,7 @@ import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
 import SegmentedControl from './SegmentedControl/SegmentedControl';
 import {FormControl} from './FormControl/FormControl';
 import SubmitButton from './SubmitButton/SubmitButton';
+import Info from './Info/Info';
 export {
   TabButton,
   SafeAreaWithStatusBar,
@@ -26,4 +27,5 @@ export {
   SegmentedControl,
   FormControl,
   SubmitButton,
+  Info,
 };

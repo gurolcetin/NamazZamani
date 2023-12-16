@@ -4,8 +4,15 @@ import DeviceInfo from 'react-native-device-info';
 // Get the device's screen dimensions
 const {width, height} = Dimensions.get('window');
 
+const getWidth = () => {
+  return width > height ? height : width;
+};
+const getHeight = () => {
+  return height > width ? width : height;
+};
+
 // Check if the device is small (e.g. iPhone 5, SE, etc.)
-const isSmall = width <= 375 && !DeviceInfo.hasNotch();
+const isSmall = getWidth() <= 375 && !DeviceInfo.hasNotch();
 
 // Define the guideline base width based on whether the device is small or not
 const guidelineBaseWidth = () => {
@@ -21,7 +28,7 @@ const guidelineBaseHeight = () => {
   if (isSmall) {
     // if device is small, return 550 (enough vertical space without taking up too much screen real estate)
     return 550;
-  } else if (width > 410) {
+  } else if (getWidth() > 410) {
     // if device width is greater than 410 (close to iPhone 6/7/8 Plus width), return 620 (enough vertical space without making the UI feel cramped)
     return 620;
   }
@@ -30,7 +37,7 @@ const guidelineBaseHeight = () => {
 
 // Define the guideline base font size based on the device's width
 const guidelineBaseFonts = () => {
-  if (width > 410) {
+  if (getWidth() > 410) {
     // if device width is greater than 410 (close to iPhone 6/7/8 Plus width), return 430
     return 430;
   }
@@ -38,14 +45,16 @@ const guidelineBaseFonts = () => {
 };
 
 // Function to scale a size horizontally based on the device's width
-const horizontalScale = (size: any) => (width / guidelineBaseWidth()) * size;
+const horizontalScale = (size: any) =>
+  (getWidth() / guidelineBaseWidth()) * size;
 
 // Function to scale a size vertically based on the device's height
-const verticalScale = (size: any) => (height / guidelineBaseHeight()) * size;
+const verticalScale = (size: any) =>
+  (getHeight() / guidelineBaseHeight()) * size;
 
 // Function to scale a font size based on the device's width
 const scaleFontSize = (size: any) =>
-  Math.round((size * width) / guidelineBaseFonts());
+  Math.round((size * getWidth()) / guidelineBaseFonts());
 
 // Export the scaling functions for use in other modules
 export {horizontalScale, verticalScale, scaleFontSize};
