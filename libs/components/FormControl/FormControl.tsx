@@ -42,7 +42,6 @@ export const FormControl = <
           <View style={(styles.container, [style])}>
             <View style={styles.inputContainer}>
               {!!label && <Text style={styles.label}>{label}</Text>}
-              {extra}
               <View
                 style={{
                   flexDirection: 'row',
@@ -50,7 +49,7 @@ export const FormControl = <
                   alignItems: 'center',
                   justifyContent: 'flex-end',
                 }}>
-                {render(props)}
+                {extra !== undefined ? extra : render(props)}
                 {infoText && (
                   <Info
                     infoText={infoText}
@@ -65,6 +64,7 @@ export const FormControl = <
                   <FormError requiredMessage={requiredMessage} />
                 )}
             </View>
+            {extra !== undefined ? render(props) : null}
           </View>
         );
       }}

@@ -4,10 +4,12 @@ import {horizontalScale} from '../../core/utils';
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
+    alignItems: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   label: {
     fontSize: 16,
