@@ -26,9 +26,12 @@ const SubmitButton = ({
         ]}
         onPress={onSubmit}>
         <Text
-          style={{
-            color: currentTheme.white,
-          }}>
+          style={[
+            style.label,
+            {
+              color: currentTheme.white,
+            },
+          ]}>
           {label}
         </Text>
       </TouchableOpacity>

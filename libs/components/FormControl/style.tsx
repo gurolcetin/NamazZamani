@@ -12,8 +12,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontSize: 16,
-    flex: 0.3,
+    flex: 0.7,
   },
   infoIcon: {
     marginLeft: horizontalScale(5),

@@ -1,4 +1,10 @@
 {
+  "General": {
+    "Male": "Male",
+    "Female": "Female",
+    "RequiredMessage": "This field is required",
+    "Calculate": "CALCULATE"
+  },
   "settings": {
     "SystemDefault": "System Default",
     "Light": "Light",
@@ -16,5 +22,11 @@
   "MissedTracking": {
     "PrayerTracking": "Prayer Tracking",
     "FastingTracking": "Fasting Tracking"
+  },
+  "MissedPrayerForm": {
+    "Gender": "Gender",
+    "BirthDate": "Birth Date",
+    "EntryIntoPubertyAge": "Entry Into Puberty Age",
+    "NumberofDaysofPrayer": "Number of Days of Prayer"
   }
 }

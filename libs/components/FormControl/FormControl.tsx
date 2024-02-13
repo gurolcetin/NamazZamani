@@ -10,12 +10,14 @@ import {ViewStyle} from 'react-native';
 import styles from './style';
 import FormError from '../FormError/FormError';
 import Info from '../Info/Info';
+import {scaleFontSize} from '../../core/utils';
 
 interface FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > extends ControllerProps<TFieldValues, TName> {
   label?: string;
+  labelFontSize?: number;
   style?: ViewStyle;
   extra?: ReactNode;
   requiredMessage?: string;
@@ -27,6 +29,7 @@ export const FormControl = <
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
   label,
+  labelFontSize,
   style,
   render,
   extra,
@@ -41,7 +44,15 @@ export const FormControl = <
         return (
           <View style={(styles.container, [style])}>
             <View style={styles.inputContainer}>
-              {!!label && <Text style={styles.label}>{label}</Text>}
+              {!!label && (
+                <Text
+                  style={[
+                    styles.label,
+                    {fontSize: scaleFontSize(labelFontSize || 16)},
+                  ]}>
+                  {label}
+                </Text>
+              )}
               <View
                 style={{
                   flexDirection: 'row',

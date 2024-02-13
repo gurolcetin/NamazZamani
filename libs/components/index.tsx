@@ -12,6 +12,7 @@ import SegmentedControl from './SegmentedControl/SegmentedControl';
 import {FormControl} from './FormControl/FormControl';
 import SubmitButton from './SubmitButton/SubmitButton';
 import Info from './Info/Info';
+import RadioButton from './RadioButton/RadioButton';
 export {
   TabButton,
   SafeAreaWithStatusBar,
@@ -28,4 +29,5 @@ export {
   FormControl,
   SubmitButton,
   Info,
+  RadioButton,
 };

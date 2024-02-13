@@ -12,3 +12,8 @@ export const LanguagePrefix = {
   en: 'en',
   tr: 'tr',
 };
+
+export enum Gender {
+  Male = 'M',
+  Female = 'F',
+}

@@ -8,16 +8,16 @@ import {MenuNameLanguageConstants} from './language.constants';
 import {MenuIconConstants} from './string.contants';
 
 export const bottomTabMenuItems = currentTheme => [
-  {
-    id: 1,
-    route: StackRoutes.PrayerTimeStack,
-    label: Translate(MenuNameLanguageConstants.PrayerTime),
-    type: Icons.FontAwesome6,
-    icon: MenuIconConstants.PrayerTime,
-    component: PrayerTimeStack,
-    color: currentTheme.primary,
-    size: 20,
-  },
+  // {
+  //   id: 1,
+  //   route: StackRoutes.PrayerTimeStack,
+  //   label: Translate(MenuNameLanguageConstants.PrayerTime),
+  //   type: Icons.FontAwesome6,
+  //   icon: MenuIconConstants.PrayerTime,
+  //   component: PrayerTimeStack,
+  //   color: currentTheme.primary,
+  //   size: 20,
+  // },
   {
     id: 2,
     route: StackRoutes.PrayerTimeStack,

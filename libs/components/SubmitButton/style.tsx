@@ -13,8 +13,12 @@ const style = StyleSheet.create({
     width: '70%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: verticalScale(5),
+    paddingVertical: verticalScale(10),
     borderRadius: 10,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

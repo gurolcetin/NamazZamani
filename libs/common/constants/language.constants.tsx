@@ -62,3 +62,41 @@ export class MissedTrackingLanguageConstants {
     defaultValue: 'Oruç Takibi',
   };
 }
+
+export class GeneralLanguageConstants {
+  static Male: LanguageModel = {
+    key: 'General.Male',
+    defaultValue: 'Erkek',
+  };
+  static Female: LanguageModel = {
+    key: 'General.Female',
+    defaultValue: 'Kadın',
+  };
+  static RequiredMessage: LanguageModel = {
+    key: 'General.RequiredMessage',
+    defaultValue: 'Bu alan zorunludur',
+  };
+  static Calculate: LanguageModel = {
+    key: 'General.Calculate',
+    defaultValue: 'Hesapla',
+  };
+}
+
+export class MissedPrayerFormLanguageConstants {
+  static Gender: LanguageModel = {
+    key: 'MissedPrayerForm.Gender',
+    defaultValue: 'Cinsiyet',
+  };
+  static BirthDate: LanguageModel = {
+    key: 'MissedPrayerForm.BirthDate',
+    defaultValue: 'Doğum Tarihi',
+  };
+  static EntryIntoPubertyAge: LanguageModel = {
+    key: 'MissedPrayerForm.EntryIntoPubertyAge',
+    defaultValue: 'Buluğ Çağına Giriş Yaşı',
+  };
+  static NumberofDaysofPrayer: LanguageModel = {
+    key: 'MissedPrayerForm.NumberofDaysofPrayer',
+    defaultValue: 'Namaz Kılınan Gün Sayısı',
+  };
+}

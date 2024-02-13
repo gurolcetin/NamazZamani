@@ -1,4 +1,10 @@
 {
+  "General": {
+    "Male": "Erkek",
+    "Female": "Kadın",
+    "RequiredMessage": "Bu alan zorunludur",
+    "Calculate": "HESAPLA"
+  },
   "settings": {
     "SystemDefault": "Sistem Varsayılanı",
     "Light": "Açık",
@@ -16,5 +22,11 @@
   "MissedTracking": {
     "PrayerTracking": "Namaz Takip",
     "FastingTracking": "Oruç Takip"
+  },
+  "MissedPrayerForm": {
+    "Gender": "Cinsiyet",
+    "BirthDate": "Doğum Tarihi",
+    "EntryIntoPubertyAge": "Büluğ Çağına Giriş Yaşı",
+    "NumberofDaysofPrayer": "Namaz Kılınan Gün Sayısı"
   }
 }

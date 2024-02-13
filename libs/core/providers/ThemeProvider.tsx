@@ -4,7 +4,6 @@ import {Theme} from '../../common/enums';
 import {useColorScheme} from 'react-native';
 import {ThemeType} from '../../common/models';
 import {darkTheme, lightTheme} from '../../common/constants';
-import {SafeAreaWithStatusBar} from '../../components';
 import {updateApplicationTheme} from '../../redux/reducers/ApplicationTheme';
 import {useDispatch, useSelector} from 'react-redux';
 
