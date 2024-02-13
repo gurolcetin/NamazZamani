@@ -27,6 +27,7 @@
     "Gender": "Gender",
     "BirthDate": "Birth Date",
     "EntryIntoPubertyAge": "Entry Into Puberty Age",
+    "EntryIntoPubertyAgeValidateMessage": "Entry Into Puberty Age must be between 8 and 18",
     "NumberofDaysofPrayer": "Number of Days of Prayer"
   }
 }

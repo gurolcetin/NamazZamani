@@ -21,6 +21,7 @@ interface FormControlProps<
   style?: ViewStyle;
   extra?: ReactNode;
   requiredMessage?: string;
+  validateMessage?: string;
   infoText?: string;
 }
 
@@ -34,6 +35,7 @@ export const FormControl = <
   render,
   extra,
   requiredMessage,
+  validateMessage,
   infoText,
   ...rest
 }: FormControlProps<TFieldValues, TName>) => {
@@ -71,9 +73,11 @@ export const FormControl = <
             </View>
             <View>
               {!!props.formState.errors[props.field.name] &&
-                requiredMessage && (
-                  <FormError requiredMessage={requiredMessage} />
-                )}
+                props.formState.errors[props.field.name]?.type === 'required' &&
+                requiredMessage && <FormError message={requiredMessage} />}
+              {!!props.formState.errors[props.field.name] &&
+                props.formState.errors[props.field.name]?.type === 'validate' &&
+                validateMessage && <FormError message={validateMessage} />}
             </View>
             {extra !== undefined ? render(props) : null}
           </View>

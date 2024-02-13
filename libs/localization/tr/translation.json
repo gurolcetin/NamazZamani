@@ -26,7 +26,8 @@
   "MissedPrayerForm": {
     "Gender": "Cinsiyet",
     "BirthDate": "Doğum Tarihi",
-    "EntryIntoPubertyAge": "Büluğ Çağına Giriş Yaşı",
+    "EntryIntoPubertyAge": "Buluğ Çağına Giriş Yaşı",
+    "EntryIntoPubertyAgeValidateMessage": "Buluğ çağına giriş yaşı 8 ile 18 arasında olmalıdır",
     "NumberofDaysofPrayer": "Namaz Kılınan Gün Sayısı"
   }
 }

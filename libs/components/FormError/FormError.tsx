@@ -5,10 +5,10 @@ import {useTheme} from '../../core/providers';
 import style from './style';
 
 interface FormErrorProps {
-  requiredMessage?: string;
+  message?: string;
 }
 
-const FormError = ({requiredMessage}: FormErrorProps) => {
+const FormError = ({message}: FormErrorProps) => {
   const {currentTheme} = useTheme();
 
   return (
@@ -26,7 +26,7 @@ const FormError = ({requiredMessage}: FormErrorProps) => {
             color: currentTheme.formErrorColor,
           },
         ]}>
-        {requiredMessage !== undefined && requiredMessage}
+        {message !== undefined && message}
       </Text>
     </View>
   );

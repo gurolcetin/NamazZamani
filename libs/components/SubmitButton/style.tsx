@@ -6,8 +6,8 @@ const style = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: verticalScale(20),
-    marginBottom: verticalScale(10),
+    marginTop: verticalScale(40),
+    marginBottom: verticalScale(15),
   },
   touchableOpacity: {
     width: '70%',

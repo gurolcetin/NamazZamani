@@ -95,6 +95,10 @@ export class MissedPrayerFormLanguageConstants {
     key: 'MissedPrayerForm.EntryIntoPubertyAge',
     defaultValue: 'Buluğ Çağına Giriş Yaşı',
   };
+  static EntryIntoPubertyAgeValidateMessage: LanguageModel = {
+    key: 'MissedPrayerForm.EntryIntoPubertyAgeValidateMessage',
+    defaultValue: 'Buluğ çağına giriş yaşı 8 ile 18 arasında olmalıdır',
+  };
   static NumberofDaysofPrayer: LanguageModel = {
     key: 'MissedPrayerForm.NumberofDaysofPrayer',
     defaultValue: 'Namaz Kılınan Gün Sayısı',

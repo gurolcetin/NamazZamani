@@ -23,12 +23,42 @@ const PrayerForm = () => {
     defaultValues: {
       size: '',
       date: new Date(),
-      prayersPerformedCount: undefined,
       entryIntoPubertyAge: undefined,
+      prayersPerformedCount: undefined,
     },
   });
   const onSubmit = data => {
+    let errorMessage: string = '';
+    const prayerCalculatorDate = new Date(data.date);
     console.log(data);
+    if (data.date instanceof Date) {
+      prayerCalculatorDate.setFullYear(
+        prayerCalculatorDate.getFullYear() + Number(data.entryIntoPubertyAge),
+      );
+      console.log('prayerCalculatorDate', prayerCalculatorDate);
+      if (new Date(data.date) > new Date()) {
+        errorMessage = 'Doğum tarihi bugünden büyük olamaz.';
+      } else if (new Date() < prayerCalculatorDate) {
+        errorMessage =
+          'Doğum tarihi ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz. Lütfen bilgilerinizi kontrol ediniz.';
+      } else if (
+        !isNullOrEmptyString(data.prayersPerformedCount) &&
+        isNumber(data.prayersPerformedCount)
+      ) {
+        prayerCalculatorDate.setDate(
+          prayerCalculatorDate.getDate() + Number(data.prayersPerformedCount),
+        );
+        console.log('prayerCalculatorDate2', prayerCalculatorDate);
+        if (new Date() < prayerCalculatorDate) {
+          errorMessage =
+            'Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz. Lütfen bilgilerinizi kontrol ediniz.';
+        }
+      }
+    } else {
+      errorMessage = 'Lütfen doğum tarihinizi kontrol ediniz.';
+      console.log('Lütfen doğum tarihinizi kontrol ediniz.');
+    }
+    setSubmitErrorMessages(errorMessage + prayerCalculatorDate.toString());
   };
 
   useEffect(() => {
@@ -36,6 +66,7 @@ const PrayerForm = () => {
   }, []);
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
+  const [submitErrorMessages, setSubmitErrorMessages] = useState<string>('');
   const {currentTheme} = useTheme();
   const maleLabel = Translate(GeneralLanguageConstants.Male);
   const femaleLabel = Translate(GeneralLanguageConstants.Female);
@@ -123,9 +154,18 @@ const PrayerForm = () => {
           <FormControl
             rules={{
               required: true,
+              validate: value => {
+                if (value && value < 8) {
+                  return false;
+                }
+                return true;
+              },
             }}
             requiredMessage={Translate(
               GeneralLanguageConstants.RequiredMessage,
+            )}
+            validateMessage={Translate(
+              MissedPrayerFormLanguageConstants.EntryIntoPubertyAgeValidateMessage,
             )}
             control={control}
             name="entryIntoPubertyAge"
@@ -143,9 +183,10 @@ const PrayerForm = () => {
                   onBlur={onBlur}
                   onChangeText={val => {
                     if (isNullOrEmptyString(val) || isNumber(val)) {
-                      console.log('val2', val);
                       if (Number(val) > 18) {
                         return onChange(18);
+                      } else if (Number(val) === 0) {
+                        return onChange(undefined);
                       } else {
                         onChange(val);
                       }
@@ -155,6 +196,7 @@ const PrayerForm = () => {
                   keyboardType="numeric"
                   placeholder="12"
                   placeholderTextColor={'#ccc'}
+                  autoComplete="off"
                 />
               </>
             )}
@@ -195,6 +237,7 @@ const PrayerForm = () => {
                   keyboardType="numeric"
                   placeholder="0"
                   placeholderTextColor={currentTheme.gray}
+                  autoComplete="off"
                 />
               </>
             )}
@@ -203,6 +246,7 @@ const PrayerForm = () => {
             onSubmit={handleSubmit(onSubmit)}
             label={calculateLabel}
           />,
+          <Text style={{color: 'red'}}>{submitErrorMessages}</Text>,
         ]}
       />
     </>
