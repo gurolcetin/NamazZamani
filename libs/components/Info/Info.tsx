@@ -14,7 +14,7 @@ const Info = ({styleTouchableOpacity, infoText}: InfoProps) => {
     <TouchableOpacity
       style={[styleTouchableOpacity]}
       onPress={() => {
-        alert(infoText);
+        // alert(infoText);
       }}>
       <Icon
         type={Icons.Ionicons}

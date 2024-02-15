@@ -162,7 +162,7 @@ const PrayerForm = () => {
                 ]}
                 onPress={showHideDatepicker}>
                 <Text style={{color: currentTheme.textColor}}>
-                  {date?.toLocaleDateString()}
+                  {date?.toLocaleDateString('tr-TR')}
                 </Text>
               </TouchableOpacity>
             }

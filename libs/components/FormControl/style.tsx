@@ -17,6 +17,12 @@ const styles = StyleSheet.create({
   infoIcon: {
     marginLeft: horizontalScale(5),
   },
+  renderContainer: {
+    flexDirection: 'row',
+    flex: 0.7,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
 });
 
 export default styles;

@@ -1,7 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {Image} from 'react-native';
-import {globalStyle} from '../../../libs/styles';
-import {useTheme} from '../../../libs/core/providers';
 import {
   Icons,
   RadioButtonVerticalGroup,
@@ -19,7 +17,6 @@ import {
 import {Translate} from '../../../libs/core/helpers';
 
 const LanguageSettings = ({navigation}) => {
-  const {currentTheme} = useTheme();
   const {i18n} = useTranslation();
   const [initialOption, setInitialOption] = useState<string>(LanguagePrefix.tr);
 

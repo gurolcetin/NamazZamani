@@ -60,13 +60,7 @@ export const FormControl = <
                   {label}
                 </Text>
               )}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 0.7,
-                  alignItems: 'center',
-                  justifyContent: 'flex-end',
-                }}>
+              <View style={styles.renderContainer}>
                 {extra !== undefined ? extra : render(props)}
                 {infoText && (
                   <Info
