@@ -6,11 +6,11 @@ const style = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: verticalScale(40),
+    marginTop: verticalScale(20),
     marginBottom: verticalScale(15),
   },
   touchableOpacity: {
-    width: '70%',
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: verticalScale(10),

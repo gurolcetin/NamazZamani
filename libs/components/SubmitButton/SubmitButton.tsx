@@ -7,16 +7,27 @@ interface SubmitButtonProps {
   onSubmit: () => void;
   label: string;
   backgroundColor?: string;
+  marginHorizontal?: number;
+  marginTop?: number;
 }
 
 const SubmitButton = ({
   onSubmit,
   label,
   backgroundColor,
+  marginHorizontal,
+  marginTop,
 }: SubmitButtonProps) => {
   const {currentTheme} = useTheme();
   return (
-    <View style={style.container}>
+    <View
+      style={[
+        style.container,
+        {
+          marginHorizontal: marginHorizontal || 0,
+          marginTop: marginTop || 0,
+        },
+      ]}>
       <TouchableOpacity
         style={[
           style.touchableOpacity,

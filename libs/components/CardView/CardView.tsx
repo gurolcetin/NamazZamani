@@ -4,7 +4,7 @@ import {useTheme} from '../../core/providers';
 import {style} from './style';
 import {horizontalScale} from '../../core/utils';
 
-interface CardViewProps {
+export interface CardViewProps {
   children: React.ReactNode;
   title?: string;
   paddingLeft?: number;

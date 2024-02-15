@@ -11,36 +11,44 @@ import {
   Gender,
   GeneralLanguageConstants,
   MissedPrayerFormLanguageConstants,
+  StringConstants,
 } from '../../../../common/constants';
 import {Translate} from '../../../helpers';
+import {
+  calculateDaysBetweenDates,
+  calculateMonthsBetweenDates,
+} from '../../../utils';
+import {useDispatch, useSelector} from 'react-redux';
+import {createMissedPrayer} from '../../../../redux/reducers/MissedPrayer';
 
 const PrayerForm = () => {
+  const dispatch = useDispatch();
+  const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const {
     control,
     handleSubmit,
     formState: {errors},
   } = useForm({
     defaultValues: {
-      size: '',
+      gender: StringConstants.EMPTY_STRING,
       date: new Date(),
       entryIntoPubertyAge: undefined,
       prayersPerformedCount: undefined,
     },
   });
   const onSubmit = data => {
-    let errorMessage: string = '';
+    let errorMessage: string = StringConstants.EMPTY_STRING;
+    setSubmitErrorMessages(StringConstants.EMPTY_STRING);
     const prayerCalculatorDate = new Date(data.date);
-    console.log(data);
     if (data.date instanceof Date) {
       prayerCalculatorDate.setFullYear(
         prayerCalculatorDate.getFullYear() + Number(data.entryIntoPubertyAge),
       );
-      console.log('prayerCalculatorDate', prayerCalculatorDate);
       if (new Date(data.date) > new Date()) {
         errorMessage = 'Doğum tarihi bugünden büyük olamaz.';
       } else if (new Date() < prayerCalculatorDate) {
         errorMessage =
-          'Doğum tarihi ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz. Lütfen bilgilerinizi kontrol ediniz.';
+          'Doğum tarihi ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz!';
       } else if (
         !isNullOrEmptyString(data.prayersPerformedCount) &&
         isNumber(data.prayersPerformedCount)
@@ -48,17 +56,41 @@ const PrayerForm = () => {
         prayerCalculatorDate.setDate(
           prayerCalculatorDate.getDate() + Number(data.prayersPerformedCount),
         );
-        console.log('prayerCalculatorDate2', prayerCalculatorDate);
         if (new Date() < prayerCalculatorDate) {
           errorMessage =
-            'Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz. Lütfen bilgilerinizi kontrol ediniz.';
+            'Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz!';
         }
       }
     } else {
       errorMessage = 'Lütfen doğum tarihinizi kontrol ediniz.';
-      console.log('Lütfen doğum tarihinizi kontrol ediniz.');
     }
-    setSubmitErrorMessages(errorMessage + prayerCalculatorDate.toString());
+
+    if (!isNullOrEmptyString(errorMessage)) {
+      return setSubmitErrorMessages(errorMessage);
+    }
+    let missedPrayerCount = calculateDaysBetweenDates(
+      new Date(),
+      prayerCalculatorDate,
+    );
+    if (data.gender === Gender.Female) {
+      const totalMonths = calculateMonthsBetweenDates(
+        prayerCalculatorDate,
+        new Date(),
+      );
+      missedPrayerCount -= Math.abs(totalMonths) * 6;
+    }
+    if (missedPrayerCount < 0) {
+      setSubmitErrorMessages(
+        'Kılınmayan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
+      );
+    } else if (missedPrayerCount === 0) {
+      setSubmitErrorMessages(
+        'Tebrikler! Kılınmayan namaz sayınız bulunmamaktadır.',
+      );
+    } else {
+      // TODO: Burada hesaplanan kılınmayan namaz sayısı ile ilgili bir işlem yapılacak.
+      dispatch(createMissedPrayer(missedPrayerCount));
+    }
   };
 
   useEffect(() => {
@@ -66,7 +98,9 @@ const PrayerForm = () => {
   }, []);
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
-  const [submitErrorMessages, setSubmitErrorMessages] = useState<string>('');
+  const [submitErrorMessages, setSubmitErrorMessages] = useState<string>(
+    StringConstants.EMPTY_STRING,
+  );
   const {currentTheme} = useTheme();
   const maleLabel = Translate(GeneralLanguageConstants.Male);
   const femaleLabel = Translate(GeneralLanguageConstants.Female);
@@ -78,6 +112,7 @@ const PrayerForm = () => {
   return (
     <>
       <TableView
+        paddingVertical={15}
         dividerSliceCount={2}
         childrenList={[
           <FormControl
@@ -88,7 +123,7 @@ const PrayerForm = () => {
               GeneralLanguageConstants.RequiredMessage,
             )}
             control={control}
-            name="size"
+            name="gender"
             label={Translate(MissedPrayerFormLanguageConstants.Gender)}
             render={({field: {onChange, onBlur, value}}) => (
               <RadioButton
@@ -126,7 +161,9 @@ const PrayerForm = () => {
                   {backgroundColor: currentTheme.inputBackgroundColor},
                 ]}
                 onPress={showHideDatepicker}>
-                <Text>{date?.toLocaleDateString()}</Text>
+                <Text style={{color: currentTheme.textColor}}>
+                  {date?.toLocaleDateString()}
+                </Text>
               </TouchableOpacity>
             }
             render={({field: {onChange, value}}) => {
@@ -134,7 +171,7 @@ const PrayerForm = () => {
                 <>
                   {show && (
                     <DateTimePicker
-                      themeVariant="light"
+                      themeVariant={applicationTheme.theme}
                       testID="dateTimePicker"
                       value={value}
                       mode={'date' as any}
@@ -145,6 +182,8 @@ const PrayerForm = () => {
                       }}
                       display="inline"
                       accentColor={currentTheme.primary}
+                      maximumDate={new Date()}
+                      minimumDate={new Date(1900, 1, 1)}
                     />
                   )}
                 </>
@@ -178,7 +217,10 @@ const PrayerForm = () => {
                 <TextInput
                   style={[
                     styles.smallInput,
-                    {backgroundColor: currentTheme.inputBackgroundColor},
+                    {
+                      backgroundColor: currentTheme.inputBackgroundColor,
+                      color: currentTheme.textColor,
+                    },
                   ]}
                   onBlur={onBlur}
                   onChangeText={val => {
@@ -192,7 +234,7 @@ const PrayerForm = () => {
                       }
                     }
                   }}
-                  value={(value || '').toString()}
+                  value={(value || StringConstants.EMPTY_STRING).toString()}
                   keyboardType="numeric"
                   placeholder="12"
                   placeholderTextColor={'#ccc'}
@@ -220,12 +262,14 @@ const PrayerForm = () => {
                   style={[
                     styles.smallInput,
                     styles.flex05,
-                    {backgroundColor: currentTheme.inputBackgroundColor},
+                    {
+                      backgroundColor: currentTheme.inputBackgroundColor,
+                      color: currentTheme.textColor,
+                    },
                   ]}
                   onBlur={onBlur}
                   onChangeText={val => {
                     if (isNullOrEmptyString(val) || isNumber(val)) {
-                      console.log('val1', val);
                       if (Number(val) > 99999) {
                         return onChange(99999);
                       } else {
@@ -233,7 +277,7 @@ const PrayerForm = () => {
                       }
                     }
                   }}
-                  value={(value || '').toString()}
+                  value={(value || StringConstants.EMPTY_STRING).toString()}
                   keyboardType="numeric"
                   placeholder="0"
                   placeholderTextColor={currentTheme.gray}
@@ -246,9 +290,11 @@ const PrayerForm = () => {
             onSubmit={handleSubmit(onSubmit)}
             label={calculateLabel}
           />,
-          <Text style={{color: 'red'}}>{submitErrorMessages}</Text>,
         ]}
       />
+      <Text style={{color: 'red', marginLeft: 25, marginTop: 20}}>
+        {submitErrorMessages}
+      </Text>
     </>
   );
 };

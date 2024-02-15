@@ -7,9 +7,7 @@ import {useTheme} from '../../../libs/core/providers';
 import {updateApplicationTheme} from '../../../libs/redux/reducers/ApplicationTheme';
 import {useDispatch, useSelector} from 'react-redux';
 import {Theme} from '../../../libs/common/enums';
-import {useTranslation} from 'react-i18next';
 import {ScrollView} from 'react-native';
-import {globalStyle} from '../../../libs/styles';
 import {
   ThemeSettingsConstants,
   ThemeSettingsMoonIcon,

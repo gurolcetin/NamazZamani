@@ -11,6 +11,7 @@ import styles from './style';
 import FormError from '../FormError/FormError';
 import Info from '../Info/Info';
 import {scaleFontSize} from '../../core/utils';
+import {useTheme} from '../../core/providers';
 
 interface FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -39,6 +40,7 @@ export const FormControl = <
   infoText,
   ...rest
 }: FormControlProps<TFieldValues, TName>) => {
+  const {currentTheme} = useTheme();
   return (
     <Controller
       {...rest}
@@ -50,7 +52,10 @@ export const FormControl = <
                 <Text
                   style={[
                     styles.label,
-                    {fontSize: scaleFontSize(labelFontSize || 16)},
+                    {
+                      fontSize: scaleFontSize(labelFontSize || 16),
+                      color: currentTheme.textColor,
+                    },
                   ]}>
                   {label}
                 </Text>

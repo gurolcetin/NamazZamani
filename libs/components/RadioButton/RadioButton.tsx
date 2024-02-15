@@ -38,7 +38,7 @@ const RadioButton = (props: RadioButtonListProps) => {
                   backgroundColor:
                     props.selectedValue === item.value
                       ? currentTheme.primary
-                      : currentTheme.white,
+                      : currentTheme.cardViewBackgroundColor,
                 },
               ]}>
               <Text
@@ -46,7 +46,7 @@ const RadioButton = (props: RadioButtonListProps) => {
                   color:
                     props.selectedValue === item.value
                       ? currentTheme.white
-                      : currentTheme.black,
+                      : currentTheme.textColor,
                 }}>
                 {item.label}
               </Text>

@@ -4,7 +4,7 @@ import {View} from 'react-native';
 import Divider from '../Divider/Divider';
 import {horizontalScale, verticalScale} from '../../core/utils';
 
-interface TableViewProps {
+export interface TableViewProps {
   childrenList: React.ReactNode[];
   dividerMargin?: number;
   paddingVertical?: number;
