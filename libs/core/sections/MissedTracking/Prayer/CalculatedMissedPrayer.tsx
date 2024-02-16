@@ -52,6 +52,7 @@ const CalculatedMissedPrayer = () => {
             styles.bottomDescription,
             {color: currentTheme.textColor},
           ],
+          cardStyle: {},
           children: (
             <>
               <View style={styles.container}>
