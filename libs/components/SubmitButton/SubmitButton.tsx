@@ -24,15 +24,15 @@ const SubmitButton = ({
       style={[
         style.container,
         {
-          marginHorizontal: marginHorizontal || 0,
-          marginTop: marginTop || 0,
+          marginHorizontal: marginHorizontal ?? 0,
+          marginTop: marginTop ?? 0,
         },
       ]}>
       <TouchableOpacity
         style={[
           style.touchableOpacity,
           {
-            backgroundColor: backgroundColor || currentTheme.primary,
+            backgroundColor: backgroundColor ?? currentTheme.primary,
           },
         ]}
         onPress={onSubmit}>

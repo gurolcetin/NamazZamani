@@ -16,7 +16,7 @@ const Divider = (props: DividerProps) => {
         styles.divider,
         {
           backgroundColor: currentTheme.gray,
-          marginLeft: horizontalScale(props.marginLeft) || 0,
+          marginLeft: horizontalScale(props.marginLeft ?? 0),
         },
       ]}
     />

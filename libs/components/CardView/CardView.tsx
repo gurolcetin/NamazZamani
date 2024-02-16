@@ -26,7 +26,7 @@ const CardView = (props: CardViewProps) => {
           {
             backgroundColor: currentTheme.cardViewBackgroundColor,
             borderBottomColor: currentTheme.cardViewBorderColor,
-            paddingLeft: props.paddingLeft || horizontalScale(20),
+            paddingLeft: props.paddingLeft ?? horizontalScale(20),
           },
         ]}>
         {props.children}

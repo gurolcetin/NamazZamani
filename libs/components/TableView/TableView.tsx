@@ -21,13 +21,13 @@ const TableView = (props: TableViewProps) => {
             <View
               key={index}
               style={{
-                paddingVertical: props.paddingVertical || verticalScale(7.5),
-                marginRight: props.marginRight || horizontalScale(20),
+                paddingVertical: props.paddingVertical ?? verticalScale(7.5),
+                marginRight: props.marginRight ?? horizontalScale(20),
               }}>
               {item}
             </View>
             {index <
-              props.childrenList.length - (props.dividerSliceCount || 1) && (
+              props.childrenList.length - (props.dividerSliceCount ?? 1) && (
               <Divider
                 marginLeft={props.dividerMargin ? props.dividerMargin : 0}
                 key={index + 'divider'}

@@ -79,9 +79,9 @@ const SegmentedControl = (props: SegmentedControlProps) => {
         styles.container,
         {
           backgroundColor: currentTheme.segmentedControlBackgroundColor,
-          marginHorizontal: props.marginHorizontal || 0,
-          marginTop: props.marginTop || 0,
-          marginBottom: props.marginBottom || 0,
+          marginHorizontal: props.marginHorizontal ?? 0,
+          marginTop: props.marginTop ?? 0,
+          marginBottom: props.marginBottom ?? 0,
         },
       ]}>
       <Animated.View

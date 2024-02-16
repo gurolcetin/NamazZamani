@@ -53,7 +53,7 @@ export const FormControl = <
                   style={[
                     styles.label,
                     {
-                      fontSize: scaleFontSize(labelFontSize || 16),
+                      fontSize: scaleFontSize(labelFontSize ?? 16),
                       color: currentTheme.textColor,
                     },
                   ]}>

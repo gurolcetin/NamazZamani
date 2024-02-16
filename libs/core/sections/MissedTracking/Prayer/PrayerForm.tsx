@@ -234,7 +234,7 @@ const PrayerForm = () => {
                       }
                     }
                   }}
-                  value={(value || StringConstants.EMPTY_STRING).toString()}
+                  value={(value ?? StringConstants.EMPTY_STRING).toString()}
                   keyboardType="numeric"
                   placeholder="12"
                   placeholderTextColor={'#ccc'}
@@ -277,7 +277,7 @@ const PrayerForm = () => {
                       }
                     }
                   }}
-                  value={(value || StringConstants.EMPTY_STRING).toString()}
+                  value={(value ?? StringConstants.EMPTY_STRING).toString()}
                   keyboardType="numeric"
                   placeholder="0"
                   placeholderTextColor={currentTheme.gray}

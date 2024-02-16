@@ -29,5 +29,15 @@
     "EntryIntoPubertyAge": "Buluğ Çağına Giriş Yaşı",
     "EntryIntoPubertyAgeValidateMessage": "Buluğ çağına giriş yaşı 8 ile 18 arasında olmalıdır",
     "NumberofDaysofPrayer": "Namaz Kılınan Gün Sayısı"
+  },
+  "CalculatedMissedPrayer": {
+    "Recalculate": "Yeniden Hesapla",
+    "RecalculateMessage": "Yeniden hesaplamak istediğinize emin misiniz?",
+    "Sunrise": "Sabah",
+    "Dhuhr": "Öğle",
+    "Asr": "İkindi",
+    "Maghrib": "Akşam",
+    "Isha": "Yatsı",
+    "Witr": "Vitir"
   }
 }

@@ -38,7 +38,7 @@ export class StringConstants {
 }
 
 export class PrayerTimeConstants {
-  public static readonly FAJR = 'Fajr'; // sabah
+  public static readonly SUNRISE = 'SUNRISE'; // sabah
   public static readonly DHUHR = 'Dhuhr'; // öğle
   public static readonly ASR = 'Asr'; // ikindi
   public static readonly MAGHRIB = 'Maghrib'; // akşam

@@ -21,6 +21,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
+    paddingLeft: horizontalScale(10),
+    borderRadius: 10,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -40,6 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
+  calculatedMissedPrayerProgress: {marginHorizontal: 3, marginBottom: 1},
 });
 
 export default styles;

@@ -16,6 +16,8 @@ import SubmitButton from './SubmitButton/SubmitButton';
 import Info from './Info/Info';
 import RadioButton from './RadioButton/RadioButton';
 import InputSpinner from './InputSpinner/InputSpinner';
+import ProgressBar from './Progress.tsx/ProgressBar';
+import BackgroundColorChanger from './BackgroundColorChangerView/BackgroundColorChangerView';
 export {
   TabButton,
   SafeAreaWithStatusBar,
@@ -36,4 +38,6 @@ export {
   RadioButton,
   CardViewProps,
   InputSpinner,
+  ProgressBar,
+  BackgroundColorChanger,
 };

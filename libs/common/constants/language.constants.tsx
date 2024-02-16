@@ -104,3 +104,38 @@ export class MissedPrayerFormLanguageConstants {
     defaultValue: 'Namaz Kılınan Gün Sayısı',
   };
 }
+
+export class CalculatedMissedPrayerLanguageConstants {
+  static Recalculate: LanguageModel = {
+    key: 'CalculatedMissedPrayer.Recalculate',
+    defaultValue: 'Yeniden Hesapla',
+  };
+  static RecalculateMessage: LanguageModel = {
+    key: 'CalculatedMissedPrayer.RecalculateMessage',
+    defaultValue: 'Yeniden hesaplamak istediğinize emin misiniz?',
+  };
+  static Sunrise: LanguageModel = {
+    key: 'CalculatedMissedPrayer.Sunrise',
+    defaultValue: 'Sabah',
+  };
+  static Dhuhr: LanguageModel = {
+    key: 'CalculatedMissedPrayer.Dhuhr',
+    defaultValue: 'Öğle',
+  };
+  static Asr: LanguageModel = {
+    key: 'CalculatedMissedPrayer.Asr',
+    defaultValue: 'İkindi',
+  };
+  static Maghrib: LanguageModel = {
+    key: 'CalculatedMissedPrayer.Maghrib',
+    defaultValue: 'Akşam',
+  };
+  static Isha: LanguageModel = {
+    key: 'CalculatedMissedPrayer.Isha',
+    defaultValue: 'Yatsı',
+  };
+  static Witr: LanguageModel = {
+    key: 'CalculatedMissedPrayer.Witr',
+    defaultValue: 'Vitir',
+  };
+}

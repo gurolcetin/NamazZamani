@@ -9,7 +9,7 @@ const initialState = {
     {
       id: 1,
       date: new Date(),
-      name: PrayerTimeConstants.FAJR,
+      name: PrayerTimeConstants.SUNRISE,
       missedPrayerCount: 0,
       performedPrayerCount: 0,
     },

@@ -1,8 +1,10 @@
 import React, {useEffect} from 'react';
 import {
+  BackgroundColorChanger,
   CardView,
   CardViewProps,
   InputSpinner,
+  ProgressBar,
   SubmitButton,
 } from '../../../../components';
 import {useDispatch, useSelector} from 'react-redux';
@@ -14,13 +16,18 @@ import {
 } from '../../../../redux/reducers/MissedPrayer';
 import styles from './style';
 import {useTheme} from '../../../providers';
+import {GetPrayerNameByLanguage, Translate} from '../../../helpers';
+import {CalculatedMissedPrayerLanguageConstants} from '../../../../common/constants';
 
 const CalculatedMissedPrayer = () => {
   const dispatch = useDispatch();
   const missedPrayer = useSelector((state: any) => state.missedPrayer);
   const {currentTheme} = useTheme();
+  const recalculateMessage = Translate(
+    CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
+  );
   const reCalculateButtonAlert = () =>
-    Alert.alert('Yeniden Hesaplamak İstiyor Musunuz?', '', [
+    Alert.alert(recalculateMessage, '', [
       {
         text: 'Hayır',
         onPress: () => {},
@@ -33,12 +40,13 @@ const CalculatedMissedPrayer = () => {
     <>
       {missedPrayer.missedPrayers.map((prayer, index) => {
         let cardViewProps: CardViewProps = {
+          paddingLeft: 0,
           children: (
             <>
               <View style={styles.container}>
                 <View style={styles.inputContainer}>
                   <Text style={[styles.label, {color: currentTheme.textColor}]}>
-                    {prayer.name}
+                    {GetPrayerNameByLanguage(prayer.name)}
                   </Text>
                   <View style={styles.calculatedMissedPrayerRightContainer}>
                     <InputSpinner
@@ -55,13 +63,21 @@ const CalculatedMissedPrayer = () => {
                   </View>
                 </View>
               </View>
+              <View style={styles.calculatedMissedPrayerProgress}>
+                <ProgressBar
+                  progress={
+                    (prayer.performedPrayerCount / prayer.missedPrayerCount) *
+                    100
+                  }
+                />
+              </View>
             </>
           ),
         };
         return <CardView key={index} {...cardViewProps} paddingLeft={0} />;
       })}
       <SubmitButton
-        label="Yeniden Hesapla"
+        label={Translate(CalculatedMissedPrayerLanguageConstants.Recalculate)}
         onSubmit={() => {
           reCalculateButtonAlert();
         }}
