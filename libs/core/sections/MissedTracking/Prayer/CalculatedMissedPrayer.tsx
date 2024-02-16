@@ -1,6 +1,5 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {
-  BackgroundColorChanger,
   CardView,
   CardViewProps,
   InputSpinner,
@@ -17,7 +16,10 @@ import {
 import styles from './style';
 import {useTheme} from '../../../providers';
 import {GetPrayerNameByLanguage, Translate} from '../../../helpers';
-import {CalculatedMissedPrayerLanguageConstants} from '../../../../common/constants';
+import {
+  CalculatedMissedPrayerLanguageConstants,
+  StringConstants,
+} from '../../../../common/constants';
 
 const CalculatedMissedPrayer = () => {
   const dispatch = useDispatch();
@@ -41,6 +43,15 @@ const CalculatedMissedPrayer = () => {
       {missedPrayer.missedPrayers.map((prayer, index) => {
         let cardViewProps: CardViewProps = {
           paddingLeft: 0,
+          bottomDescription:
+            'Kılınan Toplam ' +
+            GetPrayerNameByLanguage(prayer.name) +
+            ' Namazı Sayısı: ' +
+            prayer.performedPrayerCount,
+          bottomDescriptionStyle: [
+            styles.bottomDescription,
+            {color: currentTheme.textColor},
+          ],
           children: (
             <>
               <View style={styles.container}>
@@ -85,6 +96,19 @@ const CalculatedMissedPrayer = () => {
         marginHorizontal={25}
         marginTop={20}
       />
+      <View
+        style={{alignItems: 'center', justifyContent: 'center', marginTop: 10}}>
+        <Text>
+          Son Güncelleme Tarihi:
+          {StringConstants.SPACE}
+          {new Date(missedPrayer.lastUpdateDate).toLocaleDateString('tr-TR')}
+        </Text>
+        <Text>
+          Kaza Namazına Başlangıç Tarihi:
+          {StringConstants.SPACE}
+          {new Date(missedPrayer.beginDate).toLocaleDateString('tr-TR')}
+        </Text>
+      </View>
     </>
   );
 };

@@ -43,6 +43,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   calculatedMissedPrayerProgress: {marginHorizontal: 3, marginBottom: 1},
+  bottomDescription: {
+    textAlign: 'right',
+    marginTop: 5,
+    marginRight: 5,
+    fontSize: scaleFontSize(12),
+  },
 });
 
 export default styles;

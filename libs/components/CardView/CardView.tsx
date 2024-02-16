@@ -8,6 +8,8 @@ export interface CardViewProps {
   children: React.ReactNode;
   title?: string;
   paddingLeft?: number;
+  bottomDescription?: string;
+  bottomDescriptionStyle?: any;
 }
 
 const CardView = (props: CardViewProps) => {
@@ -31,6 +33,11 @@ const CardView = (props: CardViewProps) => {
         ]}>
         {props.children}
       </View>
+      {props.bottomDescription && (
+        <Text style={props.bottomDescriptionStyle}>
+          {props.bottomDescription}
+        </Text>
+      )}
     </View>
   );
 };
