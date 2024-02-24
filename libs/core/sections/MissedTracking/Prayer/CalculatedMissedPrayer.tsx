@@ -93,7 +93,7 @@ const CalculatedMissedPrayer = () => {
         onSubmit={() => {
           reCalculateButtonAlert();
         }}
-        backgroundColor="red"
+        backgroundColor={currentTheme.systemRed}
         marginHorizontal={25}
         marginTop={20}
       />

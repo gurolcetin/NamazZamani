@@ -70,33 +70,35 @@ const MissedPrayer = createSlice({
       });
     },
     increasePerformedPrayer: (state, action) => {
-      console.log('increasePerformedPrayer', action.payload);
       state.missedPrayers.map((item, index) => {
         if (item.id === action.payload.id && item.performedPrayerCount > 0) {
           item.performedPrayerCount -= 1;
+          item.date = new Date();
+          state.lastUpdateDate = new Date();
+          console.log(
+            'increasePerformedPrayer',
+            item.missedPrayerCount,
+            item.performedPrayerCount,
+          );
         }
-        console.log(
-          'increasePerformedPrayer',
-          item.missedPrayerCount,
-          item.performedPrayerCount,
-        );
         return item;
       });
     },
     decreasePerformedPrayer: (state, action) => {
-      console.log('decreasePerformedPrayer', action.payload);
       state.missedPrayers.map((item, index) => {
         if (
           item.id === action.payload.id &&
-          item.performedPrayerCount <= item.missedPrayerCount
+          item.performedPrayerCount < item.missedPrayerCount
         ) {
           item.performedPrayerCount += 1;
+          item.date = new Date();
+          state.lastUpdateDate = new Date();
+          console.log(
+            'decreasePerformedPrayer',
+            item.missedPrayerCount,
+            item.performedPrayerCount,
+          );
         }
-        console.log(
-          'decreasePerformedPrayer',
-          item.missedPrayerCount,
-          item.performedPrayerCount,
-        );
         return item;
       });
     },
