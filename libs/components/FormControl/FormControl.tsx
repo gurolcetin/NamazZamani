@@ -5,7 +5,7 @@ import {
   FieldPath,
   FieldValues,
 } from 'react-hook-form';
-import {Text, View} from 'react-native';
+import {StyleProp, Text, View} from 'react-native';
 import {ViewStyle} from 'react-native';
 import styles from './style';
 import FormError from '../FormError/FormError';
@@ -19,7 +19,7 @@ interface FormControlProps<
 > extends ControllerProps<TFieldValues, TName> {
   label?: string;
   labelFontSize?: number;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle> | undefined;
   extra?: ReactNode;
   requiredMessage?: string;
   validateMessage?: string;

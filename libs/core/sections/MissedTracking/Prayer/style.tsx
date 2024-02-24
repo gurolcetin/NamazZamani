@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
-  calculatedMissedPrayerProgress: {marginHorizontal: 3, marginBottom: 1},
+  calculatedMissedPrayerProgress: {overflow: 'hidden'},
   bottomDescription: {
     textAlign: 'right',
     marginTop: 5,

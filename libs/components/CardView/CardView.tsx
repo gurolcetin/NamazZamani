@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, StyleProp, ViewStyle} from 'react-native';
 import {useTheme} from '../../core/providers';
 import {style} from './style';
 import {horizontalScale} from '../../core/utils';
@@ -10,7 +10,7 @@ export interface CardViewProps {
   paddingLeft?: number;
   bottomDescription?: string;
   bottomDescriptionStyle?: any;
-  cardStyle?: any;
+  cardStyle?: StyleProp<ViewStyle> | undefined;
 }
 
 const CardView = (props: CardViewProps) => {

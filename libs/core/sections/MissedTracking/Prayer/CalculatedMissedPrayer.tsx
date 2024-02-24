@@ -40,7 +40,7 @@ const CalculatedMissedPrayer = () => {
 
   return (
     <>
-      {missedPrayer.missedPrayers.map((prayer, index) => {
+      {missedPrayer.missedPrayers.map((prayer: any, index: any) => {
         let cardViewProps: CardViewProps = {
           paddingLeft: 0,
           bottomDescription:
@@ -52,7 +52,7 @@ const CalculatedMissedPrayer = () => {
             styles.bottomDescription,
             {color: currentTheme.textColor},
           ],
-          cardStyle: {},
+          cardStyle: {overflow: 'hidden'},
           children: (
             <>
               <View style={styles.container}>

@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, Animated, Easing} from 'react-native';
 import {useTheme} from '../../core/providers';
 
-const ProgressBar = ({progress}) => {
+const ProgressBar = ({progress}: any) => {
   const [widthAnim] = useState(new Animated.Value(0));
   const {currentTheme} = useTheme();
 

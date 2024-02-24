@@ -12,7 +12,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import Foundation from 'react-native-vector-icons/Foundation';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import {Image} from 'react-native';
+import {Image, StyleProp, ViewStyle} from 'react-native';
 import {scaleFontSize} from '../../core/utils';
 
 export const Icons = {
@@ -37,7 +37,7 @@ export interface IconProps {
   name: string;
   color: string;
   size?: number;
-  style?: any;
+  style?: StyleProp<ViewStyle> | undefined;
   solid?: boolean;
   image?: React.ReactNode;
 }

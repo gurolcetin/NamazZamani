@@ -18,7 +18,7 @@ export interface RadioButtonVerticalGroupProps {
   initialOption: string;
 }
 
-const RadioButtonVerticalGroup = ({options, onSelect, initialOption}) => {
+const RadioButtonVerticalGroup = ({options, onSelect, initialOption}: any) => {
   const {currentTheme} = useTheme();
   const [selectedOption, setSelectedOption] = useState<RadioButtonOption>();
 

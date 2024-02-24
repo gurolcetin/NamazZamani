@@ -18,17 +18,15 @@ import RadioButton from './RadioButton/RadioButton';
 import InputSpinner from './InputSpinner/InputSpinner';
 import ProgressBar from './Progress.tsx/ProgressBar';
 import BackgroundColorChanger from './BackgroundColorChangerView/BackgroundColorChangerView';
+import ErrorView from './ErrorView/ErrorView';
 export {
   TabButton,
   SafeAreaWithStatusBar,
   CardView,
   RadioButtonVerticalGroup,
-  RadioButtonVerticalGroupProps,
   Icon,
   Icons,
-  IconProps,
   TableView,
-  TableViewProps,
   TouchableFloatView,
   ScreenViewContainer,
   SegmentedControl,
@@ -36,8 +34,14 @@ export {
   SubmitButton,
   Info,
   RadioButton,
-  CardViewProps,
   InputSpinner,
   ProgressBar,
   BackgroundColorChanger,
+  ErrorView,
+};
+export type {
+  RadioButtonVerticalGroupProps,
+  IconProps,
+  TableViewProps,
+  CardViewProps,
 };
