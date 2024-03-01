@@ -20,11 +20,13 @@ import {
   CalculatedMissedPrayerLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
+import {useTranslation} from 'react-i18next';
 
 const CalculatedMissedPrayer = () => {
   const dispatch = useDispatch();
   const missedPrayer = useSelector((state: any) => state.missedPrayer);
   const {currentTheme} = useTheme();
+  const {i18n} = useTranslation();
   const recalculateMessage = Translate(
     CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
   );
@@ -97,17 +99,18 @@ const CalculatedMissedPrayer = () => {
         marginHorizontal={25}
         marginTop={20}
       />
-      <View
-        style={{alignItems: 'center', justifyContent: 'center', marginTop: 10}}>
+      <View style={styles.calculatedMissedPrayerBottomDescription}>
         <Text>
           Son Güncelleme Tarihi:
           {StringConstants.SPACE}
-          {new Date(missedPrayer.lastUpdateDate).toLocaleDateString('tr-TR')}
+          {new Date(missedPrayer.lastUpdateDate).toLocaleDateString(
+            i18n.language,
+          )}
         </Text>
         <Text>
           Kaza Namazına Başlangıç Tarihi:
           {StringConstants.SPACE}
-          {new Date(missedPrayer.beginDate).toLocaleDateString('tr-TR')}
+          {new Date(missedPrayer.beginDate).toLocaleDateString(i18n.language)}
         </Text>
       </View>
     </>

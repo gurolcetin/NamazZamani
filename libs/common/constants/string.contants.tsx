@@ -10,8 +10,13 @@ export const AsyncStorageConstants = {
 };
 
 export const LanguagePrefix = {
-  en: 'en',
-  tr: 'tr',
+  ENGLISH: 'en',
+  TURKISH: 'tr',
+};
+
+export const LanguageLocaleKeys = {
+  ENGLISH: 'en-US',
+  TURKISH: 'tr-TR',
 };
 
 export enum Gender {

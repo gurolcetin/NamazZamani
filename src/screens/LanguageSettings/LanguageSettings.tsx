@@ -18,7 +18,9 @@ import {Translate} from '../../../libs/core/helpers';
 
 const LanguageSettings = ({navigation}) => {
   const {i18n} = useTranslation();
-  const [initialOption, setInitialOption] = useState<string>(LanguagePrefix.tr);
+  const [initialOption, setInitialOption] = useState<string>(
+    LanguagePrefix.TURKISH,
+  );
 
   useEffect(() => {
     AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
@@ -26,14 +28,14 @@ const LanguageSettings = ({navigation}) => {
         if (language) {
           return setInitialOption(language);
         }
-        return setInitialOption(LanguagePrefix.tr);
+        return setInitialOption(LanguagePrefix.TURKISH);
       })
       .catch(e => {
-        return setInitialOption(LanguagePrefix.tr);
+        return setInitialOption(LanguagePrefix.TURKISH);
       });
   }, []);
 
-  const setThemeAndClose = selectedOptions => {
+  const setLanguageAndClose = selectedOptions => {
     if (selectedOptions.key === initialOption) {
       return;
     }
@@ -54,7 +56,7 @@ const LanguageSettings = ({navigation}) => {
           ),
         },
         title: Translate(LanguageSettingsConstants.Turkish),
-        key: 'tr',
+        key: LanguagePrefix.TURKISH,
       },
       {
         iconProps: {
@@ -67,7 +69,7 @@ const LanguageSettings = ({navigation}) => {
           ),
         },
         title: Translate(LanguageSettingsConstants.English),
-        key: 'en',
+        key: LanguagePrefix.ENGLISH,
       },
     ],
   };
@@ -76,7 +78,7 @@ const LanguageSettings = ({navigation}) => {
     <ScreenViewContainer>
       <ScrollView showsVerticalScrollIndicator={false}>
         <RadioButtonVerticalGroup
-          onSelect={setThemeAndClose}
+          onSelect={setLanguageAndClose}
           options={options.options}
           initialOption={initialOption}
         />

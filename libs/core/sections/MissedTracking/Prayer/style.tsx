@@ -49,6 +49,14 @@ const styles = StyleSheet.create({
     marginRight: 5,
     fontSize: scaleFontSize(12),
   },
+  errorMessageStyle: {
+    margin: 25,
+  },
+  calculatedMissedPrayerBottomDescription: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
 });
 
 export default styles;

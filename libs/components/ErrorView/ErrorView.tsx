@@ -1,39 +1,47 @@
 import React, {useEffect, useState} from 'react';
 import {
-  View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Animated,
   StyleProp,
   ViewStyle,
+  View,
 } from 'react-native';
-import {isNullOrUndefined} from 'typescript-util-functions';
+import {
+  isNullOrEmptyString,
+  isNullOrUndefined,
+} from 'typescript-util-functions';
 
 interface ErrorViewProps {
   message: string;
   duration?: number;
   style?: StyleProp<ViewStyle> | undefined;
+  isClossable?: boolean;
 }
 
-const ErrorView = ({message, duration, style}: ErrorViewProps) => {
+const ErrorView = ({message, duration, style, isClossable}: ErrorViewProps) => {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
+    console.log(message);
+    if (!isNullOrEmptyString(message)) {
+      setIsVisible(true);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
 
-    if (duration && !isNullOrUndefined(duration) && duration > 0) {
-      const timer = setTimeout(() => {
-        handleClose();
-      }, duration * 1000);
-      return () => clearTimeout(timer);
+      if (duration && !isNullOrUndefined(duration) && duration > 0) {
+        const timer = setTimeout(() => {
+          handleClose();
+        }, duration * 1000);
+        return () => clearTimeout(timer);
+      }
     }
-  }, []);
+  }, [message]);
 
   const handleClose = () => {
     Animated.timing(fadeAnim, {
@@ -47,12 +55,16 @@ const ErrorView = ({message, duration, style}: ErrorViewProps) => {
 
   return (
     isVisible && (
-      <Animated.View style={[styles.container, {opacity: fadeAnim}, style]}>
-        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-          <Text style={styles.closeButtonText}>X</Text>
-        </TouchableOpacity>
-        <Text style={styles.message}>{message}</Text>
-      </Animated.View>
+      <View style={style}>
+        <Animated.View style={[styles.container, {opacity: fadeAnim}]}>
+          <Text style={styles.message}>{message}</Text>
+          {isClossable && (
+            <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+          )}
+        </Animated.View>
+      </View>
     )
   );
 };
@@ -61,20 +73,23 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     backgroundColor: 'red',
-    padding: 10,
+    padding: 15,
     borderRadius: 10,
     flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
   },
   closeButton: {
-    marginLeft: 'auto',
-    padding: 5,
+    flex: 0.1,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
   },
   closeButtonText: {
     color: 'white',
     fontWeight: 'bold',
   },
   message: {
+    flex: 0.9,
     color: 'white',
   },
 });

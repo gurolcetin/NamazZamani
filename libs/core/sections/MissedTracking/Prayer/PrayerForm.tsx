@@ -1,6 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {RadioButton, SubmitButton, TableView} from '../../../../components';
-import {TextInput, Text, TouchableOpacity} from 'react-native';
+import {
+  ErrorView,
+  RadioButton,
+  SubmitButton,
+  TableView,
+} from '../../../../components';
+import {TextInput, Text, TouchableOpacity, View} from 'react-native';
 import {useForm} from 'react-hook-form';
 import {FormControl} from '../../../../components/FormControl/FormControl';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -10,6 +15,8 @@ import {useTheme} from '../../../providers';
 import {
   Gender,
   GeneralLanguageConstants,
+  LanguageLocaleKeys,
+  LanguagePrefix,
   MissedPrayerFormLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
@@ -20,10 +27,35 @@ import {
 } from '../../../utils';
 import {useDispatch, useSelector} from 'react-redux';
 import {createMissedPrayer} from '../../../../redux/reducers/MissedPrayer';
+import {useTranslation} from 'react-i18next';
 
 const PrayerForm = () => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+  const [submitErrorMessages, setSubmitErrorMessages] = useState<string>(
+    StringConstants.EMPTY_STRING,
+  );
+  const {currentTheme} = useTheme();
+  const maleLabel = Translate(GeneralLanguageConstants.Male);
+  const femaleLabel = Translate(GeneralLanguageConstants.Female);
+  const calculateLabel = Translate(GeneralLanguageConstants.Calculate);
+  const [dateLocale, setDateLocale] = useState<string>(
+    LanguageLocaleKeys.TURKISH,
+  );
+  const {i18n} = useTranslation();
+  const showHideDatepicker = () => {
+    setShow(!show);
+  };
+  useEffect(() => {
+    setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
+  }, []);
+
+  useEffect(() => {
+    setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
+  }, [i18n.language]);
+
   const {
     control,
     handleSubmit,
@@ -39,6 +71,7 @@ const PrayerForm = () => {
   const onSubmit = data => {
     let errorMessage: string = StringConstants.EMPTY_STRING;
     setSubmitErrorMessages(StringConstants.EMPTY_STRING);
+    setShow(false);
     const prayerCalculatorDate = new Date(data.date);
     if (data.date instanceof Date) {
       prayerCalculatorDate.setFullYear(
@@ -91,22 +124,6 @@ const PrayerForm = () => {
       // TODO: Burada hesaplanan kılınmayan namaz sayısı ile ilgili bir işlem yapılacak.
       dispatch(createMissedPrayer(missedPrayerCount));
     }
-  };
-
-  useEffect(() => {
-    console.log('errors', errors);
-  }, []);
-  const [date, setDate] = useState(new Date());
-  const [show, setShow] = useState(false);
-  const [submitErrorMessages, setSubmitErrorMessages] = useState<string>(
-    StringConstants.EMPTY_STRING,
-  );
-  const {currentTheme} = useTheme();
-  const maleLabel = Translate(GeneralLanguageConstants.Male);
-  const femaleLabel = Translate(GeneralLanguageConstants.Female);
-  const calculateLabel = Translate(GeneralLanguageConstants.Calculate);
-  const showHideDatepicker = () => {
-    setShow(!show);
   };
 
   return (
@@ -162,7 +179,7 @@ const PrayerForm = () => {
                 ]}
                 onPress={showHideDatepicker}>
                 <Text style={{color: currentTheme.textColor}}>
-                  {date?.toLocaleDateString('tr-TR')}
+                  {date?.toLocaleDateString(dateLocale)}
                 </Text>
               </TouchableOpacity>
             }
@@ -184,6 +201,7 @@ const PrayerForm = () => {
                       accentColor={currentTheme.primary}
                       maximumDate={new Date()}
                       minimumDate={new Date(1900, 1, 1)}
+                      locale={dateLocale}
                     />
                   )}
                 </>
@@ -292,9 +310,11 @@ const PrayerForm = () => {
           />,
         ]}
       />
-      <Text style={{color: 'red', marginLeft: 25, marginTop: 20}}>
-        {submitErrorMessages}
-      </Text>
+      <ErrorView
+        message={submitErrorMessages}
+        duration={3}
+        style={styles.errorMessageStyle}
+      />
     </>
   );
 };
