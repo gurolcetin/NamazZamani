@@ -8,12 +8,14 @@ import {persistReducer, persistStore} from 'redux-persist';
 import {combineReducers, configureStore} from '@reduxjs/toolkit';
 import ApplicationTheme from './reducers/ApplicationTheme';
 import MissedPrayer from './reducers/MissedPrayer';
+import MissedFasting from './reducers/MissedFasting';
 
 // Creating a rootReducer that combines all reducers in the app
 const rootReducer = combineReducers({
   // Reducers go here...
   applicationTheme: ApplicationTheme,
   missedPrayer: MissedPrayer,
+  missedFasting: MissedFasting,
 });
 
 // Configuring the redux-persist library to persist the root reducer with AsyncStorage

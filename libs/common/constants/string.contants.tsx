@@ -50,3 +50,7 @@ export class PrayerTimeConstants {
   public static readonly ISHA = 'Isha'; // yatsı
   public static readonly WITR = 'Witr'; // vitir
 }
+
+export class FastingConstants {
+  public static readonly Fasting = 'Fasting';
+}

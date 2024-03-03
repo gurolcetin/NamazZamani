@@ -8,25 +8,31 @@ import {
   CalculatedMissedPrayer,
   FastingForm,
   PrayerForm,
+  CalculatedMissedFasting,
 } from '../../../libs/core/sections';
 import {Translate} from '../../../libs/core/helpers';
 import {horizontalScale} from '../../../libs/core/utils';
 import {ScrollView} from 'react-native';
 import {globalStyle} from '../../../libs/styles';
 import {useSelector} from 'react-redux';
-import {Text} from 'react-native';
+
 const MissedTracking = () => {
   const missedPrayer = useSelector((state: any) => state.missedPrayer);
+  const missedFasting = useSelector((state: any) => state.missedFasting);
   const [isMissedPrayerCalculated, setIsMissedPrayerCalculated] =
     useState(false);
+  const [isMissedFastingCalculated, setIsMissedFastingCalculated] =
+    useState(false);
   useEffect(() => {
-    console.log('missedPrayer created', missedPrayer.isMissedPrayerCalculated);
     setIsMissedPrayerCalculated(missedPrayer.isMissedPrayerCalculated);
+    setIsMissedFastingCalculated(missedFasting.isMissedFastingCalculated);
   }, []);
   useEffect(() => {
-    console.log('missedPrayer created', missedPrayer.isMissedPrayerCalculated);
     setIsMissedPrayerCalculated(missedPrayer.isMissedPrayerCalculated);
   }, [missedPrayer.isMissedPrayerCalculated]);
+  useEffect(() => {
+    setIsMissedFastingCalculated(missedFasting.isMissedFastingCalculated);
+  }, [missedFasting.isMissedFastingCalculated]);
   const tabs = [
     {
       key: MissedTrackingTabKeys.Prayer,
@@ -59,7 +65,12 @@ const MissedTracking = () => {
           ) : (
             <CalculatedMissedPrayer />
           ))}
-        {selectedTab === MissedTrackingTabKeys.Fasting && <FastingForm />}
+        {selectedTab === MissedTrackingTabKeys.Fasting &&
+          (!isMissedFastingCalculated ? (
+            <FastingForm />
+          ) : (
+            <CalculatedMissedFasting />
+          ))}
       </ScrollView>
     </ScreenViewContainer>
   );

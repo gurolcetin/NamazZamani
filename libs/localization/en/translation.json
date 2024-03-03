@@ -3,7 +3,11 @@
     "Male": "Male",
     "Female": "Female",
     "RequiredMessage": "This field is required",
-    "Calculate": "CALCULATE"
+    "Calculate": "CALCULATE",
+    "LastUpdateDate": "Last Update Date",
+    "BeginDate": "Begin Date",
+    "Yes": "Yes",
+    "No": "No"
   },
   "settings": {
     "SystemDefault": "System Default",
@@ -39,5 +43,9 @@
     "Maghrib": "Maghrib",
     "Isha": "Isha",
     "Witr": "Witr"
+  },
+  "CalculatedMissedFasting": {
+    "Fasting": "Fasting",
+    "NumberofFastsKept": "Number of Fasts Kept"
   }
 }

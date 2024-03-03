@@ -80,6 +80,22 @@ export class GeneralLanguageConstants {
     key: 'General.Calculate',
     defaultValue: 'Hesapla',
   };
+  static LastUpdateDate: LanguageModel = {
+    key: 'General.LastUpdateDate',
+    defaultValue: 'Son Güncelleme Tarihi',
+  };
+  static BeginDate: LanguageModel = {
+    key: 'General.BeginDate',
+    defaultValue: 'Başlangıç Tarihi',
+  };
+  static Yes: LanguageModel = {
+    key: 'General.Yes',
+    defaultValue: 'Evet',
+  };
+  static No: LanguageModel = {
+    key: 'General.No',
+    defaultValue: 'Hayır',
+  };
 }
 
 export class MissedPrayerFormLanguageConstants {
@@ -137,5 +153,24 @@ export class CalculatedMissedPrayerLanguageConstants {
   static Witr: LanguageModel = {
     key: 'CalculatedMissedPrayer.Witr',
     defaultValue: 'Vitir',
+  };
+}
+
+export class CalculatedMissedFastingLanguageConstants {
+  static Recalculate: LanguageModel = {
+    key: 'CalculatedMissedPrayer.Recalculate',
+    defaultValue: 'Yeniden Hesapla',
+  };
+  static RecalculateMessage: LanguageModel = {
+    key: 'CalculatedMissedPrayer.RecalculateMessage',
+    defaultValue: 'Yeniden hesaplamak istediğinize emin misiniz?',
+  };
+  static Fasting: LanguageModel = {
+    key: 'CalculatedMissedFasting.Fasting',
+    defaultValue: 'Oruç',
+  };
+  static NumberofFastsKept: LanguageModel = {
+    key: 'CalculatedMissedFasting.NumberofFastsKept',
+    defaultValue: 'Tutulan Oruç Sayısı',
   };
 }

@@ -18,6 +18,7 @@ import {useTheme} from '../../../providers';
 import {GetPrayerNameByLanguage, Translate} from '../../../helpers';
 import {
   CalculatedMissedPrayerLanguageConstants,
+  GeneralLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
 import {useTranslation} from 'react-i18next';
@@ -30,14 +31,19 @@ const CalculatedMissedPrayer = () => {
   const recalculateMessage = Translate(
     CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
   );
+  const no = Translate(GeneralLanguageConstants.No);
+  const yes = Translate(GeneralLanguageConstants.Yes);
   const reCalculateButtonAlert = () =>
     Alert.alert(recalculateMessage, '', [
       {
-        text: 'Hayır',
+        text: no,
         onPress: () => {},
         style: 'cancel',
       },
-      {text: 'Evet', onPress: () => dispatch(resetMissedPrayer())},
+      {
+        text: yes,
+        onPress: () => dispatch(resetMissedPrayer()),
+      },
     ]);
 
   return (
@@ -101,14 +107,16 @@ const CalculatedMissedPrayer = () => {
       />
       <View style={styles.calculatedMissedPrayerBottomDescription}>
         <Text>
-          Son Güncelleme Tarihi:
+          {Translate(GeneralLanguageConstants.LastUpdateDate)}
+          {StringConstants.COLON}
           {StringConstants.SPACE}
           {new Date(missedPrayer.lastUpdateDate).toLocaleDateString(
             i18n.language,
           )}
         </Text>
         <Text>
-          Kaza Namazına Başlangıç Tarihi:
+          {Translate(GeneralLanguageConstants.BeginDate)}
+          {StringConstants.COLON}
           {StringConstants.SPACE}
           {new Date(missedPrayer.beginDate).toLocaleDateString(i18n.language)}
         </Text>

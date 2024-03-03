@@ -3,7 +3,11 @@
     "Male": "Erkek",
     "Female": "Kadın",
     "RequiredMessage": "Bu alan zorunludur",
-    "Calculate": "HESAPLA"
+    "Calculate": "HESAPLA",
+    "LastUpdateDate": "Son Güncelleme Tarihi",
+    "BeginDate": "Başlangıç Tarihi",
+    "Yes": "Evet",
+    "No": "Hayır"
   },
   "settings": {
     "SystemDefault": "Sistem Varsayılanı",
@@ -39,5 +43,9 @@
     "Maghrib": "Akşam",
     "Isha": "Yatsı",
     "Witr": "Vitir"
+  },
+  "CalculatedMissedFasting": {
+    "Fasting": "Oruç",
+    "NumberofFastsKept": "Tutulan Oruç Sayısı"
   }
 }
