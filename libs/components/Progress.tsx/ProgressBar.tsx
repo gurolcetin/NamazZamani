@@ -1,8 +1,20 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Animated, Easing} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Animated,
+  Easing,
+  StyleProp,
+  ViewStyle,
+} from 'react-native';
 import {useTheme} from '../../core/providers';
 
-const ProgressBar = ({progress}: any) => {
+interface ProgressBarProps {
+  progress: number;
+  style?: StyleProp<ViewStyle> | undefined;
+}
+
+const ProgressBar = ({progress, style}: ProgressBarProps) => {
   const [widthAnim] = useState(new Animated.Value(0));
   const {currentTheme} = useTheme();
 
@@ -27,6 +39,7 @@ const ProgressBar = ({progress}: any) => {
             }),
             backgroundColor: currentTheme.systemGreen,
           },
+          style,
         ]}
       />
     </View>
