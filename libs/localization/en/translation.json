@@ -16,7 +16,8 @@
     "ThemeSettings": "Theme Settings",
     "LanguageSettings": "Language Settings",
     "Turkish": "Turkish",
-    "English": "English"
+    "English": "English",
+    "CalculateSettings": "Calculate Settings"
   },
   "menu": {
     "PrayerTime": "Prayer Time",
@@ -43,7 +44,6 @@
   "FastingForm": {
     "FastsNotCalculatedError": "The number of fasts could not be calculated. Please check your information.",
     "NoOutstandingFasts": "Congratulations! You have no outstanding fasts."
-    
   },
   "CalculatedMissedPrayer": {
     "Recalculate": "Recalculate",
@@ -58,5 +58,8 @@
   "CalculatedMissedFasting": {
     "Fasting": "Fasting",
     "NumberofFastsKept": "Number of Fasts Kept"
+  },
+  "CalculateSettings": {
+    "NumberOfMenstrualDays": "Number Of Menstrual Days"
   }
 }

@@ -31,6 +31,16 @@ export const SettingsScreenThemeIconLeft = (theme: ThemeType) => {
   };
 };
 
+export const SettingsScreenCalculateIconLeft = (theme: ThemeType) => {
+  return {
+    name: 'calculator',
+    type: Icons.FontAwesome6,
+    color: theme.white,
+    size: 20,
+    solid: true,
+  };
+};
+
 export const RadioButtonCheckIcon = (theme: ThemeType) => {
   return {
     name: 'check',

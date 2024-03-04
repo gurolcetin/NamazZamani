@@ -31,6 +31,9 @@ import {createMissedFasting} from '../../../../redux/reducers/MissedFasting';
 const FastingForm = () => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const calculateSettings = useSelector(
+    (state: any) => state.calculateSettings,
+  );
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
   const [submitErrorMessages, setSubmitErrorMessages] = useState<string>(
@@ -112,7 +115,7 @@ const FastingForm = () => {
         data.date,
         fastingCalculatorDate,
       );
-      missedFastingCount += Math.abs(ramadanCount) * 6;
+      missedFastingCount += Math.abs(ramadanCount) * calculateSettings.numberOfMenstrualCycle;
     }
     if (
       !isNullOrEmptyString(data.fastingPerformedCount) &&

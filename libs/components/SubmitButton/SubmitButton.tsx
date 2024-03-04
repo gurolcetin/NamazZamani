@@ -1,5 +1,5 @@
 import React from 'react';
-import {TouchableOpacity, View, Text} from 'react-native';
+import {TouchableOpacity, View, Text, StyleProp, ViewStyle} from 'react-native';
 import style from './style';
 import {useTheme} from '../../core/providers';
 
@@ -9,6 +9,7 @@ interface SubmitButtonProps {
   backgroundColor?: string;
   marginHorizontal?: number;
   marginTop?: number;
+  buttonStyle?: StyleProp<ViewStyle> | undefined;
 }
 
 const SubmitButton = ({
@@ -17,6 +18,7 @@ const SubmitButton = ({
   backgroundColor,
   marginHorizontal,
   marginTop,
+  buttonStyle,
 }: SubmitButtonProps) => {
   const {currentTheme} = useTheme();
   return (
@@ -27,6 +29,7 @@ const SubmitButton = ({
           marginHorizontal: marginHorizontal ?? 0,
           marginTop: marginTop ?? 0,
         },
+        buttonStyle,
       ]}>
       <TouchableOpacity
         style={[

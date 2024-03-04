@@ -7,6 +7,7 @@ import {
 } from '../../../libs/components';
 import {
   SettingsConstants,
+  SettingsScreenCalculateIconLeft,
   SettingsScreenLanguageIconLeft,
   SettingsScreenLanguageIconRight,
   SettingsScreenThemeIconLeft,
@@ -40,6 +41,15 @@ const Settings = ({navigation}) => {
               title={Translate(SettingsConstants.ThemeSettings)}
               iconLeft={SettingsScreenThemeIconLeft(currentTheme)}
               iconLeftBackgroundColor={currentTheme.black}
+              iconRight={SettingsScreenLanguageIconRight(currentTheme)}
+            />,
+            <TouchableFloatView
+              onPress={() => {
+                navigation.navigate(Routes.CalculateSettings);
+              }}
+              title={Translate(SettingsConstants.CalculateSettings)}
+              iconLeft={SettingsScreenCalculateIconLeft(currentTheme)}
+              iconLeftBackgroundColor={currentTheme.calculateIconColor}
               iconRight={SettingsScreenLanguageIconRight(currentTheme)}
             />,
           ]}

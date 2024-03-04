@@ -33,6 +33,9 @@ import {useTranslation} from 'react-i18next';
 const PrayerForm = () => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const calculateSettings = useSelector(
+    (state: any) => state.calculateSettings,
+  );
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
   const [submitErrorMessages, setSubmitErrorMessages] = useState<string>(
@@ -127,7 +130,7 @@ const PrayerForm = () => {
         prayerCalculatorDate,
         new Date(),
       );
-      missedPrayerCount -= Math.abs(totalMonths) * 6;
+      missedPrayerCount -= Math.abs(totalMonths) * calculateSettings.menstrualCycle;
     }
     if (missedPrayerCount < 0) {
       setSubmitErrorMessages(missedPrayerNotCalculatedError);

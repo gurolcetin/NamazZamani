@@ -3,11 +3,15 @@ import {LanguageModel} from '../models';
 export class SettingsConstants {
   static LanguageSettings: LanguageModel = {
     key: 'settings.LanguageSettings',
-    defaultValue: 'Dil Seçenekleri',
+    defaultValue: 'Dil Ayarları',
   };
   static ThemeSettings: LanguageModel = {
     key: 'settings.ThemeSettings',
-    defaultValue: 'Tema Seçenekleri',
+    defaultValue: 'Tema Ayarları',
+  };
+  static CalculateSettings: LanguageModel = {
+    key: 'settings.CalculateSettings',
+    defaultValue: 'Hesaplama Ayarları',
   };
 }
 
@@ -207,5 +211,12 @@ export class CalculatedMissedFastingLanguageConstants {
   static NumberofFastsKept: LanguageModel = {
     key: 'CalculatedMissedFasting.NumberofFastsKept',
     defaultValue: 'Tutulan Oruç Sayısı',
+  };
+}
+
+export class CalculateSettingsLanguageConstants {
+  static NumberOfMenstrualDays: LanguageModel = {
+    key: 'CalculateSettings.NumberOfMenstrualDays',
+    defaultValue: 'Hayızlı Gün Sayısı',
   };
 }

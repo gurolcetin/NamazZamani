@@ -7,6 +7,7 @@ import ThemeSettings from '../../../libs/core/sections/Settings/ThemeSettings/Th
 import {useTheme} from '../../../libs/core/providers';
 import {Translate} from '../../../libs/core/helpers';
 import {SettingsConstants} from '../../../libs/common/constants';
+import CalculateSettings from '../../../libs/core/sections/Settings/CalculateSettings/CalculateSettings';
 
 const Stack = createStackNavigator();
 export const SettingsStack = () => {
@@ -45,6 +46,20 @@ export const SettingsStack = () => {
           headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.ThemeSettings),
+          headerLeftLabelVisible: false,
+          headerLeftContainerStyle: {paddingLeft: 10},
+        }}
+      />
+      <Stack.Screen
+        name={Routes.CalculateSettings}
+        component={CalculateSettings}
+        options={{
+          headerStyle: {
+            backgroundColor: currentTheme.statusBarColor,
+          },
+          headerStatusBarHeight: 0,
+          headerTintColor: currentTheme.textColor,
+          headerTitle: Translate(SettingsConstants.CalculateSettings),
           headerLeftLabelVisible: false,
           headerLeftContainerStyle: {paddingLeft: 10},
         }}

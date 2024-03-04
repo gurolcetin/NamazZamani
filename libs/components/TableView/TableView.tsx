@@ -1,6 +1,6 @@
 import React from 'react';
 import CardView from '../CardView/CardView';
-import {View} from 'react-native';
+import {StyleProp, View, ViewStyle} from 'react-native';
 import Divider from '../Divider/Divider';
 import {horizontalScale, verticalScale} from '../../core/utils';
 
@@ -10,11 +10,12 @@ export interface TableViewProps {
   paddingVertical?: number;
   marginRight?: number;
   dividerSliceCount?: number;
+  cardViewStyle?: StyleProp<ViewStyle> | undefined;
 }
 
 const TableView = (props: TableViewProps) => {
   return (
-    <CardView>
+    <CardView cardStyle={props.cardViewStyle}>
       {props.childrenList.map((item, index) => {
         return (
           <View key={index + 'container'}>

@@ -9,6 +9,7 @@ import {combineReducers, configureStore} from '@reduxjs/toolkit';
 import ApplicationTheme from './reducers/ApplicationTheme';
 import MissedPrayer from './reducers/MissedPrayer';
 import MissedFasting from './reducers/MissedFasting';
+import CalculateSettings from './reducers/CalculateSettings';
 
 // Creating a rootReducer that combines all reducers in the app
 const rootReducer = combineReducers({
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   applicationTheme: ApplicationTheme,
   missedPrayer: MissedPrayer,
   missedFasting: MissedFasting,
+  calculateSettings: CalculateSettings,
 });
 
 // Configuring the redux-persist library to persist the root reducer with AsyncStorage

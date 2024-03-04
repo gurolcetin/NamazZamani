@@ -3,6 +3,7 @@ export const Routes = {
   Settings: 'Settings',
   LanguageSettings: 'LanguageSettings',
   ThemeSettings: 'ThemeSettings',
+  CalculateSettings: 'CalculateSettings',
 };
 
 export const StackRoutes = {
