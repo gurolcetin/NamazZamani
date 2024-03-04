@@ -16,7 +16,7 @@ import SubmitButton from './SubmitButton/SubmitButton';
 import Info from './Info/Info';
 import RadioButton from './RadioButton/RadioButton';
 import InputSpinner from './InputSpinner/InputSpinner';
-import ProgressBar from './Progress.tsx/ProgressBar';
+import ProgressBar from './ProgressBar/ProgressBar';
 import BackgroundColorChanger from './BackgroundColorChangerView/BackgroundColorChangerView';
 import ErrorView from './ErrorView/ErrorView';
 export {
