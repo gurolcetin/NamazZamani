@@ -20,11 +20,7 @@ import {
   MissedPrayerFormLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
-import {Translate} from '../../../helpers';
-import {
-  calculateDaysBetweenDates,
-  calculateMonthsBetweenDates,
-} from '../../../utils';
+import {Translate, calculateRamadanCountBetweenDates} from '../../../helpers';
 import {useDispatch, useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
 import {createMissedFasting} from '../../../../redux/reducers/MissedFasting';
@@ -82,17 +78,6 @@ const FastingForm = () => {
       } else if (new Date() < fastingCalculatorDate) {
         errorMessage =
           'Doğum tarihi ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz!';
-      } else if (
-        !isNullOrEmptyString(data.fastingPerformedCount) &&
-        isNumber(data.fastingPerformedCount)
-      ) {
-        fastingCalculatorDate.setDate(
-          fastingCalculatorDate.getDate() + Number(data.fastingPerformedCount),
-        );
-        if (new Date() < fastingCalculatorDate) {
-          errorMessage =
-            'Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz!';
-        }
       }
     } else {
       errorMessage = 'Lütfen doğum tarihinizi kontrol ediniz.';
@@ -101,18 +86,20 @@ const FastingForm = () => {
     if (!isNullOrEmptyString(errorMessage)) {
       return setSubmitErrorMessages(errorMessage);
     }
-    let missedFastingCount = calculateDaysBetweenDates(
-      new Date(),
-      fastingCalculatorDate,
-    );
+    let missedFastingCount =
+      calculateRamadanCountBetweenDates(fastingCalculatorDate, new Date()) * 30;
     console.log(missedFastingCount);
     if (data.gender === Gender.Female) {
-      const totalMonths = calculateMonthsBetweenDates(
+      const ramadanCount = calculateRamadanCountBetweenDates(
+        data.date,
         fastingCalculatorDate,
-        new Date(),
       );
-      missedFastingCount -= Math.abs(totalMonths) * 6;
+      missedFastingCount += Math.abs(ramadanCount) * 6;
     }
+    if (isNumber(data.fastingPerformedCount)) {
+      missedFastingCount -= data.fastingPerformedCount;
+    }
+    console.log(missedFastingCount);
     if (missedFastingCount < 0) {
       setSubmitErrorMessages(
         'Kılınmayan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
