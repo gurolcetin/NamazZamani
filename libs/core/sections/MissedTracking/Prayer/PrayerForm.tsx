@@ -18,6 +18,7 @@ import {
   LanguageLocaleKeys,
   LanguagePrefix,
   MissedPrayerFormLanguageConstants,
+  MissedTrackingLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
 import {Translate} from '../../../helpers';
@@ -41,6 +42,24 @@ const PrayerForm = () => {
   const maleLabel = Translate(GeneralLanguageConstants.Male);
   const femaleLabel = Translate(GeneralLanguageConstants.Female);
   const calculateLabel = Translate(GeneralLanguageConstants.Calculate);
+  const birthDateError = Translate(
+    MissedTrackingLanguageConstants.BirthDateError,
+  );
+  const birthDatePubertyError = Translate(
+    MissedTrackingLanguageConstants.BirthDatePubertyError,
+  );
+  const birthDateControlError = Translate(
+    MissedTrackingLanguageConstants.BirthDateControlError,
+  );
+  const numberofMissedPrayerBirthDatePubertyError = Translate(
+    MissedPrayerFormLanguageConstants.NumberofMissedPrayerBirthDatePubertyError,
+  );
+  const missedPrayerNotCalculatedError = Translate(
+    MissedPrayerFormLanguageConstants.MissedPrayerNotCalculatedError,
+  );
+  const noMissedPrayer = Translate(
+    MissedPrayerFormLanguageConstants.NoMissedPrayer,
+  );
   const [dateLocale, setDateLocale] = useState<string>(
     LanguageLocaleKeys.TURKISH,
   );
@@ -78,10 +97,9 @@ const PrayerForm = () => {
         prayerCalculatorDate.getFullYear() + Number(data.entryIntoPubertyAge),
       );
       if (new Date(data.date) > new Date()) {
-        errorMessage = 'Doğum tarihi bugünden büyük olamaz.';
+        errorMessage = birthDateError;
       } else if (new Date() < prayerCalculatorDate) {
-        errorMessage =
-          'Doğum tarihi ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz!';
+        errorMessage = birthDatePubertyError;
       } else if (
         !isNullOrEmptyString(data.prayersPerformedCount) &&
         isNumber(data.prayersPerformedCount)
@@ -90,12 +108,11 @@ const PrayerForm = () => {
           prayerCalculatorDate.getDate() + Number(data.prayersPerformedCount),
         );
         if (new Date() < prayerCalculatorDate) {
-          errorMessage =
-            'Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz!';
+          errorMessage = numberofMissedPrayerBirthDatePubertyError;
         }
       }
     } else {
-      errorMessage = 'Lütfen doğum tarihinizi kontrol ediniz.';
+      errorMessage = birthDateControlError;
     }
 
     if (!isNullOrEmptyString(errorMessage)) {
@@ -113,15 +130,10 @@ const PrayerForm = () => {
       missedPrayerCount -= Math.abs(totalMonths) * 6;
     }
     if (missedPrayerCount < 0) {
-      setSubmitErrorMessages(
-        'Kılınmayan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
-      );
+      setSubmitErrorMessages(missedPrayerNotCalculatedError);
     } else if (missedPrayerCount === 0) {
-      setSubmitErrorMessages(
-        'Tebrikler! Kılınmayan namaz sayınız bulunmamaktadır.',
-      );
+      setSubmitErrorMessages(noMissedPrayer);
     } else {
-      // TODO: Burada hesaplanan kılınmayan namaz sayısı ile ilgili bir işlem yapılacak.
       dispatch(createMissedPrayer(missedPrayerCount));
     }
   };
@@ -156,8 +168,8 @@ const PrayerForm = () => {
                 ]}
                 selectedValue={value}
                 onValueChange={onChange}
-                selectedItemBackgroundColor="#ccc"
-                selectedItemTextColor="#000"
+                selectedItemBackgroundColor={currentTheme.gray}
+                selectedItemTextColor={currentTheme.black}
               />
             )}
           />,

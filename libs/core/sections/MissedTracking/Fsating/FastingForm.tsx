@@ -13,11 +13,14 @@ import styles from './style';
 import {isNullOrEmptyString, isNumber} from 'typescript-util-functions';
 import {useTheme} from '../../../providers';
 import {
+  CalculatedMissedFastingLanguageConstants,
+  FastingFormLanguageConstants,
   Gender,
   GeneralLanguageConstants,
   LanguageLocaleKeys,
   LanguagePrefix,
   MissedPrayerFormLanguageConstants,
+  MissedTrackingLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
 import {Translate, calculateRamadanCountBetweenDates} from '../../../helpers';
@@ -37,6 +40,21 @@ const FastingForm = () => {
   const maleLabel = Translate(GeneralLanguageConstants.Male);
   const femaleLabel = Translate(GeneralLanguageConstants.Female);
   const calculateLabel = Translate(GeneralLanguageConstants.Calculate);
+  const birthDateError = Translate(
+    MissedTrackingLanguageConstants.BirthDateError,
+  );
+  const birthDatePubertyError = Translate(
+    MissedTrackingLanguageConstants.BirthDatePubertyError,
+  );
+  const birthDateControlError = Translate(
+    MissedTrackingLanguageConstants.BirthDateControlError,
+  );
+  const fastsNotCalculatedError = Translate(
+    FastingFormLanguageConstants.FastsNotCalculatedError,
+  );
+  const noOutstandingFasts = Translate(
+    FastingFormLanguageConstants.NoOutstandingFasts,
+  );
   const [dateLocale, setDateLocale] = useState<string>(
     LanguageLocaleKeys.TURKISH,
   );
@@ -66,6 +84,7 @@ const FastingForm = () => {
   });
   const onSubmit = data => {
     let errorMessage: string = StringConstants.EMPTY_STRING;
+
     setSubmitErrorMessages(StringConstants.EMPTY_STRING);
     setShow(false);
     const fastingCalculatorDate = new Date(data.date);
@@ -74,13 +93,12 @@ const FastingForm = () => {
         fastingCalculatorDate.getFullYear() + Number(data.entryIntoPubertyAge),
       );
       if (new Date(data.date) > new Date()) {
-        errorMessage = 'Doğum tarihi bugünden büyük olamaz.';
+        errorMessage = birthDateError;
       } else if (new Date() < fastingCalculatorDate) {
-        errorMessage =
-          'Doğum tarihi ve buluğ çağına giriş yaşının toplamları bugünden büyük olamaz!';
+        errorMessage = birthDatePubertyError;
       }
     } else {
-      errorMessage = 'Lütfen doğum tarihinizi kontrol ediniz.';
+      errorMessage = birthDateControlError;
     }
 
     if (!isNullOrEmptyString(errorMessage)) {
@@ -96,18 +114,17 @@ const FastingForm = () => {
       );
       missedFastingCount += Math.abs(ramadanCount) * 6;
     }
-    if (isNumber(data.fastingPerformedCount)) {
+    if (
+      !isNullOrEmptyString(data.fastingPerformedCount) &&
+      isNumber(data.fastingPerformedCount)
+    ) {
       missedFastingCount -= data.fastingPerformedCount;
     }
     console.log(missedFastingCount);
     if (missedFastingCount < 0) {
-      setSubmitErrorMessages(
-        'Kılınmayan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
-      );
+      setSubmitErrorMessages(fastsNotCalculatedError);
     } else if (missedFastingCount === 0) {
-      setSubmitErrorMessages(
-        'Tebrikler! Kılınmayan namaz sayınız bulunmamaktadır.',
-      );
+      setSubmitErrorMessages(noOutstandingFasts);
     } else {
       dispatch(createMissedFasting(missedFastingCount));
     }
@@ -258,7 +275,7 @@ const FastingForm = () => {
             control={control}
             name="fastingPerformedCount"
             label={Translate(
-              MissedPrayerFormLanguageConstants.NumberofDaysofPrayer,
+              CalculatedMissedFastingLanguageConstants.NumberofFastsKept,
             )}
             labelFontSize={15}
             render={({field: {onChange, onBlur, value}}) => (

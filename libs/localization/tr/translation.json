@@ -25,14 +25,24 @@
   },
   "MissedTracking": {
     "PrayerTracking": "Namaz Takip",
-    "FastingTracking": "Oruç Takip"
+    "FastingTracking": "Oruç Takip",
+    "BirthDateError": "Doğum tarihi bugünün tarihinden büyük olamaz",
+    "BirthDatePubertyError": "Doğum tarihi ve buluğ çağına giriş yaşının toplamları bugünün tarihinden büyük olamaz!",
+    "BirthDateControlError": "Lütfen doğum tarihinizi kontrol ediniz."
   },
   "MissedPrayerForm": {
     "Gender": "Cinsiyet",
     "BirthDate": "Doğum Tarihi",
     "EntryIntoPubertyAge": "Buluğ Çağına Giriş Yaşı",
     "EntryIntoPubertyAgeValidateMessage": "Buluğ çağına giriş yaşı 8 ile 18 arasında olmalıdır",
-    "NumberofDaysofPrayer": "Namaz Kılınan Gün Sayısı"
+    "NumberofDaysofPrayer": "Namaz Kılınan Gün Sayısı",
+    "NumberofMissedPrayerBirthDatePubertyError": "Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünün tarihinden büyük olamaz!",
+    "MissedPrayerNotCalculatedError": "Kılınan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.",
+    "NoMissedPrayer": "Tebrikler! Kılınmamış namazınız bulunmamaktadır."
+  },
+  "FastingForm": {
+    "FastsNotCalculatedError": "Tutulan oruç sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.",
+    "NoOutstandingFasts": "Tebrikler! Tutulmamış orucunuz bulunmamaktadır."
   },
   "CalculatedMissedPrayer": {
     "Recalculate": "Yeniden Hesapla",

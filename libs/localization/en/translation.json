@@ -25,14 +25,25 @@
   },
   "MissedTracking": {
     "PrayerTracking": "Prayer Tracking",
-    "FastingTracking": "Fasting Tracking"
+    "FastingTracking": "Fasting Tracking",
+    "BirthDateError": "Date of birth cannot be greater than today's date!",
+    "BirthDatePubertyError": "The sum of the date of birth and the age of puberty cannot be greater than today's date!",
+    "BirthDateControlError": "Please check your date of birth."
   },
   "MissedPrayerForm": {
     "Gender": "Gender",
     "BirthDate": "Birth Date",
     "EntryIntoPubertyAge": "Entry Into Puberty Age",
     "EntryIntoPubertyAgeValidateMessage": "Entry Into Puberty Age must be between 8 and 18",
-    "NumberofDaysofPrayer": "Number of Days of Prayer"
+    "NumberofDaysofPrayer": "Number of Days of Prayer",
+    "NumberofMissedPrayerBirthDatePubertyError": "The sum of the date of birth, the number of prayers performed and the age of puberty cannot be greater than today's date!",
+    "MissedPrayerNotCalculatedError": "The number of missed prayers could not be calculated. Please check your information.",
+    "NoMissedPrayer": "Congratulations! You have no missed prayers."
+  },
+  "FastingForm": {
+    "FastsNotCalculatedError": "The number of fasts could not be calculated. Please check your information.",
+    "NoOutstandingFasts": "Congratulations! You have no outstanding fasts."
+    
   },
   "CalculatedMissedPrayer": {
     "Recalculate": "Recalculate",

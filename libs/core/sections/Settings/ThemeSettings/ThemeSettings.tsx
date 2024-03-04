@@ -2,19 +2,19 @@ import React, {useEffect, useState} from 'react';
 import {
   RadioButtonVerticalGroup,
   ScreenViewContainer,
-} from '../../../libs/components';
-import {useTheme} from '../../../libs/core/providers';
-import {updateApplicationTheme} from '../../../libs/redux/reducers/ApplicationTheme';
+} from '../../../../components';
+import {useTheme} from '../../../providers';
+import {updateApplicationTheme} from '../../../../redux/reducers/ApplicationTheme';
 import {useDispatch, useSelector} from 'react-redux';
-import {Theme} from '../../../libs/common/enums';
+import {Theme} from '../../../../common/enums';
 import {ScrollView} from 'react-native';
 import {
   ThemeSettingsConstants,
   ThemeSettingsMoonIcon,
   ThemeSettingsSunIcon,
   ThemeSettingsSystemIcon,
-} from '../../../libs/common/constants';
-import {Translate} from '../../../libs/core/helpers';
+} from '../../../../common/constants';
+import {Translate} from '../../../helpers';
 
 const ThemeSettings = () => {
   const dispatch = useDispatch();

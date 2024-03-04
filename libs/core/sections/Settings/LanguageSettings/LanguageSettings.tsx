@@ -4,7 +4,7 @@ import {
   Icons,
   RadioButtonVerticalGroup,
   ScreenViewContainer,
-} from '../../../libs/components';
+} from '../../../../components';
 import {useTranslation} from 'react-i18next';
 import {ScrollView} from 'react-native-gesture-handler';
 import style from './style';
@@ -13,8 +13,8 @@ import {
   AsyncStorageConstants,
   LanguagePrefix,
   LanguageSettingsConstants,
-} from '../../../libs/common/constants';
-import {Translate} from '../../../libs/core/helpers';
+} from '../../../../common/constants';
+import {Translate} from '../../../helpers';
 
 const LanguageSettings = ({navigation}) => {
   const {i18n} = useTranslation();
@@ -50,7 +50,7 @@ const LanguageSettings = ({navigation}) => {
           type: Icons.Image,
           image: (
             <Image
-              source={require('../../../assets/images/flags/turkey.png')}
+              source={require('../../../../../assets/images/flags/turkey.png')}
               style={style.image}
             />
           ),
@@ -63,7 +63,7 @@ const LanguageSettings = ({navigation}) => {
           type: Icons.Image,
           image: (
             <Image
-              source={require('../../../assets/images/flags/united-kingdom.png')}
+              source={require('../../../../../assets/images/flags/united-kingdom.png')}
               style={style.image}
             />
           ),

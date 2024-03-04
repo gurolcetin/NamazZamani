@@ -61,6 +61,19 @@ export class MissedTrackingLanguageConstants {
     key: 'MissedTracking.FastingTracking',
     defaultValue: 'Oruç Takibi',
   };
+  static BirthDateError: LanguageModel = {
+    key: 'MissedTracking.BirthDateError',
+    defaultValue: 'Doğum tarihi bugünün tarihinden büyük olamaz"',
+  };
+  static BirthDatePubertyError: LanguageModel = {
+    key: 'MissedTracking.BirthDatePubertyError',
+    defaultValue:
+      'Doğum tarihi ve buluğ çağına giriş yaşının toplamları bugünün tarihinden büyük olamaz!',
+  };
+  static BirthDateControlError: LanguageModel = {
+    key: 'MissedTracking.BirthDateControlError',
+    defaultValue: 'Lütfen doğum tarihinizi kontrol ediniz.',
+  };
 }
 
 export class GeneralLanguageConstants {
@@ -119,8 +132,30 @@ export class MissedPrayerFormLanguageConstants {
     key: 'MissedPrayerForm.NumberofDaysofPrayer',
     defaultValue: 'Namaz Kılınan Gün Sayısı',
   };
+  static NumberofMissedPrayerBirthDatePubertyError: LanguageModel = {
+    key: 'MissedPrayerForm.NumberofMissedPrayerBirthDatePubertyError',
+    defaultValue: 'Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünün tarihinden büyük olamaz!',
+  };
+  static MissedPrayerNotCalculatedError: LanguageModel = {
+    key: 'MissedPrayerForm.MissedPrayerNotCalculatedError',
+    defaultValue: 'Kılınan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
+  };
+  static NoMissedPrayer: LanguageModel = {
+    key: 'MissedPrayerForm.NoMissedPrayer',
+    defaultValue: 'Tebrikler! Kılınmamış namazınız bulunmamaktadır.',
+  };
 }
 
+export class FastingFormLanguageConstants {
+  static FastsNotCalculatedError: LanguageModel = {
+    key: 'FastingForm.FastsNotCalculatedError',
+    defaultValue: 'Tutulan oruç sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
+  };
+  static NoOutstandingFasts: LanguageModel = {
+    key: 'FastingForm.NoOutstandingFasts',
+    defaultValue: 'Tebrikler! Tutulmamış orucunuz bulunmamaktadır.',
+  };
+}
 export class CalculatedMissedPrayerLanguageConstants {
   static Recalculate: LanguageModel = {
     key: 'CalculatedMissedPrayer.Recalculate',
