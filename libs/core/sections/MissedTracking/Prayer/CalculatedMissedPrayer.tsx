@@ -33,7 +33,8 @@ const CalculatedMissedPrayer = () => {
   );
   const no = Translate(GeneralLanguageConstants.No);
   const yes = Translate(GeneralLanguageConstants.Yes);
-  const reCalculateButtonAlert = () =>
+  const reCalculateButtonAlert = () => {
+    console.log(missedPrayer);
     Alert.alert(recalculateMessage, '', [
       {
         text: no,
@@ -45,6 +46,7 @@ const CalculatedMissedPrayer = () => {
         onPress: () => dispatch(resetMissedPrayer()),
       },
     ]);
+  };
 
   return (
     <>
@@ -106,19 +108,19 @@ const CalculatedMissedPrayer = () => {
         marginTop={20}
       />
       <View style={styles.calculatedMissedPrayerBottomDescription}>
-        <Text>
+        <Text style={{color: currentTheme.textColor}}>
           {Translate(GeneralLanguageConstants.LastUpdateDate)}
           {StringConstants.COLON}
           {StringConstants.SPACE}
-          {new Date(missedPrayer.lastUpdateDate).toLocaleDateString(
+          {new Date(missedPrayer.lastUpdateDate).toLocaleString(
             i18n.language,
           )}
         </Text>
-        <Text>
+        <Text style={{color: currentTheme.textColor}}>
           {Translate(GeneralLanguageConstants.BeginDate)}
           {StringConstants.COLON}
           {StringConstants.SPACE}
-          {new Date(missedPrayer.beginDate).toLocaleDateString(i18n.language)}
+          {new Date(missedPrayer.beginDate).toLocaleString(i18n.language)}
         </Text>
       </View>
     </>

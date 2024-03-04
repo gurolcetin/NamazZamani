@@ -112,19 +112,19 @@ const CalculatedMissedFasting = () => {
         marginTop={20}
       />
       <View style={styles.calculatedMissedPrayerBottomDescription}>
-        <Text>
+        <Text style={{color: currentTheme.textColor}}>
           {Translate(GeneralLanguageConstants.LastUpdateDate)}
           {StringConstants.COLON}
           {StringConstants.SPACE}
-          {new Date(missedFasting.lastUpdateDate).toLocaleDateString(
+          {new Date(missedFasting.lastUpdateDate).toLocaleString(
             i18n.language,
           )}
         </Text>
-        <Text>
+        <Text style={{color: currentTheme.textColor}}>
           {Translate(GeneralLanguageConstants.BeginDate)}
           {StringConstants.COLON}
           {StringConstants.SPACE}
-          {new Date(missedFasting.beginDate).toLocaleDateString(i18n.language)}
+          {new Date(missedFasting.beginDate).toLocaleString(i18n.language)}
         </Text>
       </View>
     </>
