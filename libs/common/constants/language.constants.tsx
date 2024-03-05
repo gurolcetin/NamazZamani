@@ -224,3 +224,18 @@ export class CalculateSettingsLanguageConstants {
     defaultValue: 'Hayızlı Gün Sayısı',
   };
 }
+
+export class DhikrLanguageConstants {
+  static Dhikr: LanguageModel = {
+    key: 'Dhikr.Dhikr',
+    defaultValue: 'Zikir',
+  };
+  static AllDhikr: LanguageModel = {
+    key: 'Dhikr.AllDhikr',
+    defaultValue: 'Tüm Zikirler',
+  };
+  static PrayerDhikr: LanguageModel = {
+    key: 'Dhikr.PrayerDhikr',
+    defaultValue: 'Namaz Zikirleri',
+  };
+}

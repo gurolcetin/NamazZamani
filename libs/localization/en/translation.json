@@ -62,5 +62,10 @@
   },
   "CalculateSettings": {
     "NumberOfMenstrualDays": "Number Of Menstrual Days"
+  },
+  "Dhikr": {
+    "Dhikr": "Dhikr",
+    "AllDhikr": "All Dhikr",
+    "PrayerDhikr": "Prayer Dhikr"
   }
 }

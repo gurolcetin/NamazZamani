@@ -62,5 +62,10 @@
   },
   "CalculateSettings": {
     "NumberOfMenstrualDays": "Hayızlı Gün Sayısı"
+  },
+  "Dhikr": {
+    "Dhikr": "Zikir",
+    "AllDhikr": "Tüm Zikirler",
+    "PrayerDhikr": "Namaz Zikirleri"
   }
 }
