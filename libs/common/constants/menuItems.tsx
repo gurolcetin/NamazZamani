@@ -1,6 +1,7 @@
 import {StackRoutes} from '../../../src/navigation/Routes';
 import {PrayerTimeStack} from '../../../src/navigation/Stack/PrayerTimeStack';
 import {SettingsStack} from '../../../src/navigation/Stack/SettingsStack';
+import Dhikr from '../../../src/screens/Dhikr/Dhikr';
 import MissedTracking from '../../../src/screens/MissedTracking/MissedTracking';
 import {Icons} from '../../components/Icons/Icons';
 import {Translate} from '../../core/helpers';
@@ -30,6 +31,16 @@ export const bottomTabMenuItems = currentTheme => [
   },
   {
     id: 3,
+    route: StackRoutes.PrayerTimeStack,
+    label: Translate(MenuNameLanguageConstants.Dhikr),
+    type: Icons.MaterialCommunityIcons,
+    icon: MenuIconConstants.Dhikr,
+    component: Dhikr,
+    color: currentTheme.primary,
+    solid: true,
+  },
+  {
+    id: 4,
     route: StackRoutes.PrayerTimeStack,
     label: Translate(MenuNameLanguageConstants.Settings),
     type: Icons.FontAwesome6,

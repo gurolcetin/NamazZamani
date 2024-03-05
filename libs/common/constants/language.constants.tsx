@@ -50,6 +50,10 @@ export class MenuNameLanguageConstants {
     key: 'menu.MissedTracking',
     defaultValue: 'Kaza Takip',
   };
+  static Dhikr: LanguageModel = {
+    key: 'menu.Dhikr',
+    defaultValue: 'Zikir',
+  };
   static Settings: LanguageModel = {
     key: 'menu.Settings',
     defaultValue: 'Ayarlar',
