@@ -12,6 +12,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		436069DB2B1DED76004E5C8A /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 436069DA2B1DED76004E5C8A /* BootSplash.storyboard */; };
+		43AD9E432B97639D0028907F /* libRNReactNativeHapticFeedback.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AD9E422B97639D0028907F /* libRNReactNativeHapticFeedback.a */; };
 		43E2D8E02B1FA625004193B0 /* Fontisto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43E2D8CD2B1FA625004193B0 /* Fontisto.ttf */; };
 		43E2D8E12B1FA625004193B0 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43E2D8CE2B1FA625004193B0 /* Octicons.ttf */; };
 		43E2D8E22B1FA625004193B0 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43E2D8CF2B1FA625004193B0 /* Feather.ttf */; };
@@ -58,6 +59,8 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = NamazZamani/main.m; sourceTree = "<group>"; };
 		19C4A1E2E11E3D95F6619F32 /* libPods-NamazZamani.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NamazZamani.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		436069DA2B1DED76004E5C8A /* BootSplash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = NamazZamani/BootSplash.storyboard; sourceTree = "<group>"; };
+		43AD9E3F2B9762BB0028907F /* RNReactNativeHapticFeedback.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNReactNativeHapticFeedback.xcodeproj; path = "../node_modules/react-native-haptic-feedback/ios/RNReactNativeHapticFeedback.xcodeproj"; sourceTree = "<group>"; };
+		43AD9E422B97639D0028907F /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		43E2D8CD2B1FA625004193B0 /* Fontisto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fontisto.ttf; sourceTree = "<group>"; };
 		43E2D8CE2B1FA625004193B0 /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Octicons.ttf; sourceTree = "<group>"; };
 		43E2D8CF2B1FA625004193B0 /* Feather.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Feather.ttf; sourceTree = "<group>"; };
@@ -99,6 +102,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43AD9E432B97639D0028907F /* libRNReactNativeHapticFeedback.a in Frameworks */,
 				F66F4EDC99E255F665DB41A6 /* libPods-NamazZamani.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,11 +144,17 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				43AD9E422B97639D0028907F /* libRNReactNativeHapticFeedback.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				19C4A1E2E11E3D95F6619F32 /* libPods-NamazZamani.a */,
 				99ADE6B5B07E3EE73E3CDE13 /* libPods-NamazZamani-NamazZamaniTests.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		43AD9E402B9762BB0028907F /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
 			sourceTree = "<group>";
 		};
 		43E2D8CC2B1FA625004193B0 /* Fonts */ = {
@@ -176,6 +186,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				43AD9E3F2B9762BB0028907F /* RNReactNativeHapticFeedback.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -290,6 +301,12 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 43AD9E402B9762BB0028907F /* Products */;
+					ProjectRef = 43AD9E3F2B9762BB0028907F /* RNReactNativeHapticFeedback.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* NamazZamani */,

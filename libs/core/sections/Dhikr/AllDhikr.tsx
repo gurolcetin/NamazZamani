@@ -5,8 +5,14 @@ import {DhikrTabKeys} from '../../../common/constants';
 import {CircleProgressBar, SubmitButton} from '../../../components';
 import styles from './style';
 import {resetDhikrByItem, updateDhikr} from '../../../redux/reducers/Dhikr';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const AllDhikr = () => {
+  // Optional configuration
+  const options = {
+    enableVibrateFallback: true,
+    ignoreAndroidSystemSettings: false,
+  };
   const dispatch = useDispatch();
   const allDhikrList = useSelector(
     (state: any) =>
@@ -44,7 +50,11 @@ const AllDhikr = () => {
               />
               <SubmitButton
                 label="Sıfırla"
-                onSubmit={() => dispatch(resetDhikrByItem({dhikrId: 1}))}
+                onSubmit={() => {
+                  // Trigger haptic feedback
+                  ReactNativeHapticFeedback.trigger('impactLight', options);
+                  dispatch(resetDhikrByItem({dhikrId: 1}));
+                }}
               />
             </>
           );
