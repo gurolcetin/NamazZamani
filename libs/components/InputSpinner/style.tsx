@@ -9,8 +9,8 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   increaseDecreaseButton: {
-    width: 30,
-    height: 30,
+    width: 35,
+    height: 35,
     borderRadius: 20,
     backgroundColor: '#f2f2f2',
     alignItems: 'center',

@@ -1,11 +1,11 @@
 import React, {useEffect} from 'react';
-import {Text, View} from 'react-native';
+import {View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {DhikrTabKeys} from '../../../common/constants';
+import {DhikrTabKeys, HapticFeedbackMethods} from '../../../common/constants';
 import {CircleProgressBar, SubmitButton} from '../../../components';
 import styles from './style';
 import {resetDhikrByItem, updateDhikr} from '../../../redux/reducers/Dhikr';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { hapticFeedback } from '../../helpers';
 
 const AllDhikr = () => {
   // Optional configuration
@@ -49,11 +49,11 @@ const AllDhikr = () => {
                 }}
               />
               <SubmitButton
+                key={item.dhikrId + 'submit'}
                 label="Sıfırla"
                 onSubmit={() => {
-                  // Trigger haptic feedback
-                  ReactNativeHapticFeedback.trigger('impactLight', options);
                   dispatch(resetDhikrByItem({dhikrId: 1}));
+                  hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
                 }}
               />
             </>

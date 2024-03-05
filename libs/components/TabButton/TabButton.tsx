@@ -3,6 +3,8 @@ import {Animated, TouchableOpacity} from 'react-native';
 import Icon from '../Icons/Icons';
 import style from './style';
 import {useTheme} from '../../core/providers';
+import {HapticFeedbackMethods} from '../../common/constants';
+import { hapticFeedback } from '../../core/helpers';
 
 const TabButton = ({item, accessibilityState, onPress}: any) => {
   const {currentTheme} = useTheme();
@@ -59,7 +61,12 @@ const TabButton = ({item, accessibilityState, onPress}: any) => {
   };
 
   return (
-    <TouchableOpacity onPress={onPress} style={style.container}>
+    <TouchableOpacity
+      onPress={() => {
+        onPress();
+        hapticFeedback(HapticFeedbackMethods.ImpactLight);
+      }}
+      style={style.container}>
       <Animated.View
         style={[
           style.button,

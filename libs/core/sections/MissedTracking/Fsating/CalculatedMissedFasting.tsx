@@ -10,11 +10,12 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Alert, Text, View} from 'react-native';
 import styles from './style';
 import {useTheme} from '../../../providers';
-import {GetPrayerNameByLanguage, Translate} from '../../../helpers';
+import {GetPrayerNameByLanguage, Translate, hapticFeedback} from '../../../helpers';
 import {
   CalculatedMissedFastingLanguageConstants,
   CalculatedMissedPrayerLanguageConstants,
   GeneralLanguageConstants,
+  HapticFeedbackMethods,
   StringConstants,
 } from '../../../../common/constants';
 import {useTranslation} from 'react-i18next';
@@ -29,6 +30,7 @@ const CalculatedMissedFasting = () => {
   const missedFasting = useSelector((state: any) => state.missedFasting);
   const {currentTheme} = useTheme();
   const {i18n} = useTranslation();
+  const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const recalculateMessage = Translate(
     CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
   );
@@ -45,12 +47,12 @@ const CalculatedMissedFasting = () => {
         text: yes,
         onPress: () => dispatch(resetMissedFasting()),
       },
-    ]);
+    ], {userInterfaceStyle: applicationTheme.theme});
 
   const cardViewProps: CardViewProps = {
     paddingLeft: 0,
     bottomDescription:
-      Translate(CalculatedMissedFastingLanguageConstants.NumberofFastsKept) + 
+      Translate(CalculatedMissedFastingLanguageConstants.NumberofFastsKept) +
       StringConstants.COLON +
       StringConstants.SPACE +
       missedFasting.missedFasting.performedFastingCount,
@@ -106,6 +108,7 @@ const CalculatedMissedFasting = () => {
         label={Translate(CalculatedMissedPrayerLanguageConstants.Recalculate)}
         onSubmit={() => {
           reCalculateButtonAlert();
+          hapticFeedback(HapticFeedbackMethods.ImpactMedium);
         }}
         backgroundColor={currentTheme.systemRed}
         marginHorizontal={25}
@@ -116,9 +119,7 @@ const CalculatedMissedFasting = () => {
           {Translate(GeneralLanguageConstants.LastUpdateDate)}
           {StringConstants.COLON}
           {StringConstants.SPACE}
-          {new Date(missedFasting.lastUpdateDate).toLocaleString(
-            i18n.language,
-          )}
+          {new Date(missedFasting.lastUpdateDate).toLocaleString(i18n.language)}
         </Text>
         <Text style={{color: currentTheme.textColor}}>
           {Translate(GeneralLanguageConstants.BeginDate)}

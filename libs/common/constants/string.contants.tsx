@@ -55,3 +55,28 @@ export class PrayerTimeConstants {
 export class FastingConstants {
   public static readonly Fasting = 'Fasting';
 }
+
+export class HapticFeedbackMethods {
+  public static readonly ImpactLight = 'impactLight';
+  public static readonly ImpactMedium = 'impactMedium';
+  public static readonly ImpactHeavy = 'impactHeavy';
+  public static readonly Rigid = 'rigid';
+  public static readonly Soft = 'soft';
+  public static readonly NotificationSuccess = 'notificationSuccess';
+  public static readonly NotificationWarning = 'notificationWarning';
+  public static readonly NotificationError = 'notificationError';
+  public static readonly Selection = 'selection';
+  public static readonly ClockTick = 'clockTick';
+  public static readonly ContextClick = 'contextClick';
+  public static readonly KeyboardPress = 'keyboardPress';
+  public static readonly KeyboardRelease = 'keyboardRelease';
+  public static readonly KeyboardTap = 'keyboardTap';
+  public static readonly LongPress = 'longPress';
+  public static readonly TextHandleMove = 'textHandleMove';
+  public static readonly VirtualKey = 'virtualKey';
+  public static readonly VirtualKeyRelease = 'virtualKeyRelease';
+  public static readonly EffectClick = 'effectClick';
+  public static readonly EffectDoubleClick = 'effectDoubleClick';
+  public static readonly EffectHeavyClick = 'effectHeavyClick';
+  public static readonly EffectTick = 'effectTick';
+}

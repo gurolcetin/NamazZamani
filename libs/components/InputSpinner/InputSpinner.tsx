@@ -2,6 +2,8 @@ import React, {useRef} from 'react';
 import {TouchableOpacity, View, Text} from 'react-native';
 import styles from './style';
 import {useTheme} from '../../core/providers';
+import {HapticFeedbackMethods} from '../../common/constants';
+import { hapticFeedback } from '../../core/helpers';
 
 export interface InputSpinnerProps {
   value: number;
@@ -22,6 +24,7 @@ const InputSpinner = ({
     if (!intervalIdRef.current) {
       intervalIdRef.current = setInterval(() => {
         inceaseValue(value + 1);
+        hapticFeedback(HapticFeedbackMethods.Soft);
       }, intervalRef.current);
     }
   };
@@ -35,6 +38,7 @@ const InputSpinner = ({
     if (!intervalIdRef.current) {
       intervalIdRef.current = setInterval(() => {
         decreaseValue(value - 1);
+        hapticFeedback(HapticFeedbackMethods.Soft);
       }, intervalRef.current);
     }
   };
@@ -45,6 +49,7 @@ const InputSpinner = ({
         <TouchableOpacity
           onPress={() => {
             decreaseValue(value - 1);
+            hapticFeedback(HapticFeedbackMethods.Soft);
           }}
           onPressIn={startDecreasing}
           onPressOut={stopIncreasing}
@@ -66,6 +71,7 @@ const InputSpinner = ({
         <TouchableOpacity
           onPress={() => {
             inceaseValue(value + 1);
+            hapticFeedback(HapticFeedbackMethods.Soft);
           }}
           onPressIn={startIncreasing}
           onPressOut={stopIncreasing}

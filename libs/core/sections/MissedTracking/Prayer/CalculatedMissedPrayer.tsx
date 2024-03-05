@@ -15,10 +15,15 @@ import {
 } from '../../../../redux/reducers/MissedPrayer';
 import styles from './style';
 import {useTheme} from '../../../providers';
-import {GetPrayerNameByLanguage, Translate} from '../../../helpers';
+import {
+  GetPrayerNameByLanguage,
+  Translate,
+  hapticFeedback,
+} from '../../../helpers';
 import {
   CalculatedMissedPrayerLanguageConstants,
   GeneralLanguageConstants,
+  HapticFeedbackMethods,
   StringConstants,
 } from '../../../../common/constants';
 import {useTranslation} from 'react-i18next';
@@ -28,6 +33,7 @@ const CalculatedMissedPrayer = () => {
   const missedPrayer = useSelector((state: any) => state.missedPrayer);
   const {currentTheme} = useTheme();
   const {i18n} = useTranslation();
+  const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const recalculateMessage = Translate(
     CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
   );
@@ -45,7 +51,7 @@ const CalculatedMissedPrayer = () => {
         text: yes,
         onPress: () => dispatch(resetMissedPrayer()),
       },
-    ]);
+    ], {userInterfaceStyle: applicationTheme.theme});
   };
 
   return (
@@ -102,6 +108,7 @@ const CalculatedMissedPrayer = () => {
         label={Translate(CalculatedMissedPrayerLanguageConstants.Recalculate)}
         onSubmit={() => {
           reCalculateButtonAlert();
+          hapticFeedback(HapticFeedbackMethods.ImpactMedium);
         }}
         backgroundColor={currentTheme.systemRed}
         marginHorizontal={25}
@@ -112,9 +119,7 @@ const CalculatedMissedPrayer = () => {
           {Translate(GeneralLanguageConstants.LastUpdateDate)}
           {StringConstants.COLON}
           {StringConstants.SPACE}
-          {new Date(missedPrayer.lastUpdateDate).toLocaleString(
-            i18n.language,
-          )}
+          {new Date(missedPrayer.lastUpdateDate).toLocaleString(i18n.language)}
         </Text>
         <Text style={{color: currentTheme.textColor}}>
           {Translate(GeneralLanguageConstants.BeginDate)}

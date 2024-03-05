@@ -3,6 +3,8 @@ import {Animated} from 'react-native';
 import Svg, {Circle, Text} from 'react-native-svg';
 import {useTheme} from '../../core/providers';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import {HapticFeedbackMethods} from '../../common/constants';
+import {hapticFeedback} from '../../core/helpers';
 
 interface CircleProgressBarProps {
   progress: number;
@@ -45,6 +47,13 @@ const CircleProgressBar = ({
       onPress={() => {
         if (count < maxCount) {
           incraseValue(count + 1);
+          if (count === maxCount - 1) {
+            hapticFeedback(HapticFeedbackMethods.NotificationSuccess);
+          } else {
+            hapticFeedback(HapticFeedbackMethods.Soft);
+          }
+        } else {
+          hapticFeedback(HapticFeedbackMethods.NotificationError);
         }
       }}>
       <Svg width={radius * 2} height={radius * 2}>

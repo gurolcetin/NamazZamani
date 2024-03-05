@@ -1,5 +1,4 @@
 import {StackRoutes} from '../../../src/navigation/Routes';
-import {PrayerTimeStack} from '../../../src/navigation/Stack/PrayerTimeStack';
 import {SettingsStack} from '../../../src/navigation/Stack/SettingsStack';
 import Dhikr from '../../../src/screens/Dhikr/Dhikr';
 import MissedTracking from '../../../src/screens/MissedTracking/MissedTracking';
