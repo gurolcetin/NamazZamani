@@ -19,6 +19,7 @@ import InputSpinner from './InputSpinner/InputSpinner';
 import ProgressBar from './ProgressBar/ProgressBar';
 import BackgroundColorChanger from './BackgroundColorChangerView/BackgroundColorChangerView';
 import ErrorView from './ErrorView/ErrorView';
+import CircleProgressBar from './CircleProgressBar/CircleProgressBar';
 export {
   TabButton,
   SafeAreaWithStatusBar,
@@ -38,6 +39,7 @@ export {
   ProgressBar,
   BackgroundColorChanger,
   ErrorView,
+  CircleProgressBar,
 };
 export type {
   RadioButtonVerticalGroupProps,
