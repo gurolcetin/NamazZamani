@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity, StyleProp, ViewStyle} from 'react-native';
 import {useTheme} from '../../core/providers';
 import style from './style';
 
@@ -9,6 +9,7 @@ interface RadioButtonListProps {
   onValueChange: (value: string) => void;
   selectedItemBackgroundColor?: string;
   selectedItemTextColor?: string;
+  buttonStyle?: StyleProp<ViewStyle> | undefined;
 }
 
 interface RadioButtonProps {
@@ -40,6 +41,7 @@ const RadioButton = (props: RadioButtonListProps) => {
                       ? currentTheme.primary
                       : currentTheme.cardViewBackgroundColor,
                 },
+                props.buttonStyle,
               ]}>
               <Text
                 style={{

@@ -1,10 +1,15 @@
 import React, {useEffect} from 'react';
 import {View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {DhikrTabKeys} from '../../../common/constants';
-import {CircleProgressBar, SubmitButton} from '../../../components';
+import {DhikrTabKeys, HapticFeedbackMethods} from '../../../common/constants';
+import {CardView, CircleProgressBar, SubmitButton} from '../../../components';
 import styles from './style';
-import {resetDhikr, resetPrayerDhikr, updateDhikr} from '../../../redux/reducers/Dhikr';
+import {
+  resetDhikr,
+  resetPrayerDhikr,
+  updateDhikr,
+} from '../../../redux/reducers/Dhikr';
+import { hapticFeedback } from '../../helpers';
 
 const PrayerDhikr = () => {
   const dispatch = useDispatch();
@@ -19,7 +24,7 @@ const PrayerDhikr = () => {
   }, []);
   return (
     <View>
-      <View style={styles.container}>
+      <CardView cardStyle={styles.container} paddingLeft={0}>
         {allDhikrList.map(
           (item: {
             dhikrId: number;
@@ -47,8 +52,15 @@ const PrayerDhikr = () => {
             );
           },
         )}
-      </View>
-      <SubmitButton label="Sıfırla" onSubmit={() => dispatch(resetPrayerDhikr())} />
+      </CardView>
+      <SubmitButton
+        label="Sıfırla"
+        onSubmit={() => {
+          dispatch(resetPrayerDhikr());
+          hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
+        }}
+        buttonStyle={{marginHorizontal: 25, marginTop: 20}}
+      />
     </View>
   );
 };

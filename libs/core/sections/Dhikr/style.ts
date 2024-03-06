@@ -5,13 +5,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    marginTop: 20,
     alignItems: 'center',
+    paddingVertical: 20
   },
   containerSingleDhikr: {
     flexDirection: 'column',
     justifyContent: 'space-around',
     alignItems: 'center',
+    paddingVertical: 20,
   },
 });
 

@@ -1,5 +1,5 @@
-import React, {useEffect, useRef} from 'react';
-import {Animated} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {Animated, View} from 'react-native';
 import Svg, {Circle, Text} from 'react-native-svg';
 import {useTheme} from '../../core/providers';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
@@ -28,6 +28,7 @@ const CircleProgressBar = ({
   const strokeWidth = 10;
   const circumference = 2 * Math.PI * (radius - strokeWidth / 2);
   const progressAnimation = useRef(new Animated.Value(0)).current;
+  const [textDimensions, setTextDimensions] = useState({width: 0, height: 0});
 
   useEffect(() => {
     Animated.timing(progressAnimation, {
@@ -62,7 +63,7 @@ const CircleProgressBar = ({
           cy={radius}
           r={radius - strokeWidth / 2}
           fill="none"
-          stroke="#ccc"
+          stroke={currentTheme.segmentedControlBackgroundColor}
           strokeWidth={strokeWidth}
         />
         <AnimatedCircle
@@ -79,21 +80,25 @@ const CircleProgressBar = ({
           origin={`${radius},${radius}`}
         />
         <Text
+          onLayout={event => {
+            const {width, height} = event.nativeEvent.layout;
+            setTextDimensions({width, height});
+          }}
           x={radius}
-          y={radius}
+          y={textDimensions.height / 2 + radius - 10}
           textAnchor="middle"
           stroke="black"
-          fontSize="16">
+          fontSize={radius / 3}>
           {count}
         </Text>
-
         {description && (
           <Text
             x={radius}
-            y={radius + 15}
+            y={radius + 20}
             textAnchor="middle"
             stroke="black"
-            fontSize="16">
+            fontSize="12"
+            fontWeight={'200'}>
             {description}
           </Text>
         )}

@@ -26,12 +26,12 @@ const CardView = (props: CardViewProps) => {
       <View
         style={[
           style.cardContainer,
-          props.cardStyle,
           {
             backgroundColor: currentTheme.cardViewBackgroundColor,
             borderBottomColor: currentTheme.cardViewBorderColor,
             paddingLeft: props.paddingLeft ?? horizontalScale(20),
           },
+          props.cardStyle,
         ]}>
         {props.children}
       </View>

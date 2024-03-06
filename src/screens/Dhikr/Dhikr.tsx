@@ -42,7 +42,7 @@ const Dhikr = () => {
         marginHorizontal={horizontalScale(20)}
         marginTop={horizontalScale(20)}
       />
-      <ScrollView showsVerticalScrollIndicator={false} style={{marginHorizontal: 25, marginTop: 20}}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {selectedTab === DhikrTabKeys.All && <AllDhikr />}
         {selectedTab === DhikrTabKeys.Prayer && <PrayerDhikr />}
       </ScrollView>
