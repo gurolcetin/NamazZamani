@@ -232,7 +232,7 @@ export class DhikrLanguageConstants {
   };
   static AllDhikr: LanguageModel = {
     key: 'Dhikr.AllDhikr',
-    defaultValue: 'Tüm Zikirler',
+    defaultValue: 'Zikirlerim',
   };
   static PrayerDhikr: LanguageModel = {
     key: 'Dhikr.PrayerDhikr',
