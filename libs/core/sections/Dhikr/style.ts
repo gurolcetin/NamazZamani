@@ -19,7 +19,8 @@ const styles = StyleSheet.create({
     flex: 0.2,
     borderRadius: 5,
     fontSize: 16,
-    paddingVertical: 3,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
   },
   dhikrAddButtonContainer: {
     flex: 0.15,

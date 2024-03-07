@@ -103,15 +103,16 @@ const Dhikr = createSlice({
       state.dhikrs[index].dhikrList.splice(dhikrIndex, 1);
     },
     addDhikr: (state, action) => {
-      const {id, name, maxCount} = action.payload;
-      const index = state.dhikrs.findIndex((x: {id: number}) => x.id === id);
-      state.dhikrs[index].dhikrList.push({
-        dhikrId: state.dhikrs[index].dhikrList.length + 1,
-        name: name,
-        count: 0,
-        maxCount: maxCount,
-        isCyclical: true,
-      });
+        const {id, name, maxCount} = action.payload;
+        const index = state.dhikrs.findIndex((x: {id: number}) => x.id === id);
+        const maxDhikrId = state.dhikrs[index].dhikrList.reduce((maxId, dhikr) => Math.max(maxId, dhikr.dhikrId), 0);
+        state.dhikrs[index].dhikrList.push({
+            dhikrId: maxDhikrId + 1,
+            name: name,
+            count: 0,
+            maxCount: maxCount,
+            isCyclical: true,
+        });
     },
   },
 });
