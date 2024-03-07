@@ -20,6 +20,7 @@ import ProgressBar from './ProgressBar/ProgressBar';
 import BackgroundColorChanger from './BackgroundColorChangerView/BackgroundColorChangerView';
 import ErrorView from './ErrorView/ErrorView';
 import CircleProgressBar from './CircleProgressBar/CircleProgressBar';
+import CustomModal from './CustomModal/CustomModal';
 export {
   TabButton,
   SafeAreaWithStatusBar,
@@ -40,6 +41,7 @@ export {
   BackgroundColorChanger,
   ErrorView,
   CircleProgressBar,
+  CustomModal,
 };
 export type {
   RadioButtonVerticalGroupProps,
