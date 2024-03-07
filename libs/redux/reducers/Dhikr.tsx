@@ -8,38 +8,7 @@ const initialState = {
     {
       id: 1,
       name: 'AllDhikr',
-      dhikrList: [
-        {
-          dhikrId: 1,
-          name: 'La İlahe İllallah',
-          count: 0,
-          maxCount: 100,
-        },
-        {
-          dhikrId: 2,
-          name: 'Allah',
-          count: 0,
-          maxCount: 10,
-        },
-        {
-          dhikrId: 3,
-          name: 'Rahman',
-          count: 0,
-          maxCount: 20,
-        },
-        {
-          dhikrId: 4,
-          name: 'Rahim',
-          count: 0,
-          maxCount: 20,
-        },
-        {
-          dhikrId: 5,
-          name: 'Kahhar',
-          count: 0,
-          maxCount: 20,
-        },
-      ],
+      dhikrList: [],
     },
     {
       id: 2,
@@ -50,18 +19,21 @@ const initialState = {
           name: 'Subhanallah',
           count: 0,
           maxCount: 33,
+          isCyclical: false,
         },
         {
           dhikrId: 2,
           name: 'Alhamdulillah',
           count: 0,
           maxCount: 33,
+          isCyclical: false,
         },
         {
           dhikrId: 3,
           name: 'Allahuakbar',
           count: 0,
           maxCount: 33,
+          isCyclical: false,
         },
       ],
     },
@@ -74,18 +46,21 @@ const initialStatePrayerDhikr = [
     name: 'Subhanallah',
     count: 0,
     maxCount: 33,
+    isCyclical: false,
   },
   {
     dhikrId: 2,
     name: 'Alhamdulillah',
     count: 0,
     maxCount: 33,
+    isCyclical: false,
   },
   {
     dhikrId: 3,
     name: 'Allahuakbar',
     count: 0,
     maxCount: 33,
+    isCyclical: false,
   },
 ];
 
@@ -115,7 +90,7 @@ const Dhikr = createSlice({
       const dhikr = state.dhikrs[index].dhikrList.find(
         x => x.dhikrId === dhikrId,
       );
-      if (dhikr && dhikr.count < dhikr.maxCount) {
+      if (dhikr && (dhikr.count < dhikr.maxCount || dhikr.isCyclical)) {
         dhikr.count += 1;
       }
     },
@@ -127,6 +102,17 @@ const Dhikr = createSlice({
       );
       state.dhikrs[index].dhikrList.splice(dhikrIndex, 1);
     },
+    addDhikr: (state, action) => {
+      const {id, name, maxCount} = action.payload;
+      const index = state.dhikrs.findIndex((x: {id: number}) => x.id === id);
+      state.dhikrs[index].dhikrList.push({
+        dhikrId: state.dhikrs[index].dhikrList.length + 1,
+        name: name,
+        count: 0,
+        maxCount: maxCount,
+        isCyclical: true,
+      });
+    },
   },
 });
 
@@ -137,6 +123,7 @@ export const {
   resetDhikrByItem,
   updateDhikr,
   deleteDhikrByDhikrId,
+  addDhikr,
 } = Dhikr.actions;
 
 export default Dhikr.reducer;

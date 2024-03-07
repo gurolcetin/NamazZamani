@@ -1,10 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Animated, View} from 'react-native';
+import {Animated, View, Text as NativeText} from 'react-native';
 import Svg, {Circle, Text} from 'react-native-svg';
 import {useTheme} from '../../core/providers';
 import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
-import {HapticFeedbackMethods} from '../../common/constants';
+import {DhikrRepeatIcon, HapticFeedbackMethods} from '../../common/constants';
 import {hapticFeedback} from '../../core/helpers';
+import Icon from '../Icons/Icons';
 
 interface CircleProgressBarProps {
   progress: number;
@@ -12,6 +13,7 @@ interface CircleProgressBarProps {
   count: number;
   maxCount: number;
   description?: string;
+  isCyclical?: boolean;
   incraseValue: (value: number) => void;
 }
 
@@ -21,11 +23,12 @@ const CircleProgressBar = ({
   count,
   maxCount,
   description,
+  isCyclical = false,
   incraseValue,
 }: CircleProgressBarProps) => {
   const {currentTheme} = useTheme();
   const radius = size;
-  const strokeWidth = 10;
+  const strokeWidth = radius / 7;
   const circumference = 2 * Math.PI * (radius - strokeWidth / 2);
   const progressAnimation = useRef(new Animated.Value(0)).current;
   const [textDimensions, setTextDimensions] = useState({width: 0, height: 0});
@@ -33,7 +36,7 @@ const CircleProgressBar = ({
   useEffect(() => {
     Animated.timing(progressAnimation, {
       toValue: progress / 100,
-      duration: 1000,
+      duration: 300,
       useNativeDriver: true,
     }).start();
   }, [progress]);
@@ -43,18 +46,30 @@ const CircleProgressBar = ({
     outputRange: [circumference, 0],
   });
 
+  const getCyclicalCount = () => {
+    if (count < maxCount) return 0;
+    let currentCount = count;
+    let division = (currentCount - (currentCount % maxCount)) / maxCount;
+    return count % maxCount == 0 ? division - 1 : division;
+  };
+  const getCount = () => {
+    if (count <= maxCount || !isCyclical) return count;
+    let currentCount = count;
+    return currentCount % maxCount == 0 ? maxCount : count % maxCount;
+  };
+
   return (
     <TouchableWithoutFeedback
       onPress={() => {
-        if (count < maxCount) {
+        if (count >= maxCount && !isCyclical) {
+          hapticFeedback(HapticFeedbackMethods.NotificationError);
+        } else {
           incraseValue(count + 1);
-          if (count === maxCount - 1) {
+          if (count % maxCount === maxCount - 1) {
             hapticFeedback(HapticFeedbackMethods.NotificationSuccess);
           } else {
             hapticFeedback(HapticFeedbackMethods.Soft);
           }
-        } else {
-          hapticFeedback(HapticFeedbackMethods.NotificationError);
         }
       }}>
       <Svg width={radius * 2} height={radius * 2}>
@@ -89,7 +104,7 @@ const CircleProgressBar = ({
           textAnchor="middle"
           stroke="black"
           fontSize={radius / 3}>
-          {count}
+          {getCount()}
         </Text>
         {description && (
           <Text
@@ -103,6 +118,28 @@ const CircleProgressBar = ({
           </Text>
         )}
       </Svg>
+      {isCyclical && (
+        <View
+          style={{
+            position: 'absolute',
+            top: radius + 30,
+            left: radius - 17,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Icon {...DhikrRepeatIcon(currentTheme)} />
+          <NativeText
+            style={{
+              marginLeft: 5,
+              alignSelf: 'center',
+              textAlign: 'center',
+              fontSize: 20,
+            }}>
+            {getCyclicalCount()}
+          </NativeText>
+        </View>
+      )}
     </TouchableWithoutFeedback>
   );
 };

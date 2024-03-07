@@ -21,12 +21,12 @@ const Dhikr = () => {
   }, []);
   const tabs = [
     {
-      key: DhikrTabKeys.All,
-      value: Translate(DhikrLanguageConstants.AllDhikr),
-    },
-    {
       key: DhikrTabKeys.Prayer,
       value: Translate(DhikrLanguageConstants.PrayerDhikr),
+    },
+    {
+      key: DhikrTabKeys.All,
+      value: Translate(DhikrLanguageConstants.AllDhikr),
     },
   ];
   const [selectedTab, setSelectedTab] = useState(tabs[0].key);

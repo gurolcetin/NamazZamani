@@ -80,3 +80,13 @@ export const ThemeSettingsSystemIcon = (theme: ThemeType) => {
     solid: true,
   };
 };
+
+export const DhikrRepeatIcon = (theme: ThemeType) => {
+  return {
+    name: 'repeat',
+    type: Icons.FontAwesome6,
+    color: theme.black,
+    size: 15,
+    solid: false,
+  };
+};

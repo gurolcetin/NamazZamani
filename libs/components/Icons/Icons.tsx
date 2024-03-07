@@ -46,7 +46,7 @@ const Icon = ({
   type,
   name,
   color,
-  size = 24,
+  size,
   style,
   solid = false,
   image,
@@ -61,7 +61,7 @@ const Icon = ({
           : name && (
               <Tag
                 name={name}
-                size={size ?? fontSize}
+                size={size || fontSize}
                 color={color}
                 style={style}
                 solid={solid}

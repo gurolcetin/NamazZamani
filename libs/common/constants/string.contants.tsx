@@ -41,6 +41,8 @@ export class StringConstants {
   public static readonly HASH = '#';
   public static readonly PERCENT = '%';
   public static readonly CARET = '^';
+  public static readonly ASTERISK = '*';
+  public static readonly PLUS = '+';
 }
 
 export class PrayerTimeConstants {

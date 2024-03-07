@@ -32,9 +32,9 @@
 		43E2D8F02B1FA625004193B0 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43E2D8DD2B1FA625004193B0 /* SimpleLineIcons.ttf */; };
 		43E2D8F12B1FA625004193B0 /* FontAwesome6_Brands.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43E2D8DE2B1FA625004193B0 /* FontAwesome6_Brands.ttf */; };
 		43E2D8F22B1FA625004193B0 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43E2D8DF2B1FA625004193B0 /* MaterialIcons.ttf */; };
+		44AC4611F8E0798AE0DC526B /* libPods-NamazZamani.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D126F2C3F541BD0AF0BD297 /* libPods-NamazZamani.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		9D746EEBB171F380BA732D47 /* libPods-NamazZamani-NamazZamaniTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 99ADE6B5B07E3EE73E3CDE13 /* libPods-NamazZamani-NamazZamaniTests.a */; };
-		F66F4EDC99E255F665DB41A6 /* libPods-NamazZamani.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19C4A1E2E11E3D95F6619F32 /* libPods-NamazZamani.a */; };
+		B825AFE44E5AAD154F44D58E /* libPods-NamazZamani-NamazZamaniTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B276A3738057DB612DFCDB0 /* libPods-NamazZamani-NamazZamaniTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,7 +57,8 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = NamazZamani/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = NamazZamani/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = NamazZamani/main.m; sourceTree = "<group>"; };
-		19C4A1E2E11E3D95F6619F32 /* libPods-NamazZamani.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NamazZamani.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FC04E2C2D5AA4F958804C5B /* Pods-NamazZamani.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani.release.xcconfig"; path = "Target Support Files/Pods-NamazZamani/Pods-NamazZamani.release.xcconfig"; sourceTree = "<group>"; };
+		3B276A3738057DB612DFCDB0 /* libPods-NamazZamani-NamazZamaniTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NamazZamani-NamazZamaniTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		436069DA2B1DED76004E5C8A /* BootSplash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = NamazZamani/BootSplash.storyboard; sourceTree = "<group>"; };
 		43AD9E3F2B9762BB0028907F /* RNReactNativeHapticFeedback.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNReactNativeHapticFeedback.xcodeproj; path = "../node_modules/react-native-haptic-feedback/ios/RNReactNativeHapticFeedback.xcodeproj"; sourceTree = "<group>"; };
 		43AD9E422B97639D0028907F /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,13 +81,12 @@
 		43E2D8DD2B1FA625004193B0 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SimpleLineIcons.ttf; sourceTree = "<group>"; };
 		43E2D8DE2B1FA625004193B0 /* FontAwesome6_Brands.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome6_Brands.ttf; sourceTree = "<group>"; };
 		43E2D8DF2B1FA625004193B0 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
-		7FFE758BEC59347E24170A13 /* Pods-NamazZamani.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani.release.xcconfig"; path = "Target Support Files/Pods-NamazZamani/Pods-NamazZamani.release.xcconfig"; sourceTree = "<group>"; };
+		4D126F2C3F541BD0AF0BD297 /* libPods-NamazZamani.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NamazZamani.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		53AB87B6BD3A0FE91F369D03 /* Pods-NamazZamani-NamazZamaniTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani-NamazZamaniTests.release.xcconfig"; path = "Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests.release.xcconfig"; sourceTree = "<group>"; };
+		5DA45543A7E920EC0D356DA8 /* Pods-NamazZamani-NamazZamaniTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani-NamazZamaniTests.debug.xcconfig"; path = "Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = NamazZamani/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		8939EFB6615F2508B632CEBF /* Pods-NamazZamani-NamazZamaniTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani-NamazZamaniTests.debug.xcconfig"; path = "Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests.debug.xcconfig"; sourceTree = "<group>"; };
-		99ADE6B5B07E3EE73E3CDE13 /* libPods-NamazZamani-NamazZamaniTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NamazZamani-NamazZamaniTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C40390E19705A01D20B88412 /* Pods-NamazZamani-NamazZamaniTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani-NamazZamaniTests.release.xcconfig"; path = "Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F86889548DAE4BFE6427F28F /* Pods-NamazZamani.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani.debug.xcconfig"; path = "Target Support Files/Pods-NamazZamani/Pods-NamazZamani.debug.xcconfig"; sourceTree = "<group>"; };
+		F03373E7EFD056D732A364EF /* Pods-NamazZamani.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani.debug.xcconfig"; path = "Target Support Files/Pods-NamazZamani/Pods-NamazZamani.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,7 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9D746EEBB171F380BA732D47 /* libPods-NamazZamani-NamazZamaniTests.a in Frameworks */,
+				B825AFE44E5AAD154F44D58E /* libPods-NamazZamani-NamazZamaniTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,7 +103,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				43AD9E432B97639D0028907F /* libRNReactNativeHapticFeedback.a in Frameworks */,
-				F66F4EDC99E255F665DB41A6 /* libPods-NamazZamani.a in Frameworks */,
+				44AC4611F8E0798AE0DC526B /* libPods-NamazZamani.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,14 +146,16 @@
 			children = (
 				43AD9E422B97639D0028907F /* libRNReactNativeHapticFeedback.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				19C4A1E2E11E3D95F6619F32 /* libPods-NamazZamani.a */,
-				99ADE6B5B07E3EE73E3CDE13 /* libPods-NamazZamani-NamazZamaniTests.a */,
+				4D126F2C3F541BD0AF0BD297 /* libPods-NamazZamani.a */,
+				3B276A3738057DB612DFCDB0 /* libPods-NamazZamani-NamazZamaniTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		43AD9E402B9762BB0028907F /* Products */ = {
 			isa = PBXGroup;
+			children = (
+			);
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -219,10 +221,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				F86889548DAE4BFE6427F28F /* Pods-NamazZamani.debug.xcconfig */,
-				7FFE758BEC59347E24170A13 /* Pods-NamazZamani.release.xcconfig */,
-				8939EFB6615F2508B632CEBF /* Pods-NamazZamani-NamazZamaniTests.debug.xcconfig */,
-				C40390E19705A01D20B88412 /* Pods-NamazZamani-NamazZamaniTests.release.xcconfig */,
+				F03373E7EFD056D732A364EF /* Pods-NamazZamani.debug.xcconfig */,
+				1FC04E2C2D5AA4F958804C5B /* Pods-NamazZamani.release.xcconfig */,
+				5DA45543A7E920EC0D356DA8 /* Pods-NamazZamani-NamazZamaniTests.debug.xcconfig */,
+				53AB87B6BD3A0FE91F369D03 /* Pods-NamazZamani-NamazZamaniTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -234,12 +236,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "NamazZamaniTests" */;
 			buildPhases = (
-				4239CEB52599B0ED2F640E35 /* [CP] Check Pods Manifest.lock */,
+				703F210B837F12995FA45C5D /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				114FAE0A3F8611B5CEEAD019 /* [CP] Embed Pods Frameworks */,
-				8E69273D34E95584AB8CD78C /* [CP] Copy Pods Resources */,
+				643E320EB760D485F28E315A /* [CP] Embed Pods Frameworks */,
+				5787C56031689CD0D7B3373D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -255,14 +257,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "NamazZamani" */;
 			buildPhases = (
-				7BAF2DBF17F7887EFCA756E6 /* [CP] Check Pods Manifest.lock */,
+				3DB49DD0DD156C699CF6C6B9 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				775DC4603C7453BAC062E187 /* [CP] Embed Pods Frameworks */,
-				383E21F7D0B3F64C17F84897 /* [CP] Copy Pods Resources */,
+				DFB403D5C812088CE495CDE9 /* [CP] Embed Pods Frameworks */,
+				74274666D7B573F717A77500 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -371,80 +373,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		114FAE0A3F8611B5CEEAD019 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		383E21F7D0B3F64C17F84897 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		4239CEB52599B0ED2F640E35 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-NamazZamani-NamazZamaniTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		775DC4603C7453BAC062E187 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7BAF2DBF17F7887EFCA756E6 /* [CP] Check Pods Manifest.lock */ = {
+		3DB49DD0DD156C699CF6C6B9 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -466,7 +395,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8E69273D34E95584AB8CD78C /* [CP] Copy Pods Resources */ = {
+		5787C56031689CD0D7B3373D /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -481,6 +410,79 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		643E320EB760D485F28E315A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NamazZamani-NamazZamaniTests/Pods-NamazZamani-NamazZamaniTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		703F210B837F12995FA45C5D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NamazZamani-NamazZamaniTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		74274666D7B573F717A77500 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DFB403D5C812088CE495CDE9 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NamazZamani/Pods-NamazZamani-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -535,7 +537,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8939EFB6615F2508B632CEBF /* Pods-NamazZamani-NamazZamaniTests.debug.xcconfig */;
+			baseConfigurationReference = 5DA45543A7E920EC0D356DA8 /* Pods-NamazZamani-NamazZamaniTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 4JUR4D44S2;
@@ -563,7 +565,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C40390E19705A01D20B88412 /* Pods-NamazZamani-NamazZamaniTests.release.xcconfig */;
+			baseConfigurationReference = 53AB87B6BD3A0FE91F369D03 /* Pods-NamazZamani-NamazZamaniTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -588,7 +590,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F86889548DAE4BFE6427F28F /* Pods-NamazZamani.debug.xcconfig */;
+			baseConfigurationReference = F03373E7EFD056D732A364EF /* Pods-NamazZamani.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -616,7 +618,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7FFE758BEC59347E24170A13 /* Pods-NamazZamani.release.xcconfig */;
+			baseConfigurationReference = 1FC04E2C2D5AA4F958804C5B /* Pods-NamazZamani.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
