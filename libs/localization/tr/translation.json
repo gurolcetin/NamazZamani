@@ -7,7 +7,8 @@
     "LastUpdateDate": "Son Güncelleme Tarihi",
     "BeginDate": "Başlangıç Tarihi",
     "Yes": "Evet",
-    "No": "Hayır"
+    "No": "Hayır",
+    "Reset": "Sıfırla"
   },
   "settings": {
     "SystemDefault": "Sistem Varsayılanı",

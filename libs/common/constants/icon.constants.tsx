@@ -85,7 +85,7 @@ export const DhikrRepeatIcon = (theme: ThemeType) => {
   return {
     name: 'repeat',
     type: Icons.FontAwesome6,
-    color: theme.black,
+    color: theme.textColor,
     size: 15,
     solid: false,
   };

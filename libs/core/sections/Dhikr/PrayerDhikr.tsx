@@ -1,7 +1,11 @@
 import React, {useEffect} from 'react';
 import {View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {DhikrTabKeys, HapticFeedbackMethods} from '../../../common/constants';
+import {
+  DhikrTabKeys,
+  GeneralLanguageConstants,
+  HapticFeedbackMethods,
+} from '../../../common/constants';
 import {CardView, CircleProgressBar, SubmitButton} from '../../../components';
 import styles from './style';
 import {
@@ -9,7 +13,7 @@ import {
   resetPrayerDhikr,
   updateDhikr,
 } from '../../../redux/reducers/Dhikr';
-import { hapticFeedback } from '../../helpers';
+import {Translate, hapticFeedback} from '../../helpers';
 
 const PrayerDhikr = () => {
   const dispatch = useDispatch();
@@ -54,7 +58,7 @@ const PrayerDhikr = () => {
         )}
       </CardView>
       <SubmitButton
-        label="Sıfırla"
+        label={Translate(GeneralLanguageConstants.Reset)}
         onSubmit={() => {
           dispatch(resetPrayerDhikr());
           hapticFeedback(HapticFeedbackMethods.ImpactHeavy);

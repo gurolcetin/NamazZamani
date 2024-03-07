@@ -102,7 +102,7 @@ const CircleProgressBar = ({
           x={radius}
           y={textDimensions.height / 2 + radius - 10}
           textAnchor="middle"
-          stroke="black"
+          stroke={currentTheme.textColor}
           fontSize={radius / 3}>
           {getCount()}
         </Text>
@@ -111,7 +111,7 @@ const CircleProgressBar = ({
             x={radius}
             y={radius + 20}
             textAnchor="middle"
-            stroke="black"
+            stroke={currentTheme.textColor}
             fontSize="12"
             fontWeight={'200'}>
             {description}
@@ -135,6 +135,7 @@ const CircleProgressBar = ({
               alignSelf: 'center',
               textAlign: 'center',
               fontSize: 20,
+              color: currentTheme.textColor,
             }}>
             {getCyclicalCount()}
           </NativeText>

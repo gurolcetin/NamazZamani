@@ -117,6 +117,10 @@ export class GeneralLanguageConstants {
     key: 'General.No',
     defaultValue: 'Hayır',
   };
+  static Reset: LanguageModel = {
+    key: 'General.Reset',
+    defaultValue: 'Sıfırla',
+  };
 }
 
 export class MissedPrayerFormLanguageConstants {

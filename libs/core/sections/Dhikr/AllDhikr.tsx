@@ -1,12 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Alert,
-  Button,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Alert, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   DhikrTabKeys,
@@ -37,7 +30,7 @@ import {
   isNumber,
 } from 'typescript-util-functions';
 import {useTheme} from '../../providers';
-import {set, useForm} from 'react-hook-form';
+import {useForm} from 'react-hook-form';
 
 const AllDhikr = () => {
   const {
@@ -58,6 +51,11 @@ const AllDhikr = () => {
   );
   const [value, setValue] = useState('');
   const [radioButtonList, setRadioButtonList] = useState([]);
+  const no = Translate(GeneralLanguageConstants.No);
+  const yes = Translate(GeneralLanguageConstants.Yes);
+  const reset = Translate(GeneralLanguageConstants.Reset);
+
+  const applicationTheme = useSelector((state: any) => state.applicationTheme);
   useEffect(() => {
     console.log(allDhikrList);
     if (
@@ -132,7 +130,10 @@ const AllDhikr = () => {
                 }}
                 style={[
                   styles.dhikrAddButton,
-                  {borderColor: currentTheme.primary},
+                  {
+                    borderColor: currentTheme.primary,
+                    backgroundColor: currentTheme.cardViewBackgroundColor,
+                  },
                 ]}>
                 <Text
                   style={{
@@ -190,20 +191,39 @@ const AllDhikr = () => {
                         key={item.dhikrId + 'buttonRemove'}
                         label="Sil"
                         onSubmit={() => {
-                          dispatch(
-                            deleteDhikrByDhikrId({
-                              id: DhikrTabKeys.All,
-                              dhikrId: item.dhikrId,
-                            }),
+                          Alert.alert(
+                            'Zikri silmek istediğinize emin misiniz?',
+                            '',
+                            [
+                              {
+                                text: no,
+                                onPress: () => {},
+                                style: 'cancel',
+                              },
+                              {
+                                text: yes,
+                                onPress: () => {
+                                  dispatch(
+                                    deleteDhikrByDhikrId({
+                                      id: DhikrTabKeys.All,
+                                      dhikrId: item.dhikrId,
+                                    }),
+                                  );
+                                  hapticFeedback(
+                                    HapticFeedbackMethods.ImpactHeavy,
+                                  );
+                                },
+                              },
+                            ],
+                            {userInterfaceStyle: applicationTheme.theme},
                           );
-                          hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
                         }}
                         buttonStyle={{marginRight: 20}}
                         backgroundColor={currentTheme.systemRed}
                       />
                       <SubmitButton
                         key={item.dhikrId + 'buttonReset'}
-                        label="Sıfırla"
+                        label={reset}
                         onSubmit={() => {
                           dispatch(resetDhikrByItem({dhikrId: item.dhikrId}));
                           hapticFeedback(HapticFeedbackMethods.ImpactHeavy);

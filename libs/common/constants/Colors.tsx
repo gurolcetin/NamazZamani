@@ -25,6 +25,7 @@ export const lightTheme: ThemeType = {
   systemRed: '#FF382B',
   infoIconColor: '#007AFF',
   calculateIconColor: '#FF9500',
+  systemBlue: '#0A84FF',
 };
 
 export const darkTheme: ThemeType = {
@@ -52,4 +53,5 @@ export const darkTheme: ThemeType = {
   systemRed: '#FE4336',
   infoIconColor: '#0A84FF',
   calculateIconColor: '#FF9500',
+  systemBlue: '#0A84FF',
 };

@@ -40,7 +40,6 @@ const CalculatedMissedPrayer = () => {
   const no = Translate(GeneralLanguageConstants.No);
   const yes = Translate(GeneralLanguageConstants.Yes);
   const reCalculateButtonAlert = () => {
-    console.log(missedPrayer);
     Alert.alert(recalculateMessage, '', [
       {
         text: no,

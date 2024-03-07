@@ -23,4 +23,5 @@ export type ThemeType = {
   systemRed: string;
   infoIconColor: string;
   calculateIconColor: string;
+  systemBlue: string;
 };
