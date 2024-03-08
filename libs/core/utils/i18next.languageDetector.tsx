@@ -40,9 +40,7 @@ export const languageDetectorPlugin: LanguageDetectorAsyncModule = {
   },
   cacheUserLanguage: (language: string) => {
     AsyncStorage.setItem(AsyncStorageConstants.LanguageKey, language).catch(
-      e => {
-        console.log('[Cache user language error]', e);
-      },
+      e => {},
     );
   },
 };

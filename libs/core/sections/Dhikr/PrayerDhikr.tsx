@@ -24,11 +24,10 @@ const PrayerDhikr = () => {
         .dhikrList,
   );
   useEffect(() => {
-    console.log('allDhikrList', allDhikrList);
   }, []);
   return (
     <View>
-      <CardView cardStyle={styles.container} paddingLeft={0}>
+      <CardView cardStyle={styles.container} paddingLeft={0} shadow>
         {allDhikrList.map(
           (item: {
             dhikrId: number;

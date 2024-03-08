@@ -11,6 +11,7 @@ export interface CardViewProps {
   bottomDescription?: string;
   bottomDescriptionStyle?: any;
   cardStyle?: StyleProp<ViewStyle> | undefined;
+  shadow?: boolean;
 }
 
 const CardView = (props: CardViewProps) => {
@@ -30,8 +31,10 @@ const CardView = (props: CardViewProps) => {
             backgroundColor: currentTheme.cardViewBackgroundColor,
             borderBottomColor: currentTheme.cardViewBorderColor,
             paddingLeft: props.paddingLeft ?? horizontalScale(20),
+            shadowColor: currentTheme.shadowColor,
           },
           props.cardStyle,
+          props.shadow && style.shadow,
         ]}>
         {props.children}
       </View>

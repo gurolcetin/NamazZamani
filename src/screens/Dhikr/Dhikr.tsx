@@ -16,9 +16,7 @@ import {AllDhikr, PrayerDhikr} from '../../../libs/core/sections';
 
 const Dhikr = () => {
   const dhikr = useSelector((state: any) => state.dhikr);
-  useEffect(() => {
-    console.log(dhikr.dhikrs[0].dhikrList);
-  }, []);
+  useEffect(() => {}, []);
   const tabs = [
     {
       key: DhikrTabKeys.Prayer,

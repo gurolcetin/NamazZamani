@@ -57,7 +57,6 @@ const AllDhikr = () => {
 
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   useEffect(() => {
-    console.log(allDhikrList);
     if (
       !isNullOrUndefined(allDhikrList) &&
       !isNullOrUndefined(allDhikrList.dhikrList) &&
@@ -87,7 +86,6 @@ const AllDhikr = () => {
     setVisible(true);
   };
   const onSubmit = data => {
-    console.log(data);
     dispatch(
       addDhikr({
         id: DhikrTabKeys.All,
@@ -96,8 +94,6 @@ const AllDhikr = () => {
       }),
     );
     setVisible(false);
-    data.dhikrName = StringConstants.EMPTY_STRING;
-    data.dhikrCount = 33;
   };
   return (
     <>
@@ -162,7 +158,8 @@ const AllDhikr = () => {
                     <CardView
                       key={item.dhikrId + 'card'}
                       cardStyle={styles.containerSingleDhikr}
-                      paddingLeft={0}>
+                      paddingLeft={0}
+                      shadow>
                       <CircleProgressBar
                         key={item.dhikrId}
                         progress={getDhikrProgress(item.count, item.maxCount)}

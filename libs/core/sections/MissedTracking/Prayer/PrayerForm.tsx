@@ -130,7 +130,8 @@ const PrayerForm = () => {
         prayerCalculatorDate,
         new Date(),
       );
-      missedPrayerCount -= Math.abs(totalMonths) * calculateSettings.menstrualCycle;
+      missedPrayerCount -=
+        Math.abs(totalMonths) * calculateSettings.menstrualCycle;
     }
     if (missedPrayerCount < 0) {
       setSubmitErrorMessages(missedPrayerNotCalculatedError);
@@ -144,6 +145,7 @@ const PrayerForm = () => {
   return (
     <>
       <TableView
+        cardViewShadow
         paddingVertical={15}
         dividerSliceCount={2}
         childrenList={[

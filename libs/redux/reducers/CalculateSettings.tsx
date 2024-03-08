@@ -12,7 +12,6 @@ const CalculateSettings = createSlice({
       return initialState;
     },
     updateMenstrualCycle: (state, action) => {
-      console.log('action.payload', action.payload);
       state.numberOfMenstrualCycle = action.payload.numberOfMenstrualCycle;
     },
   },

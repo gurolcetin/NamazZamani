@@ -15,4 +15,10 @@ export const style = StyleSheet.create({
     fontSize: scaleFontSize(16),
     fontWeight: 'bold',
   },
+  shadow: {
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5, // Android için gerekli
+  },
 });

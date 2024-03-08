@@ -75,11 +75,6 @@ const MissedPrayer = createSlice({
           item.performedPrayerCount -= 1;
           item.date = new Date();
           state.lastUpdateDate = new Date();
-          console.log(
-            'increasePerformedPrayer',
-            item.missedPrayerCount,
-            item.performedPrayerCount,
-          );
         }
         return item;
       });
@@ -93,11 +88,6 @@ const MissedPrayer = createSlice({
           item.performedPrayerCount += 1;
           item.date = new Date();
           state.lastUpdateDate = new Date();
-          console.log(
-            'decreasePerformedPrayer',
-            item.missedPrayerCount,
-            item.performedPrayerCount,
-          );
         }
         return item;
       });

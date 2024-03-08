@@ -109,13 +109,13 @@ const FastingForm = () => {
     }
     let missedFastingCount =
       calculateRamadanCountBetweenDates(fastingCalculatorDate, new Date()) * 30;
-    console.log(missedFastingCount);
     if (data.gender === Gender.Female) {
       const ramadanCount = calculateRamadanCountBetweenDates(
         data.date,
         fastingCalculatorDate,
       );
-      missedFastingCount += Math.abs(ramadanCount) * calculateSettings.numberOfMenstrualCycle;
+      missedFastingCount +=
+        Math.abs(ramadanCount) * calculateSettings.numberOfMenstrualCycle;
     }
     if (
       !isNullOrEmptyString(data.fastingPerformedCount) &&
@@ -123,7 +123,6 @@ const FastingForm = () => {
     ) {
       missedFastingCount -= data.fastingPerformedCount;
     }
-    console.log(missedFastingCount);
     if (missedFastingCount < 0) {
       setSubmitErrorMessages(fastsNotCalculatedError);
     } else if (missedFastingCount === 0) {
@@ -136,6 +135,7 @@ const FastingForm = () => {
   return (
     <>
       <TableView
+        cardViewShadow
         paddingVertical={15}
         dividerSliceCount={2}
         childrenList={[

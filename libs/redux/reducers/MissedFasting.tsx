@@ -33,11 +33,6 @@ const MissedFasting = createSlice({
         state.missedFasting.performedFastingCount -= 1;
         state.missedFasting.date = new Date();
         state.lastUpdateDate = new Date();
-        console.log(
-          'increasePerformedFasting',
-          state.missedFasting.missedFastingCount,
-          state.missedFasting.performedFastingCount,
-        );
       }
     },
     decreasePerformedFasting: (state, action) => {
@@ -48,11 +43,6 @@ const MissedFasting = createSlice({
         state.missedFasting.performedFastingCount += 1;
         state.missedFasting.date = new Date();
         state.lastUpdateDate = new Date();
-        console.log(
-          'increasePerformedFasting',
-          state.missedFasting.missedFastingCount,
-          state.missedFasting.performedFastingCount,
-        );
       }
     },
   },

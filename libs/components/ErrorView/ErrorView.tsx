@@ -25,7 +25,6 @@ const ErrorView = ({message, duration, style, isClossable}: ErrorViewProps) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    console.log(message);
     if (!isNullOrEmptyString(message)) {
       setIsVisible(true);
       Animated.timing(fadeAnim, {

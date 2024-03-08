@@ -11,11 +11,12 @@ export interface TableViewProps {
   marginRight?: number;
   dividerSliceCount?: number;
   cardViewStyle?: StyleProp<ViewStyle> | undefined;
+  cardViewShadow?: boolean;
 }
 
 const TableView = (props: TableViewProps) => {
   return (
-    <CardView cardStyle={props.cardViewStyle}>
+    <CardView cardStyle={props.cardViewStyle} shadow={props.cardViewShadow}>
       {props.childrenList.map((item, index) => {
         return (
           <View key={index + 'container'}>
