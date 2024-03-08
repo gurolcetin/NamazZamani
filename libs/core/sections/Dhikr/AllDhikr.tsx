@@ -96,6 +96,8 @@ const AllDhikr = () => {
       }),
     );
     setVisible(false);
+    data.dhikrName = StringConstants.EMPTY_STRING;
+    data.dhikrCount = 33;
   };
   return (
     <>

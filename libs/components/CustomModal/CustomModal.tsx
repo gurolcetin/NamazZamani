@@ -25,6 +25,7 @@ const CustomModal = ({
   buttons,
   title,
 }: CustomModalProps) => {
+  const {currentTheme} = useTheme();
   const [modalHeight, setModalHeight] = useState(
     Dimensions.get('window').height * 0.5,
   );
@@ -57,8 +58,16 @@ const CustomModal = ({
       <TouchableWithoutFeedback onPress={handleOverlayPress}>
         <View style={[styles.modalOverlay, {height: modalHeight}]}>
           <TouchableWithoutFeedback>
-            <View style={styles.modalContent}>
-              {title && <Text style={styles.title}>{title}</Text>}
+            <View
+              style={[
+                styles.modalContent,
+                {backgroundColor: currentTheme.cardViewBackgroundColor},
+              ]}>
+              {title && (
+                <Text style={[styles.title, {color: currentTheme.textColor}]}>
+                  {title}
+                </Text>
+              )}
               {children}
               <ButtonRow buttons={buttons} />
             </View>
@@ -77,7 +86,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   modalContent: {
-    backgroundColor: 'white',
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 10,
