@@ -7,7 +7,7 @@ import {Translate} from '../../core/helpers';
 import {MenuNameLanguageConstants} from './language.constants';
 import {MenuIconConstants} from './string.contants';
 
-export const bottomTabMenuItems = currentTheme => [
+export const bottomTabMenuItems = (currentTheme: { primary: any; backgroundColor?: string; statusBarColor?: string; menuBackgroundColor?: string; menuBorderColor?: string; cardViewBackgroundColor?: string; cardViewBorderColor?: string; textColor?: string; white?: string; black?: string; gray?: string; languageIconBackgroundColor?: string; activeTabTextColor?: string; passiveTabTextColor?: string; inputBackgroundColor?: string; inputColor?: string; segmentedControlBackgroundColor?: string; segmentedControlSelectedBackgroundColor?: string; segmentedControlTextColor?: string; formErrorColor?: string; systemGreen?: string; systemRed?: string; infoIconColor?: string; calculateIconColor?: string; systemBlue?: string; shadowColor?: string; }) => [
   // {
   //   id: 1,
   //   route: StackRoutes.PrayerTimeStack,
@@ -32,7 +32,7 @@ export const bottomTabMenuItems = currentTheme => [
     id: 3,
     route: StackRoutes.PrayerTimeStack,
     label: Translate(MenuNameLanguageConstants.Dhikr),
-    type: Icons.MaterialCommunityIcons,
+    type: Icons.MaterialIcons,
     icon: MenuIconConstants.Dhikr,
     component: Dhikr,
     color: currentTheme.primary,
@@ -46,5 +46,6 @@ export const bottomTabMenuItems = currentTheme => [
     icon: MenuIconConstants.Settings,
     component: SettingsStack,
     color: currentTheme.primary,
+    solid: true
   },
 ];

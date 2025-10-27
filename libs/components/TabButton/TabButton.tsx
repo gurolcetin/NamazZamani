@@ -18,17 +18,18 @@ const TabButton = ({item, accessibilityState, onPress}: any) => {
 
   useEffect(() => {
     handleAnimated();
-  }, [accessibilityState.selected]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessibilityState?.selected]);
 
   const handleAnimated = () => {
     Animated.parallel([
       Animated.timing(translate, {
-        toValue: accessibilityState.selected ? 1 : 0,
+        toValue: accessibilityState?.selected ? 1 : 0,
         duration: 400,
         useNativeDriver: false,
       }),
       Animated.timing(scale, {
-        toValue: accessibilityState.selected ? 1 : 0,
+        toValue: accessibilityState?.selected ? 1 : 0,
         duration: 250,
         useNativeDriver: false,
       }),
@@ -83,7 +84,7 @@ const TabButton = ({item, accessibilityState, onPress}: any) => {
         <Icon
           type={item.type}
           name={item.icon}
-          color={accessibilityState.selected ? currentTheme.white : item.color}
+          color={accessibilityState?.selected ? currentTheme.white : item.color}
           style={item.icon}
           size={item.size}
           solid={item.solid}

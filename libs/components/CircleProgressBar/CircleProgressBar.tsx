@@ -39,7 +39,7 @@ const CircleProgressBar = ({
       duration: 300,
       useNativeDriver: true,
     }).start();
-  }, [progress]);
+  }, [progress, progressAnimation]);
 
   const animatedStrokeDashoffset = progressAnimation.interpolate({
     inputRange: [0, 1],

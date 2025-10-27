@@ -7,6 +7,8 @@ import {
   Dimensions,
   Button,
   Text,
+  TouchableOpacity,
+  TouchableHighlight,
 } from 'react-native';
 import {useTheme} from '../../core/providers';
 
@@ -118,18 +120,23 @@ const ButtonRow = ({buttons}: ButtonRowProps) => {
     <View style={buttonStyles.buttonRow}>
       {buttons.map((button, index) => (
         <View key={index + 'buttonRow'}>
-          <Button
-            title={button.title}
-            onPress={button.onPress}
-            color={
-              button.type === 'cancel'
-                ? currentTheme.systemRed
-                : currentTheme.systemBlue
-            }
-          />
-          {index < buttons.length - 1 && (
-            <View style={buttonStyles.separator} />
-          )}
+          <TouchableHighlight
+            underlayColor={'transparent'}
+            style={{
+              backgroundColor: 'transparent',
+            }}
+            onPress={button.onPress}>
+            <Text
+              style={{
+                color:
+                  button.type === 'cancel'
+                    ? currentTheme.systemRed
+                    : currentTheme.systemBlue,
+                fontSize: 17,
+              }}>
+              {button.title}
+            </Text>
+          </TouchableHighlight>
         </View>
       ))}
     </View>
@@ -140,10 +147,7 @@ const buttonStyles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: 20,
-  },
-  separator: {
-    width: 1,
-    backgroundColor: 'gray',
+    marginTop: 30,
+    marginBottom: 10,
   },
 });

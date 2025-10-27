@@ -3,11 +3,11 @@ import {ThemeType} from '../models';
 
 export const SettingsScreenLanguageIconLeft = (theme: ThemeType) => {
   return {
-    name: 'earth',
-    type: Icons.AntDesign,
+    name: 'earth-europe',
+    type: Icons.FontAwesome6,
     color: theme.white,
     size: 20,
-    solid: true,
+    solid: true
   };
 };
 
@@ -23,8 +23,8 @@ export const SettingsScreenLanguageIconRight = (theme: ThemeType) => {
 
 export const SettingsScreenThemeIconLeft = (theme: ThemeType) => {
   return {
-    name: 'theme-light-dark',
-    type: Icons.MaterialCommunityIcons,
+    name: 'invert-mode-outline',
+    type: Icons.Ionicons,
     color: theme.white,
     size: 20,
     solid: true,

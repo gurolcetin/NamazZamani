@@ -10,7 +10,7 @@ import {useForm} from 'react-hook-form';
 import {FormControl} from '../../../../components/FormControl/FormControl';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import styles from './style';
-import {isNullOrEmptyString, isNumber} from 'typescript-util-functions';
+import {isNullOrEmptyString, isNullOrUndefined, isNullOrWhiteSpace, isNumber} from 'typescript-util-functions';
 import {useTheme} from '../../../providers';
 import {
   Gender,
@@ -117,7 +117,6 @@ const PrayerForm = () => {
     } else {
       errorMessage = birthDateControlError;
     }
-
     if (!isNullOrEmptyString(errorMessage)) {
       return setSubmitErrorMessages(errorMessage);
     }
@@ -130,8 +129,9 @@ const PrayerForm = () => {
         prayerCalculatorDate,
         new Date(),
       );
+      let menstrualCycle = !isNullOrUndefined(calculateSettings?.menstrualCycle) ? calculateSettings.menstrualCycle : 7;
       missedPrayerCount -=
-        Math.abs(totalMonths) * calculateSettings.menstrualCycle;
+        Math.abs(totalMonths) * menstrualCycle;
     }
     if (missedPrayerCount < 0) {
       setSubmitErrorMessages(missedPrayerNotCalculatedError);

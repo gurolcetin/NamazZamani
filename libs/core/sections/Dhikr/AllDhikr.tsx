@@ -252,11 +252,17 @@ const AllDhikr = () => {
       <CustomModal
         visible={visible}
         title={'Yeni Zikir Kaydı'}
-        onClose={() => setVisible(false)}
+        onClose={() => {
+          setVisible(false);
+          control._reset();
+        }}
         buttons={[
           {
             title: 'Kapat',
-            onPress: () => setVisible(false),
+            onPress: () => {
+              setVisible(false);
+              control._reset();
+            },
             type: 'cancel',
           },
           {

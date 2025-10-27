@@ -12,7 +12,7 @@ export const TabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName={StackRoutes.PrayerTimeStack}
+      initialRouteName={`${StackRoutes.PrayerTimeStack}2`}
       screenOptions={{
         headerShown: false,
         tabBarStyle: [
@@ -26,7 +26,7 @@ export const TabNavigator = () => {
         ],
         header: () => null,
       }}>
-      {bottomTabMenuItems(currentTheme).map((item, index) => (
+      {bottomTabMenuItems(currentTheme).map((item) => (
         <Tab.Screen
           key={item.id}
           name={item.route + item.id}

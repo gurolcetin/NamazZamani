@@ -1,46 +1,61 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {LanguageDetectorAsyncModule} from 'i18next';
-import {NativeModules, Platform} from 'react-native';
-import {AsyncStorageConstants} from '../../common/constants';
+import { LanguageDetectorAsyncModule } from 'i18next';
+import { NativeModules, Platform, I18nManager } from 'react-native';
+import { AsyncStorageConstants } from '../../common/constants';
 
 export const GetDeviceLang = () => {
-  const appLanguage =
-    Platform.OS === 'ios'
-      ? NativeModules.SettingsManager.settings.AppleLocale ||
-        NativeModules.SettingsManager.settings.AppleLanguages[0]
-      : NativeModules.I18nManager.localeIdentifier;
+  try {
+    if (Platform.OS === 'ios') {
+      const settings = NativeModules?.SettingsManager?.settings;
+      const appleLocale =
+        settings?.AppleLocale ||
+        (Array.isArray(settings?.AppleLanguages)
+          ? settings.AppleLanguages[0]
+          : undefined);
 
-  return appLanguage.search(/-|_/g) !== -1
-    ? appLanguage.slice(0, 2)
-    : appLanguage;
+      const tag = appleLocale?.toString();
+      if (!tag) return 'en';
+      // "tr_TR" / "tr-TR" -> "tr"
+      return tag.slice(0, 2);
+    } else {
+      // RN I18nManager veya NativeModules.I18nManager
+      const androidLocale =
+        (I18nManager as any)?.localeIdentifier ||
+        NativeModules?.I18nManager?.localeIdentifier;
+
+      const tag = androidLocale?.toString();
+      if (!tag) return 'en';
+      return tag.slice(0, 2);
+    }
+  } catch {
+    return 'en';
+  }
 };
 
 export const languageDetectorPlugin: LanguageDetectorAsyncModule = {
   type: 'languageDetector',
-  async: true,
+  async: true, // callback yolunu kullanıyoruz
   init: () => {},
-  detect: (callback: (lang: string) => void) => {
+  detect: callback => {
+    // >>> ÖNEMLİ: Burada ASLA async/await kullanmıyoruz, return type 'void' kalmalı
     const deviceLang = GetDeviceLang();
 
-    try {
-      AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
-        .then(language => {
-          if (language) {
-            return callback(language);
-          } else {
-            return callback(deviceLang);
-          }
-        })
-        .catch(e => {
-          return callback(deviceLang);
-        });
-    } catch (error) {
-      return callback(deviceLang);
-    }
+    AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
+      .then(saved => {
+        const lang = saved || deviceLang || 'en';
+        // callback opsiyonel tiplenmiş olabilir, guard ekleyelim
+        if (callback) callback(lang);
+      })
+      .catch(() => {
+        if (callback) callback(deviceLang || 'en');
+      });
+
+    // Not: hiçbir şey return ETME (void olacak)
   },
   cacheUserLanguage: (language: string) => {
+    // tip olarak void bekleniyor; async/await kullanmadan fire-and-forget
     AsyncStorage.setItem(AsyncStorageConstants.LanguageKey, language).catch(
-      e => {},
+      () => {},
     );
   },
 };
