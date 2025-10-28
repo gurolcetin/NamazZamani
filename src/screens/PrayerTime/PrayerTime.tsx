@@ -59,13 +59,6 @@ function fmtClock(totalSec: number) {
     sec,
   ).padStart(2, '0')}`;
 }
-function fmtHuman(totalSec: number) {
-  const s = Math.max(0, Math.floor(totalSec));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  if (h > 0) return `${h} saat ${m} dk`;
-  return `${m} dk`;
-}
 function progressBetween(start: Date, end: Date, now = new Date()) {
   const span = end.getTime() - start.getTime();
   if (span <= 0) return 0;
@@ -116,7 +109,7 @@ type SmallCard = {
   key: Key;
   label: string;
   time: string;
-  isNext?: boolean;
+  isCurrent?: boolean; // ŞU ANKİ vakit vurgusu
   miniLeft?: string;
   notif?: boolean;
 };
@@ -126,9 +119,10 @@ export default function PrayerTime() {
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const [leftClock, setLeftClock] = useState('00:00:00');
-  const [leftHuman, setLeftHuman] = useState<string>('');
-  const nextKeyRef = useRef<Key>('Fajr');
+  const [leftClock, setLeftClock] = useState('00:00:00'); // sonraki vakte kalan dijital
+  const nextKeyRef = useRef<Key>('Fajr'); // SIRADAKİ
+  const currentKeyRef = useRef<Key>('Fajr'); // ŞU ANKİ (prev)
+
   const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
   const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
 
@@ -140,14 +134,13 @@ export default function PrayerTime() {
       const { latitude, longitude } = await getCurrentPosition();
       const data = await fetchPrayerTimesByCoords(latitude, longitude);
       setTimings(data);
-      // 2) İl/ilçe etiketi
+      // İl/ilçe etiketi
       try {
         const label = await reverseGeocode(latitude, longitude);
         setLocationLabel(label);
       } catch {
         setLocationLabel('Konum bulunamadı');
       }
-      // 3) UTC etiketi
       setUtcLabel(getUTCLabel());
     } finally {
       setLoading(false);
@@ -157,15 +150,15 @@ export default function PrayerTime() {
     load();
   }, [load]);
 
-  // ticker
+  // ticker: hem SIRADAKİ hem ŞU ANKİ bilgiyi güncelle
   useEffect(() => {
     if (!timings) return;
     const seq = buildSequence(timings);
     const tick = () => {
       const info = computeNext(seq, new Date());
-      nextKeyRef.current = info.next.key;
-      setLeftClock(fmtClock(info.leftSec));
-      setLeftHuman(fmtHuman(info.leftSec));
+      nextKeyRef.current = info.next.key; // sıradaki
+      currentKeyRef.current = info.prev.key; // şu anki
+      setLeftClock(fmtClock(info.leftSec)); // sıradakiye kalan
     };
     tick();
     const id = setInterval(tick, 1000);
@@ -178,17 +171,18 @@ export default function PrayerTime() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timings, leftClock]);
 
-  // 2 sütun küçük kart verisi
+  // 2 sütun küçük kart verisi (VURGULU = ŞU ANKİ)
   const smallCards: SmallCard[] = useMemo(() => {
     if (!timings) return [];
     const seq = buildSequence(timings);
-    const n = nextKeyRef.current;
+    const cur = currentKeyRef.current;
     return seq.map(x => ({
       key: x.key,
       label: x.label,
       time: x.time,
-      isNext: x.key === n,
-      miniLeft: x.key === n ? leftClock : undefined, // mm:ss göster
+      isCurrent: x.key === cur,
+      // İstersen şu anki kartta mini geri sayımı da göster (sonrakiye kalan):
+      miniLeft: x.key === cur ? leftClock : undefined,
       notif: x.key === 'Fajr' || x.key === 'Maghrib',
     }));
   }, [timings, leftClock]);
@@ -204,40 +198,39 @@ export default function PrayerTime() {
   }
 
   const renderSmall = ({ item, index }: ListRenderItemInfo<SmallCard>) => {
+    const active = item.isCurrent;
     return (
       <View
         style={[
           styles.smallCard,
           index % 2 === 0 ? { marginRight: 8 } : { marginLeft: 8 },
-          item.isNext && { backgroundColor: currentTheme.primary },
+          active && { backgroundColor: currentTheme.primary },
         ]}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Ionicons
             name={ICONS[item.key] as any}
             size={18}
-            color={item.isNext ? 'white' : 'black'}
+            color={active ? 'white' : 'black'}
           />
-          <Text
-            style={[styles.smallTitle, item.isNext && styles.smallTitleActive]}
-          >
+          <Text style={[styles.smallTitle, active && styles.smallTitleActive]}>
             {item.label}
           </Text>
         </View>
 
         <View style={{ alignItems: 'flex-end', gap: 2 }}>
-          {item.isNext && (
-            <Text style={styles.smallMiniLeft}>{item.miniLeft}</Text>
-          )}
-          <Text
-            style={[styles.smallTime, item.isNext && styles.smallTimeActive]}
-          >
+          {active && <Text style={styles.smallMiniLeft}>{item.miniLeft}</Text>}
+          <Text style={[styles.smallTime, active && styles.smallTimeActive]}>
             {item.time}
           </Text>
         </View>
       </View>
     );
   };
+
+  // Büyük kart: SIRADAKİ vakit bilgisi + kalan dijital
+  const nextLabel = LABELS_TR[nextKeyRef.current];
+  const nextIcon = ICONS[nextKeyRef.current] as any;
 
   return (
     <ScreenViewContainer>
@@ -255,25 +248,21 @@ export default function PrayerTime() {
         </View>
       </View>
 
-      {/* Big next card */}
+      {/* Big next card (SIRADAKİ) */}
       <View
         style={[styles.nextCard, { backgroundColor: currentTheme.primary }]}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={styles.nextIconWrap}>
-            <Ionicons
-              name={ICONS[nextKeyRef.current] as any}
-              size={22}
-              color="#fff"
-            />
+            <Ionicons name={nextIcon} size={22} color="#fff" />
           </View>
           <View>
-            <Text style={styles.nextLabel}>
-              {LABELS_TR[nextKeyRef.current]}
-            </Text>
-            <Text style={styles.nextHint}>~ {leftHuman}</Text>
+            {/* Solda sıradaki vakit adı + kalan tam dijital */}
+            <Text style={styles.nextLabel}>{nextLabel}</Text>
+            <Text style={styles.nextHint}>{leftClock} kaldı</Text>
           </View>
         </View>
+        {/* Sağda sıradaki vaktin SAATİ */}
         <Text style={styles.nextBigTime}>{nextTime}</Text>
       </View>
 
@@ -320,30 +309,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.06)',
   },
 
-  headerBlock: { paddingHorizontal: 16, paddingTop: 6 },
-  bigTitle: { fontSize: 28, fontWeight: '700', letterSpacing: 0.2 },
-  countdown: {
-    fontSize: 48,
-    fontWeight: '800',
-    marginTop: 6,
-    letterSpacing: 1,
-  },
-
-  chip: {
-    marginTop: 12,
-    marginHorizontal: 16,
-    backgroundColor: 'rgba(0,0,0,0.08)',
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  chipText: { fontSize: 14, fontWeight: '600', opacity: 0.85 },
-  chipTrack: {
-    marginTop: 8,
-    height: 6,
-    borderRadius: 6,
-    backgroundColor: 'rgba(0,0,0,0.15)',
-  },
   nextCard: {
     marginTop: 14,
     marginHorizontal: 16,
@@ -362,7 +327,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   nextLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  nextHint: { color: 'rgba(255,255,255,0.9)', fontSize: 13, marginTop: 2 },
+  nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 14, marginTop: 2 },
   nextBigTime: { color: '#fff', fontSize: 32, fontWeight: '800' },
 
   smallCard: {
@@ -382,7 +347,7 @@ const styles = StyleSheet.create({
   smallTimeActive: { color: '#fff' },
   smallMiniLeft: {
     fontSize: 12,
-    opacity: 0.8,
+    opacity: 0.9,
     color: '#fff',
     alignSelf: 'flex-end',
   },
