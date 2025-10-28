@@ -20,6 +20,7 @@ import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
 import { requestLocationPermission, getCurrentPosition } from './permission';
 import { ScreenViewContainer } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
+import { reverseGeocode, getUTCLabel } from './reverse-geocode';
 
 // ----- Types & Maps ---------------------------------------------------------
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -128,6 +129,8 @@ export default function PrayerTime() {
   const [leftClock, setLeftClock] = useState('00:00:00');
   const [leftHuman, setLeftHuman] = useState<string>('');
   const nextKeyRef = useRef<Key>('Fajr');
+  const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
+  const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
 
   const load = useCallback(async () => {
     try {
@@ -137,6 +140,15 @@ export default function PrayerTime() {
       const { latitude, longitude } = await getCurrentPosition();
       const data = await fetchPrayerTimesByCoords(latitude, longitude);
       setTimings(data);
+      // 2) İl/ilçe etiketi
+      try {
+        const label = await reverseGeocode(latitude, longitude);
+        setLocationLabel(label);
+      } catch {
+        setLocationLabel('Konum bulunamadı');
+      }
+      // 3) UTC etiketi
+      setUtcLabel(getUTCLabel());
     } finally {
       setLoading(false);
     }
@@ -233,7 +245,9 @@ export default function PrayerTime() {
       <View style={styles.headerTop}>
         <Pressable style={styles.cityBtn}>
           <Ionicons name="location" size={16} />
-          <Text style={styles.cityText}>İstanbul • UTC+3</Text>
+          <Text style={styles.cityText}>
+            {locationLabel} • {utcLabel}
+          </Text>
           <Ionicons name="chevron-down" size={16} />
         </Pressable>
         <View style={styles.roundIcon}>
