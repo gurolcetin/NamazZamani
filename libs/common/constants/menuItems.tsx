@@ -2,7 +2,7 @@ import {StackRoutes} from '../../../src/navigation/Routes';
 import {SettingsStack} from '../../../src/navigation/Stack/SettingsStack';
 import Dhikr from '../../../src/screens/Dhikr/Dhikr';
 import MissedTracking from '../../../src/screens/MissedTracking/MissedTracking';
-import PrayerTimeStack from '../../../src/screens/PrayerTime/PrayerTime';
+import PrayerTime from '../../../src/screens/PrayerTime/PrayerTime';
 import {Icons} from '../../components/Icons/Icons';
 import {Translate} from '../../core/helpers';
 import {MenuNameLanguageConstants} from './language.constants';
@@ -15,7 +15,7 @@ export const bottomTabMenuItems = (currentTheme: { primary: any; backgroundColor
     label: Translate(MenuNameLanguageConstants.PrayerTime),
     type: Icons.FontAwesome6,
     icon: MenuIconConstants.PrayerTime,
-    component: PrayerTimeStack,
+    component: PrayerTime,
     color: currentTheme.primary,
     size: 20,
     solid: true
@@ -28,6 +28,7 @@ export const bottomTabMenuItems = (currentTheme: { primary: any; backgroundColor
     icon: MenuIconConstants.MissedTracking,
     component: MissedTracking,
     color: currentTheme.primary,
+    size: 20,
     solid: true,
   },
   {
@@ -38,6 +39,7 @@ export const bottomTabMenuItems = (currentTheme: { primary: any; backgroundColor
     icon: MenuIconConstants.Dhikr,
     component: Dhikr,
     color: currentTheme.primary,
+    size: 20,
     solid: true,
   },
   {
@@ -48,6 +50,7 @@ export const bottomTabMenuItems = (currentTheme: { primary: any; backgroundColor
     icon: MenuIconConstants.Settings,
     component: SettingsStack,
     color: currentTheme.primary,
+    size: 20,
     solid: true
   },
 ];

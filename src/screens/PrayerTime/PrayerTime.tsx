@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   FlatList,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -19,6 +18,8 @@ import {
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
 import { requestLocationPermission, getCurrentPosition } from './permission';
+import { ScreenViewContainer } from '../../../libs/components';
+import { useTheme } from '../../../libs/core/providers';
 
 // ----- Types & Maps ---------------------------------------------------------
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -119,13 +120,13 @@ type SmallCard = {
   notif?: boolean;
 };
 
-export default function VakitlerScreen() {
+export default function PrayerTime() {
+  const { currentTheme } = useTheme();
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [leftClock, setLeftClock] = useState('00:00:00');
   const [leftHuman, setLeftHuman] = useState<string>('');
-  const [barPct, setBarPct] = useState(0);
   const nextKeyRef = useRef<Key>('Fajr');
 
   const load = useCallback(async () => {
@@ -153,18 +154,11 @@ export default function VakitlerScreen() {
       nextKeyRef.current = info.next.key;
       setLeftClock(fmtClock(info.leftSec));
       setLeftHuman(fmtHuman(info.leftSec));
-      setBarPct(info.progress);
     };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [timings]);
-
-  const headerTitle = useMemo(() => {
-    const n = nextKeyRef.current; // ex. Fajr
-    return `${LABELS_TR[n]}’a Kalan`;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timings, leftClock]);
 
   const nextTime = useMemo(() => {
     if (!timings) return '';
@@ -203,11 +197,15 @@ export default function VakitlerScreen() {
         style={[
           styles.smallCard,
           index % 2 === 0 ? { marginRight: 8 } : { marginLeft: 8 },
-          item.isNext && styles.smallCardActive,
+          item.isNext && { backgroundColor: currentTheme.primary },
         ]}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Ionicons name={ICONS[item.key] as any} size={18} />
+          <Ionicons
+            name={ICONS[item.key] as any}
+            size={18}
+            color={item.isNext ? 'white' : 'black'}
+          />
           <Text
             style={[styles.smallTitle, item.isNext && styles.smallTitleActive]}
           >
@@ -230,72 +228,51 @@ export default function VakitlerScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
-        {/* top-right bell in subtle circle */}
-        <View style={styles.headerTop}>
-          <Pressable style={styles.cityBtn}>
-            <Ionicons name="location" size={16} />
-            <Text style={styles.cityText}>İstanbul • UTC+3</Text>
-            <Ionicons name="chevron-down" size={16} />
-          </Pressable>
-          <View style={styles.roundIcon}>
-            <Ionicons name="notifications-outline" size={18} />
-          </View>
+    <ScreenViewContainer>
+      {/* top-right bell in subtle circle */}
+      <View style={styles.headerTop}>
+        <Pressable style={styles.cityBtn}>
+          <Ionicons name="location" size={16} />
+          <Text style={styles.cityText}>İstanbul • UTC+3</Text>
+          <Ionicons name="chevron-down" size={16} />
+        </Pressable>
+        <View style={styles.roundIcon}>
+          <Ionicons name="notifications-outline" size={18} />
         </View>
+      </View>
 
-        {/* Big title + countdown */}
-        <View style={styles.headerBlock}>
-          <Text style={styles.bigTitle}>{headerTitle}</Text>
-          <Text style={styles.countdown}>{leftClock}</Text>
-        </View>
-
-        {/* chip with mini progress */}
-        <View style={styles.chip}>
-          <Text style={styles.chipText}>
-            ~ {headerTitle.replace('’a Kalan', '')} {leftHuman}
-          </Text>
-          <View style={styles.chipTrack}>
-            <View
-              style={[
-                styles.chipFill,
-                { width: `${Math.round(barPct * 100)}%` },
-              ]}
+      {/* Big next card */}
+      <View
+        style={[styles.nextCard, { backgroundColor: currentTheme.primary }]}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={styles.nextIconWrap}>
+            <Ionicons
+              name={ICONS[nextKeyRef.current] as any}
+              size={22}
+              color="#fff"
             />
           </View>
-        </View>
-
-        {/* Big next card */}
-        <View style={styles.nextCard}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={styles.nextIconWrap}>
-              <Ionicons
-                name={ICONS[nextKeyRef.current] as any}
-                size={22}
-                color="#fff"
-              />
-            </View>
-            <View>
-              <Text style={styles.nextLabel}>
-                {LABELS_TR[nextKeyRef.current]}
-              </Text>
-              <Text style={styles.nextHint}>~ {leftHuman}</Text>
-            </View>
+          <View>
+            <Text style={styles.nextLabel}>
+              {LABELS_TR[nextKeyRef.current]}
+            </Text>
+            <Text style={styles.nextHint}>~ {leftHuman}</Text>
           </View>
-          <Text style={styles.nextBigTime}>{nextTime}</Text>
         </View>
+        <Text style={styles.nextBigTime}>{nextTime}</Text>
+      </View>
 
-        {/* grid (2 columns) small cards */}
-        <FlatList
-          data={smallCards}
-          numColumns={2}
-          keyExtractor={i => i.key}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
-          renderItem={renderSmall}
-          showsVerticalScrollIndicator={false}
-        />
-      </SafeAreaView>
-    </View>
+      {/* grid (2 columns) small cards */}
+      <FlatList
+        data={smallCards}
+        numColumns={2}
+        keyExtractor={i => i.key}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+        renderItem={renderSmall}
+        showsVerticalScrollIndicator={false}
+      />
+    </ScreenViewContainer>
   );
 }
 
@@ -353,12 +330,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: 'rgba(0,0,0,0.15)',
   },
-  chipFill: { height: 6, borderRadius: 6, backgroundColor: '#2AC3A2' },
-
   nextCard: {
     marginTop: 14,
     marginHorizontal: 16,
-    backgroundColor: '#16b397',
     borderRadius: 22,
     padding: 18,
     flexDirection: 'row',
@@ -387,9 +361,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: 84,
-  },
-  smallCardActive: {
-    backgroundColor: '#1bb89d',
   },
   smallTitle: { fontSize: 16, fontWeight: '700' },
   smallTitleActive: { color: '#fff' },

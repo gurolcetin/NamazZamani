@@ -1,82 +1,110 @@
-// ThemeProvider.js
-import React, {createContext, useState, useContext, useEffect} from 'react';
-import {Theme} from '../../common/enums';
-import {useColorScheme} from 'react-native';
-import {ThemeType} from '../../common/models';
-import {darkTheme, lightTheme} from '../../common/constants';
-import {updateApplicationTheme} from '../../redux/reducers/ApplicationTheme';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useColorScheme } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ThemeContext = createContext(
-  {} as {
-    theme: Theme;
-    toggleTheme: (theme: Theme) => void;
-    currentTheme: ThemeType;
-  },
-);
+import { Theme, Accent } from '../../common/enums';
+import { ThemeType } from '../../common/models';
+import {
+  updateApplicationTheme /*, updateAccent*/,
+} from '../../redux/reducers/ApplicationTheme';
+import {
+  baseDarkTheme,
+  baseLightTheme,
+  accentPalettes,
+} from '../../common/constants/Colors';
 
-const ThemeProvider = ({children}) => {
+type Ctx = {
+  theme: Theme;
+  accent: Accent;
+  toggleTheme: (theme: Theme) => void;
+  setAccent: (accent: Accent) => void;
+  currentTheme: ThemeType;
+  gradient: [string, string]; // arka plan
+};
+
+const ThemeContext = createContext({} as Ctx);
+
+const THEME_KEY = 'app_theme_mode';
+const ACCENT_KEY = 'app_theme_accent';
+
+export const ThemeProvider = ({ children }) => {
   const dispatch = useDispatch();
-  const [theme, setTheme] = useState<Theme>(Theme.LIGHT);
-  const isDarkMode = useColorScheme() === Theme.DARK;
+  const systemDark = useColorScheme() === 'dark';
   const colorScheme = useColorScheme();
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>(lightTheme);
+
+  // mode
+  const [theme, setTheme] = useState<Theme>(Theme.LIGHT);
+  // accent
+  const [accent, setAccentState] = useState<Accent>(Accent.TEAL);
+
+  // Redux state (opsiyonel)
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
 
+  // Persisted load
   useEffect(() => {
-    if (theme === Theme.DARK) {
-      setCurrentTheme(darkTheme);
-    } else {
-      setCurrentTheme(lightTheme);
-    }
-  }, [theme]);
+    (async () => {
+      try {
+        let storedTheme =
+          applicationTheme?.theme ??
+          ((await AsyncStorage.getItem(THEME_KEY)) as Theme | null);
+        const storedAccent =
+          ((await AsyncStorage.getItem(ACCENT_KEY)) as Accent | null) ??
+          Accent.TEAL;
 
-  useEffect(() => {
-    let storedTheme = applicationTheme.theme;
-    // AsyncStorage'den kaydedilen temayı al
-    if (storedTheme) {
-      if (storedTheme === Theme.SYSTEM) {
-        // Eğer kaydedilen tema sistem teması ise, sistem temasını al
-        storedTheme = isDarkMode ? Theme.DARK : Theme.LIGHT;
-      }
-      setTheme(storedTheme as Theme);
-    }
+        if (storedTheme === Theme.SYSTEM) {
+          storedTheme = systemDark ? Theme.DARK : Theme.LIGHT;
+        }
+        setTheme(
+          (storedTheme as Theme) || (systemDark ? Theme.DARK : Theme.LIGHT),
+        );
+        setAccentState(storedAccent as Accent);
+      } catch {}
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sistem değişirse SYSTEM seçeneği aktifken güncelle
   useEffect(() => {
-    if (colorScheme) {
-      // Sistem teması değiştiğinde, sistem temasını al
-      let storedTheme = applicationTheme.theme;
-      // AsyncStorage'den kaydedilen temayı al
-      if (storedTheme) {
-        if (storedTheme === Theme.SYSTEM) {
-          // Eğer kaydedilen tema sistem teması ise, sistem temasını al
-          storedTheme = isDarkMode ? Theme.DARK : Theme.LIGHT;
-          setTheme(storedTheme as Theme);
-        }
-      }
+    if (applicationTheme?.theme === Theme.SYSTEM) {
+      setTheme(systemDark ? Theme.DARK : Theme.LIGHT);
     }
   }, [colorScheme]);
 
-  const toggleTheme = (newTheme: Theme) => {
+  const toggleTheme = async (newTheme: Theme) => {
     if (newTheme === Theme.SYSTEM) {
-      // Eğer kaydedilen tema sistem teması ise, sistem temasını al
-      newTheme = isDarkMode ? Theme.DARK : Theme.LIGHT;
+      newTheme = systemDark ? Theme.DARK : Theme.LIGHT;
     }
-    // AsyncStorage'e seçilen temayı kaydet
-    dispatch(updateApplicationTheme(newTheme));
     setTheme(newTheme);
+    dispatch(updateApplicationTheme(newTheme));
+    await AsyncStorage.setItem(THEME_KEY, newTheme);
   };
 
+  const setAccent = async (a: Accent) => {
+    setAccentState(a);
+    // dispatch(updateAccent(a))
+    await AsyncStorage.setItem(ACCENT_KEY, a);
+  };
+
+  // === Theme merge ===
+  const base = theme === Theme.DARK ? baseDarkTheme : baseLightTheme;
+  const acc = accentPalettes[accent][theme === Theme.DARK ? 'dark' : 'light'];
+
+  const currentTheme: ThemeType = {
+    ...base,
+    primary: acc.primary,
+    cardViewBorderColor: acc.border,
+  };
+
+  const gradient: [string, string] = acc.gradient;
+
   return (
-    <ThemeContext.Provider value={{theme, toggleTheme, currentTheme}}>
+    <ThemeContext.Provider
+      value={{ theme, accent, toggleTheme, setAccent, currentTheme, gradient }}
+    >
       {children}
     </ThemeContext.Provider>
   );
 };
 
-const useTheme = () => {
-  return useContext(ThemeContext);
-};
-
-export {ThemeProvider, useTheme};
+export const useTheme = () => useContext(ThemeContext);
