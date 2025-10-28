@@ -63,5 +63,22 @@
 		<string>Ionicons.ttf</string>
 		<string>MaterialIcons.ttf</string>
 	</array>
+	<!-- Ön plan -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Yakınınızdaki özellikleri göstermek için konumunuza ihtiyaç duyuyoruz.</string>
+
+	<!-- Arka plan da gerekiyorsa (iOS 13+ için zorunlu ek açıklama) -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Arka planda konumunuzu izleyerek özelliği kesintisiz sunuyoruz.</string>
+
+	<!-- Eski iOS sürümleriyle uyumluluk için (opsiyonel ama önerilir) -->
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Uygulama kapalıyken de konumunuzu kullanmamız gerekiyor.</string>
+
+	<!-- Arka plan izleme gerekiyorsa -->
+	<key>UIBackgroundModes</key>
+	<array>
+  		<string>location</string>
+	</array>
 </dict>
 </plist>

@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">NamazZamani</string>
+    <string name="app_name">Prayer Time</string>
+    <string name="location_notification_title">Location tracking active</string>
+    <string name="location_notification_text">Your location is being used to calculate prayer times.</string>
 </resources>

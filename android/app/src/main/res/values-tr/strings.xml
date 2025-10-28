@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Namaz Zamanı</string>
+    <string name="location_notification_title">Konum takibi aktif</string>
+    <string name="location_notification_text">Namaz vakitlerini hesaplamak için konumunuz kullanılıyor.</string>
+</resources>

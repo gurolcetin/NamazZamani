@@ -2,6 +2,18 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Ön plan konum -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Arka plan gerekiyorsa (Android 10+) -->
+    <!-- Bunu kullanıcıdan ayrı bir akışta istemeniz gerekir -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- Sürekli/uzun süreli takipte foreground service kullanıyorsanız -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -23,5 +35,9 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <service
+        android:name=".LocationService"
+        android:foregroundServiceType="location"
+        android:exported="false" />
     </application>
 </manifest>
