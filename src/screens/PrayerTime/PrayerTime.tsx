@@ -182,7 +182,7 @@ export default function VakitlerScreen() {
       label: x.label,
       time: x.time,
       isNext: x.key === n,
-      miniLeft: x.key === n ? leftClock.slice(3) : undefined, // mm:ss göster
+      miniLeft: x.key === n ? leftClock : undefined, // mm:ss göster
       notif: x.key === 'Fajr' || x.key === 'Maghrib',
     }));
   }, [timings, leftClock]);
@@ -207,10 +207,7 @@ export default function VakitlerScreen() {
         ]}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Ionicons
-            name={item.isNext ? 'checkmark-circle' : ICONS[item.key]}
-            size={18}
-          />
+          <Ionicons name={ICONS[item.key] as any} size={18} />
           <Text
             style={[styles.smallTitle, item.isNext && styles.smallTitleActive]}
           >
@@ -227,11 +224,6 @@ export default function VakitlerScreen() {
           >
             {item.time}
           </Text>
-          <Ionicons
-            name={item.notif ? 'notifications' : 'notifications-outline'}
-            size={16}
-            style={{ opacity: 0.8 }}
-          />
         </View>
       </View>
     );
@@ -278,7 +270,7 @@ export default function VakitlerScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={styles.nextIconWrap}>
               <Ionicons
-                name={ICONS[nextKeyRef.current]}
+                name={ICONS[nextKeyRef.current] as any}
                 size={22}
                 color="#fff"
               />
