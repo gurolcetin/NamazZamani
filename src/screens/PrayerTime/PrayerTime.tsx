@@ -15,7 +15,7 @@ import {
   View,
   ListRenderItemInfo,
 } from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient';
+
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
 import { requestLocationPermission, getCurrentPosition } from './permission';
@@ -239,12 +239,6 @@ export default function VakitlerScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* <LinearGradient
-        style={StyleSheet.absoluteFill}
-        start={{x:0,y:0}}
-        end={{x:1,y:1}}
-        colors={['#9EE7D6','#BFD7FF']} // yumuşak teal→mint→mor
-      /> */}
       <SafeAreaView style={{ flex: 1 }}>
         {/* top-right bell in subtle circle */}
         <View style={styles.headerTop}>
