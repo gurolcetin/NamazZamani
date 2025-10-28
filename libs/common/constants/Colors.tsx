@@ -1,7 +1,6 @@
 import {ThemeType} from '../models';
 import {Accent} from '../enums';
 
-// Taban temalar (seninkilerle aynı, primary & border “placeholder”)
 export const baseLightTheme: ThemeType = {
   primary: '#1bb89d',
   backgroundColor: '#F2F2F7',
@@ -60,7 +59,6 @@ export const baseDarkTheme: ThemeType = {
   shadowColor: '#fff',
 };
 
-// Accent paleti: sadece primary & border’ı farklı
 export const accentPalettes: Record<Accent, {
   light: { primary: string; border: string; gradient: [string, string] },
   dark:  { primary: string; border: string; gradient: [string, string] },

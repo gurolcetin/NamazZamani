@@ -12,7 +12,7 @@ export const TabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName={`${StackRoutes.PrayerTimeStack}2`}
+      initialRouteName={`${StackRoutes.PrayerTimeStack}1`}
       screenOptions={{
         headerShown: false,
         tabBarStyle: [
