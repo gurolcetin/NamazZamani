@@ -120,6 +120,7 @@ export default function PrayerTime() {
   const [loading, setLoading] = useState(false);
 
   const [leftClock, setLeftClock] = useState('00:00:00'); // sonraki vakte kalan dijital
+  const [leftSec, setLeftSec] = useState(0);
   const nextKeyRef = useRef<Key>('Fajr'); // SIRADAKİ
   const currentKeyRef = useRef<Key>('Fajr'); // ŞU ANKİ (prev)
 
@@ -159,17 +160,12 @@ export default function PrayerTime() {
       nextKeyRef.current = info.next.key; // sıradaki
       currentKeyRef.current = info.prev.key; // şu anki
       setLeftClock(fmtClock(info.leftSec)); // sıradakiye kalan
+      setLeftSec(info.leftSec); // <-- eklendi
     };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [timings]);
-
-  const nextTime = useMemo(() => {
-    if (!timings) return '';
-    return timings[nextKeyRef.current];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timings, leftClock]);
 
   // 2 sütun küçük kart verisi (VURGULU = ŞU ANKİ)
   const smallCards: SmallCard[] = useMemo(() => {
@@ -229,8 +225,11 @@ export default function PrayerTime() {
   };
 
   // Büyük kart: SIRADAKİ vakit bilgisi + kalan dijital
-  const nextLabel = LABELS_TR[nextKeyRef.current];
-  const nextIcon = ICONS[nextKeyRef.current] as any;
+  const currentLabel = LABELS_TR[currentKeyRef.current];
+  const currentIcon = ICONS[currentKeyRef.current] as any;
+  const isCritical = leftSec <= 45 * 60;
+  const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
+  const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
   return (
     <ScreenViewContainer>
@@ -249,21 +248,26 @@ export default function PrayerTime() {
       </View>
 
       {/* Big next card (SIRADAKİ) */}
-      <View
-        style={[styles.nextCard, { backgroundColor: currentTheme.primary }]}
-      >
+      <View style={[styles.nextCard, { backgroundColor: cardBg }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={styles.nextIconWrap}>
-            <Ionicons name={nextIcon} size={22} color="#fff" />
+            {/* Soldaki ikon: ŞU ANKİ vakit */}
+            <Ionicons name={currentIcon} size={22} color="#fff" />
           </View>
+
           <View>
-            {/* Solda sıradaki vakit adı + kalan tam dijital */}
-            <Text style={styles.nextLabel}>{nextLabel}</Text>
+            {/* Başlık: ŞU ANKİ vakit label'ı */}
+            <Text style={styles.nextLabel}>
+              {currentLabel} vaktinin çıkmasına
+            </Text>
+            {/* Alt metin: vaktinin çıkmasına ... */}
+
             <Text style={styles.nextHint}>{leftClock} kaldı</Text>
           </View>
+          {/* SADECE KRİTİKTE: saati kırmızı mini-card içinde göster */}
         </View>
-        {/* Sağda sıradaki vaktin SAATİ */}
-        <Text style={styles.nextBigTime}>{nextTime}</Text>
+
+        {/* Sağdaki saat KALDIRILDI */}
       </View>
 
       {/* grid (2 columns) small cards */}

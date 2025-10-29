@@ -5,12 +5,12 @@ import {
   SubmitButton,
   TableView,
 } from '../../../../components';
-import {TextInput, Text, TouchableOpacity, View} from 'react-native';
+import {TextInput, Text, TouchableOpacity } from 'react-native';
 import {useForm} from 'react-hook-form';
 import {FormControl} from '../../../../components/FormControl/FormControl';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import styles from './style';
-import {isNullOrEmptyString, isNullOrUndefined, isNullOrWhiteSpace, isNumber} from 'typescript-util-functions';
+import {isNullOrEmptyString, isNullOrUndefined, isNumber} from 'typescript-util-functions';
 import {useTheme} from '../../../providers';
 import {
   Gender,
