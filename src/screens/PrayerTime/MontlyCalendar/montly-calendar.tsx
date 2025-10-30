@@ -13,11 +13,7 @@ import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { useTheme } from '../../../../libs/core/providers';
 import { ScreenViewContainer } from '../../../../libs/components';
 import { fetchMonthlyPrayerTimesByCoords, type PrayerTimings } from './api';
-import {
-  getCurrentPosition,
-  requestLocationPermission,
-} from '../permission';
-import { getUTCLabel, reverseGeocode } from '../reverse-geocode';
+import { getCurrentPosition, requestLocationPermission } from '../permission';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
@@ -60,8 +56,6 @@ export default function MonthlyCalendar() {
   }, [i18n.language]);
 
   const [loading, setLoading] = useState(true);
-  const [locationLabel, setLocationLabel] = useState('Konum alınıyor…');
-  const [utcLabel, setUtcLabel] = useState(getUTCLabel());
 
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
     null,
@@ -92,13 +86,6 @@ export default function MonthlyCalendar() {
       if (!ok) return;
       const { latitude, longitude } = await getCurrentPosition();
       setCoords({ lat: latitude, lon: longitude });
-      try {
-        const label = await reverseGeocode(latitude, longitude);
-        setLocationLabel(label);
-      } catch {
-        setLocationLabel('Konum bulunamadı');
-      }
-      setUtcLabel(getUTCLabel());
     } finally {
       setLoading(false);
     }
@@ -156,38 +143,6 @@ export default function MonthlyCalendar() {
 
   return (
     <ScreenViewContainer>
-      {/* Üst bar */}
-      <View style={styles.headerTop}>
-        <Pressable
-          style={[
-            styles.cityBtn,
-            { backgroundColor: currentTheme.inputBackgroundColor },
-          ]}
-        >
-          <Ionicons name="location" size={16} color={currentTheme.textColor} />
-          <Text style={[styles.cityText, { color: currentTheme.textColor }]}>
-            {locationLabel} • {utcLabel}
-          </Text>
-          <Ionicons
-            name="chevron-down"
-            size={16}
-            color={currentTheme.textColor}
-          />
-        </Pressable>
-        <View
-          style={[
-            styles.roundIcon,
-            { backgroundColor: currentTheme.inputBackgroundColor },
-          ]}
-        >
-          <Ionicons
-            name="calendar-outline"
-            size={18}
-            color={currentTheme.textColor}
-          />
-        </View>
-      </View>
-
       {/* Beyaz Card içinde orijinal iOS inline DateTimePicker */}
       <View style={styles.cardWrap}>
         <View style={styles.cardHeader}>
@@ -356,6 +311,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 2,
+    marginTop: 10,
   },
   cardHeader: {
     paddingHorizontal: 14,

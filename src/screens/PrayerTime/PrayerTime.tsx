@@ -13,7 +13,6 @@ import {
   View,
   ListRenderItemInfo,
   useColorScheme,
-  Pressable, // NEW
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -23,7 +22,6 @@ import { requestLocationPermission, getCurrentPosition } from './permission';
 import { ScreenViewContainer } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
 import { reverseGeocode, getUTCLabel } from './reverse-geocode';
-import { LocationChip } from './location';
 import { useNavigation } from '@react-navigation/native';
 import { PrayerTimeScreens } from '../../navigation/Routes';
 import { selectActiveResolved } from '../../../libs/redux/reducers/location';
@@ -31,6 +29,7 @@ import {
   getTimeZoneByCoords,
   getUtcLabelFromTimeZone,
 } from '../../../libs/core/helpers';
+import { ActionCardGroup } from './action-cards/action-card-group';
 
 // ----- Types & Maps ---------------------------------------------------------
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -265,105 +264,38 @@ export default function PrayerTime() {
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
-  // Helper: buton rengi ve disabled hali  // NEW
-  const pillBg = (alpha: number = 0.12) =>
-    `rgba(${parseInt(currentTheme.primary.slice(1, 3), 16)}, ${parseInt(
-      currentTheme.primary.slice(3, 5),
-      16,
-    )}, ${parseInt(currentTheme.primary.slice(5, 7), 16)}, ${alpha})`;
-  const isButtonsDisabled = !coords || loading;
-
   return (
     <ScreenViewContainer>
-      {/* top-right area */}
-      <View style={styles.headerTop}>
-        <LocationChip
+      <View style={{ marginTop: 4 }}>
+        <ActionCardGroup
           label={locationLabel}
           utc={utcLabel}
-          themeColors={{
-            primary: currentTheme.primary,
-            text: currentTheme.textColor,
-            isDark: systemDark,
-          }}
           loading={loading && !timings}
-          onPress={() => {
-            navigation.navigate(PrayerTimeScreens.LocationSelector as never);
+          isDark={systemDark}
+          theme={{
+            primary: currentTheme.primary,
+            textColor: currentTheme.textColor,
+          }}
+          onOpenLocationSelector={() =>
+            navigation.navigate(PrayerTimeScreens.LocationSelector as never)
+          }
+          onPickDate={() => {
+            if (!coords) return;
+            navigation.navigate(PrayerTimeScreens.MontlyCalendar as never)
+          }}
+          onOpenImsakiye={() => {
+            if (!coords) return;
+            // navigation.navigate(
+            //   PrayerTimeScreens.Imsakiye as never,
+            //   {
+            //     label: locationLabel,
+            //     coords,
+            //     days: 30,
+            //     startFromToday: true,
+            //   } as never,
+            // );
           }}
         />
-      </View>
-
-      <View style={styles.actionsRow}>
-        <Pressable
-          disabled={isButtonsDisabled}
-          onPress={() => {
-            if (!coords) return;
-            // navigation.navigate((Routes as any).PrayerCalendar, {
-            //   label: locationLabel,
-            //   coords,
-            // } as never);
-          }}
-          style={({ pressed }) => [
-            styles.actionBtn,
-            {
-              backgroundColor: pillBg(systemDark ? 0.18 : 0.12),
-              borderColor: pillBg(systemDark ? 0.35 : 0.22),
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-              opacity: isButtonsDisabled ? 0.6 : 1,
-            },
-          ]}
-        >
-          <View style={styles.actionLeft}>
-            <View
-              style={[styles.actionIconWrap, { backgroundColor: pillBg(0.25) }]}
-            >
-              <Ionicons
-                name="calendar-outline"
-                size={18}
-                color={currentTheme.primary}
-              />
-            </View>
-            <View style={{ flexShrink: 1 }}>
-              <Text style={styles.actionTitle}>Tarih Seç</Text>
-            </View>
-          </View>
-        </Pressable>
-
-        <Pressable
-          disabled={isButtonsDisabled}
-          onPress={() => {
-            if (!coords) return;
-            // navigation.navigate((Routes as any).Imsakiye, {
-            //   label: locationLabel,
-            //   coords,
-            //   days: 30,
-            //   startFromToday: true,
-            // } as never);
-          }}
-          style={({ pressed }) => [
-            styles.actionBtn,
-            {
-              backgroundColor: pillBg(systemDark ? 0.18 : 0.12),
-              borderColor: pillBg(systemDark ? 0.35 : 0.22),
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-              opacity: isButtonsDisabled ? 0.6 : 1,
-            },
-          ]}
-        >
-          <View style={styles.actionLeft}>
-            <View
-              style={[styles.actionIconWrap, { backgroundColor: pillBg(0.25) }]}
-            >
-              <Ionicons
-                name="list-outline"
-                size={18}
-                color={currentTheme.primary}
-              />
-            </View>
-            <View style={{ flexShrink: 1 }}>
-              <Text style={styles.actionTitle}>İmsakiye</Text>
-            </View>
-          </View>
-        </Pressable>
       </View>
 
       {/* Big next card (SIRADAKİ) */}
@@ -382,7 +314,6 @@ export default function PrayerTime() {
         </View>
       </View>
 
-      {/* grid (2 columns) small cards */}
       <FlatList
         data={smallCards}
         numColumns={2}
@@ -404,54 +335,6 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
     marginTop: 10,
   },
-
-  /** NEW: actions row + buttons */
-  actionsRow: {
-    marginTop: 10,
-    paddingHorizontal: 16,
-    flexDirection: 'row', // 🔹 yan yana diz
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  actionBtn: {
-    flex: 1, // 🔹 her biri eşit alan alsın
-    maxWidth: '48%', // 🔹 yarı yarıya paylaştırsın
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
-  },
-  actionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flexShrink: 1,
-  },
-  actionIconWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  actionSub: {
-    fontSize: 12,
-    opacity: 0.7,
-    marginTop: 2,
-  },
-
   nextCard: {
     marginTop: 14,
     marginHorizontal: 16,
