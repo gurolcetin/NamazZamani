@@ -5,3 +5,4 @@ export * from './icon.constants';
 export * from './language.constants';
 export * from './tabKey.constants';
 export {lightTheme, darkTheme, bottomTabMenuItems};
+export { defaultNativeStackNavOptions } from './native-stack-nav-options';

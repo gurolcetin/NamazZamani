@@ -4,6 +4,7 @@ export const Routes = {
   LanguageSettings: 'LanguageSettings',
   ThemeSettings: 'ThemeSettings',
   CalculateSettings: 'CalculateSettings',
+  LocationSelector: 'LocationSelector'
 };
 
 export const StackRoutes = {

@@ -2,15 +2,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Importing the persistReducer and persistStore functions from the redux-persist library
-import {persistReducer, persistStore} from 'redux-persist';
+import { persistReducer, persistStore } from 'redux-persist';
 
 // Importing the combineReducers and configureStore functions from the Redux Toolkit
-import {combineReducers, configureStore} from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import ApplicationTheme from './reducers/ApplicationTheme';
 import MissedPrayer from './reducers/MissedPrayer';
 import MissedFasting from './reducers/MissedFasting';
 import CalculateSettings from './reducers/CalculateSettings';
 import Dhikr from './reducers/Dhikr';
+import Location from './reducers/location';
 
 // Creating a rootReducer that combines all reducers in the app
 const rootReducer = combineReducers({
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   missedFasting: MissedFasting,
   calculateSettings: CalculateSettings,
   dhikr: Dhikr,
+  location: Location,
 });
 
 // Configuring the redux-persist library to persist the root reducer with AsyncStorage
@@ -50,3 +52,6 @@ const store = configureStore({
 // Also exporting the persistor object created with the persistStore function from redux-persist
 export default store;
 export const persistor = persistStore(store);
+// RootState / AppDispatch typedefleri:
+export type RootState = ReturnType<typeof rootReducer>;
+export type AppDispatch = typeof store.dispatch;

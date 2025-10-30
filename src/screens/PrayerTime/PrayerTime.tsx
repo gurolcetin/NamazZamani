@@ -8,11 +8,11 @@ import React, {
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   View,
   ListRenderItemInfo,
+  useColorScheme,
 } from 'react-native';
 
 import { Ionicons } from '@react-native-vector-icons/ionicons';
@@ -21,6 +21,9 @@ import { requestLocationPermission, getCurrentPosition } from './permission';
 import { ScreenViewContainer } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
 import { reverseGeocode, getUTCLabel } from './reverse-geocode';
+import { LocationChip } from './location';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { Routes } from '../../navigation/Routes';
 
 // ----- Types & Maps ---------------------------------------------------------
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -41,6 +44,15 @@ const ICONS: Record<Key, string> = {
   Asr: 'partly-sunny-outline',
   Maghrib: 'cloudy-night-outline',
   Isha: 'moon',
+};
+
+type RtParams = {
+  params?: {
+    selectedLocation?:
+      | { type: 'device' }
+      | { label: string; latitude: number; longitude: number; id?: string };
+    prefetchedTimings?: PrayerTimings;
+  };
 };
 
 // ----- Time helpers ---------------------------------------------------------
@@ -127,26 +139,62 @@ export default function PrayerTime() {
   const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
   const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
 
+  const systemDark = useColorScheme() === 'dark';
+  const navigation = useNavigation();
+
+  const route = useRoute<RouteProp<RtParams>>();
+  const picked = route.params?.selectedLocation;
+
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const ok = await requestLocationPermission();
-      if (!ok) return;
-      const { latitude, longitude } = await getCurrentPosition();
-      const data = await fetchPrayerTimesByCoords(latitude, longitude);
-      setTimings(data);
-      // İl/ilçe etiketi
-      try {
-        const label = await reverseGeocode(latitude, longitude);
-        setLocationLabel(label);
-      } catch {
-        setLocationLabel('Konum bulunamadı');
+
+      let latitude: number | null = null;
+      let longitude: number | null = null;
+      let label: string | null = null;
+
+      if (picked && 'type' in picked && picked.type === 'device') {
+        // cihaz konumunu kullan
+        const ok = await requestLocationPermission();
+        if (!ok) return;
+        const pos = await getCurrentPosition();
+        latitude = pos.latitude;
+        longitude = pos.longitude;
+        try {
+          label = await reverseGeocode(latitude, longitude);
+        } catch {
+          label = 'Konum bulunamadı';
+        }
+      } else if (picked && 'latitude' in picked) {
+        // seçilmiş sabit konum
+        latitude = picked.latitude;
+        longitude = picked.longitude;
+        label = picked.label;
+      } else {
+        // ilk açılış: cihaz konumu
+        const ok = await requestLocationPermission();
+        if (!ok) return;
+        const pos = await getCurrentPosition();
+        latitude = pos.latitude;
+        longitude = pos.longitude;
+        try {
+          label = await reverseGeocode(latitude, longitude);
+        } catch {
+          label = 'Konum bulunamadı';
+        }
       }
+
+      if (latitude != null && longitude != null) {
+        const data = await fetchPrayerTimesByCoords(latitude, longitude);
+        setTimings(data);
+      }
+      if (label) setLocationLabel(label);
       setUtcLabel(getUTCLabel());
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [picked]);
+
   useEffect(() => {
     load();
   }, [load]);
@@ -235,13 +283,19 @@ export default function PrayerTime() {
     <ScreenViewContainer>
       {/* top-right bell in subtle circle */}
       <View style={styles.headerTop}>
-        <Pressable style={styles.cityBtn}>
-          <Ionicons name="location" size={16} />
-          <Text style={styles.cityText}>
-            {locationLabel} • {utcLabel}
-          </Text>
-          <Ionicons name="chevron-down" size={16} />
-        </Pressable>
+        <LocationChip
+          label={locationLabel}
+          utc={utcLabel}
+          themeColors={{
+            primary: currentTheme.primary,
+            text: currentTheme.textColor,
+            isDark: systemDark,
+          }}
+          loading={loading && !timings}
+          onPress={() => {
+            navigation.navigate(Routes.LocationSelector as never);
+          }}
+        />
         <View style={styles.roundIcon}>
           <Ionicons name="notifications-outline" size={18} />
         </View>
@@ -293,6 +347,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginTop: 10,
   },
   cityBtn: {
     flexDirection: 'row',
@@ -331,7 +386,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   nextLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 14, marginTop: 2 },
+  nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 16, marginTop: 2 },
   nextBigTime: { color: '#fff', fontSize: 32, fontWeight: '800' },
 
   smallCard: {
