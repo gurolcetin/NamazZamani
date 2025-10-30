@@ -20,6 +20,13 @@ import {
   LanguageLocaleKeys,
   LanguagePrefix,
 } from '../../../../libs/common/constants';
+import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
+import { getUTCLabel, reverseGeocode } from '../reverse-geocode';
+import {
+  getTimeZoneByCoords,
+  getUtcLabelFromTimeZone,
+} from '../../../../libs/core/helpers';
+import { LocationChip } from '../location';
 
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 const LABELS_TR: Record<Key, string> = {
@@ -49,6 +56,7 @@ export default function MonthlyCalendar() {
   const [dateLocale, setDateLocale] = useState<string>(
     LanguageLocaleKeys.TURKISH,
   );
+  const activeResolved = useSelector(selectActiveResolved);
   const { i18n } = useTranslation();
 
   useEffect(() => {
@@ -60,6 +68,9 @@ export default function MonthlyCalendar() {
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
     null,
   );
+
+  const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
+  const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
 
   // Takvim state’leri
   const now = new Date();
@@ -82,14 +93,36 @@ export default function MonthlyCalendar() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const ok = await requestLocationPermission();
-      if (!ok) return;
-      const { latitude, longitude } = await getCurrentPosition();
-      setCoords({ lat: latitude, lon: longitude });
+      let latitude: number | null = null;
+      let longitude: number | null = null;
+      let label: string | null = null;
+      if ('type' in activeResolved && activeResolved.type === 'device') {
+        const ok = await requestLocationPermission();
+        if (!ok) return;
+        const pos = await getCurrentPosition();
+        latitude = pos.latitude;
+        longitude = pos.longitude;
+        try {
+          label = await reverseGeocode(latitude, longitude);
+        } catch {
+          label = 'Konum bulunamadı';
+        }
+      } else {
+        latitude = activeResolved.latitude;
+        longitude = activeResolved.longitude;
+        label = activeResolved.label;
+      }
+      if (latitude != null && longitude != null) {
+        setCoords({ lat: latitude, lon: longitude }); // NEW
+        const tz = getTimeZoneByCoords(latitude, longitude);
+        const label2 = getUtcLabelFromTimeZone(tz, new Date());
+        setUtcLabel(label2);
+      }
+      if (label) setLocationLabel(label);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeResolved]);
   useEffect(() => {
     load();
   }, [load]);
@@ -143,6 +176,19 @@ export default function MonthlyCalendar() {
 
   return (
     <ScreenViewContainer>
+      <View style={styles.locationRow}>
+        <LocationChip
+          label={locationLabel}
+          utc={utcLabel}
+          loading={loading}
+          themeColors={{
+            primary: currentTheme.primary,
+            text: currentTheme.textColor,
+            isDark: false,
+          }}
+          onPress={() => {}}
+        />
+      </View>
       {/* Beyaz Card içinde orijinal iOS inline DateTimePicker */}
       <View style={styles.cardWrap}>
         <View style={styles.cardHeader}>
@@ -387,4 +433,11 @@ const styles = StyleSheet.create({
   },
   vakitLabel: { fontSize: 15, fontWeight: '700' },
   vakitTime: { fontSize: 20, fontWeight: '900' },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 10,
+    marginHorizontal: 16,
+  },
 });

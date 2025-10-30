@@ -64,10 +64,8 @@ export const ActionCardGroup = memo((props: Props) => {
     >
       {/* Başlık satırı */}
       <View style={stylesL.headerRow}>
-        <Text style={stylesL.title}>Konum & Vakitler</Text>
-        {/* İsteğe bağlı küçük bir yardımcı metin */}
-        <Text style={stylesL.subtitle}>
-          Bulunduğun veya seçtiğin konuma göre
+        <Text style={[stylesL.title, { color: theme.textColor }]}>
+          Konum & Vakitler
         </Text>
       </View>
 
@@ -107,7 +105,7 @@ export const ActionCardGroup = memo((props: Props) => {
                 color={theme.primary}
               />
             </View>
-            <Text style={stylesL.actionTitle}>Tarih Seç</Text>
+            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>Tarih Seç</Text>
           </View>
         </Pressable>
 
@@ -126,7 +124,7 @@ export const ActionCardGroup = memo((props: Props) => {
             <View style={[stylesL.iconWrap, { backgroundColor: pillBg(0.25) }]}>
               <Ionicons name="list-outline" size={18} color={theme.primary} />
             </View>
-            <Text style={stylesL.actionTitle}>İmsakiye</Text>
+            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>İmsakiye</Text>
           </View>
         </Pressable>
       </View>
