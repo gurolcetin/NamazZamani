@@ -1,3 +1,5 @@
+import { getTimeZoneByCoords } from '../../../libs/core/helpers';
+
 // src/prayerApi.ts
 export type PrayerTimings = {
   Fajr: string;
@@ -9,29 +11,24 @@ export type PrayerTimings = {
   [key: string]: string;
 };
 
-function getDeviceTimeZone(): string {
-  // JS ile güvenli timezone alma
-  try {
-    return (
-      Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Istanbul'
-    );
-  } catch {
-    return 'Europe/Istanbul';
-  }
-}
-
 export async function fetchPrayerTimesByCoords(
   latitude: number,
   longitude: number,
 ): Promise<PrayerTimings> {
-    console.log(getDeviceTimeZone());
-  const tz = encodeURIComponent(getDeviceTimeZone());
-  const url = `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=13&timezonestring=${tz}`;
+  let tzString = 'Europe/Istanbul';
+  try {
+    tzString = getTimeZoneByCoords(latitude, longitude); // "America/New_York"
+  } catch (err) {
+    console.warn('Fallback to default timezone', err);
+  }
+
+  const url = `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=13&timezonestring=${encodeURIComponent(
+    tzString,
+  )}`;
   const res = await fetch(url);
   const json = await res.json();
   if (json?.code !== 200) {
     throw new Error(json?.data || 'API hatası');
   }
-  console.log(json.data.timings);
   return json.data.timings as PrayerTimings;
 }

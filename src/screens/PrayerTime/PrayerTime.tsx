@@ -14,6 +14,7 @@ import {
   ListRenderItemInfo,
   useColorScheme,
 } from 'react-native';
+import { useSelector } from 'react-redux';
 
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
@@ -24,6 +25,8 @@ import { reverseGeocode, getUTCLabel } from './reverse-geocode';
 import { LocationChip } from './location';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Routes } from '../../navigation/Routes';
+import { selectActiveResolved } from '../../../libs/redux/reducers/location';
+import { getTimeZoneByCoords, getUtcLabelFromTimeZone } from '../../../libs/core/helpers';
 
 // ----- Types & Maps ---------------------------------------------------------
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -128,6 +131,8 @@ type SmallCard = {
 
 export default function PrayerTime() {
   const { currentTheme } = useTheme();
+  const activeResolved = useSelector(selectActiveResolved);
+
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -143,7 +148,6 @@ export default function PrayerTime() {
   const navigation = useNavigation();
 
   const route = useRoute<RouteProp<RtParams>>();
-  const picked = route.params?.selectedLocation;
 
   const load = useCallback(async () => {
     try {
@@ -153,8 +157,7 @@ export default function PrayerTime() {
       let longitude: number | null = null;
       let label: string | null = null;
 
-      if (picked && 'type' in picked && picked.type === 'device') {
-        // cihaz konumunu kullan
+      if ('type' in activeResolved && activeResolved.type === 'device') {
         const ok = await requestLocationPermission();
         if (!ok) return;
         const pos = await getCurrentPosition();
@@ -165,23 +168,10 @@ export default function PrayerTime() {
         } catch {
           label = 'Konum bulunamadı';
         }
-      } else if (picked && 'latitude' in picked) {
-        // seçilmiş sabit konum
-        latitude = picked.latitude;
-        longitude = picked.longitude;
-        label = picked.label;
       } else {
-        // ilk açılış: cihaz konumu
-        const ok = await requestLocationPermission();
-        if (!ok) return;
-        const pos = await getCurrentPosition();
-        latitude = pos.latitude;
-        longitude = pos.longitude;
-        try {
-          label = await reverseGeocode(latitude, longitude);
-        } catch {
-          label = 'Konum bulunamadı';
-        }
+        latitude = activeResolved.latitude;
+        longitude = activeResolved.longitude;
+        label = activeResolved.label;
       }
 
       if (latitude != null && longitude != null) {
@@ -189,11 +179,13 @@ export default function PrayerTime() {
         setTimings(data);
       }
       if (label) setLocationLabel(label);
-      setUtcLabel(getUTCLabel());
+      const tz = getTimeZoneByCoords(latitude!, longitude!);
+      const label2 = getUtcLabelFromTimeZone(tz, new Date());
+      setUtcLabel(label2);
     } finally {
       setLoading(false);
     }
-  }, [picked]);
+  }, [activeResolved]);
 
   useEffect(() => {
     load();

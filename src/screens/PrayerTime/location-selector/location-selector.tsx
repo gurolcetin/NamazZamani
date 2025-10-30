@@ -9,21 +9,29 @@ import {
   View,
   Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useModalOptions } from '../../../../libs/core/hooks';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../../libs/core/providers';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { ScreenViewContainer } from '../../../../libs/components';
-import { Routes } from '../../../navigation/Routes';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  upsertSavedPlace,
+  removeSavedPlace as removeSavedRedux,
+  setActiveById,
+  setActiveDevice,
+  selectSavedPlaces,
+  selectActivePlace,
+  SavedPlace,
+} from '../../../../libs/redux/reducers/location';
 
 /** ---------- Types ---------- */
-type SavedPlace = {
-  id: string;            // provider id or composed key (örn: "nom:123")
-  label: string;         // örn: "Kadıköy, İstanbul, Türkiye"
-  latitude: number;
-  longitude: number;
-};
+// type SavedPlace = {
+//   id: string; // provider id or composed key (örn: "nom:123")
+//   label: string; // örn: "Kadıköy, İstanbul, Türkiye"
+//   latitude: number;
+//   longitude: number;
+// };
 
 type NominatimItem = {
   place_id: string;
@@ -35,35 +43,10 @@ type NominatimItem = {
   address?: Record<string, string>;
 };
 
-type ActivePlace = { type: 'device' } | { id: string };
-
 /** ---------- Storage Keys ---------- */
-const STORAGE_KEY = 'saved_places_v1';
-const ACTIVE_KEY = 'active_place_v1';
 
 /** ---------- Storage Helpers ---------- */
-async function loadSaved(): Promise<SavedPlace[]> {
-  try {
-    const raw = await AsyncStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as SavedPlace[]) : [];
-  } catch {
-    return [];
-  }
-}
-async function saveAll(items: SavedPlace[]) {
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
-async function loadActive(): Promise<ActivePlace | null> {
-  try {
-    const raw = await AsyncStorage.getItem(ACTIVE_KEY);
-    return raw ? (JSON.parse(raw) as ActivePlace) : null;
-  } catch {
-    return null;
-  }
-}
-async function saveActive(a: ActivePlace) {
-  await AsyncStorage.setItem(ACTIVE_KEY, JSON.stringify(a));
-}
+
 
 /** ---------- Mapping & Search ---------- */
 function mapNominatimToPlace(n: NominatimItem): SavedPlace {
@@ -98,28 +81,17 @@ export default function LocationSelector() {
   const { currentTheme } = useTheme();
   useModalOptions(navigation, currentTheme);
 
+  const dispatch = useDispatch();
+
   // UI State
+
+  const saved = useSelector(selectSavedPlaces);
+  const active = useSelector(selectActivePlace);
+
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SavedPlace[]>([]);
-  const [saved, setSaved] = useState<SavedPlace[]>([]);
-  const [active, setActive] = useState<ActivePlace | null>(null);
-
   const hasQuery = query.trim().length > 0;
-
-  /** İlk yükleme: Kaydedilenler + Aktif */
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const [s, a] = await Promise.all([loadSaved(), loadActive()]);
-      if (!mounted) return;
-      setSaved(s);
-      setActive(a ?? { type: 'device' }); // yoksa cihaz seçili kabul et
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   /** Debounced Search */
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -144,61 +116,34 @@ export default function LocationSelector() {
   }, [query]);
 
   /** CRUD Helpers */
-  const addIfNotExists = async (p: SavedPlace) => {
-    const exists = saved.some(x => x.id === p.id);
-    if (exists) return;
-    const next = [p, ...saved];
-    setSaved(next);
-    await saveAll(next);
-  };
-
-  const removeSaved = async (id: string) => {
-    const next = saved.filter(x => x.id !== id);
-    setSaved(next);
-    await saveAll(next);
-    // Eğer silinen seçiliyse, aktif cihaz olsun
-    if (active && 'id' in active && active.id === id) {
-      const a = { type: 'device' } as const;
-      setActive(a);
-      await saveActive(a);
-    }
+  const removeSaved = (id: string) => {
+    Alert.alert('Konumu Sil', 'Silinsin mi?', [
+      { text: 'Vazgeç' },
+      {
+        text: 'Sil',
+        style: 'destructive',
+        onPress: () => dispatch(removeSavedRedux(id)),
+      },
+    ]);
   };
 
   /** Navigation Actions */
-  const goDevice = async () => {
-    const a = { type: 'device' } as const;
-    setActive(a);
-    await saveActive(a);
-    setQuery(''); // aramayı sıfırla → geri gelince listeler görünür
-    navigation.navigate(
-      Routes.PrayerTime as never,
-      { selectedLocation: a, merge: true } as never
-    );
+  const goDevice = () => {
+    dispatch(setActiveDevice());
+    setQuery('');
+    navigation.goBack(); // <- navigate yerine
   };
 
-  const goWith = async (p: SavedPlace) => {
-    await addIfNotExists(p);
-    const a = { id: p.id } as const;
-    setActive(a);
-    await saveActive(a);
-    setQuery(''); // aramayı sıfırla → geri gelince listeler görünür
-    navigation.navigate(
-      Routes.PrayerTime as never,
-      {
-        selectedLocation: {
-          label: p.label,
-          latitude: p.latitude,
-          longitude: p.longitude,
-          id: p.id,
-        },
-        merge: true,
-      } as never
-    );
+  const goWith = (p: SavedPlace) => {
+    dispatch(upsertSavedPlace(p));
+    dispatch(setActiveById(p.id));
+    setQuery('');
+    navigation.goBack(); // <- navigate yerine
   };
 
   /** Active Checks */
-  const isActiveDevice = active && 'type' in active && active.type === 'device';
-  const isActiveId = (id: string) => active && 'id' in active && active.id === id;
+  const isActiveDevice = 'type' in active && active.type === 'device';
+  const isActiveId = (id: string) => 'id' in active && active.id === id;
 
   /** Small UI Bits */
   const SelectedBadge = () => (
@@ -217,10 +162,18 @@ export default function LocationSelector() {
         onPress={() => goWith(item)}
       >
         <View style={styles.rowLeft}>
-          <View style={[styles.avatarCircle, selected && styles.avatarCircleSelected]}>
+          <View
+            style={[
+              styles.avatarCircle,
+              selected && styles.avatarCircleSelected,
+            ]}
+          >
             <Ionicons name="location-outline" size={18} color="#fff" />
           </View>
-          <Text style={[styles.rowTitle, selected && styles.rowTitleSelected]} numberOfLines={2}>
+          <Text
+            style={[styles.rowTitle, selected && styles.rowTitleSelected]}
+            numberOfLines={2}
+          >
             {item.label}
           </Text>
         </View>
@@ -233,7 +186,11 @@ export default function LocationSelector() {
               onPress={() =>
                 Alert.alert('Konumu Sil', `"${item.label}" silinsin mi?`, [
                   { text: 'Vazgeç' },
-                  { text: 'Sil', style: 'destructive', onPress: () => removeSaved(item.id) },
+                  {
+                    text: 'Sil',
+                    style: 'destructive',
+                    onPress: () => removeSaved(item.id),
+                  },
                 ])
               }
             >
@@ -256,11 +213,18 @@ export default function LocationSelector() {
           <View style={[styles.avatarCircle, { backgroundColor: '#6C8CF5' }]}>
             <Ionicons name="search-outline" size={18} color="#fff" />
           </View>
-          <Text style={[styles.rowTitle, selected && styles.rowTitleSelected]} numberOfLines={2}>
+          <Text
+            style={[styles.rowTitle, selected && styles.rowTitleSelected]}
+            numberOfLines={2}
+          >
             {item.label}
           </Text>
         </View>
-        {selected ? <SelectedBadge /> : <Ionicons name="chevron-forward" size={18} />}
+        {selected ? (
+          <SelectedBadge />
+        ) : (
+          <Ionicons name="chevron-forward" size={18} />
+        )}
       </Pressable>
     );
   };
@@ -305,7 +269,14 @@ export default function LocationSelector() {
             ]}
             onPress={goDevice}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+                flex: 1,
+              }}
+            >
               <View style={styles.nextIconWrap}>
                 <Ionicons name="locate" size={22} color="#fff" />
               </View>
@@ -315,7 +286,9 @@ export default function LocationSelector() {
               </View>
             </View>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+            >
               {isActiveDevice && <SelectedBadge />}
               <Ionicons name="arrow-forward" size={16} color="#fff" />
             </View>
@@ -333,7 +306,10 @@ export default function LocationSelector() {
               keyExtractor={i => i.id}
               renderItem={renderSaved}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 8 }}
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                paddingBottom: 8,
+              }}
             />
           )}
         </>
@@ -354,7 +330,10 @@ export default function LocationSelector() {
               keyExtractor={i => i.id}
               renderItem={renderResult}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                paddingBottom: 24,
+              }}
             />
           )}
         </>
