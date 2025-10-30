@@ -13,6 +13,7 @@ import {
   View,
   ListRenderItemInfo,
   useColorScheme,
+  Pressable, // NEW
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -85,7 +86,6 @@ function buildSequence(t: PrayerTimings) {
   }));
 }
 function computeNext(seq: ReturnType<typeof buildSequence>, now = new Date()) {
-  // sıradaki (now, ilk future'a kadar)
   for (let i = 0; i < seq.length; i++) {
     if (now < seq[i].date) {
       const next = seq[i];
@@ -100,7 +100,6 @@ function computeNext(seq: ReturnType<typeof buildSequence>, now = new Date()) {
       };
     }
   }
-  // gün bitti → yarın Fajr
   const last = seq[seq.length - 1];
   const fajr = seq[0];
   const fajrTomorrow = new Date(fajr.date);
@@ -118,7 +117,7 @@ type SmallCard = {
   key: Key;
   label: string;
   time: string;
-  isCurrent?: boolean; // ŞU ANKİ vakit vurgusu
+  isCurrent?: boolean;
   miniLeft?: string;
   notif?: boolean;
 };
@@ -130,13 +129,17 @@ export default function PrayerTime() {
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const [leftClock, setLeftClock] = useState('00:00:00'); // sonraki vakte kalan dijital
+  const [leftClock, setLeftClock] = useState('00:00:00');
   const [leftSec, setLeftSec] = useState(0);
-  const nextKeyRef = useRef<Key>('Fajr'); // SIRADAKİ
-  const currentKeyRef = useRef<Key>('Fajr'); // ŞU ANKİ (prev)
+  const nextKeyRef = useRef<Key>('Fajr');
+  const currentKeyRef = useRef<Key>('Fajr');
 
   const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
   const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
+
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
+    null,
+  ); // NEW
 
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
@@ -167,13 +170,15 @@ export default function PrayerTime() {
       }
 
       if (latitude != null && longitude != null) {
+        setCoords({ lat: latitude, lon: longitude }); // NEW
         const data = await fetchPrayerTimesByCoords(latitude, longitude);
         setTimings(data);
+
+        const tz = getTimeZoneByCoords(latitude, longitude);
+        const label2 = getUtcLabelFromTimeZone(tz, new Date());
+        setUtcLabel(label2);
       }
       if (label) setLocationLabel(label);
-      const tz = getTimeZoneByCoords(latitude!, longitude!);
-      const label2 = getUtcLabelFromTimeZone(tz, new Date());
-      setUtcLabel(label2);
     } finally {
       setLoading(false);
     }
@@ -183,23 +188,21 @@ export default function PrayerTime() {
     load();
   }, [load]);
 
-  // ticker: hem SIRADAKİ hem ŞU ANKİ bilgiyi güncelle
   useEffect(() => {
     if (!timings) return;
     const seq = buildSequence(timings);
     const tick = () => {
       const info = computeNext(seq, new Date());
-      nextKeyRef.current = info.next.key; // sıradaki
-      currentKeyRef.current = info.prev.key; // şu anki
-      setLeftClock(fmtClock(info.leftSec)); // sıradakiye kalan
-      setLeftSec(info.leftSec); // <-- eklendi
+      nextKeyRef.current = info.next.key;
+      currentKeyRef.current = info.prev.key;
+      setLeftClock(fmtClock(info.leftSec));
+      setLeftSec(info.leftSec);
     };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [timings]);
 
-  // 2 sütun küçük kart verisi (VURGULU = ŞU ANKİ)
   const smallCards: SmallCard[] = useMemo(() => {
     if (!timings) return [];
     const seq = buildSequence(timings);
@@ -209,7 +212,6 @@ export default function PrayerTime() {
       label: x.label,
       time: x.time,
       isCurrent: x.key === cur,
-      // İstersen şu anki kartta mini geri sayımı da göster (sonrakiye kalan):
       miniLeft: x.key === cur ? leftClock : undefined,
       notif: x.key === 'Fajr' || x.key === 'Maghrib',
     }));
@@ -263,9 +265,17 @@ export default function PrayerTime() {
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
+  // Helper: buton rengi ve disabled hali  // NEW
+  const pillBg = (alpha: number = 0.12) =>
+    `rgba(${parseInt(currentTheme.primary.slice(1, 3), 16)}, ${parseInt(
+      currentTheme.primary.slice(3, 5),
+      16,
+    )}, ${parseInt(currentTheme.primary.slice(5, 7), 16)}, ${alpha})`;
+  const isButtonsDisabled = !coords || loading;
+
   return (
     <ScreenViewContainer>
-      {/* top-right bell in subtle circle */}
+      {/* top-right area */}
       <View style={styles.headerTop}>
         <LocationChip
           label={locationLabel}
@@ -282,27 +292,94 @@ export default function PrayerTime() {
         />
       </View>
 
+      <View style={styles.actionsRow}>
+        <Pressable
+          disabled={isButtonsDisabled}
+          onPress={() => {
+            if (!coords) return;
+            // navigation.navigate((Routes as any).PrayerCalendar, {
+            //   label: locationLabel,
+            //   coords,
+            // } as never);
+          }}
+          style={({ pressed }) => [
+            styles.actionBtn,
+            {
+              backgroundColor: pillBg(systemDark ? 0.18 : 0.12),
+              borderColor: pillBg(systemDark ? 0.35 : 0.22),
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+              opacity: isButtonsDisabled ? 0.6 : 1,
+            },
+          ]}
+        >
+          <View style={styles.actionLeft}>
+            <View
+              style={[styles.actionIconWrap, { backgroundColor: pillBg(0.25) }]}
+            >
+              <Ionicons
+                name="calendar-outline"
+                size={18}
+                color={currentTheme.primary}
+              />
+            </View>
+            <View style={{ flexShrink: 1 }}>
+              <Text style={styles.actionTitle}>Tarih Seç</Text>
+            </View>
+          </View>
+        </Pressable>
+
+        <Pressable
+          disabled={isButtonsDisabled}
+          onPress={() => {
+            if (!coords) return;
+            // navigation.navigate((Routes as any).Imsakiye, {
+            //   label: locationLabel,
+            //   coords,
+            //   days: 30,
+            //   startFromToday: true,
+            // } as never);
+          }}
+          style={({ pressed }) => [
+            styles.actionBtn,
+            {
+              backgroundColor: pillBg(systemDark ? 0.18 : 0.12),
+              borderColor: pillBg(systemDark ? 0.35 : 0.22),
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+              opacity: isButtonsDisabled ? 0.6 : 1,
+            },
+          ]}
+        >
+          <View style={styles.actionLeft}>
+            <View
+              style={[styles.actionIconWrap, { backgroundColor: pillBg(0.25) }]}
+            >
+              <Ionicons
+                name="list-outline"
+                size={18}
+                color={currentTheme.primary}
+              />
+            </View>
+            <View style={{ flexShrink: 1 }}>
+              <Text style={styles.actionTitle}>İmsakiye</Text>
+            </View>
+          </View>
+        </Pressable>
+      </View>
+
       {/* Big next card (SIRADAKİ) */}
       <View style={[styles.nextCard, { backgroundColor: cardBg }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={styles.nextIconWrap}>
-            {/* Soldaki ikon: ŞU ANKİ vakit */}
             <Ionicons name={currentIcon} size={22} color="#fff" />
           </View>
 
           <View>
-            {/* Başlık: ŞU ANKİ vakit label'ı */}
             <Text style={styles.nextLabel}>
               {currentLabel} vaktinin çıkmasına
             </Text>
-            {/* Alt metin: vaktinin çıkmasına ... */}
-
             <Text style={styles.nextHint}>{leftClock} kaldı</Text>
           </View>
-          {/* SADECE KRİTİKTE: saati kırmızı mini-card içinde göster */}
         </View>
-
-        {/* Sağdaki saat KALDIRILDI */}
       </View>
 
       {/* grid (2 columns) small cards */}
@@ -327,23 +404,52 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
     marginTop: 10,
   },
-  cityBtn: {
+
+  /** NEW: actions row + buttons */
+  actionsRow: {
+    marginTop: 10,
+    paddingHorizontal: 16,
+    flexDirection: 'row', // 🔹 yan yana diz
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  actionBtn: {
+    flex: 1, // 🔹 her biri eşit alan alsın
+    maxWidth: '48%', // 🔹 yarı yarıya paylaştırsın
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: 'rgba(0,0,0,0.06)',
-    borderRadius: 12,
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
   },
-  cityText: { fontSize: 15, fontWeight: '600' },
-  roundIcon: {
+  actionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flexShrink: 1,
+  },
+  actionIconWrap: {
     width: 34,
     height: 34,
     borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.06)',
+  },
+  actionTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  actionSub: {
+    fontSize: 12,
+    opacity: 0.7,
+    marginTop: 2,
   },
 
   nextCard: {
