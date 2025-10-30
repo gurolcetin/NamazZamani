@@ -25,14 +25,6 @@ import {
   SavedPlace,
 } from '../../../../libs/redux/reducers/location';
 
-/** ---------- Types ---------- */
-// type SavedPlace = {
-//   id: string; // provider id or composed key (örn: "nom:123")
-//   label: string; // örn: "Kadıköy, İstanbul, Türkiye"
-//   latitude: number;
-//   longitude: number;
-// };
-
 type NominatimItem = {
   place_id: string;
   lat: string;
@@ -42,11 +34,6 @@ type NominatimItem = {
   class: string;
   address?: Record<string, string>;
 };
-
-/** ---------- Storage Keys ---------- */
-
-/** ---------- Storage Helpers ---------- */
-
 
 /** ---------- Mapping & Search ---------- */
 function mapNominatimToPlace(n: NominatimItem): SavedPlace {
@@ -94,7 +81,7 @@ export default function LocationSelector() {
   const hasQuery = query.trim().length > 0;
 
   /** Debounced Search */
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<any>(null);
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
     if (!hasQuery) {

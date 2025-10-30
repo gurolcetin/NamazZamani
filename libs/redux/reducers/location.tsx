@@ -1,4 +1,3 @@
-// libs/redux/reducers/locationSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export type SavedPlace = {
@@ -8,7 +7,12 @@ export type SavedPlace = {
   longitude: number;
 };
 
-export type ActivePlace = { type: 'device' } | { id: string };
+export type ActivePlace = { type: 'device' } | { type: 'saved'; id: string };
+
+// Discriminated union: cihaz mı sabit mi, net ayır
+export type ActiveResolved =
+  | { type: 'device' }
+  | ({ type: 'saved' } & SavedPlace);
 
 type LocationState = {
   saved: SavedPlace[];
@@ -24,28 +28,24 @@ const locationSlice = createSlice({
   name: 'location',
   initialState,
   reducers: {
-    // sabit konumu ekle/varsa güncelle
     upsertSavedPlace(state, action: PayloadAction<SavedPlace>) {
       const i = state.saved.findIndex(x => x.id === action.payload.id);
       if (i >= 0) state.saved[i] = action.payload;
       else state.saved.unshift(action.payload);
     },
-    // kaydı sil; aktif o ise device’a dön
-    removeSavedPlace(state, action: PayloadAction<string>) {
-      const id = action.payload;
-      state.saved = state.saved.filter(x => x.id !== id);
-      if ('id' in state.active && state.active.id === id) {
-        state.active = { type: 'device' };
-      }
-    },
     setActiveDevice(state) {
       state.active = { type: 'device' };
     },
     setActiveById(state, action: PayloadAction<string>) {
-      // id saved içinde yoksa yine de set edebiliriz (ör. yeni eklenecek)
-      state.active = { id: action.payload };
+      state.active = { type: 'saved', id: action.payload };
     },
-    // tamamen sıfırla (opsiyonel)
+    removeSavedPlace(state, action: PayloadAction<string>) {
+      const id = action.payload;
+      state.saved = state.saved.filter(x => x.id !== id);
+      if (state.active.type === 'saved' && state.active.id === id) {
+        state.active = { type: 'device' };
+      }
+    },
     resetLocationState: () => initialState,
   },
 });
@@ -63,13 +63,28 @@ export default locationSlice.reducer;
 /** ------- selectors ------- */
 export const selectSavedPlaces = (s: any) =>
   (s?.location?.saved ?? []) as SavedPlace[];
+
 export const selectActivePlace = (s: any) =>
   (s?.location?.active ?? { type: 'device' }) as ActivePlace;
-export const selectActiveResolved = (s: any) => {
+
+/**
+ * Her zaman discriminated union döndürür:
+ *   { type: 'device' }  veya
+ *   { type: 'saved', ...SavedPlace }
+ */
+export const selectActiveResolved = (s: any): ActiveResolved => {
   const active = selectActivePlace(s);
   const saved = selectSavedPlaces(s);
-  if ('type' in active && active.type === 'device')
-    return { type: 'device' as const };
+
+  if (active.type === 'device') {
+    return { type: 'device' };
+  }
+
+  // active.type === 'saved'
   const found = saved.find(x => x.id === active.id);
-  return found ? found : { type: 'device' as const };
+  if (found) {
+    const { id, label, latitude, longitude } = found;
+    return { type: 'saved', id, label, latitude, longitude };
+  }
+  return { type: 'device' };
 };

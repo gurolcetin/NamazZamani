@@ -3,7 +3,6 @@ import { PrayerTimeStack } from '../../../src/navigation/Stack/PrayerTimeStack';
 import { SettingsStack } from '../../../src/navigation/Stack/SettingsStack';
 import Dhikr from '../../../src/screens/Dhikr/Dhikr';
 import MissedTracking from '../../../src/screens/MissedTracking/MissedTracking';
-import MonthlyCalendar from '../../../src/screens/MontlyCalendar/montly-calendar';
 import { Icons } from '../../components/Icons/Icons';
 import { Translate } from '../../core/helpers';
 import { MenuNameLanguageConstants } from './language.constants';
@@ -77,17 +76,6 @@ export const bottomTabMenuItems = (currentTheme: {
     type: Icons.FontAwesome6,
     icon: MenuIconConstants.Settings,
     component: SettingsStack,
-    color: currentTheme.primary,
-    size: 20,
-    solid: true,
-  },
-  {
-    id: 5,
-    route: StackRoutes.PrayerTimeStack,
-    label: Translate(MenuNameLanguageConstants.Settings),
-    type: Icons.FontAwesome6,
-    icon: MenuIconConstants.Settings,
-    component: MonthlyCalendar,
     color: currentTheme.primary,
     size: 20,
     solid: true,

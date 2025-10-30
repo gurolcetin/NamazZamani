@@ -3,9 +3,13 @@ export const Routes = {
   Settings: 'Settings',
   LanguageSettings: 'LanguageSettings',
   ThemeSettings: 'ThemeSettings',
-  CalculateSettings: 'CalculateSettings',
-  LocationSelector: 'LocationSelector'
+  CalculateSettings: 'CalculateSettings'
 };
+
+export const PrayerTimeScreens = {
+  LocationSelector: 'LocationSelector',
+  MontlyCalendar: "MontlyCalendar"
+}
 
 export const StackRoutes = {
   PrayerTimeStack: 'PrayerTimeStack',

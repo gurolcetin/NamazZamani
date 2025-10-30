@@ -23,10 +23,13 @@ import { ScreenViewContainer } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
 import { reverseGeocode, getUTCLabel } from './reverse-geocode';
 import { LocationChip } from './location';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { Routes } from '../../navigation/Routes';
+import { useNavigation } from '@react-navigation/native';
+import { PrayerTimeScreens } from '../../navigation/Routes';
 import { selectActiveResolved } from '../../../libs/redux/reducers/location';
-import { getTimeZoneByCoords, getUtcLabelFromTimeZone } from '../../../libs/core/helpers';
+import {
+  getTimeZoneByCoords,
+  getUtcLabelFromTimeZone,
+} from '../../../libs/core/helpers';
 
 // ----- Types & Maps ---------------------------------------------------------
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -47,15 +50,6 @@ const ICONS: Record<Key, string> = {
   Asr: 'partly-sunny-outline',
   Maghrib: 'cloudy-night-outline',
   Isha: 'moon',
-};
-
-type RtParams = {
-  params?: {
-    selectedLocation?:
-      | { type: 'device' }
-      | { label: string; latitude: number; longitude: number; id?: string };
-    prefetchedTimings?: PrayerTimings;
-  };
 };
 
 // ----- Time helpers ---------------------------------------------------------
@@ -146,8 +140,6 @@ export default function PrayerTime() {
 
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
-
-  const route = useRoute<RouteProp<RtParams>>();
 
   const load = useCallback(async () => {
     try {
@@ -285,12 +277,9 @@ export default function PrayerTime() {
           }}
           loading={loading && !timings}
           onPress={() => {
-            navigation.navigate(Routes.LocationSelector as never);
+            navigation.navigate(PrayerTimeScreens.LocationSelector as never);
           }}
         />
-        <View style={styles.roundIcon}>
-          <Ionicons name="notifications-outline" size={18} />
-        </View>
       </View>
 
       {/* Big next card (SIRADAKİ) */}
@@ -336,9 +325,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 4,
     paddingBottom: 4,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginTop: 10,
   },
   cityBtn: {

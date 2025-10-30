@@ -2,14 +2,13 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PrayerTime from '../../screens/PrayerTime/PrayerTime';
-import { Routes } from '../Routes';
+import { PrayerTimeScreens, Routes } from '../Routes';
 import LocationSelector from '../../screens/PrayerTime/location-selector/location-selector';
-import { useTheme } from '../../../libs/core/providers';
+import MonthlyCalendar from '../../screens/PrayerTime/MontlyCalendar/montly-calendar';
 
 const Stack = createNativeStackNavigator();
 
 export const PrayerTimeStack = () => {
-  const { currentTheme } = useTheme();
   return (
     <Stack.Navigator
       initialRouteName={Routes.PrayerTime}
@@ -24,15 +23,19 @@ export const PrayerTimeStack = () => {
         options={{ headerShown: false, header: () => null }}
       />
       <Stack.Screen
-        name={Routes.LocationSelector}
+        name={PrayerTimeScreens.LocationSelector}
         component={LocationSelector}
         options={{
-          headerStyle: {
-            backgroundColor: currentTheme.statusBarColor,
-          },
-          headerTintColor: currentTheme.textColor,
-          headerTitle: 'test',
-          headerBackTitle: 'geritest',
+          header: () => null,
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name={PrayerTimeScreens.MontlyCalendar}
+        component={MonthlyCalendar}
+        options={{
+          header: () => null,
+          headerShown: false,
         }}
       />
     </Stack.Navigator>

@@ -10,20 +10,20 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 
-import { useTheme } from '../../../libs/core/providers';
-import { ScreenViewContainer } from '../../../libs/components';
+import { useTheme } from '../../../../libs/core/providers';
+import { ScreenViewContainer } from '../../../../libs/components';
 import { fetchMonthlyPrayerTimesByCoords, type PrayerTimings } from './api';
 import {
   getCurrentPosition,
   requestLocationPermission,
-} from '../PrayerTime/permission';
-import { getUTCLabel, reverseGeocode } from '../PrayerTime/reverse-geocode';
+} from '../permission';
+import { getUTCLabel, reverseGeocode } from '../reverse-geocode';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
   LanguageLocaleKeys,
   LanguagePrefix,
-} from '../../../libs/common/constants';
+} from '../../../../libs/common/constants';
 
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 const LABELS_TR: Record<Key, string> = {
@@ -47,7 +47,7 @@ function daysInMonth(y: number, m1to12: number) {
   return new Date(y, m1to12, 0).getDate();
 }
 
-export default function MonthlyCalendarScreen() {
+export default function MonthlyCalendar() {
   const { currentTheme } = useTheme();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const [dateLocale, setDateLocale] = useState<string>(
