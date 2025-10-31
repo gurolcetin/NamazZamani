@@ -9,7 +9,6 @@ import {
   View,
   Alert,
 } from 'react-native';
-import { useModalOptions } from '../../../../libs/core/hooks';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../../libs/core/providers';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
@@ -66,7 +65,7 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
 export default function LocationSelector() {
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-  useModalOptions(navigation, currentTheme);
+//   useModalOptions(navigation, currentTheme);
 
   const dispatch = useDispatch();
 

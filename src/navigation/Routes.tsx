@@ -8,7 +8,8 @@ export const Routes = {
 
 export const PrayerTimeScreens = {
   LocationSelector: 'LocationSelector',
-  MontlyCalendar: "MontlyCalendar"
+  MontlyCalendar: "MontlyCalendar",
+  Imsakiye: "Imsakiye"
 }
 
 export const StackRoutes = {

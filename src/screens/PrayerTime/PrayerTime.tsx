@@ -285,15 +285,7 @@ export default function PrayerTime() {
           }}
           onOpenImsakiye={() => {
             if (!coords) return;
-            // navigation.navigate(
-            //   PrayerTimeScreens.Imsakiye as never,
-            //   {
-            //     label: locationLabel,
-            //     coords,
-            //     days: 30,
-            //     startFromToday: true,
-            //   } as never,
-            // );
+            navigation.navigate(PrayerTimeScreens.Imsakiye as never)
           }}
         />
       </View>
