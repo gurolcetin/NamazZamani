@@ -1,6 +1,6 @@
 import React from 'react';
 import { AntDesign } from '@react-native-vector-icons/ant-design';
-import { FontAwesome } from '@react-native-vector-icons/fontawesome';
+// import { FontAwesome } from '@react-native-vector-icons/fontawesome';
 import { FontAwesome6 } from '@react-native-vector-icons/fontawesome6';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { Feather } from '@react-native-vector-icons/feather';
@@ -13,7 +13,7 @@ export const Icons = {
   MaterialIcons,
   Ionicons,
   Feather,
-  FontAwesome,
+  // FontAwesome,
   FontAwesome6,
   AntDesign,
   Image,

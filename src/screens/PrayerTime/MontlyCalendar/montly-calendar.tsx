@@ -6,6 +6,7 @@ import {
   Pressable,
   ActivityIndicator,
   FlatList,
+  Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
@@ -87,8 +88,11 @@ export default function MonthlyCalendar() {
     null,
   );
 
-  // 🔹 EKLENDİ: Aylık fetch spinner state'i
+  // Ay fetch spinner
   const [isMonthLoading, setIsMonthLoading] = useState(false);
+
+  // Android için dialog gösterme
+  const [showPicker, setShowPicker] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -113,7 +117,7 @@ export default function MonthlyCalendar() {
         label = activeResolved.label;
       }
       if (latitude != null && longitude != null) {
-        setCoords({ lat: latitude, lon: longitude }); // NEW
+        setCoords({ lat: latitude, lon: longitude });
         const tz = getTimeZoneByCoords(latitude, longitude);
         const label2 = getUtcLabelFromTimeZone(tz, new Date());
         setUtcLabel(label2);
@@ -123,6 +127,7 @@ export default function MonthlyCalendar() {
       setLoading(false);
     }
   }, [activeResolved]);
+
   useEffect(() => {
     load();
   }, [load]);
@@ -132,7 +137,7 @@ export default function MonthlyCalendar() {
     (async () => {
       if (!coords) return;
       setMonthTimings(null);
-      setIsMonthLoading(true); // <-- EKLENDİ
+      setIsMonthLoading(true);
       try {
         const data = await fetchMonthlyPrayerTimesByCoords(
           year,
@@ -144,10 +149,10 @@ export default function MonthlyCalendar() {
         const dim = daysInMonth(year, month);
         if (selectedDay > dim) setSelectedDay(dim);
       } finally {
-        setIsMonthLoading(false); // <-- EKLENDİ
+        setIsMonthLoading(false);
       }
     })();
-  }, [coords, year, month, selectedDay]);
+  }, [coords, year, month]); // selectedDay çıkarıldı
 
   // Gün seçilince o güne ait vakitler
   const dim = daysInMonth(year, month);
@@ -174,6 +179,17 @@ export default function MonthlyCalendar() {
     setSelectedDay(t.getDate());
   };
 
+  // Ortak tarih değiştirici (iOS inline + Android dialog sonrası)
+  const applyPickedDate = (picked: Date | undefined | null) => {
+    const next = picked ?? selectedDate;
+    const y = next.getFullYear();
+    const m = next.getMonth() + 1;
+    const d = next.getDate();
+    setYear(y);
+    setMonth(m);
+    setSelectedDay(d);
+  };
+
   return (
     <ScreenViewContainer>
       <View style={styles.locationRow}>
@@ -189,11 +205,12 @@ export default function MonthlyCalendar() {
           onPress={() => {}}
         />
       </View>
-      {/* Beyaz Card içinde orijinal iOS inline DateTimePicker */}
+
+      {/* Beyaz Card içinde Takvim başlık + gövde */}
       <View style={styles.cardWrap}>
         <View style={styles.cardHeader}>
-          {/* 🔹 Seçili gün bilgisi */}
-          <View style={{ flexDirection: 'column' }}>
+          {/* Orta: seçili gün bilgisi */}
+          <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={styles.cardTitle}>
               {selectedDate.toLocaleDateString(dateLocale, {
                 weekday: 'long',
@@ -203,8 +220,20 @@ export default function MonthlyCalendar() {
               })}
             </Text>
           </View>
-
-          {/* Sağda "Bugün" butonu */}
+          {/* Sol: Android'te Tarih Değiştir butonu, iOS'ta boş yer tutucu */}
+          {Platform.OS === 'android' ? (
+            <Pressable
+              onPress={() => setShowPicker(true)}
+              style={styles.dateBtn}
+              disabled={isMonthLoading}
+            >
+              <Ionicons name="calendar-outline" size={14} color="#111" />
+              <Text style={styles.dateBtnText}>Tarih Değiştir</Text>
+            </Pressable>
+          ) : (
+            <View style={{ width: 1 }} />
+          )}
+          {/* Sağ: Bugün */}
           <Pressable
             onPress={handleToday}
             style={styles.todayBtn}
@@ -215,33 +244,24 @@ export default function MonthlyCalendar() {
           </Pressable>
         </View>
 
-        <View style={styles.cardBody}>
-          <DateTimePicker
-            display="inline"
-            mode="date"
-            value={selectedDate}
-            themeVariant={applicationTheme.theme}
-            locale={dateLocale}
-            minimumDate={new Date(1900, 0, 1)}
-            accentColor={currentTheme.primary}
-            onChange={(event, picked) => {
-              const next = picked ?? selectedDate;
-              const y = next.getFullYear();
-              const m = next.getMonth() + 1;
-              const d = next.getDate();
-              const monthChanged = y !== year || m !== month;
+        <View style={[styles.cardBody, {paddingHorizontal: Platform.OS === 'android' ? 0 : 6, paddingVertical: Platform.OS === 'android' ? 0 : 6,}]}>
+          {/* iOS: inline picker */}
+          {Platform.OS === 'ios' && (
+            <DateTimePicker
+              display="inline"
+              mode="date"
+              value={selectedDate}
+              themeVariant={applicationTheme.theme}
+              locale={dateLocale}
+              minimumDate={new Date(1900, 0, 1)}
+              accentColor={currentTheme.primary}
+              onChange={(_, picked) => {
+                applyPickedDate(picked);
+              }}
+            />
+          )}
 
-              setYear(y);
-              setMonth(m);
-              setSelectedDay(d);
-
-              if (!monthChanged && monthTimings) {
-                // aynı ay içinde sadece günü güncelledik → yeterli
-              }
-            }}
-          />
-
-          {/* 🔹 EKLENDİ: Ay verisi yüklenirken takvim üzerinde overlay spinner */}
+          {/* Ay verisi yüklenirken overlay */}
           {isMonthLoading && (
             <View style={styles.pickerOverlay}>
               <ActivityIndicator />
@@ -253,17 +273,13 @@ export default function MonthlyCalendar() {
 
       {/* Günün Vakitleri – 2 sütun kart */}
       <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
-        <Text style={[styles.sectionTitle, { color: '#000' }]}>
-          Günün Vakitleri
-        </Text>
+        <Text style={[styles.sectionTitle, { color: '#000' }]}>Günün Vakitleri</Text>
       </View>
 
       {!selectedTimings ? (
         <View style={[styles.center, { paddingVertical: 12 }]}>
           <ActivityIndicator />
-          <Text style={{ marginTop: 6, opacity: 0.8 }}>
-            Vakitler yükleniyor…
-          </Text>
+          <Text style={{ marginTop: 6, opacity: 0.8 }}>Vakitler yükleniyor…</Text>
         </View>
       ) : (
         <FlatList
@@ -281,28 +297,11 @@ export default function MonthlyCalendar() {
                   { borderColor: '#E6E6EA', backgroundColor: '#FFFFFF' },
                 ]}
               >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 10,
-                  }}
-                >
-                  <View
-                    style={[
-                      styles.vakitIconWrap,
-                      { backgroundColor: '#F2F2F7' },
-                    ]}
-                  >
-                    <Ionicons
-                      name={ICONS[item] as any}
-                      size={18}
-                      color={'#111'}
-                    />
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={[styles.vakitIconWrap, { backgroundColor: '#F2F2F7' }]}>
+                    <Ionicons name={ICONS[item] as any} size={18} color={'#111'} />
                   </View>
-                  <Text style={[styles.vakitLabel, { color: '#111' }]}>
-                    {label}
-                  </Text>
+                  <Text style={[styles.vakitLabel, { color: '#111' }]}>{label}</Text>
                 </View>
                 <Text style={styles.vakitTime}>{time}</Text>
               </View>
@@ -310,6 +309,25 @@ export default function MonthlyCalendar() {
           }}
           contentContainerStyle={{ paddingBottom: 24, paddingTop: 6, gap: 12 }}
           showsVerticalScrollIndicator={false}
+        />
+      )}
+
+      {/* ANDROID: dialog tipi DatePicker tetikleyici */}
+      {Platform.OS === 'android' && showPicker && (
+        <DateTimePicker
+          display="default"
+          mode="date"
+          value={selectedDate}
+          locale={dateLocale}
+          minimumDate={new Date(1900, 0, 1)}
+          onChange={(event: any, picked?: Date) => {
+            if (event?.type === 'dismissed') {
+              setShowPicker(false);
+              return;
+            }
+            applyPickedDate(picked);
+            setShowPicker(false);
+          }}
         />
       )}
     </ScreenViewContainer>
@@ -375,14 +393,24 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
   },
   cardBody: {
-    paddingHorizontal: 6,
-    paddingVertical: 6,
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  // Bugün butonu
+  // Sol buton (Android)
+  dateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: '#F2F2F7',
+  },
+  dateBtnText: { fontSize: 13, fontWeight: '800', color: '#111' },
+
+  // Sağ: Bugün
   todayBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -394,7 +422,7 @@ const styles = StyleSheet.create({
   },
   todayBtnText: { fontSize: 13, fontWeight: '800', color: '#111' },
 
-  // 🔹 Overlay spinner
+  // Overlay spinner
   pickerOverlay: {
     position: 'absolute',
     left: 6,

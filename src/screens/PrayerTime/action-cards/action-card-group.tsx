@@ -145,8 +145,6 @@ const stylesL = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
-    // Android gölge
-    elevation: 1,
   },
   headerRow: {
     paddingHorizontal: 4,
