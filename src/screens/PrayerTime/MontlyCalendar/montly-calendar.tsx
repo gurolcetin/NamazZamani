@@ -152,7 +152,7 @@ export default function MonthlyCalendar() {
         setIsMonthLoading(false);
       }
     })();
-  }, [coords, year, month]); // selectedDay çıkarıldı
+  }, [coords, year, month, selectedDay]); // selectedDay çıkarıldı
 
   // Gün seçilince o güne ait vakitler
   const dim = daysInMonth(year, month);

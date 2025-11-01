@@ -32,7 +32,6 @@ export const SettingsStack = () => {
           headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.LanguageSettings),
-          headerLeftLabelVisible: false,
           headerLeftContainerStyle: {paddingLeft: 10},
         }}
       />
@@ -46,7 +45,6 @@ export const SettingsStack = () => {
           headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.ThemeSettings),
-          headerLeftLabelVisible: false,
           headerLeftContainerStyle: {paddingLeft: 10},
         }}
       />
@@ -60,7 +58,6 @@ export const SettingsStack = () => {
           headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.CalculateSettings),
-          headerLeftLabelVisible: false,
           headerLeftContainerStyle: {paddingLeft: 10},
         }}
       />
