@@ -16,7 +16,6 @@
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/datetimepicker": "^8.4.5",
     "@react-native-masked-view/masked-view": "^0.3.2",
-    "@react-native-vector-icons/evil-icons": "^12.3.0",
     "@react-native-vector-icons/fontawesome6": "^12.2.0",
     "@react-native-vector-icons/ionicons": "^12.3.0",
     "@react-native-vector-icons/material-design-icons": "^12.4.0",
