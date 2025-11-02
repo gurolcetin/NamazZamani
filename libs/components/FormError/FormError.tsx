@@ -14,10 +14,11 @@ const FormError = ({ message }: FormErrorProps) => {
   return (
     <View style={style.container}>
       <Icon
-        type={Icons.AntDesign}
-        name="exclamationcircleo"
+        type={Icons.FontAwesome6}
+        name="exclamation"
         color={currentTheme.formErrorColor}
         size={15}
+        solid
       />
       <Text
         style={[
