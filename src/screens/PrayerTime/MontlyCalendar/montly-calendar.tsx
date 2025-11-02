@@ -22,12 +22,6 @@ import {
   LanguagePrefix,
 } from '../../../../libs/common/constants';
 import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
-import { getUTCLabel, reverseGeocode } from '../reverse-geocode';
-import {
-  getTimeZoneByCoords,
-  getUtcLabelFromTimeZone,
-} from '../../../../libs/core/helpers';
-import { LocationChip } from '../location';
 
 type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 const LABELS_TR: Record<Key, string> = {
@@ -70,9 +64,6 @@ export default function MonthlyCalendar() {
     null,
   );
 
-  const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
-  const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
-
   // Takvim state’leri
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -99,30 +90,19 @@ export default function MonthlyCalendar() {
       setLoading(true);
       let latitude: number | null = null;
       let longitude: number | null = null;
-      let label: string | null = null;
       if ('type' in activeResolved && activeResolved.type === 'device') {
         const ok = await requestLocationPermission();
         if (!ok) return;
         const pos = await getCurrentPosition();
         latitude = pos.latitude;
         longitude = pos.longitude;
-        try {
-          label = await reverseGeocode(latitude, longitude);
-        } catch {
-          label = 'Konum bulunamadı';
-        }
       } else {
         latitude = activeResolved.latitude;
         longitude = activeResolved.longitude;
-        label = activeResolved.label;
       }
       if (latitude != null && longitude != null) {
         setCoords({ lat: latitude, lon: longitude });
-        const tz = getTimeZoneByCoords(latitude, longitude);
-        const label2 = getUtcLabelFromTimeZone(tz, new Date());
-        setUtcLabel(label2);
       }
-      if (label) setLocationLabel(label);
     } finally {
       setLoading(false);
     }
@@ -192,20 +172,6 @@ export default function MonthlyCalendar() {
 
   return (
     <ScreenViewContainer>
-      <View style={styles.locationRow}>
-        <LocationChip
-          label={locationLabel}
-          utc={utcLabel}
-          loading={loading}
-          themeColors={{
-            primary: currentTheme.primary,
-            text: currentTheme.textColor,
-            isDark: false,
-          }}
-          onPress={() => {}}
-        />
-      </View>
-
       {/* Beyaz Card içinde Takvim başlık + gövde */}
       <View style={styles.cardWrap}>
         <View style={styles.cardHeader}>
@@ -244,7 +210,15 @@ export default function MonthlyCalendar() {
           </Pressable>
         </View>
 
-        <View style={[styles.cardBody, {paddingHorizontal: Platform.OS === 'android' ? 0 : 6, paddingVertical: Platform.OS === 'android' ? 0 : 6,}]}>
+        <View
+          style={[
+            styles.cardBody,
+            {
+              paddingHorizontal: Platform.OS === 'android' ? 0 : 6,
+              paddingVertical: Platform.OS === 'android' ? 0 : 6,
+            },
+          ]}
+        >
           {/* iOS: inline picker */}
           {Platform.OS === 'ios' && (
             <DateTimePicker
@@ -273,13 +247,17 @@ export default function MonthlyCalendar() {
 
       {/* Günün Vakitleri – 2 sütun kart */}
       <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
-        <Text style={[styles.sectionTitle, { color: '#000' }]}>Günün Vakitleri</Text>
+        <Text style={[styles.sectionTitle, { color: '#000' }]}>
+          Günün Vakitleri
+        </Text>
       </View>
 
       {!selectedTimings ? (
         <View style={[styles.center, { paddingVertical: 12 }]}>
           <ActivityIndicator />
-          <Text style={{ marginTop: 6, opacity: 0.8 }}>Vakitler yükleniyor…</Text>
+          <Text style={{ marginTop: 6, opacity: 0.8 }}>
+            Vakitler yükleniyor…
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -297,11 +275,28 @@ export default function MonthlyCalendar() {
                   { borderColor: '#E6E6EA', backgroundColor: '#FFFFFF' },
                 ]}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <View style={[styles.vakitIconWrap, { backgroundColor: '#F2F2F7' }]}>
-                    <Ionicons name={ICONS[item] as any} size={18} color={'#111'} />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 10,
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.vakitIconWrap,
+                      { backgroundColor: '#F2F2F7' },
+                    ]}
+                  >
+                    <Ionicons
+                      name={ICONS[item] as any}
+                      size={18}
+                      color={'#111'}
+                    />
                   </View>
-                  <Text style={[styles.vakitLabel, { color: '#111' }]}>{label}</Text>
+                  <Text style={[styles.vakitLabel, { color: '#111' }]}>
+                    {label}
+                  </Text>
                 </View>
                 <Text style={styles.vakitTime}>{time}</Text>
               </View>
@@ -461,11 +456,4 @@ const styles = StyleSheet.create({
   },
   vakitLabel: { fontSize: 15, fontWeight: '700' },
   vakitTime: { fontSize: 20, fontWeight: '900' },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 10,
-    marginHorizontal: 16,
-  },
 });
