@@ -3,16 +3,19 @@ export const Routes = {
   Settings: 'Settings',
   LanguageSettings: 'LanguageSettings',
   ThemeSettings: 'ThemeSettings',
-  CalculateSettings: 'CalculateSettings'
+  CalculateSettings: 'CalculateSettings',
 };
 
 export const PrayerTimeScreens = {
   LocationSelector: 'LocationSelector',
-  MontlyCalendar: "MontlyCalendar",
-  Imsakiye: "Imsakiye"
-}
+  MontlyCalendar: 'MontlyCalendar',
+  Imsakiye: 'Imsakiye',
+};
 
 export const StackRoutes = {
   PrayerTimeStack: 'PrayerTimeStack',
   TabStack: 'TabStack',
+  MissedTrackingStack: 'MissedTrackingStack',
+  DhikrStack: 'DhikrStack',
+  SettingsStack: 'SettingsStack',
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import {TouchableOpacity, ViewStyle} from 'react-native';
-import Icon, {Icons} from '../Icons/Icons';
+import {Icon, Icons} from '../Icons/Icons';
 import {useTheme} from '../../core/providers';
 
 interface InfoProps {

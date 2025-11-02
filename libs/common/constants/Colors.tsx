@@ -28,6 +28,8 @@ export const baseLightTheme: ThemeType = {
   calculateIconColor: '#FF9500',
   systemBlue: '#0A84FF',
   shadowColor: '#000',
+  placeholderTextColor: '#85858A',
+  bottomTabBorderTopColor: '#EBEBEB',
 };
 
 export const baseDarkTheme: ThemeType = {
@@ -57,6 +59,8 @@ export const baseDarkTheme: ThemeType = {
   calculateIconColor: '#FF9500',
   systemBlue: '#0A84FF',
   shadowColor: '#fff',
+  placeholderTextColor: '#9E9EA6',
+  bottomTabBorderTopColor: '#242424',
 };
 
 export const accentPalettes: Record<Accent, {

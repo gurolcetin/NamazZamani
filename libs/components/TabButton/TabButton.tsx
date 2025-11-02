@@ -1,24 +1,24 @@
-import React, {useEffect, useRef} from 'react';
-import {Animated, TouchableOpacity} from 'react-native';
-import Icon from '../Icons/Icons';
+import React, { useEffect, useRef } from 'react';
+import { Animated, TouchableOpacity } from 'react-native';
+import { Icon } from '../Icons/Icons';
 import style from './style';
-import {useTheme} from '../../core/providers';
-import {HapticFeedbackMethods} from '../../common/constants';
+import { useTheme } from '../../core/providers';
+import { HapticFeedbackMethods } from '../../common/constants';
 import { hapticFeedback } from '../../core/helpers';
 
-const TabButton = ({item, accessibilityState, onPress}: any) => {
-  const {currentTheme} = useTheme();
+const TabButton = ({ item, accessibilityState, onPress }: any) => {
+  const { currentTheme } = useTheme();
 
   const animatedValues = {
     translate: useRef(new Animated.Value(0)).current,
     scale: useRef(new Animated.Value(0)).current,
   };
 
-  const {translate, scale} = animatedValues;
+  const { translate, scale } = animatedValues;
 
   useEffect(() => {
     handleAnimated();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessibilityState?.selected]);
 
   const handleAnimated = () => {
@@ -67,18 +67,20 @@ const TabButton = ({item, accessibilityState, onPress}: any) => {
         onPress();
         hapticFeedback(HapticFeedbackMethods.ImpactLight);
       }}
-      style={style.container}>
+      style={style.container}
+    >
       <Animated.View
         style={[
           style.button,
           translateStyles,
-          {borderColor: currentTheme.menuBackgroundColor},
-        ]}>
+          { borderColor: currentTheme.menuBackgroundColor },
+        ]}
+      >
         <Animated.View
           style={[
             style.animatedView,
             scaleStyles,
-            {backgroundColor: item.color},
+            { backgroundColor: item.color },
           ]}
         />
         <Icon
@@ -90,7 +92,9 @@ const TabButton = ({item, accessibilityState, onPress}: any) => {
           solid={item.solid}
         />
       </Animated.View>
-      <Animated.Text style={[style.title, {opacity: scale, color: item.color}]}>
+      <Animated.Text
+        style={[style.title, { opacity: scale, color: item.color }]}
+      >
         {item.label}
       </Animated.Text>
     </TouchableOpacity>

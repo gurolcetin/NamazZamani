@@ -25,4 +25,6 @@ export type ThemeType = {
   calculateIconColor: string;
   systemBlue: string;
   shadowColor: string;
+  placeholderTextColor: string;
+  bottomTabBorderTopColor: string;
 };

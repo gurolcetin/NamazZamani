@@ -5,7 +5,7 @@ import {CardViewProps} from './CardView/CardView';
 import RadioButtonVerticalGroup, {
   RadioButtonVerticalGroupProps,
 } from './RadioButtonVerticalGroup/RadioButtonVerticalGroup';
-import Icon, {Icons, IconProps} from './Icons/Icons';
+import {Icons, IconProps, Icon} from './Icons/Icons';
 import TableView from './TableView/TableView';
 import {TableViewProps} from './TableView/TableView';
 import TouchableFloatView from './TouchableFloatView/TouchableFloatView';

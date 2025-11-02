@@ -1,11 +1,11 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Animated, View, Text as NativeText} from 'react-native';
-import Svg, {Circle, Text} from 'react-native-svg';
-import {useTheme} from '../../core/providers';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
-import {DhikrRepeatIcon, HapticFeedbackMethods} from '../../common/constants';
-import {hapticFeedback} from '../../core/helpers';
-import Icon from '../Icons/Icons';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, View, Text as NativeText } from 'react-native';
+import Svg, { Circle, Text } from 'react-native-svg';
+import { useTheme } from '../../core/providers';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { DhikrRepeatIcon, HapticFeedbackMethods } from '../../common/constants';
+import { hapticFeedback } from '../../core/helpers';
+import { Icon } from '../Icons/Icons';
 
 interface CircleProgressBarProps {
   progress: number;
@@ -26,12 +26,12 @@ const CircleProgressBar = ({
   isCyclical = false,
   incraseValue,
 }: CircleProgressBarProps) => {
-  const {currentTheme} = useTheme();
+  const { currentTheme } = useTheme();
   const radius = size;
   const strokeWidth = radius / 7;
   const circumference = 2 * Math.PI * (radius - strokeWidth / 2);
   const progressAnimation = useRef(new Animated.Value(0)).current;
-  const [textDimensions, setTextDimensions] = useState({width: 0, height: 0});
+  const [textDimensions, setTextDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     Animated.timing(progressAnimation, {
@@ -71,7 +71,8 @@ const CircleProgressBar = ({
             hapticFeedback(HapticFeedbackMethods.Soft);
           }
         }
-      }}>
+      }}
+    >
       <Svg width={radius * 2} height={radius * 2}>
         <Circle
           cx={radius}
@@ -96,14 +97,15 @@ const CircleProgressBar = ({
         />
         <Text
           onLayout={event => {
-            const {width, height} = event.nativeEvent.layout;
-            setTextDimensions({width, height});
+            const { width, height } = event.nativeEvent.layout;
+            setTextDimensions({ width, height });
           }}
           x={radius}
           y={textDimensions.height / 2 + radius - 10}
           textAnchor="middle"
           stroke={currentTheme.textColor}
-          fontSize={radius / 3}>
+          fontSize={radius / 3}
+        >
           {getCount()}
         </Text>
         {description && (
@@ -113,7 +115,8 @@ const CircleProgressBar = ({
             textAnchor="middle"
             stroke={currentTheme.textColor}
             fontSize="12"
-            fontWeight={'200'}>
+            fontWeight={'200'}
+          >
             {description}
           </Text>
         )}
@@ -127,7 +130,8 @@ const CircleProgressBar = ({
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-          }}>
+          }}
+        >
           <Icon {...DhikrRepeatIcon(currentTheme)} />
           <NativeText
             style={{
@@ -136,7 +140,8 @@ const CircleProgressBar = ({
               textAlign: 'center',
               fontSize: 20,
               color: currentTheme.textColor,
-            }}>
+            }}
+          >
             {getCyclicalCount()}
           </NativeText>
         </View>

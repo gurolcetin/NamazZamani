@@ -17,18 +17,17 @@ export const Icons = {
   AntDesign,
   Image,
 };
-
 export interface IconProps {
   type: any;
-  name: string;
-  color: string;
+  name?: string;
+  color?: string;
   size?: number;
   style?: StyleProp<ViewStyle> | undefined;
   solid?: boolean;
   image?: React.ReactNode;
 }
 
-const Icon = ({
+export const Icon = ({
   type,
   name,
   color,
@@ -56,5 +55,3 @@ const Icon = ({
     </>
   );
 };
-
-export default Icon;

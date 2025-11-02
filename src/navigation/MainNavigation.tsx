@@ -1,23 +1,23 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
-import {TabNavigator} from './BottomTab/BottomTab';
-import {StackRoutes} from './Routes';
-import {useTheme} from '../../libs/core/providers';
-import {SafeAreaWithStatusBar} from '../../libs/components';
+import { StackRoutes } from './Routes';
+import { SafeAreaWithStatusBar } from '../../libs/components';
+import BottomTabNavigator from './BottomTab/BottomTab';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 export const Authenticated = () => {
-  const {currentTheme} = useTheme();
   return (
     <SafeAreaWithStatusBar>
       <Stack.Navigator
-        initialRouteName={StackRoutes.TabStack}
-        screenOptions={{header: () => null, headerShown: false}}>
+        screenOptions={{
+          headerShown: false,
+          headerLargeTitle: false,
+        }}
+      >
         <Stack.Screen
           name={StackRoutes.TabStack}
-          component={TabNavigator}
+          component={BottomTabNavigator}
           options={{
-            cardStyle: {backgroundColor: currentTheme.backgroundColor},
             headerShown: false,
             header: () => null,
           }}
