@@ -1,20 +1,14 @@
 import React from 'react';
-import { AntDesign } from '@react-native-vector-icons/ant-design';
 import { FontAwesome6 } from '@react-native-vector-icons/fontawesome6';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
-import { Feather } from '@react-native-vector-icons/feather';
-import { MaterialIcons } from '@react-native-vector-icons/material-icons';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 
 import { Image, StyleProp, ViewStyle } from 'react-native';
 import { scaleFontSize } from '../../core/utils';
 
 export const Icons = {
-  MaterialIcons,
   Ionicons,
-  Feather,
   FontAwesome6,
-  AntDesign,
   Image,
   MaterialDesignIcons,
 };

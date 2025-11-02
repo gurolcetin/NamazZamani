@@ -38,7 +38,7 @@ export const bottomTabMenuItems = (currentTheme: ThemeType) => [
     id: 3,
     route: StackRoutes.DhikrStack,
     label: Translate(MenuNameLanguageConstants.Dhikr),
-    type: Icons.MaterialIcons,
+    type: Icons.MaterialDesignIcons,
     icon: MenuIconConstants.Dhikr,
     component: Dhikr,
     color: currentTheme.primary,
