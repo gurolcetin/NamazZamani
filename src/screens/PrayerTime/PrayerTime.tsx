@@ -16,10 +16,9 @@ import {
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
 import { requestLocationPermission, getCurrentPosition } from './permission';
-import { ScreenViewContainer } from '../../../libs/components';
+import { Icon, Icons, ScreenViewContainer } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
 import { reverseGeocode, getUTCLabel } from './reverse-geocode';
 import { useNavigation } from '@react-navigation/native';
@@ -43,15 +42,38 @@ const LABELS_TR: Record<Key, string> = {
   Isha: 'Yatsı',
 };
 
-const ICONS: Record<Key, string> = {
-  Fajr: 'moon-outline',
-  Sunrise: 'sunny-outline',
-  Dhuhr: 'sunny',
-  Asr: 'partly-sunny-outline',
-  Maghrib: 'cloudy-night-outline',
-  Isha: 'moon',
+export const ICONS: Record<
+  Key,
+  {
+    type: any;
+    name: string;
+  }
+> = {
+  Fajr: {
+    type: Icons.Ionicons,
+    name: 'moon-outline', // 🌙
+  },
+  Sunrise: {
+    type: Icons.MaterialDesignIcons,
+    name: 'weather-sunset-up', // 🌅
+  },
+  Dhuhr: {
+    type: Icons.MaterialDesignIcons,
+    name: 'weather-sunny', // ☀️
+  },
+  Asr: {
+    type: Icons.MaterialDesignIcons,
+    name: 'weather-sunset', // ⛅
+  },
+  Maghrib: {
+    type: Icons.MaterialDesignIcons,
+    name: 'weather-sunset-down', // 🌇
+  },
+  Isha: {
+    type: Icons.Ionicons,
+    name: 'moon', // 🌙
+  },
 };
-
 // ----- Time helpers ---------------------------------------------------------
 function toTodayDate(hhmm: string, base = new Date()): Date {
   const [h, m] = hhmm.split(':').map(Number);
@@ -237,10 +259,11 @@ export default function PrayerTime() {
         ]}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Ionicons
-            name={ICONS[item.key] as any}
-            size={18}
+          <Icon
+            type={ICONS[item.key].type}
+            name={ICONS[item.key].name as any}
             color={active ? 'white' : 'black'}
+            size={18}
           />
           <Text style={[styles.smallTitle, active && styles.smallTitleActive]}>
             {item.label}
@@ -248,7 +271,6 @@ export default function PrayerTime() {
         </View>
 
         <View style={{ alignItems: 'flex-end', gap: 2 }}>
-          {active && <Text style={styles.smallMiniLeft}>{item.miniLeft}</Text>}
           <Text style={[styles.smallTime, active && styles.smallTimeActive]}>
             {item.time}
           </Text>
@@ -263,6 +285,41 @@ export default function PrayerTime() {
   const isCritical = leftSec <= 45 * 60;
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
+
+  const ListHeader = () => (
+    <View>
+      {/* Big next card (SIRADAKİ) */}
+      <View style={[styles.nextCard, { backgroundColor: cardBg }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={styles.nextIconWrap}>
+            <Icon
+              type={currentIcon.type}
+              name={currentIcon.name as any}
+              color={'#fff'}
+              size={22}
+            />
+          </View>
+
+          <View>
+            <Text style={styles.nextLabel}>
+              {currentLabel} vaktinin çıkmasına
+            </Text>
+            <Text style={styles.nextHint}>{leftClock} kaldı</Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+
+  // ------- render -----------------------------------------------------------
+  if (loading && !timings) {
+    return (
+      <View style={[styles.center, { flex: 1 }]}>
+        <ActivityIndicator />
+        <Text style={{ marginTop: 8 }}>Vakitler yükleniyor…</Text>
+      </View>
+    );
+  }
 
   return (
     <ScreenViewContainer>
@@ -281,38 +338,29 @@ export default function PrayerTime() {
           }
           onPickDate={() => {
             if (!coords) return;
-            navigation.navigate(PrayerTimeScreens.MontlyCalendar as never)
+            navigation.navigate(PrayerTimeScreens.MontlyCalendar as never);
           }}
           onOpenImsakiye={() => {
             if (!coords) return;
-            navigation.navigate(PrayerTimeScreens.Imsakiye as never)
+            navigation.navigate(PrayerTimeScreens.Imsakiye as never);
           }}
         />
       </View>
-
-      {/* Big next card (SIRADAKİ) */}
-      <View style={[styles.nextCard, { backgroundColor: cardBg }]}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={styles.nextIconWrap}>
-            <Ionicons name={currentIcon} size={22} color="#fff" />
-          </View>
-
-          <View>
-            <Text style={styles.nextLabel}>
-              {currentLabel} vaktinin çıkmasına
-            </Text>
-            <Text style={styles.nextHint}>{leftClock} kaldı</Text>
-          </View>
-        </View>
-      </View>
-
       <FlatList
         data={smallCards}
         numColumns={2}
         keyExtractor={i => i.key}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
         renderItem={renderSmall}
+        ListHeaderComponent={ListHeader} // ⬅️ Üst içerikler burada
+        contentContainerStyle={{
+          paddingBottom: 24,
+          paddingHorizontal: 16,
+        }}
+        columnWrapperStyle={{ justifyContent: 'space-between' }} // 2 kolon aralığı
         showsVerticalScrollIndicator={false}
+        removeClippedSubviews
+        initialNumToRender={6}
+        windowSize={7}
       />
     </ScreenViewContainer>
   );
@@ -329,7 +377,6 @@ const styles = StyleSheet.create({
   },
   nextCard: {
     marginTop: 14,
-    marginHorizontal: 16,
     borderRadius: 22,
     padding: 18,
     flexDirection: 'row',
@@ -353,11 +400,11 @@ const styles = StyleSheet.create({
     marginTop: 12,
     backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: 18,
-    padding: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 84,
   },
   smallTitle: { fontSize: 16, fontWeight: '700' },
   smallTitleActive: { color: '#fff' },

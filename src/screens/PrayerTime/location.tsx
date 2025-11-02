@@ -70,7 +70,7 @@ export function LocationChip({
       <View style={styles.locLeft}>
         <Ionicons
           name="location"
-          size={17}
+          size={20}
           color={themeColors.primary}
           style={styles.icon}
         />

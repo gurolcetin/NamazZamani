@@ -46,29 +46,14 @@ export const ActionCardGroup = memo((props: Props) => {
     onOpenLocationSelector,
     onPickDate,
     onOpenImsakiye,
-    style,
   } = props;
 
   const border = withOpacity(theme.primary, isDark ? 0.28 : 0.18);
-  const bg = withOpacity(theme.primary, isDark ? 0.12 : 0.08);
 
   const pillBg = (alpha = 0.18) => withOpacity(theme.primary, alpha);
 
   return (
-    <View
-      style={[
-        stylesL.card,
-        { backgroundColor: bg, borderColor: border },
-        style,
-      ]}
-    >
-      {/* Başlık satırı */}
-      <View style={stylesL.headerRow}>
-        <Text style={[stylesL.title, { color: theme.textColor }]}>
-          Konum & Vakitler
-        </Text>
-      </View>
-
+    <View style={[stylesL.card]}>
       {/* Konum satırı (chip + “değiştir”) */}
       <View style={stylesL.locationRow}>
         <LocationChip
@@ -105,7 +90,9 @@ export const ActionCardGroup = memo((props: Props) => {
                 color={theme.primary}
               />
             </View>
-            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>Tarih Seç</Text>
+            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
+              Tarih Seç
+            </Text>
           </View>
         </Pressable>
 
@@ -124,7 +111,9 @@ export const ActionCardGroup = memo((props: Props) => {
             <View style={[stylesL.iconWrap, { backgroundColor: pillBg(0.25) }]}>
               <Ionicons name="list-outline" size={18} color={theme.primary} />
             </View>
-            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>İmsakiye</Text>
+            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
+              İmsakiye
+            </Text>
           </View>
         </Pressable>
       </View>
@@ -136,15 +125,6 @@ const stylesL = StyleSheet.create({
   card: {
     marginTop: 12,
     marginHorizontal: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    // iOS gölge
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
   },
   headerRow: {
     paddingHorizontal: 4,

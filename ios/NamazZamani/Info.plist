@@ -62,6 +62,7 @@
 		<string>FontAwesome6_Solid.ttf</string>
 		<string>Ionicons.ttf</string>
 		<string>MaterialIcons.ttf</string>
+		<string>MaterialDesignIcons.ttf</string>
 	</array>
 	<!-- Ön plan -->
 	<key>NSLocationWhenInUseUsageDescription</key>

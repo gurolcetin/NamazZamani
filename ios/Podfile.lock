@@ -1784,7 +1784,7 @@ PODS:
     - SocketRocket
   - react-native-geolocation-service (5.3.1):
     - React
-  - react-native-safe-area-context (5.6.1):
+  - react-native-safe-area-context (5.6.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -1802,8 +1802,8 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.6.1)
-    - react-native-safe-area-context/fabric (= 5.6.1)
+    - react-native-safe-area-context/common (= 5.6.2)
+    - react-native-safe-area-context/fabric (= 5.6.2)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1814,7 +1814,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-safe-area-context/common (5.6.1):
+  - react-native-safe-area-context/common (5.6.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -1842,7 +1842,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-safe-area-context/fabric (5.6.1):
+  - react-native-safe-area-context/fabric (5.6.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -1871,13 +1871,13 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-vector-icons-ant-design (12.3.0)
-  - react-native-vector-icons-evil-icons (12.3.0)
-  - react-native-vector-icons-feather (12.3.0)
-  - react-native-vector-icons-fontawesome (12.3.0)
-  - react-native-vector-icons-fontawesome6 (12.2.0)
+  - react-native-vector-icons-ant-design (12.4.0)
+  - react-native-vector-icons-evil-icons (12.4.0)
+  - react-native-vector-icons-feather (12.4.0)
+  - react-native-vector-icons-fontawesome6 (12.3.0)
   - react-native-vector-icons-ionicons (12.3.0)
-  - react-native-vector-icons-material-icons (12.3.0)
+  - react-native-vector-icons-material-design-icons (12.4.0)
+  - react-native-vector-icons-material-icons (12.4.0)
   - React-NativeModulesApple (0.82.1):
     - boost
     - DoubleConversion
@@ -2501,7 +2501,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNDateTimePicker (8.4.5):
+  - RNDateTimePicker (8.5.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2559,7 +2559,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNPermissions (5.4.2):
+  - RNPermissions (5.4.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -2962,9 +2962,9 @@ DEPENDENCIES:
   - "react-native-vector-icons-ant-design (from `../node_modules/@react-native-vector-icons/ant-design`)"
   - "react-native-vector-icons-evil-icons (from `../node_modules/@react-native-vector-icons/evil-icons`)"
   - "react-native-vector-icons-feather (from `../node_modules/@react-native-vector-icons/feather`)"
-  - "react-native-vector-icons-fontawesome (from `../node_modules/@react-native-vector-icons/fontawesome`)"
   - "react-native-vector-icons-fontawesome6 (from `../node_modules/@react-native-vector-icons/fontawesome6`)"
   - "react-native-vector-icons-ionicons (from `../node_modules/@react-native-vector-icons/ionicons`)"
+  - "react-native-vector-icons-material-design-icons (from `../node_modules/@react-native-vector-icons/material-design-icons`)"
   - "react-native-vector-icons-material-icons (from `../node_modules/@react-native-vector-icons/material-icons`)"
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
@@ -3109,12 +3109,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-vector-icons/evil-icons"
   react-native-vector-icons-feather:
     :path: "../node_modules/@react-native-vector-icons/feather"
-  react-native-vector-icons-fontawesome:
-    :path: "../node_modules/@react-native-vector-icons/fontawesome"
   react-native-vector-icons-fontawesome6:
     :path: "../node_modules/@react-native-vector-icons/fontawesome6"
   react-native-vector-icons-ionicons:
     :path: "../node_modules/@react-native-vector-icons/ionicons"
+  react-native-vector-icons-material-design-icons:
+    :path: "../node_modules/@react-native-vector-icons/material-design-icons"
   react-native-vector-icons-material-icons:
     :path: "../node_modules/@react-native-vector-icons/material-icons"
   React-NativeModulesApple:
@@ -3250,14 +3250,14 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 06d59c448da7e34eb05b3fb2189e12f6a30fec57
   React-microtasksnativemodule: d1ee999dc9052e23f6488b730fa2d383a4ea40e5
   react-native-geolocation-service: 32b2c2a3b91e70ce2a8d0c684801aaeb0a07e0ec
-  react-native-safe-area-context: c6e2edd1c1da07bdce287fa9d9e60c5f7b514616
-  react-native-vector-icons-ant-design: 3764a6096f8d760e0bb6766ea762a5545f6dba1c
-  react-native-vector-icons-evil-icons: 74d1fe2b104d1b4286359313713c7a4a9dcef1be
-  react-native-vector-icons-feather: 14d6f3e1af2acefb0b4d976b226bb15b19e1db58
-  react-native-vector-icons-fontawesome: c41fd08991989b71fe79c68ebb3ee30ac221178e
-  react-native-vector-icons-fontawesome6: 1b667969bef2f430d1d7515163b980b856f58670
+  react-native-safe-area-context: c00143b4823773bba23f2f19f85663ae89ceb460
+  react-native-vector-icons-ant-design: a309d03f837c62c60c74ce5fd82dc0da3f1e7bbe
+  react-native-vector-icons-evil-icons: 5160157a6b05251812d4b74702efc84130fe52a3
+  react-native-vector-icons-feather: b0c81b5240bc89ba1546220b694fc5f7b660258d
+  react-native-vector-icons-fontawesome6: 1a73ea16a698f70851ad47e94521a99499e8e974
   react-native-vector-icons-ionicons: ad07e944a092a5cf71b8b569d8f5ce2bf674c415
-  react-native-vector-icons-material-icons: eff7417eb1ac6c740ab802837ad34b8233fded34
+  react-native-vector-icons-material-design-icons: 76cd460b3540b80527b4a80fb7f867f7deedb498
+  react-native-vector-icons-material-icons: d67e485a05560416ff6b5977d5fa7e0eb6af6870
   React-NativeModulesApple: 46690a0fe94ec28fc6fc686ec797b911d251ded0
   React-oscompat: 95875e81f5d4b3c7b2c888d5bd2c9d83450d8bdb
   React-perflogger: 2e229bf33e42c094fd64516d89ec1187a2b79b5b
@@ -3293,10 +3293,10 @@ SPEC CHECKSUMS:
   RNBootSplash: 98a34471966945e8dacd1da8f0c2f87cbc2e2df7
   RNCAsyncStorage: 29f0230e1a25f36c20b05f65e2eb8958d6526e82
   RNCMaskedView: 5ef8c95cbab95334a32763b72896a7b7d07e6299
-  RNDateTimePicker: 113004837aad399a525cd391ac70b7951219ff2f
+  RNDateTimePicker: 776fed1b26cfd8d7fff6dd382d6291546fdbe755
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNGestureHandler: 6859520a21304f0bedf0643d0cf0beade47c83f2
-  RNPermissions: f841cbbcecc29bbc69c0fe01e8c0344b98cee801
+  RNPermissions: 0665727fc92e4a4c0ac727144748e54f59d2f25b
   RNReactNativeHapticFeedback: be4f1b4bf0398c30b59b76ed92ecb0a2ff3a69c6
   RNReanimated: 732e7d1662f8cc0e533fa32791800de5b5934726
   RNScreens: d821082c6dd1cb397cc0c98b026eeafaa68be479
