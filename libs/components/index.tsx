@@ -1,17 +1,17 @@
 import TabButton from './TabButton/TabButton';
-import {SafeAreaWithStatusBar} from './SafeAreaWithStatusBar/SafeAreaWithStatusBar';
+import { SafeAreaWithStatusBar } from './SafeAreaWithStatusBar/SafeAreaWithStatusBar';
 import CardView from './CardView/CardView';
-import {CardViewProps} from './CardView/CardView';
+import { CardViewProps } from './CardView/CardView';
 import RadioButtonVerticalGroup, {
   RadioButtonVerticalGroupProps,
 } from './RadioButtonVerticalGroup/RadioButtonVerticalGroup';
-import {Icons, IconProps, Icon} from './Icons/Icons';
+import { Icons, IconProps, Icon } from './Icons/Icons';
 import TableView from './TableView/TableView';
-import {TableViewProps} from './TableView/TableView';
+import { TableViewProps } from './TableView/TableView';
 import TouchableFloatView from './TouchableFloatView/TouchableFloatView';
 import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
 import SegmentedControl from './SegmentedControl/SegmentedControl';
-import {FormControl} from './FormControl/FormControl';
+import { FormControl } from './FormControl/FormControl';
 import SubmitButton from './SubmitButton/SubmitButton';
 import Info from './Info/Info';
 import RadioButton from './RadioButton/RadioButton';
@@ -21,6 +21,7 @@ import BackgroundColorChanger from './BackgroundColorChangerView/BackgroundColor
 import ErrorView from './ErrorView/ErrorView';
 import CircleProgressBar from './CircleProgressBar/CircleProgressBar';
 import CustomModal from './CustomModal/CustomModal';
+import { PrayerTimeSmallCard } from './display/prayer-time-small-card';
 export {
   TabButton,
   SafeAreaWithStatusBar,
@@ -42,6 +43,7 @@ export {
   ErrorView,
   CircleProgressBar,
   CustomModal,
+  PrayerTimeSmallCard,
 };
 export type {
   RadioButtonVerticalGroupProps,

@@ -8,17 +8,22 @@ import React, {
 import {
   ActivityIndicator,
   FlatList,
+  ListRenderItemInfo,
   StyleSheet,
   Text,
   View,
-  ListRenderItemInfo,
   useColorScheme,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
 import { requestLocationPermission, getCurrentPosition } from './permission';
-import { Icon, Icons, ScreenViewContainer } from '../../../libs/components';
+import {
+  Icon,
+  Icons,
+  PrayerTimeSmallCard,
+  ScreenViewContainer,
+} from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
 import { reverseGeocode, getUTCLabel } from './reverse-geocode';
 import { useNavigation } from '@react-navigation/native';
@@ -29,11 +34,11 @@ import {
   getUtcLabelFromTimeZone,
 } from '../../../libs/core/helpers';
 import { ActionCardGroup } from './action-cards/action-card-group';
+import { PrayerTimeKey, SmallCard } from '../../../libs/common/types';
 
 // ----- Types & Maps ---------------------------------------------------------
-type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 
-const LABELS_TR: Record<Key, string> = {
+const LABELS_TR: Record<PrayerTimeKey, string> = {
   Fajr: 'İmsak',
   Sunrise: 'Güneş',
   Dhuhr: 'Öğle',
@@ -43,7 +48,7 @@ const LABELS_TR: Record<Key, string> = {
 };
 
 export const ICONS: Record<
-  Key,
+  PrayerTimeKey,
   {
     type: any;
     name: string;
@@ -97,7 +102,14 @@ function progressBetween(start: Date, end: Date, now = new Date()) {
   return Math.min(1, Math.max(0, passed / span));
 }
 function buildSequence(t: PrayerTimings) {
-  const order: Key[] = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const order: PrayerTimeKey[] = [
+    'Fajr',
+    'Sunrise',
+    'Dhuhr',
+    'Asr',
+    'Maghrib',
+    'Isha',
+  ];
   const today = new Date();
   return order.map(k => ({
     key: k,
@@ -134,14 +146,6 @@ function computeNext(seq: ReturnType<typeof buildSequence>, now = new Date()) {
 }
 
 // ----- UI -------------------------------------------------------------------
-type SmallCard = {
-  key: Key;
-  label: string;
-  time: string;
-  isCurrent?: boolean;
-  miniLeft?: string;
-  notif?: boolean;
-};
 
 export default function PrayerTime() {
   const { currentTheme } = useTheme();
@@ -152,8 +156,8 @@ export default function PrayerTime() {
 
   const [leftClock, setLeftClock] = useState('00:00:00');
   const [leftSec, setLeftSec] = useState(0);
-  const nextKeyRef = useRef<Key>('Fajr');
-  const currentKeyRef = useRef<Key>('Fajr');
+  const nextKeyRef = useRef<PrayerTimeKey>('Fajr');
+  const currentKeyRef = useRef<PrayerTimeKey>('Fajr');
 
   const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
   const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
@@ -223,7 +227,12 @@ export default function PrayerTime() {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [timings]);
-
+  const renderSmallCard = useCallback(
+    ({ item, index }: ListRenderItemInfo<SmallCard>) => (
+      <PrayerTimeSmallCard item={item} index={index} />
+    ),
+    []
+  );
   const smallCards: SmallCard[] = useMemo(() => {
     if (!timings) return [];
     const seq = buildSequence(timings);
@@ -247,37 +256,6 @@ export default function PrayerTime() {
       </View>
     );
   }
-
-  const renderSmall = ({ item, index }: ListRenderItemInfo<SmallCard>) => {
-    const active = item.isCurrent;
-    return (
-      <View
-        style={[
-          styles.smallCard,
-          index % 2 === 0 ? { marginRight: 8 } : { marginLeft: 8 },
-          active && { backgroundColor: currentTheme.primary },
-        ]}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Icon
-            type={ICONS[item.key].type}
-            name={ICONS[item.key].name as any}
-            color={active ? 'white' : 'black'}
-            size={18}
-          />
-          <Text style={[styles.smallTitle, active && styles.smallTitleActive]}>
-            {item.label}
-          </Text>
-        </View>
-
-        <View style={{ alignItems: 'flex-end', gap: 2 }}>
-          <Text style={[styles.smallTime, active && styles.smallTimeActive]}>
-            {item.time}
-          </Text>
-        </View>
-      </View>
-    );
-  };
 
   // Büyük kart: SIRADAKİ vakit bilgisi + kalan dijital
   const currentLabel = LABELS_TR[currentKeyRef.current];
@@ -350,7 +328,7 @@ export default function PrayerTime() {
         data={smallCards}
         numColumns={2}
         keyExtractor={i => i.key}
-        renderItem={renderSmall}
+        renderItem={renderSmallCard}
         ListHeaderComponent={ListHeader} // ⬅️ Üst içerikler burada
         contentContainerStyle={{
           paddingBottom: 24,
@@ -394,26 +372,4 @@ const styles = StyleSheet.create({
   nextLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
   nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 16, marginTop: 2 },
   nextBigTime: { color: '#fff', fontSize: 32, fontWeight: '800' },
-
-  smallCard: {
-    flex: 1,
-    marginTop: 12,
-    backgroundColor: 'rgba(255,255,255,0.85)',
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  smallTitle: { fontSize: 16, fontWeight: '700' },
-  smallTitleActive: { color: '#fff' },
-  smallTime: { fontSize: 18, fontWeight: '800' },
-  smallTimeActive: { color: '#fff' },
-  smallMiniLeft: {
-    fontSize: 12,
-    opacity: 0.9,
-    color: '#fff',
-    alignSelf: 'flex-end',
-  },
 });

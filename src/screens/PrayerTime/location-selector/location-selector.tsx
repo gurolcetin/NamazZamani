@@ -244,9 +244,6 @@ export default function LocationSelector() {
       {!hasQuery && (
         <>
           {/* Mevcut Konum */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Mevcut Konum</Text>
-          </View>
           <Pressable
             style={[
               styles.nextCard,
@@ -267,7 +264,7 @@ export default function LocationSelector() {
                 <Ionicons name="locate" size={22} color="#fff" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.nextLabel}>Bulunduğun Yer</Text>
+                <Text style={styles.nextLabel}>Bulunduğunuz Yer</Text>
                 <Text style={styles.nextHint}>Cihaz konumu</Text>
               </View>
             </View>
@@ -281,11 +278,8 @@ export default function LocationSelector() {
           </Pressable>
 
           {/* Kaydedilen Konumlar */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Kaydedilen Konumlar</Text>
-          </View>
           {saved.length === 0 ? (
-            <Text style={styles.emptyText}>Henüz kayıtlı konum yok.</Text>
+            <Text style={styles.emptyText}>Henüz kayıtlı konum yok. Yeni konum eklemek için konum arayınız.</Text>
           ) : (
             <FlatList
               data={saved}
