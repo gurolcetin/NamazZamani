@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Text,
   View,
-  useColorScheme,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenViewContainer } from '../../../../libs/components';
@@ -161,7 +160,10 @@ function SixColGrid({
       <View style={styles.gridRow}>
         {values.map((val, i) => (
           <View key={`val-${i}`} style={styles.gridCell}>
-            <Text style={styles.gridValue} numberOfLines={1}>
+            <Text
+              style={[styles.gridValue, { color: textColor }]}
+              numberOfLines={1}
+            >
               {val}
             </Text>
           </View>
@@ -176,7 +178,6 @@ export default function TimeTable() {
   const activeResolved = useSelector(selectActiveResolved);
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-  const systemDark = useColorScheme() === 'dark';
 
   const [sections, setSections] = useState<Section[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -230,9 +231,6 @@ export default function TimeTable() {
     load();
   }, [load, navigation]);
 
-  const pillBg = withOpacity(currentTheme.primary, systemDark ? 0.18 : 0.12);
-  const todayBg = `${currentTheme.primary}1F`; // ~12% opaklık
-
   if (loading && !sections) {
     return (
       <ScreenViewContainer>
@@ -258,11 +256,11 @@ export default function TimeTable() {
           <View
             style={[
               styles.sectionHeader,
-              { backgroundColor: pillBg},
+              { backgroundColor: currentTheme.cardViewBackgroundColor },
             ]}
           >
             <Text
-              style={[styles.sectionTitle, { color: currentTheme.textColor }]}
+              style={[styles.sectionTitle, { color: currentTheme.primary }]}
             >
               {section.title}
             </Text>
@@ -276,26 +274,28 @@ export default function TimeTable() {
 
           const valuesRow = ORDER.map(k => item.times[k]);
 
-          return (
-            <View
-              style={[
+          const cardStyle = isToday
+            ? [styles.rowCard, { backgroundColor: currentTheme.primary }]
+            : [
                 styles.rowCard,
-                styles.nonTodayCard,
-                // bugün satırı
-                isToday
-                  ? {
-                      backgroundColor: todayBg
-                    }
-                  : null
-              ]}
-            >
+                { backgroundColor: currentTheme.cardViewBackgroundColor },
+              ];
+
+          const titleColor = isToday
+            ? currentTheme.white
+            : currentTheme.textColor;
+          const dividerColor = isToday
+            ? currentTheme.white
+            : currentTheme.textColor;
+          const gridTextColor = isToday
+            ? currentTheme.white
+            : currentTheme.textColor;
+
+          return (
+            <View style={cardStyle}>
               {/* Sol üst: günün tarihi */}
               <Text
-                style={[
-                  styles.rowDateText,
-                  { color: currentTheme.textColor },
-                  isToday && { color: currentTheme.primary },
-                ]}
+                style={[styles.rowDateText, { color: titleColor }]}
                 numberOfLines={1}
               >
                 {dateText}
@@ -303,22 +303,14 @@ export default function TimeTable() {
 
               {/* Divider */}
               <View
-                style={[
-                  styles.divider,
-                  {
-                    backgroundColor: withOpacity(
-                      currentTheme.textColor || '#000',
-                      0.12,
-                    ),
-                  },
-                ]}
+                style={[styles.divider, { backgroundColor: dividerColor }]}
               />
 
               {/* 6 sütunlu kompakt grid: üstte etiketler, altta saatler */}
               <SixColGrid
                 labels={LABELS_ROW}
                 values={valuesRow}
-                textColor={withOpacity('#000', 0.75)}
+                textColor={gridTextColor}
               />
             </View>
           );
@@ -331,23 +323,6 @@ export default function TimeTable() {
       />
     </ScreenViewContainer>
   );
-}
-
-// ---------- small pieces ----------
-function withOpacity(hex: string, alpha = 0.12) {
-  const m = hex?.replace('#', '');
-  if (!m || (m.length !== 6 && m.length !== 3)) return `rgba(0,0,0,${alpha})`;
-  const norm =
-    m.length === 3
-      ? m
-          .split('')
-          .map(c => c + c)
-          .join('')
-      : m;
-  const r = parseInt(norm.slice(0, 2), 16);
-  const g = parseInt(norm.slice(2, 4), 16);
-  const b = parseInt(norm.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 // ---------- styles ----------
@@ -363,30 +338,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  sectionTitle: { fontSize: 15, fontWeight: '800' },
+  sectionTitle: { fontSize: 20, fontWeight: '800' },
 
   rowCard: {
     marginTop: 10,
     marginHorizontal: 16,
     borderRadius: 18,
-    // NOT: Buradaki borderWidth: 1’i kaldırdık
     paddingHorizontal: 12,
     paddingVertical: 12,
-  },
-
-  nonTodayCard: {
-    backgroundColor: '#fff',
-    borderWidth: 0,
-
-    // iOS gölge
     shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
+    shadowOpacity: 0.1,
+    shadowRadius: 7,
     shadowOffset: { width: 0, height: 3 },
-
     // Android gölge
     elevation: 2,
   },
+
   rowDateText: {
     fontSize: 15,
     fontWeight: '800',
@@ -397,6 +364,7 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
     marginTop: 8,
     marginBottom: 10,
+    marginRight: -12, // rowCard'daki paddingHorizontal kadar eksi veriyoruz
   },
 
   // grid
@@ -415,7 +383,7 @@ const styles = StyleSheet.create({
   gridLabel: {
     fontSize: 12,
     fontWeight: '700',
-    opacity: 0.8,
+    opacity: 0.95,
   },
   gridValue: {
     fontSize: 15,
