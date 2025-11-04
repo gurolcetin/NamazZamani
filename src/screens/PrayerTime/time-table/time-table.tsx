@@ -346,12 +346,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 7,
-    shadowOffset: { width: 0, height: 3 },
-    // Android gölge
-    elevation: 2,
   },
 
   rowDateText: {

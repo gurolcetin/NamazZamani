@@ -249,7 +249,12 @@ export default function MonthlyCalendar() {
     <ScreenViewContainer>
       {/* Beyaz Card içinde Takvim başlık + gövde */}
       <View style={styles.cardWrap}>
-        <View style={styles.cardHeader}>
+        <View
+          style={[
+            styles.cardHeader,
+            { backgroundColor: currentTheme.cardViewBackgroundColor },
+          ]}
+        >
           {/* Sol: Android'te Tarih Değiştir butonu, iOS'ta boş tutucu */}
           {Platform.OS === 'android' ? (
             <Pressable
@@ -257,7 +262,11 @@ export default function MonthlyCalendar() {
               style={styles.dateBtn}
               disabled={isMonthLoading}
             >
-              <Ionicons name="calendar-outline" size={14} color="#111" />
+              <Ionicons
+                name="calendar-outline"
+                size={14}
+                color={currentTheme.textColor}
+              />
               <Text style={styles.dateBtnText}>Tarih Değiştir</Text>
             </Pressable>
           ) : (
@@ -266,7 +275,7 @@ export default function MonthlyCalendar() {
 
           {/* Orta: seçili gün bilgisi */}
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={styles.cardTitle}>
+            <Text style={[styles.cardTitle, { color: currentTheme.textColor }]}>
               {selectedDate.toLocaleDateString(dateLocale, {
                 weekday: 'long',
                 day: 'numeric',
@@ -293,6 +302,7 @@ export default function MonthlyCalendar() {
             {
               paddingHorizontal: Platform.OS === 'android' ? 0 : 6,
               paddingVertical: Platform.OS === 'android' ? 0 : 6,
+              backgroundColor: currentTheme.cardViewBackgroundColor,
             },
           ]}
         >
@@ -360,6 +370,7 @@ export default function MonthlyCalendar() {
           display="default"
           mode="date"
           value={selectedDate}
+          accentColor={currentTheme.primary}
           locale={dateLocale}
           minimumDate={new Date(1900, 0, 1)}
           onChange={(event: any, picked?: Date) => {
@@ -384,8 +395,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E6E6EA',
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOpacity: 0.06,
@@ -405,7 +414,6 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#111',
     textTransform: 'capitalize',
   },
   cardBody: {

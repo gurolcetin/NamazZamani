@@ -26,23 +26,35 @@ export const PrayerTimeSmallCard: React.FC<{
       style={[
         styles.smallCard,
         index % 2 === 0 ? { marginRight: 8 } : { marginLeft: 8 },
-        active && { backgroundColor: currentTheme.primary },
+        active
+          ? { backgroundColor: currentTheme.primary }
+          : { backgroundColor: currentTheme.cardViewBackgroundColor },
       ]}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Icon
           type={ICONS[item.key].type}
           name={ICONS[item.key].name as any}
-          color={active ? 'white' : 'black'}
+          color={active ? currentTheme.white : currentTheme.textColor}
           size={18}
         />
-        <Text style={[styles.smallTitle, active && styles.smallTitleActive]}>
+        <Text
+          style={[
+            styles.smallTitle,
+            { color: active ? currentTheme.white : currentTheme.textColor },
+          ]}
+        >
           {item.label}
         </Text>
       </View>
 
       <View style={{ alignItems: 'flex-end', gap: 2 }}>
-        <Text style={[styles.smallTime, active && styles.smallTimeActive]}>
+        <Text
+          style={[
+            styles.smallTime,
+            { color: active ? currentTheme.white : currentTheme.textColor },
+          ]}
+        >
           {item.time}
         </Text>
       </View>
@@ -54,7 +66,6 @@ const styles = StyleSheet.create({
   smallCard: {
     flex: 1,
     marginTop: 12,
-    backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 18,
@@ -63,7 +74,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   smallTitle: { fontSize: 16, fontWeight: '700' },
-  smallTitleActive: { color: '#fff' },
   smallTime: { fontSize: 18, fontWeight: '800' },
   smallTimeActive: { color: '#fff' },
 });
