@@ -10,7 +10,6 @@ import {
   useColorScheme,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { ScreenViewContainer } from '../../../../libs/components';
 import { PrayerTimings } from '../api';
 import { fetchMonthlyPrayerTimesByCoords } from '../MontlyCalendar/api';
@@ -58,6 +57,24 @@ const TR_WEEKDAYS = [
   'Cumartesi',
 ];
 
+const LABELS_ROW = [
+  'İmsak',
+  'Güneş',
+  'Öğle',
+  'İkindi',
+  'Akşam',
+  'Yatsı',
+] as const;
+type LabelKey = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
+const ORDER: LabelKey[] = [
+  'Fajr',
+  'Sunrise',
+  'Dhuhr',
+  'Asr',
+  'Maghrib',
+  'Isha',
+];
+
 function ymd(d: Date) {
   const y = d.getFullYear();
   const m = d.getMonth() + 1;
@@ -65,7 +82,6 @@ function ymd(d: Date) {
   return { y, m, day };
 }
 
-// API’mizin yalnızca saatleri döndürmesi nedeniyle,
 // Listedeki her gün için ilgili ayın dizininden doğru güne ulaşıyoruz.
 async function buildRange(
   start: Date,
@@ -94,7 +110,6 @@ async function buildRange(
 
     const { y, m, day } = ymd(d);
     const arr = y === y1 && m === m1 ? month1 : (month2 as PrayerTimings[]);
-    // Aladhan calendar dizisi 1-indexed gün sırası ile döner
     const times = arr[day - 1];
 
     items.push({
@@ -117,6 +132,45 @@ async function buildRange(
   return Array.from(map.entries()).map(([title, data]) => ({ title, data }));
 }
 
+// ---------- küçük parça: 6 sütunlu grid ----------
+function SixColGrid({
+  labels,
+  values,
+  textColor,
+}: {
+  labels: readonly string[];
+  values: string[];
+  textColor: string;
+}) {
+  return (
+    <View style={styles.gridWrap}>
+      {/* Üst satır: etiketler */}
+      <View style={styles.gridRow}>
+        {labels.map((lbl, i) => (
+          <View key={`lbl-${i}`} style={styles.gridCell}>
+            <Text
+              style={[styles.gridLabel, { color: textColor }]}
+              numberOfLines={1}
+            >
+              {lbl}
+            </Text>
+          </View>
+        ))}
+      </View>
+      {/* Alt satır: saatler */}
+      <View style={styles.gridRow}>
+        {values.map((val, i) => (
+          <View key={`val-${i}`} style={styles.gridCell}>
+            <Text style={styles.gridValue} numberOfLines={1}>
+              {val}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 // ---------- screen ----------
 export default function TimeTable() {
   const activeResolved = useSelector(selectActiveResolved);
@@ -127,7 +181,6 @@ export default function TimeTable() {
   const [sections, setSections] = useState<Section[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const startDate = useMemo(() => {
     const d = new Date();
@@ -158,6 +211,7 @@ export default function TimeTable() {
       setLoading(false);
     }
   }, [activeResolved, startDate]);
+
   useEffect(() => {
     load();
   }, [load]);
@@ -192,17 +246,6 @@ export default function TimeTable() {
     );
   }
 
-  if (error) {
-    return (
-      <ScreenViewContainer>
-        <View style={[styles.center, { padding: 24 }]}>
-          <Text style={{ fontWeight: '700', marginBottom: 6 }}>Hata</Text>
-          <Text style={{ opacity: 0.8, textAlign: 'center' }}>{error}</Text>
-        </View>
-      </ScreenViewContainer>
-    );
-  }
-
   return (
     <ScreenViewContainer>
       <SectionList
@@ -229,6 +272,12 @@ export default function TimeTable() {
         )}
         renderItem={({ item }) => {
           const isToday = item.isToday;
+          const dateText = `${item.weekday}, ${item.dayNum} ${
+            TR_MONTHS[item.date.getMonth()]
+          }`;
+
+          const valuesRow = ORDER.map(k => item.times[k]);
+
           return (
             <View
               style={[
@@ -240,28 +289,37 @@ export default function TimeTable() {
                 },
               ]}
             >
-              {/* Sol taraf: tarih */}
-              <View style={styles.dateCol}>
-                <Text
-                  style={[
-                    styles.weekday,
-                    isToday && { color: currentTheme.primary },
-                  ]}
-                >
-                  {item.weekday}
-                </Text>
-                <Text style={styles.daynum}>{item.dayNum}</Text>
-              </View>
+              {/* Sol üst: günün tarihi */}
+              <Text
+                style={[
+                  styles.rowDateText,
+                  { color: currentTheme.textColor },
+                  isToday && { color: currentTheme.primary },
+                ]}
+                numberOfLines={1}
+              >
+                {dateText}
+              </Text>
 
-              {/* Sağ taraf: saatler */}
-              <View style={styles.timeCol}>
-                <TimeCell label="İmsak" value={item.times.Fajr} />
-                <TimeCell label="Güneş" value={item.times.Sunrise} />
-                <TimeCell label="Öğle" value={item.times.Dhuhr} />
-                <TimeCell label="İkindi" value={item.times.Asr} />
-                <TimeCell label="Akşam" value={item.times.Maghrib} />
-                <TimeCell label="Yatsı" value={item.times.Isha} />
-              </View>
+              {/* Divider */}
+              <View
+                style={[
+                  styles.divider,
+                  {
+                    backgroundColor: withOpacity(
+                      currentTheme.textColor || '#000',
+                      0.12,
+                    ),
+                  },
+                ]}
+              />
+
+              {/* 6 sütunlu kompakt grid: üstte etiketler, altta saatler */}
+              <SixColGrid
+                labels={LABELS_ROW}
+                values={valuesRow}
+                textColor={withOpacity('#000', 0.75)}
+              />
             </View>
           );
         }}
@@ -276,15 +334,6 @@ export default function TimeTable() {
 }
 
 // ---------- small pieces ----------
-function TimeCell({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.timeRow}>
-      <Text style={styles.timeLabel}>{label}</Text>
-      <Text style={styles.timeValue}>{value}</Text>
-    </View>
-  );
-}
-
 function withOpacity(hex: string, alpha = 0.12) {
   const m = hex?.replace('#', '');
   if (!m || (m.length !== 6 && m.length !== 3)) return `rgba(0,0,0,${alpha})`;
@@ -302,21 +351,10 @@ function withOpacity(hex: string, alpha = 0.12) {
 }
 
 // ---------- styles ----------
+const CELL_GAP = 8;
+
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center', paddingTop: 24 },
-
-  infoCard: {
-    marginTop: 8,
-    marginHorizontal: 16,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  infoText: { fontWeight: '700' },
 
   sectionHeader: {
     marginTop: 14,
@@ -335,19 +373,40 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    flexDirection: 'row',
-    gap: 12,
   },
-  dateCol: { width: 92, alignItems: 'flex-start', justifyContent: 'center' },
-  weekday: { fontSize: 14, fontWeight: '800', opacity: 0.9 },
-  daynum: { fontSize: 24, fontWeight: '900', marginTop: 2 },
 
-  timeCol: { flex: 1 },
-  timeRow: {
+  rowDateText: {
+    fontSize: 15,
+    fontWeight: '800',
+    textTransform: 'capitalize',
+  },
+
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    marginTop: 8,
+    marginBottom: 10,
+  },
+
+  // grid
+  gridWrap: {
+    gap: 6,
+  },
+  gridRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 2,
+    gap: CELL_GAP,
   },
-  timeLabel: { fontSize: 13, fontWeight: '700', opacity: 0.85 },
-  timeValue: { fontSize: 15, fontWeight: '900' },
+  gridCell: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  gridLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    opacity: 0.8,
+  },
+  gridValue: {
+    fontSize: 15,
+    fontWeight: '900',
+  },
 });
