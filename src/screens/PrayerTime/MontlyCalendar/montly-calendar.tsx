@@ -7,12 +7,16 @@ import {
   ActivityIndicator,
   FlatList,
   Platform,
+  ListRenderItemInfo,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 
 import { useTheme } from '../../../../libs/core/providers';
-import { ScreenViewContainer } from '../../../../libs/components';
+import {
+  ScreenViewContainer,
+  PrayerTimeSmallCard,
+} from '../../../../libs/components';
 import { fetchMonthlyPrayerTimesByCoords, type PrayerTimings } from './api';
 import { getCurrentPosition, requestLocationPermission } from '../permission';
 import { useSelector } from 'react-redux';
@@ -22,8 +26,9 @@ import {
   LanguagePrefix,
 } from '../../../../libs/common/constants';
 import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
+import type { PrayerTimeKey, SmallCard } from '../../../../libs/common/types';
 
-type Key = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
+type Key = PrayerTimeKey; // aynı tip
 const LABELS_TR: Record<Key, string> = {
   Fajr: 'İmsak',
   Sunrise: 'Güneş',
@@ -32,18 +37,60 @@ const LABELS_TR: Record<Key, string> = {
   Maghrib: 'Akşam',
   Isha: 'Yatsı',
 };
-const ICONS: Record<Key, string> = {
-  Fajr: 'moon-outline',
-  Sunrise: 'sunny-outline',
-  Dhuhr: 'sunny',
-  Asr: 'partly-sunny-outline',
-  Maghrib: 'cloudy-night-outline',
-  Isha: 'moon',
-};
 
 function daysInMonth(y: number, m1to12: number) {
   return new Date(y, m1to12, 0).getDate();
 }
+
+// ----- yardımcılar (aktif vakti hesaplamak için) ----------------------------
+function toTodayDate(hhmm: string, base = new Date()): Date {
+  const [h, m] = hhmm.split(':').map(Number);
+  const d = new Date(base);
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+function buildSequence(t: PrayerTimings, base = new Date()) {
+  const order: PrayerTimeKey[] = [
+    'Fajr',
+    'Sunrise',
+    'Dhuhr',
+    'Asr',
+    'Maghrib',
+    'Isha',
+  ];
+  return order.map(k => ({
+    key: k,
+    label: LABELS_TR[k],
+    time: t[k],
+    date: toTodayDate(t[k], base),
+  }));
+}
+function getCurrentKeyForDay(
+  t: PrayerTimings,
+  date: Date,
+): PrayerTimeKey | null {
+  // sadece "bugün" için anlamlı; diğer günlerde highlight yapmayacağız
+  const now = new Date();
+  if (
+    now.getFullYear() !== date.getFullYear() ||
+    now.getMonth() !== date.getMonth() ||
+    now.getDate() !== date.getDate()
+  ) {
+    return null;
+  }
+  const seq = buildSequence(t, now);
+  // now hangi aralıkta? prev (current) olacak
+  for (let i = 0; i < seq.length; i++) {
+    if (now < seq[i].date) {
+      const prev = i === 0 ? seq[seq.length - 1] : seq[i - 1];
+      return prev.key;
+    }
+  }
+  // günü geçtiyse sonuncu current sayılır
+  return seq[seq.length - 1].key;
+}
+
+// ----------------------------------------------------------------------------
 
 export default function MonthlyCalendar() {
   const { currentTheme } = useTheme();
@@ -132,15 +179,43 @@ export default function MonthlyCalendar() {
         setIsMonthLoading(false);
       }
     })();
-  }, [coords, year, month, selectedDay]); // selectedDay çıkarıldı
-
-  // Gün seçilince o güne ait vakitler
-  const dim = daysInMonth(year, month);
-  const selectedTimings: PrayerTimings | null = useMemo(() => {
-    if (!monthTimings) return null;
+    // selectedDay burada dependency değil: sadece ay/koordinat değişince fetch
+  }, [coords, year, month, selectedDay]);
+  // PrayerTimeSmallCard için renderItem
+  const renderSmallCard = useCallback(
+    ({ item, index }: ListRenderItemInfo<SmallCard>) => (
+      <PrayerTimeSmallCard item={item} index={index} />
+    ),
+    [],
+  );
+  // Günün vakitlerini SmallCard[]’a çevir
+  const smallCards: SmallCard[] = useMemo(() => {
+    if (!monthTimings) return [];
+    const dim = daysInMonth(year, month);
     const d = Math.min(selectedDay, dim);
-    return monthTimings[d - 1] || null;
-  }, [monthTimings, selectedDay, dim]);
+    const t = monthTimings[d - 1];
+    if (!t) return [];
+
+    const currentKey = getCurrentKeyForDay(t, selectedDate);
+    const order: PrayerTimeKey[] = [
+      'Fajr',
+      'Sunrise',
+      'Dhuhr',
+      'Asr',
+      'Maghrib',
+      'Isha',
+    ];
+
+    return order.map<SmallCard>(k => ({
+      key: k,
+      label: LABELS_TR[k],
+      time: t[k],
+      isCurrent: currentKey ? k === currentKey : false,
+      // bu ekranda miniLeft/notifications ihtiyari:
+      // miniLeft: undefined,
+      // notif: k === 'Fajr' || k === 'Maghrib',
+    }));
+  }, [monthTimings, year, month, selectedDay, selectedDate]);
 
   if (loading && !coords) {
     return (
@@ -175,18 +250,7 @@ export default function MonthlyCalendar() {
       {/* Beyaz Card içinde Takvim başlık + gövde */}
       <View style={styles.cardWrap}>
         <View style={styles.cardHeader}>
-          {/* Orta: seçili gün bilgisi */}
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={styles.cardTitle}>
-              {selectedDate.toLocaleDateString(dateLocale, {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </Text>
-          </View>
-          {/* Sol: Android'te Tarih Değiştir butonu, iOS'ta boş yer tutucu */}
+          {/* Sol: Android'te Tarih Değiştir butonu, iOS'ta boş tutucu */}
           {Platform.OS === 'android' ? (
             <Pressable
               onPress={() => setShowPicker(true)}
@@ -199,6 +263,19 @@ export default function MonthlyCalendar() {
           ) : (
             <View style={{ width: 1 }} />
           )}
+
+          {/* Orta: seçili gün bilgisi */}
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={styles.cardTitle}>
+              {selectedDate.toLocaleDateString(dateLocale, {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </Text>
+          </View>
+
           {/* Sağ: Bugün */}
           <Pressable
             onPress={handleToday}
@@ -245,14 +322,14 @@ export default function MonthlyCalendar() {
         </View>
       </View>
 
-      {/* Günün Vakitleri – 2 sütun kart */}
+      {/* Günün Vakitleri – PrayerTimeSmallCard ile 2 sütun */}
       <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
         <Text style={[styles.sectionTitle, { color: '#000' }]}>
           Günün Vakitleri
         </Text>
       </View>
 
-      {!selectedTimings ? (
+      {smallCards.length === 0 ? (
         <View style={[styles.center, { paddingVertical: 12 }]}>
           <ActivityIndicator />
           <Text style={{ marginTop: 6, opacity: 0.8 }}>
@@ -261,49 +338,19 @@ export default function MonthlyCalendar() {
         </View>
       ) : (
         <FlatList
-          data={['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as Key[]}
-          keyExtractor={k => k}
+          data={smallCards}
           numColumns={2}
-          columnWrapperStyle={{ gap: 12, paddingHorizontal: 16 }}
-          renderItem={({ item }) => {
-            const label = LABELS_TR[item];
-            const time = selectedTimings[item];
-            return (
-              <View
-                style={[
-                  styles.vakitCard,
-                  { borderColor: '#E6E6EA', backgroundColor: '#FFFFFF' },
-                ]}
-              >
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 10,
-                  }}
-                >
-                  <View
-                    style={[
-                      styles.vakitIconWrap,
-                      { backgroundColor: '#F2F2F7' },
-                    ]}
-                  >
-                    <Ionicons
-                      name={ICONS[item] as any}
-                      size={18}
-                      color={'#111'}
-                    />
-                  </View>
-                  <Text style={[styles.vakitLabel, { color: '#111' }]}>
-                    {label}
-                  </Text>
-                </View>
-                <Text style={styles.vakitTime}>{time}</Text>
-              </View>
-            );
+          keyExtractor={i => i.key}
+          renderItem={renderSmallCard}
+          contentContainerStyle={{
+            paddingBottom: 24,
+            paddingHorizontal: 16,
           }}
-          contentContainerStyle={{ paddingBottom: 24, paddingTop: 6, gap: 12 }}
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
           showsVerticalScrollIndicator={false}
+          removeClippedSubviews
+          initialNumToRender={6}
+          windowSize={7}
         />
       )}
 
@@ -332,31 +379,6 @@ export default function MonthlyCalendar() {
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
 
-  headerTop: {
-    paddingHorizontal: 16,
-    paddingTop: 6,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  cityBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  cityText: { fontSize: 15, fontWeight: '600' },
-  roundIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
   /* --- Beyaz Card Takvim --- */
   cardWrap: {
     marginHorizontal: 16,
@@ -379,7 +401,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F0F0F5',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
   cardTitle: {
     fontSize: 16,
@@ -432,28 +453,4 @@ const styles = StyleSheet.create({
   overlayText: { marginTop: 6, color: '#111', fontWeight: '600', opacity: 0.8 },
 
   sectionTitle: { fontSize: 16, fontWeight: '900' },
-
-  vakitCard: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-  },
-  vakitIconWrap: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  vakitLabel: { fontSize: 15, fontWeight: '700' },
-  vakitTime: { fontSize: 20, fontWeight: '900' },
 });
