@@ -230,10 +230,8 @@ export default function TimeTable() {
     load();
   }, [load, navigation]);
 
-  const border = withOpacity(currentTheme.primary, systemDark ? 0.28 : 0.18);
   const pillBg = withOpacity(currentTheme.primary, systemDark ? 0.18 : 0.12);
   const todayBg = `${currentTheme.primary}1F`; // ~12% opaklık
-  const todayStroke = withOpacity(currentTheme.primary, 0.35);
 
   if (loading && !sections) {
     return (
@@ -260,7 +258,7 @@ export default function TimeTable() {
           <View
             style={[
               styles.sectionHeader,
-              { backgroundColor: pillBg, borderColor: border },
+              { backgroundColor: pillBg},
             ]}
           >
             <Text
@@ -282,11 +280,13 @@ export default function TimeTable() {
             <View
               style={[
                 styles.rowCard,
-                { borderColor: border },
-                isToday && {
-                  backgroundColor: todayBg,
-                  borderColor: todayStroke,
-                },
+                styles.nonTodayCard,
+                // bugün satırı
+                isToday
+                  ? {
+                      backgroundColor: todayBg
+                    }
+                  : null
               ]}
             >
               {/* Sol üst: günün tarihi */}
@@ -362,7 +362,6 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderWidth: 1,
   },
   sectionTitle: { fontSize: 15, fontWeight: '800' },
 
@@ -370,11 +369,24 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginHorizontal: 16,
     borderRadius: 18,
-    borderWidth: 1,
+    // NOT: Buradaki borderWidth: 1’i kaldırdık
     paddingHorizontal: 12,
     paddingVertical: 12,
   },
 
+  nonTodayCard: {
+    backgroundColor: '#fff',
+    borderWidth: 0,
+
+    // iOS gölge
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+
+    // Android gölge
+    elevation: 2,
+  },
   rowDateText: {
     fontSize: 15,
     fontWeight: '800',
