@@ -1,4 +1,3 @@
-// src/prayerApi.ts
 import { getTimeZoneByCoords } from '../../../libs/core/helpers';
 
 export type PrayerTimings = {
@@ -14,19 +13,19 @@ export type PrayerTimings = {
 export async function fetchPrayerTimesByCoords(
   latitude: number,
   longitude: number,
-  baseDate: Date = new Date(), // <-- eklendi
+  baseDate: Date = new Date(), // cihazın o anki tarihi (veya geçilecek tarih)
 ): Promise<PrayerTimings> {
   let tzString = 'Europe/Istanbul';
   try {
-    tzString = getTimeZoneByCoords(latitude, longitude);
+    tzString = getTimeZoneByCoords(latitude, longitude); // örn: "Europe/Istanbul"
   } catch (err) {
     console.warn('Fallback to default timezone', err);
   }
 
-  // Cihaz tarihine göre timestamp (saniye)
+  // Cihaz tarihine göre - saniye cinsinden timestamp
   const ts = Math.floor(baseDate.getTime() / 1000);
 
-  // O güne ait vakitleri al
+  // O güne ait vakitler
   const url = `https://api.aladhan.com/v1/timings/${ts}?latitude=${latitude}&longitude=${longitude}&method=13&timezonestring=${encodeURIComponent(
     tzString,
   )}`;

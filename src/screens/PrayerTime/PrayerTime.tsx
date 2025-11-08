@@ -1,3 +1,4 @@
+// src/features/prayer/PrayerTime.tsx
 import React, {
   useCallback,
   useEffect,
@@ -129,6 +130,14 @@ function computeNext(seq: ReturnType<typeof buildSequence>, now = new Date()) {
   };
 }
 
+// ---- Flicker guard helpers -------------------------------------------------
+function ymd(d: Date) {
+  const mm = String(d.getMonth() + 1).padStart(2, '0'); // getMonth 0-based
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
+}
+const MAX_SPAN_SEC = 26 * 3600; // güvenli üst sınır (clamp)
+
 // ----- UI -------------------------------------------------------------------
 
 export default function PrayerTime() {
@@ -149,8 +158,13 @@ export default function PrayerTime() {
     null,
   );
 
+  // Senkron durumu: hem ref (timer closure güvenliği) hem state (UI göstergesi)
+  const isResyncingRef = useRef<boolean>(false);
+  const [isResyncing, setIsResyncing] = useState(false);
+
   // Jump/day/TZ izleme
   const seqRef = useRef<ReturnType<typeof buildSequence> | null>(null);
+  const seqBaseDayRef = useRef<string>(ymd(new Date())); // seq hangi güne ait
   const lastNowRef = useRef<Date>(new Date());
   const lastOffsetRef = useRef<number>(new Date().getTimezoneOffset());
   const lastDayRef = useRef<number>(new Date().getDate());
@@ -159,63 +173,78 @@ export default function PrayerTime() {
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
 
-const load = useCallback(
-  async (baseDate: Date = new Date()) => {
-    try {
-      setLoading(true);
+  // --- LOAD (timestamp'li) --------------------------------------------------
+  const load = useCallback(
+    async (baseDate: Date = new Date()) => {
+      try {
+        setLoading(true);
+        isResyncingRef.current = true;
+        setIsResyncing(true);
 
-      let latitude: number | null = null;
-      let longitude: number | null = null;
-      let label: string | null = null;
+        let latitude: number | null = null;
+        let longitude: number | null = null;
+        let label: string | null = null;
 
-      if ('type' in activeResolved && activeResolved.type === 'device') {
-        const ok = await requestLocationPermission();
-        if (!ok) return;
-        const pos = await getCurrentPosition();
-        latitude = pos.latitude;
-        longitude = pos.longitude;
-        try {
-          label = await reverseGeocode(latitude, longitude);
-        } catch {
-          label = 'Konum bulunamadı';
+        if ('type' in activeResolved && activeResolved.type === 'device') {
+          const ok = await requestLocationPermission();
+          if (!ok) return;
+          const pos = await getCurrentPosition();
+          latitude = pos.latitude;
+          longitude = pos.longitude;
+          try {
+            label = await reverseGeocode(latitude, longitude);
+          } catch {
+            label = 'Konum bulunamadı';
+          }
+        } else {
+          latitude = activeResolved.latitude;
+          longitude = activeResolved.longitude;
+          label = activeResolved.label;
         }
-      } else {
-        latitude = activeResolved.latitude;
-        longitude = activeResolved.longitude;
-        label = activeResolved.label;
+
+        if (latitude != null && longitude != null) {
+          setCoords({ lat: latitude, lon: longitude });
+
+          // Cihazın O ANKİ tarihine göre vakitler
+          const data = await fetchPrayerTimesByCoords(
+            latitude,
+            longitude,
+            baseDate,
+          );
+          setTimings(data);
+
+          // UTC etiketi de o tarihe göre
+          const tz = getTimeZoneByCoords(latitude, longitude);
+          const label2 = getUtcLabelFromTimeZone(tz, baseDate);
+          setUtcLabel(label2);
+
+          // seq'in gününü not et
+          seqBaseDayRef.current = ymd(baseDate);
+        }
+        if (label) setLocationLabel(label);
+      } finally {
+        setLoading(false);
+        isResyncingRef.current = false;
+        setIsResyncing(false);
       }
-
-      if (latitude != null && longitude != null) {
-        setCoords({ lat: latitude, lon: longitude });
-
-        // Cihazın o anki tarihine göre vakitleri iste
-        const data = await fetchPrayerTimesByCoords(latitude, longitude, baseDate);
-        setTimings(data);
-
-        // UTC etiketi de o tarihe göre hesaplansın
-        const tz = getTimeZoneByCoords(latitude, longitude);
-        const label2 = getUtcLabelFromTimeZone(tz, baseDate);
-        setUtcLabel(label2);
-      }
-      if (label) setLocationLabel(label);
-    } finally {
-      setLoading(false);
-    }
-  },
-  [activeResolved],
-);
-
+    },
+    [activeResolved],
+  );
 
   // timings geldiğinde sequence ve ilk hesap
   useEffect(() => {
     if (!timings) return;
-    seqRef.current = buildSequence(timings);
     const now = new Date();
+    seqRef.current = buildSequence(timings);
+
     const info = computeNext(seqRef.current, now);
     nextKeyRef.current = info.next.key;
     currentKeyRef.current = info.prev.key;
-    setLeftClock(fmtClock(info.leftSec));
-    setLeftSec(info.leftSec);
+
+    const clamped = Math.max(0, Math.min(info.leftSec, MAX_SPAN_SEC));
+    setLeftClock(fmtClock(clamped));
+    setLeftSec(clamped);
+
     lastNowRef.current = now;
     lastDayRef.current = now.getDate();
     lastOffsetRef.current = now.getTimezoneOffset();
@@ -229,51 +258,58 @@ const load = useCallback(
   // Timer'ı kur/yeniden kur
   const startTimer = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-  
+
     const softRecalc = (now = new Date()) => {
-      if (!seqRef.current) return;
+      // Reload sırasında veya seq günü eşleşmiyorsa dokunma
+      if (
+        isResyncingRef.current ||
+        !seqRef.current ||
+        seqBaseDayRef.current !== ymd(now)
+      ) {
+        return;
+      }
       const info = computeNext(seqRef.current, now);
       nextKeyRef.current = info.next.key;
       currentKeyRef.current = info.prev.key;
-      setLeftClock(fmtClock(info.leftSec));
-      setLeftSec(info.leftSec);
+
+      const clamped = Math.max(0, Math.min(info.leftSec, MAX_SPAN_SEC));
+      setLeftClock(fmtClock(clamped));
+      setLeftSec(clamped);
     };
-  
+
     const tick = () => {
       const now = new Date();
       const delta = now.getTime() - lastNowRef.current.getTime();
-  
+
       const jumped =
-        Math.abs(delta - 1000) > 2000 ||
-        now.getTime() < lastNowRef.current.getTime();
-  
+        Math.abs(delta - 1000) > 2000 || now.getTime() < lastNowRef.current.getTime();
+
       const dayChanged = now.getDate() !== lastDayRef.current;
       const tzChanged = now.getTimezoneOffset() !== lastOffsetRef.current;
-  
-      if (dayChanged || tzChanged) {
+
+      if (dayChanged || tzChanged || jumped) {
+        // UI’yı sabit tut (flicker yok), yeni güne göre veriyi getir
         setUtcLabel(getUTCLabel());
-        // Cihaz tarihine göre tekrar çek
         load(now);
         lastDayRef.current = now.getDate();
         lastOffsetRef.current = now.getTimezoneOffset();
+
+        // Büyük jump’ta interval’ı tazele
+        if (jumped) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          intervalRef.current = setInterval(tick, 1000);
+        }
       } else {
         softRecalc(now);
       }
-  
+
       lastNowRef.current = now;
-  
-      if (jumped) {
-        // Büyük zaman sıçramasında da hemen yeniden hesapla ve interval'ı tazele
-        softRecalc(new Date());
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(tick, 1000);
-      }
     };
-  
+
+    // ilk tetik
     tick();
     intervalRef.current = setInterval(tick, 1000);
   }, [load]);
-  
 
   // Timer yaşam döngüsü
   useEffect(() => {
@@ -282,7 +318,6 @@ const load = useCallback(
 
     const sub = AppState.addEventListener('change', s => {
       if (s === 'active') {
-        // App geri geldi: tekrar kur ve bir kez hesapla
         startTimer();
       } else if (s === 'background') {
         if (intervalRef.current) {
@@ -349,11 +384,19 @@ const load = useCallback(
               size={22}
             />
           </View>
-          <View>
+          <View style={{ flexShrink: 1 }}>
             <Text style={styles.nextLabel}>
               {currentLabel} vaktinin çıkmasına
             </Text>
             <Text style={styles.nextHint}>{leftClock} kaldı</Text>
+
+            {/** Senkron göstergesi */}
+            {isResyncing && (
+              <View style={styles.syncRow}>
+                <ActivityIndicator size="small" color="#fff" />
+                <Text style={styles.syncText}>Senkronize ediliyor…</Text>
+              </View>
+            )}
           </View>
         </View>
       </View>
@@ -366,7 +409,7 @@ const load = useCallback(
         <ActionCardGroup
           label={locationLabel}
           utc={utcLabel}
-          loading={loading && !timings}
+          loading={(loading || isResyncing) && !timings}
           isDark={systemDark}
           theme={{
             primary: currentTheme.primary,
@@ -430,4 +473,17 @@ const styles = StyleSheet.create({
   nextLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
   nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 16, marginTop: 2 },
   nextBigTime: { color: '#fff', fontSize: 32, fontWeight: '800' },
+
+  // Senkron göstergesi stilleri
+  syncRow: {
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  syncText: {
+    color: 'rgba(255,255,255,0.95)',
+    fontSize: 13,
+    fontWeight: '600',
+  },
 });
