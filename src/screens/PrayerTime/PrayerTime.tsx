@@ -15,7 +15,6 @@ import {
   View,
   useColorScheme,
   AppState,
-  NativeModules,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -168,8 +167,8 @@ export default function PrayerTime() {
   const isResyncingRef = useRef<boolean>(false);
   const [isResyncing, setIsResyncing] = useState(false);
 
-  // Sequence’ın ait olduğu günün UI etiketi
-  const [seqDateLabel, setSeqDateLabel] = useState<string>('');
+  // Artık string yerine baz alınan tarih state’i
+  const [seqBaseDate, setSeqBaseDate] = useState<Date>(new Date());
 
   // Jump/day/TZ izleme
   const seqRef = useRef<ReturnType<typeof buildSequence> | null>(null);
@@ -188,20 +187,26 @@ export default function PrayerTime() {
   );
 
   useEffect(() => {
-    console.log(i18n.language);
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
   }, [i18n.language]);
 
-  function formatDate(d: Date) {
-    const s = d.toLocaleDateString(dateLocale, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-    // Baş harfi büyük (çoğu cihazda zaten büyük geliyor ama garanti edelim)
+  // --- Date formatter'ı memoize et (ESLint uyarısı çözümü) ------------------
+  const dtf = useMemo(
+    () =>
+      new Intl.DateTimeFormat(dateLocale, {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }),
+    [dateLocale],
+  );
+
+  // Dil veya seqBaseDate değişince etiket türet
+  const seqDateLabel = useMemo(() => {
+    const s = dtf.format(seqBaseDate);
     return s.charAt(0).toUpperCase() + s.slice(1);
-  }
+  }, [dtf, seqBaseDate]);
 
   // --- LOAD (timestamp'li) --------------------------------------------------
   const load = useCallback(
@@ -248,9 +253,9 @@ export default function PrayerTime() {
           const label2 = getUtcLabelFromTimeZone(tz, baseDate);
           setUtcLabel(label2);
 
-          // seq'in gününü not et ve etiketi yaz
+          // seq'in gününü not et ve baz tarihi yaz
           seqBaseDayRef.current = ymd(baseDate);
-          setSeqDateLabel(formatDate(baseDate));
+          setSeqBaseDate(baseDate);
         }
         if (label) setLocationLabel(label);
       } finally {
@@ -280,9 +285,10 @@ export default function PrayerTime() {
     lastDayRef.current = now.getDate();
     lastOffsetRef.current = now.getTimezoneOffset();
 
-    // Eğer seqDateLabel boş kaldıysa (ilk mount gibi), now'a göre setle
-    if (!seqDateLabel) setSeqDateLabel(formatDate(now));
-  }, [seqDateLabel, timings]);
+    if (!seqBaseDayRef.current) {
+      seqBaseDayRef.current = ymd(now);
+    }
+  }, [timings]);
 
   // ilk yükleme
   useEffect(() => {
@@ -539,7 +545,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    position: 'relative', // <-- eklendi (sağ-alt meta için)
+    position: 'relative', // <-- sağ-alt meta için
   },
   // sağ-alt köşe kapsayıcı
   nextMeta: {
