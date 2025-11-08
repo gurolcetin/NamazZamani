@@ -159,7 +159,8 @@ export default function PrayerTime() {
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
 
-  const load = useCallback(async () => {
+const load = useCallback(
+  async (baseDate: Date = new Date()) => {
     try {
       setLoading(true);
 
@@ -186,18 +187,24 @@ export default function PrayerTime() {
 
       if (latitude != null && longitude != null) {
         setCoords({ lat: latitude, lon: longitude });
-        const data = await fetchPrayerTimesByCoords(latitude, longitude);
+
+        // Cihazın o anki tarihine göre vakitleri iste
+        const data = await fetchPrayerTimesByCoords(latitude, longitude, baseDate);
         setTimings(data);
 
+        // UTC etiketi de o tarihe göre hesaplansın
         const tz = getTimeZoneByCoords(latitude, longitude);
-        const label2 = getUtcLabelFromTimeZone(tz, new Date());
+        const label2 = getUtcLabelFromTimeZone(tz, baseDate);
         setUtcLabel(label2);
       }
       if (label) setLocationLabel(label);
     } finally {
       setLoading(false);
     }
-  }, [activeResolved]);
+  },
+  [activeResolved],
+);
+
 
   // timings geldiğinde sequence ve ilk hesap
   useEffect(() => {
@@ -222,7 +229,7 @@ export default function PrayerTime() {
   // Timer'ı kur/yeniden kur
   const startTimer = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-
+  
     const softRecalc = (now = new Date()) => {
       if (!seqRef.current) return;
       const info = computeNext(seqRef.current, now);
@@ -231,43 +238,42 @@ export default function PrayerTime() {
       setLeftClock(fmtClock(info.leftSec));
       setLeftSec(info.leftSec);
     };
-
+  
     const tick = () => {
       const now = new Date();
       const delta = now.getTime() - lastNowRef.current.getTime();
-
+  
       const jumped =
         Math.abs(delta - 1000) > 2000 ||
         now.getTime() < lastNowRef.current.getTime();
-
+  
       const dayChanged = now.getDate() !== lastDayRef.current;
       const tzChanged = now.getTimezoneOffset() !== lastOffsetRef.current;
-
+  
       if (dayChanged || tzChanged) {
         setUtcLabel(getUTCLabel());
-        load();
+        // Cihaz tarihine göre tekrar çek
+        load(now);
         lastDayRef.current = now.getDate();
         lastOffsetRef.current = now.getTimezoneOffset();
       } else {
         softRecalc(now);
       }
-
+  
       lastNowRef.current = now;
-
-      // KRİTİK: Jump algılanırsa interval'ı yeniden kur
+  
       if (jumped) {
-        // anında bir kez daha hesap
+        // Büyük zaman sıçramasında da hemen yeniden hesapla ve interval'ı tazele
         softRecalc(new Date());
-        // interval'ı sıfırla
         if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = setInterval(tick, 1000);
       }
     };
-
-    // ilk tetik
+  
     tick();
     intervalRef.current = setInterval(tick, 1000);
   }, [load]);
+  
 
   // Timer yaşam döngüsü
   useEffect(() => {
