@@ -76,7 +76,7 @@ const PrayerForm = () => {
   };
   useEffect(() => {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
-  }, [i18n.language]);
+  }, []);
 
   useEffect(() => {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);

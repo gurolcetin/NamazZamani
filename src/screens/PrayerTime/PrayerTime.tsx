@@ -38,6 +38,11 @@ import {
 } from '../../../libs/core/helpers';
 import { ActionCardGroup } from './action-cards/action-card-group';
 import { PrayerTimeKey, SmallCard } from '../../../libs/common/types';
+import {
+  LanguageLocaleKeys,
+  LanguagePrefix,
+} from '../../../libs/common/constants';
+import { useTranslation } from 'react-i18next';
 
 // ----- Types & Maps ---------------------------------------------------------
 
@@ -139,23 +144,6 @@ function ymd(d: Date) {
 }
 const MAX_SPAN_SEC = 26 * 3600; // güvenli üst sınır (clamp)
 
-function formatDate(d: Date) {
-  const settings = NativeModules?.SettingsManager?.settings;
-  const appleLocale =
-    settings?.AppleLocale ||
-    (Array.isArray(settings?.AppleLanguages)
-      ? settings.AppleLanguages[0]
-      : undefined);
-  const s = d.toLocaleDateString(appleLocale?.toString(), {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-  // Baş harfi büyük (çoğu cihazda zaten büyük geliyor ama garanti edelim)
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
 // ----- UI -------------------------------------------------------------------
 
 export default function PrayerTime() {
@@ -193,6 +181,27 @@ export default function PrayerTime() {
 
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
+
+  const { i18n } = useTranslation();
+  const [dateLocale, setDateLocale] = useState<string>(
+    LanguageLocaleKeys.TURKISH,
+  );
+
+  useEffect(() => {
+    console.log(i18n.language);
+    setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
+  }, [i18n.language]);
+
+  function formatDate(d: Date) {
+    const s = d.toLocaleDateString(dateLocale, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    // Baş harfi büyük (çoğu cihazda zaten büyük geliyor ama garanti edelim)
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
 
   // --- LOAD (timestamp'li) --------------------------------------------------
   const load = useCallback(
