@@ -15,6 +15,7 @@ import {
   View,
   useColorScheme,
   AppState,
+  NativeModules,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -138,6 +139,23 @@ function ymd(d: Date) {
 }
 const MAX_SPAN_SEC = 26 * 3600; // güvenli üst sınır (clamp)
 
+function formatDate(d: Date) {
+  const settings = NativeModules?.SettingsManager?.settings;
+  const appleLocale =
+    settings?.AppleLocale ||
+    (Array.isArray(settings?.AppleLanguages)
+      ? settings.AppleLanguages[0]
+      : undefined);
+  const s = d.toLocaleDateString(appleLocale?.toString(), {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+  // Baş harfi büyük (çoğu cihazda zaten büyük geliyor ama garanti edelim)
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 // ----- UI -------------------------------------------------------------------
 
 export default function PrayerTime() {
@@ -158,9 +176,12 @@ export default function PrayerTime() {
     null,
   );
 
-  // Senkron durumu: hem ref (timer closure güvenliği) hem state (UI göstergesi)
+  // Senkron durumu: hem ref (timer closure güvenliği) hem state (UI)
   const isResyncingRef = useRef<boolean>(false);
   const [isResyncing, setIsResyncing] = useState(false);
+
+  // Sequence’ın ait olduğu günün UI etiketi
+  const [seqDateLabel, setSeqDateLabel] = useState<string>('');
 
   // Jump/day/TZ izleme
   const seqRef = useRef<ReturnType<typeof buildSequence> | null>(null);
@@ -218,8 +239,9 @@ export default function PrayerTime() {
           const label2 = getUtcLabelFromTimeZone(tz, baseDate);
           setUtcLabel(label2);
 
-          // seq'in gününü not et
+          // seq'in gününü not et ve etiketi yaz
           seqBaseDayRef.current = ymd(baseDate);
+          setSeqDateLabel(formatDate(baseDate));
         }
         if (label) setLocationLabel(label);
       } finally {
@@ -248,7 +270,10 @@ export default function PrayerTime() {
     lastNowRef.current = now;
     lastDayRef.current = now.getDate();
     lastOffsetRef.current = now.getTimezoneOffset();
-  }, [timings]);
+
+    // Eğer seqDateLabel boş kaldıysa (ilk mount gibi), now'a göre setle
+    if (!seqDateLabel) setSeqDateLabel(formatDate(now));
+  }, [seqDateLabel, timings]);
 
   // ilk yükleme
   useEffect(() => {
@@ -282,7 +307,8 @@ export default function PrayerTime() {
       const delta = now.getTime() - lastNowRef.current.getTime();
 
       const jumped =
-        Math.abs(delta - 1000) > 2000 || now.getTime() < lastNowRef.current.getTime();
+        Math.abs(delta - 1000) > 2000 ||
+        now.getTime() < lastNowRef.current.getTime();
 
       const dayChanged = now.getDate() !== lastDayRef.current;
       const tzChanged = now.getTimezoneOffset() !== lastOffsetRef.current;
@@ -389,15 +415,22 @@ export default function PrayerTime() {
               {currentLabel} vaktinin çıkmasına
             </Text>
             <Text style={styles.nextHint}>{leftClock} kaldı</Text>
-
-            {/** Senkron göstergesi */}
-            {isResyncing && (
-              <View style={styles.syncRow}>
-                <ActivityIndicator size="small" color="#fff" />
-                <Text style={styles.syncText}>Senkronize ediliyor…</Text>
-              </View>
-            )}
           </View>
+        </View>
+
+        {/* Sağ-alt köşe meta alanı */}
+        <View style={styles.nextMeta}>
+          {!isResyncing && !!seqDateLabel && (
+            <Text style={styles.metaText} numberOfLines={1}>
+              {seqDateLabel}
+            </Text>
+          )}
+          {isResyncing && (
+            <View style={styles.metaSyncRow}>
+              <ActivityIndicator size="small" color="#fff" />
+              <Text style={styles.metaText}>Senkronize ediliyor…</Text>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -454,14 +487,6 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
     marginTop: 10,
   },
-  nextCard: {
-    marginTop: 14,
-    borderRadius: 22,
-    padding: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   nextIconWrap: {
     width: 40,
     height: 40,
@@ -472,7 +497,19 @@ const styles = StyleSheet.create({
   },
   nextLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
   nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 16, marginTop: 2 },
-  nextBigTime: { color: '#fff', fontSize: 32, fontWeight: '800' },
+  nextBigTime: {
+    color: 'rgba(255,255,255,0.95)',
+    fontSize: 32,
+    fontWeight: '800',
+  },
+
+  // Tarih etiketi
+  dateText: {
+    marginTop: 6,
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 13,
+    fontWeight: '600',
+  },
 
   // Senkron göstergesi stilleri
   syncRow: {
@@ -485,5 +522,34 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.95)',
     fontSize: 13,
     fontWeight: '600',
+  }, // ... mevcut stiller
+  nextCard: {
+    marginTop: 14,
+    borderRadius: 22,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    position: 'relative', // <-- eklendi (sağ-alt meta için)
+  },
+  // sağ-alt köşe kapsayıcı
+  nextMeta: {
+    position: 'absolute',
+    right: 14,
+    bottom: 12,
+    alignItems: 'flex-end',
+    maxWidth: '55%', // taşmayı önlemek için
+  },
+  // metin stili (tarih & senk)
+  metaText: {
+    color: 'rgba(255,255,255,0.92)',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  // senkron satırı
+  metaSyncRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
 });
