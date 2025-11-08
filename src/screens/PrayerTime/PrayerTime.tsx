@@ -13,6 +13,7 @@ import {
   Text,
   View,
   useColorScheme,
+  AppState,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -54,31 +55,14 @@ export const ICONS: Record<
     name: string;
   }
 > = {
-  Fajr: {
-    type: Icons.Ionicons,
-    name: 'moon-outline', // 🌙
-  },
-  Sunrise: {
-    type: Icons.MaterialDesignIcons,
-    name: 'weather-sunset-up', // 🌅
-  },
-  Dhuhr: {
-    type: Icons.MaterialDesignIcons,
-    name: 'weather-sunny', // ☀️
-  },
-  Asr: {
-    type: Icons.MaterialDesignIcons,
-    name: 'weather-sunset', // ⛅
-  },
-  Maghrib: {
-    type: Icons.MaterialDesignIcons,
-    name: 'weather-sunset-down', // 🌇
-  },
-  Isha: {
-    type: Icons.Ionicons,
-    name: 'moon', // 🌙
-  },
+  Fajr: { type: Icons.Ionicons, name: 'moon-outline' },
+  Sunrise: { type: Icons.MaterialDesignIcons, name: 'weather-sunset-up' },
+  Dhuhr: { type: Icons.MaterialDesignIcons, name: 'weather-sunny' },
+  Asr: { type: Icons.MaterialDesignIcons, name: 'weather-sunset' },
+  Maghrib: { type: Icons.MaterialDesignIcons, name: 'weather-sunset-down' },
+  Isha: { type: Icons.Ionicons, name: 'moon' },
 };
+
 // ----- Time helpers ---------------------------------------------------------
 function toTodayDate(hhmm: string, base = new Date()): Date {
   const [h, m] = hhmm.split(':').map(Number);
@@ -161,10 +145,16 @@ export default function PrayerTime() {
 
   const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
   const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
-
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
     null,
-  ); // NEW
+  );
+
+  // Jump/day/TZ izleme
+  const seqRef = useRef<ReturnType<typeof buildSequence> | null>(null);
+  const lastNowRef = useRef<Date>(new Date());
+  const lastOffsetRef = useRef<number>(new Date().getTimezoneOffset());
+  const lastDayRef = useRef<number>(new Date().getDate());
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
@@ -195,7 +185,7 @@ export default function PrayerTime() {
       }
 
       if (latitude != null && longitude != null) {
-        setCoords({ lat: latitude, lon: longitude }); // NEW
+        setCoords({ lat: latitude, lon: longitude });
         const data = await fetchPrayerTimesByCoords(latitude, longitude);
         setTimings(data);
 
@@ -209,35 +199,112 @@ export default function PrayerTime() {
     }
   }, [activeResolved]);
 
+  // timings geldiğinde sequence ve ilk hesap
+  useEffect(() => {
+    if (!timings) return;
+    seqRef.current = buildSequence(timings);
+    const now = new Date();
+    const info = computeNext(seqRef.current, now);
+    nextKeyRef.current = info.next.key;
+    currentKeyRef.current = info.prev.key;
+    setLeftClock(fmtClock(info.leftSec));
+    setLeftSec(info.leftSec);
+    lastNowRef.current = now;
+    lastDayRef.current = now.getDate();
+    lastOffsetRef.current = now.getTimezoneOffset();
+  }, [timings]);
+
+  // ilk yükleme
   useEffect(() => {
     load();
   }, [load]);
 
-  useEffect(() => {
-    if (!timings) return;
-    const seq = buildSequence(timings);
-    const tick = () => {
-      const info = computeNext(seq, new Date());
+  // Timer'ı kur/yeniden kur
+  const startTimer = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    const softRecalc = (now = new Date()) => {
+      if (!seqRef.current) return;
+      const info = computeNext(seqRef.current, now);
       nextKeyRef.current = info.next.key;
       currentKeyRef.current = info.prev.key;
       setLeftClock(fmtClock(info.leftSec));
       setLeftSec(info.leftSec);
     };
+
+    const tick = () => {
+      const now = new Date();
+      const delta = now.getTime() - lastNowRef.current.getTime();
+
+      const jumped =
+        Math.abs(delta - 1000) > 2000 ||
+        now.getTime() < lastNowRef.current.getTime();
+
+      const dayChanged = now.getDate() !== lastDayRef.current;
+      const tzChanged = now.getTimezoneOffset() !== lastOffsetRef.current;
+
+      if (dayChanged || tzChanged) {
+        setUtcLabel(getUTCLabel());
+        load();
+        lastDayRef.current = now.getDate();
+        lastOffsetRef.current = now.getTimezoneOffset();
+      } else {
+        softRecalc(now);
+      }
+
+      lastNowRef.current = now;
+
+      // KRİTİK: Jump algılanırsa interval'ı yeniden kur
+      if (jumped) {
+        // anında bir kez daha hesap
+        softRecalc(new Date());
+        // interval'ı sıfırla
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(tick, 1000);
+      }
+    };
+
+    // ilk tetik
     tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [timings]);
+    intervalRef.current = setInterval(tick, 1000);
+  }, [load]);
+
+  // Timer yaşam döngüsü
+  useEffect(() => {
+    if (!seqRef.current && !timings) return;
+    startTimer();
+
+    const sub = AppState.addEventListener('change', s => {
+      if (s === 'active') {
+        // App geri geldi: tekrar kur ve bir kez hesapla
+        startTimer();
+      } else if (s === 'background') {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      }
+    });
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      sub.remove();
+    };
+  }, [startTimer, timings]);
+
+  // küçük kart listesi
   const renderSmallCard = useCallback(
     ({ item, index }: ListRenderItemInfo<SmallCard>) => (
       <PrayerTimeSmallCard item={item} index={index} />
     ),
-    []
+    [],
   );
+
   const smallCards: SmallCard[] = useMemo(() => {
-    if (!timings) return [];
-    const seq = buildSequence(timings);
+    if (!timings || !seqRef.current) return [];
     const cur = currentKeyRef.current;
-    return seq.map(x => ({
+    return seqRef.current.map(x => ({
       key: x.key,
       label: x.label,
       time: x.time,
@@ -257,7 +324,7 @@ export default function PrayerTime() {
     );
   }
 
-  // Büyük kart: SIRADAKİ vakit bilgisi + kalan dijital
+  // Büyük kart
   const currentLabel = LABELS_TR[currentKeyRef.current];
   const currentIcon = ICONS[currentKeyRef.current] as any;
   const isCritical = leftSec <= 45 * 60;
@@ -266,7 +333,6 @@ export default function PrayerTime() {
 
   const ListHeader = () => (
     <View>
-      {/* Big next card (SIRADAKİ) */}
       <View style={[styles.nextCard, { backgroundColor: cardBg }]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={styles.nextIconWrap}>
@@ -277,7 +343,6 @@ export default function PrayerTime() {
               size={22}
             />
           </View>
-
           <View>
             <Text style={styles.nextLabel}>
               {currentLabel} vaktinin çıkmasına
@@ -288,16 +353,6 @@ export default function PrayerTime() {
       </View>
     </View>
   );
-
-  // ------- render -----------------------------------------------------------
-  if (loading && !timings) {
-    return (
-      <View style={[styles.center, { flex: 1 }]}>
-        <ActivityIndicator />
-        <Text style={{ marginTop: 8 }}>Vakitler yükleniyor…</Text>
-      </View>
-    );
-  }
 
   return (
     <ScreenViewContainer>
@@ -329,12 +384,9 @@ export default function PrayerTime() {
         numColumns={2}
         keyExtractor={i => i.key}
         renderItem={renderSmallCard}
-        ListHeaderComponent={ListHeader} // ⬅️ Üst içerikler burada
-        contentContainerStyle={{
-          paddingBottom: 24,
-          paddingHorizontal: 16,
-        }}
-        columnWrapperStyle={{ justifyContent: 'space-between' }} // 2 kolon aralığı
+        ListHeaderComponent={ListHeader}
+        contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
+        columnWrapperStyle={{ justifyContent: 'space-between' }}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews
         initialNumToRender={6}

@@ -1,17 +1,21 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ErrorView,
   RadioButton,
   SubmitButton,
   TableView,
 } from '../../../../components';
-import {TextInput, Text, TouchableOpacity } from 'react-native';
-import {useForm} from 'react-hook-form';
-import {FormControl} from '../../../../components/FormControl/FormControl';
+import { TextInput, Text, TouchableOpacity } from 'react-native';
+import { useForm } from 'react-hook-form';
+import { FormControl } from '../../../../components/FormControl/FormControl';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import styles from './style';
-import {isNullOrEmptyString, isNullOrUndefined, isNumber} from 'typescript-util-functions';
-import {useTheme} from '../../../providers';
+import {
+  isNullOrEmptyString,
+  isNullOrUndefined,
+  isNumber,
+} from 'typescript-util-functions';
+import { useTheme } from '../../../providers';
 import {
   Gender,
   GeneralLanguageConstants,
@@ -21,14 +25,14 @@ import {
   MissedTrackingLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
-import {Translate} from '../../../helpers';
+import { Translate } from '../../../helpers';
 import {
   calculateDaysBetweenDates,
   calculateMonthsBetweenDates,
 } from '../../../utils';
-import {useDispatch, useSelector} from 'react-redux';
-import {createMissedPrayer} from '../../../../redux/reducers/MissedPrayer';
-import {useTranslation} from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { createMissedPrayer } from '../../../../redux/reducers/MissedPrayer';
+import { useTranslation } from 'react-i18next';
 
 const PrayerForm = () => {
   const dispatch = useDispatch();
@@ -41,7 +45,7 @@ const PrayerForm = () => {
   const [submitErrorMessages, setSubmitErrorMessages] = useState<string>(
     StringConstants.EMPTY_STRING,
   );
-  const {currentTheme} = useTheme();
+  const { currentTheme } = useTheme();
   const maleLabel = Translate(GeneralLanguageConstants.Male);
   const femaleLabel = Translate(GeneralLanguageConstants.Female);
   const calculateLabel = Translate(GeneralLanguageConstants.Calculate);
@@ -66,13 +70,13 @@ const PrayerForm = () => {
   const [dateLocale, setDateLocale] = useState<string>(
     LanguageLocaleKeys.TURKISH,
   );
-  const {i18n} = useTranslation();
+  const { i18n } = useTranslation();
   const showHideDatepicker = () => {
     setShow(!show);
   };
   useEffect(() => {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
@@ -81,7 +85,7 @@ const PrayerForm = () => {
   const {
     control,
     handleSubmit,
-    formState: {errors},
+    formState: {},
   } = useForm({
     defaultValues: {
       gender: StringConstants.EMPTY_STRING,
@@ -90,7 +94,7 @@ const PrayerForm = () => {
       prayersPerformedCount: undefined,
     },
   });
-  const onSubmit = data => {
+  const onSubmit = (data: any) => {
     let errorMessage: string = StringConstants.EMPTY_STRING;
     setSubmitErrorMessages(StringConstants.EMPTY_STRING);
     setShow(false);
@@ -129,9 +133,10 @@ const PrayerForm = () => {
         prayerCalculatorDate,
         new Date(),
       );
-      let menstrualCycle = !isNullOrUndefined(calculateSettings?.menstrualCycle) ? calculateSettings.menstrualCycle : 7;
-      missedPrayerCount -=
-        Math.abs(totalMonths) * menstrualCycle;
+      let menstrualCycle = !isNullOrUndefined(calculateSettings?.menstrualCycle)
+        ? calculateSettings.menstrualCycle
+        : 7;
+      missedPrayerCount -= Math.abs(totalMonths) * menstrualCycle;
     }
     if (missedPrayerCount < 0) {
       setSubmitErrorMessages(missedPrayerNotCalculatedError);
@@ -159,7 +164,7 @@ const PrayerForm = () => {
             control={control}
             name="gender"
             label={Translate(MissedPrayerFormLanguageConstants.Gender)}
-            render={({field: {onChange, onBlur, value}}) => (
+            render={({ field: { onChange, value } }) => (
               <RadioButton
                 radioButtonList={[
                   {
@@ -192,15 +197,16 @@ const PrayerForm = () => {
               <TouchableOpacity
                 style={[
                   styles.dateTimePicker,
-                  {backgroundColor: currentTheme.inputBackgroundColor},
+                  { backgroundColor: currentTheme.inputBackgroundColor },
                 ]}
-                onPress={showHideDatepicker}>
-                <Text style={{color: currentTheme.textColor}}>
+                onPress={showHideDatepicker}
+              >
+                <Text style={{ color: currentTheme.textColor }}>
                   {date?.toLocaleDateString(dateLocale)}
                 </Text>
               </TouchableOpacity>
             }
-            render={({field: {onChange, value}}) => {
+            render={({ field: { onChange, value } }) => {
               return (
                 <>
                   {show && (
@@ -247,7 +253,7 @@ const PrayerForm = () => {
               MissedPrayerFormLanguageConstants.EntryIntoPubertyAge,
             )}
             labelFontSize={15}
-            render={({field: {onChange, onBlur, value}}) => (
+            render={({ field: { onChange, onBlur, value } }) => (
               <>
                 <TextInput
                   style={[
@@ -291,7 +297,7 @@ const PrayerForm = () => {
               MissedPrayerFormLanguageConstants.NumberofDaysofPrayer,
             )}
             labelFontSize={15}
-            render={({field: {onChange, onBlur, value}}) => (
+            render={({ field: { onChange, onBlur, value } }) => (
               <>
                 <TextInput
                   style={[
