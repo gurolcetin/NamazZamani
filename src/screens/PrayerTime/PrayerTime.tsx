@@ -474,6 +474,10 @@ export default function PrayerTime() {
             if (!coords) return;
             navigation.navigate(PrayerTimeScreens.Imsakiye as never);
           }}
+          onOpenQibla={() => {
+            if (!coords) return;
+            navigation.navigate(PrayerTimeScreens.Qibla as never);
+          }}
         />
       </View>
       <FlatList

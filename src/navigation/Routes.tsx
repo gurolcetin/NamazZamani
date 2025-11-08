@@ -10,6 +10,7 @@ export const PrayerTimeScreens = {
   LocationSelector: 'LocationSelector',
   MontlyCalendar: 'MontlyCalendar',
   Imsakiye: 'Imsakiye',
+  Qibla: "Qibla"
 };
 
 export const StackRoutes = {

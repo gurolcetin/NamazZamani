@@ -15,6 +15,7 @@ type Props = {
   onOpenLocationSelector?: () => void;
   onPickDate?: () => void;
   onOpenImsakiye?: () => void;
+  onOpenQibla?: () => void;
 
   // İsteğe bağlı stil
   style?: ViewStyle;
@@ -46,6 +47,7 @@ export const ActionCardGroup = memo((props: Props) => {
     onOpenLocationSelector,
     onPickDate,
     onOpenImsakiye,
+    onOpenQibla,
   } = props;
 
   const border = withOpacity(theme.primary, isDark ? 0.28 : 0.18);
@@ -116,6 +118,27 @@ export const ActionCardGroup = memo((props: Props) => {
             </Text>
           </View>
         </Pressable>
+
+        <Pressable
+            onPress={onOpenQibla}
+            style={({ pressed }) => [
+              stylesL.actionBtn,
+              {
+                backgroundColor: pillBg(isDark ? 0.22 : 0.14),
+                borderColor: border,
+                transform: [{ scale: pressed ? 0.98 : 1 }],
+              },
+            ]}
+          >
+            <View style={stylesL.actionLeft}>
+              <View style={[stylesL.iconWrap, { backgroundColor: pillBg(0.25) }]}>
+                <Ionicons name="compass-outline" size={18} color={theme.primary} />
+              </View>
+              <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
+                Kıble
+              </Text>
+            </View>
+          </Pressable>
       </View>
     </View>
   );
