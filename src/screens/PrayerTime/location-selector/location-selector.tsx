@@ -14,6 +14,7 @@ import { useTheme } from '../../../../libs/core/providers';
 import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { ScreenViewContainer } from '../../../../libs/components';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
   upsertSavedPlace,
   removeSavedPlace as removeSavedRedux,
@@ -68,6 +69,7 @@ export default function LocationSelector() {
 //   useModalOptions(navigation, currentTheme);
 
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   // UI State
 
@@ -103,10 +105,10 @@ export default function LocationSelector() {
 
   /** CRUD Helpers */
   const removeSaved = (id: string) => {
-    Alert.alert('Konumu Sil', 'Silinsin mi?', [
-      { text: 'Vazgeç' },
+    Alert.alert(t('locationSelector.deleteTitle'), t('locationSelector.deleteMessage'), [
+      { text: t('locationSelector.cancel') },
       {
-        text: 'Sil',
+        text: t('locationSelector.delete'),
         style: 'destructive',
         onPress: () => dispatch(removeSavedRedux(id)),
       },
@@ -135,7 +137,7 @@ export default function LocationSelector() {
   const SelectedBadge = () => (
     <View style={styles.badge}>
       <Ionicons name="checkmark" size={12} color="#fff" />
-      <Text style={styles.badgeText}>Seçili</Text>
+      <Text style={styles.badgeText}>{t('locationSelector.selected')}</Text>
     </View>
   );
 
@@ -170,14 +172,20 @@ export default function LocationSelector() {
             <Pressable
               hitSlop={10}
               onPress={() =>
-                Alert.alert('Konumu Sil', `"${item.label}" silinsin mi?`, [
-                  { text: 'Vazgeç' },
-                  {
-                    text: 'Sil',
-                    style: 'destructive',
-                    onPress: () => removeSaved(item.id),
-                  },
-                ])
+                Alert.alert(
+                  t('locationSelector.deleteTitle'),
+                  t('locationSelector.deleteMessageWithName', {
+                    name: item.label,
+                  }),
+                  [
+                    { text: t('locationSelector.cancel') },
+                    {
+                      text: t('locationSelector.delete'),
+                      style: 'destructive',
+                      onPress: () => removeSaved(item.id),
+                    },
+                  ],
+                )
               }
             >
               <Ionicons name="trash-outline" size={18} />
@@ -225,7 +233,7 @@ export default function LocationSelector() {
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Şehir / ilçe / mahalle ara"
+            placeholder={t('locationSelector.searchPlaceholder')}
             style={styles.searchInput}
             placeholderTextColor="rgba(0,0,0,0.45)"
             autoCorrect={false}
@@ -264,8 +272,8 @@ export default function LocationSelector() {
                 <Ionicons name="locate" size={22} color="#fff" />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.nextLabel}>Bulunduğunuz Yer</Text>
-                <Text style={styles.nextHint}>Cihaz konumu</Text>
+                <Text style={styles.nextLabel}>{t('locationSelector.deviceTitle')}</Text>
+                <Text style={styles.nextHint}>{t('locationSelector.deviceSubtitle')}</Text>
               </View>
             </View>
 
@@ -279,7 +287,7 @@ export default function LocationSelector() {
 
           {/* Kaydedilen Konumlar */}
           {saved.length === 0 ? (
-            <Text style={styles.emptyText}>Henüz kayıtlı konum yok. Yeni konum eklemek için konum arayınız.</Text>
+            <Text style={styles.emptyText}>{t('locationSelector.emptySaved')}</Text>
           ) : (
             <FlatList
               data={saved}
@@ -299,11 +307,11 @@ export default function LocationSelector() {
       {hasQuery && (
         <>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Arama Sonuçları</Text>
+            <Text style={styles.sectionTitle}>{t('locationSelector.searchResults')}</Text>
             {searching && <ActivityIndicator size="small" />}
           </View>
           {results.length === 0 ? (
-            <Text style={styles.emptyText}>Sonuç bulunamadı.</Text>
+            <Text style={styles.emptyText}>{t('locationSelector.noResults')}</Text>
           ) : (
             <FlatList
               data={results}

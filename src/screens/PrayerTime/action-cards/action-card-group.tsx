@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
+import { useTranslation } from 'react-i18next';
 import { LocationChip } from '../location';
 
 type Props = {
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export const ActionCardGroup = memo((props: Props) => {
+  const { t } = useTranslation();
   const {
     label,
     utc,
@@ -69,7 +71,7 @@ export const ActionCardGroup = memo((props: Props) => {
           <View style={stylesL.actionLeft}>
             <Ionicons name="calendar-outline" size={24} color={theme.primary} />
             <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
-              Tarih Seç
+              {t('actionCardGroup.pickDate')}
             </Text>
           </View>
         </Pressable>
@@ -87,7 +89,7 @@ export const ActionCardGroup = memo((props: Props) => {
           <View style={stylesL.actionLeft}>
             <Ionicons name="list-outline" size={24} color={theme.primary} />
             <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
-              İmsakiye
+              {t('actionCardGroup.imsakiye')}
             </Text>
           </View>
         </Pressable>
@@ -105,7 +107,7 @@ export const ActionCardGroup = memo((props: Props) => {
           <View style={stylesL.actionLeft}>
             <Ionicons name="compass-outline" size={24} color={theme.primary} />
             <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
-              Kıble
+              {t('actionCardGroup.qibla')}
             </Text>
           </View>
         </Pressable>

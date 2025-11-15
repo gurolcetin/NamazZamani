@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import BootSplash from 'react-native-bootsplash';
 import { NavigationContainer } from '@react-navigation/native';
 import 'react-native-gesture-handler';
@@ -8,10 +8,43 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './libs/redux/store';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { LogBox } from 'react-native';
+import { ActivityIndicator, LogBox, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { checkForceUpdate } from './libs/core/helpers/update-checker';
 const App = () => {
   LogBox.ignoreLogs(['Sending...']);
+  const [isChecking, setIsChecking] = useState(true);
+  const [canContinue, setCanContinue] = useState(true);
+
+  useEffect(() => {
+    const runCheck = async () => {
+      const ok = await checkForceUpdate();
+      setCanContinue(ok);
+      setIsChecking(false);
+    };
+
+    runCheck();
+  }, []);
+  if (isChecking) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator />
+        <Text>Versiyon kontrol ediliyor...</Text>
+      </View>
+    );
+  }
+
+  if (!canContinue) {
+    // Eski sürümdeyse ve update zorunluysa,
+    // kullanıcı alert sonrası da buraya dönse bile
+    // ana içeriği göstermeyebilirsin
+    return (
+      <View style={styles.center}>
+        <Text>Bu sürüm artık desteklenmiyor.</Text>
+        <Text>Lütfen uygulamayı güncelleyin.</Text>
+      </View>
+    );
+  }
   return (
     <GestureHandlerRootView>
       <SafeAreaProvider>
@@ -32,5 +65,11 @@ const App = () => {
     </GestureHandlerRootView>
   );
 };
-
+const styles = StyleSheet.create({
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 export default App;

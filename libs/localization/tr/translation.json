@@ -68,5 +68,62 @@
     "Dhikr": "Zikir",
     "AllDhikr": "Zikirlerim",
     "PrayerDhikr": "Namaz Zikirleri"
+  },
+  "prayerNames": {
+    "Fajr": "İmsak",
+    "Sunrise": "Güneş",
+    "Dhuhr": "Öğle",
+    "Asr": "İkindi",
+    "Maghrib": "Akşam",
+    "Isha": "Yatsı"
+  },
+  "prayerTime": {
+    "locationFetching": "Konum alınıyor…",
+    "locationNotFound": "Konum bulunamadı",
+    "loadingTimes": "Vakitler yükleniyor…",
+    "nextPrayerCountdown": "{{label}} vaktinin çıkmasına kalan",
+    "syncing": "Senkronize ediliyor…"
+  },
+  "actionCardGroup": {
+    "pickDate": "Tarih Seç",
+    "imsakiye": "İmsakiye",
+    "qibla": "Kıble"
+  },
+  "locationChip": {
+    "accessibilityLabel": "Konum: {{label}}, saat dilimi: {{utc}}",
+    "loading": "Konum alınıyor…"
+  },
+  "locationSelector": {
+    "deleteTitle": "Konumu Sil",
+    "deleteMessage": "Silinsin mi?",
+    "deleteMessageWithName": "\"{{name}}\" silinsin mi?",
+    "cancel": "Vazgeç",
+    "delete": "Sil",
+    "deviceTitle": "Bulunduğunuz Yer",
+    "deviceSubtitle": "Cihaz konumu",
+    "emptySaved": "Henüz kayıtlı konum yok. Yeni konum eklemek için konum arayınız.",
+    "searchPlaceholder": "Şehir / ilçe / mahalle ara",
+    "searchResults": "Arama Sonuçları",
+    "noResults": "Sonuç bulunamadı.",
+    "selected": "Seçili"
+  },
+  "monthlyCalendar": {
+    "loadingLocation": "Konum alınıyor…",
+    "changeDate": "Tarih Değiştir",
+    "today": "Bugün",
+    "dataLoading": "Veriler yükleniyor…",
+    "dailyTimes": "Günün Vakitleri",
+    "timesLoading": "Vakitler yükleniyor…"
+  },
+  "qibla": {
+    "directionLabel": "Yön",
+    "angleLabel": "Kıble Açısı",
+    "distanceLabel": "Uzaklık",
+    "loading": "Yükleniyor…",
+    "onCourse": "Doğru Yöndesiniz",
+    "turnRight": "Sağa Dön",
+    "turnLeft": "Sola Dön",
+    "permissionDenied": "Konum izni verilmedi.",
+    "unknownError": "Bilinmeyen hata"
   }
 }

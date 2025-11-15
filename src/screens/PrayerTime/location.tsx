@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
+import { useTranslation } from 'react-i18next';
 
 type LocationChipProps = {
   label: string;
@@ -22,6 +23,7 @@ export function LocationChip({
   loading,
 }: LocationChipProps) {
   const [pressed, setPressed] = useState(false);
+  const { t } = useTranslation();
 
   // Arka planı eskisi gibi primary’den türetiyoruz, ekranın genel dengesi bozulmasın
   const bg = 'white';
@@ -33,7 +35,10 @@ export function LocationChip({
       onPressIn={() => setPressed(true)}
       onPressOut={() => setPressed(false)}
       accessibilityRole="button"
-      accessibilityLabel={`Konum: ${label}, saat dilimi: ${utc}`}
+      accessibilityLabel={t('locationChip.accessibilityLabel', {
+        label,
+        utc,
+      })}
       style={[
         styles.locChip,
         {
@@ -51,7 +56,7 @@ export function LocationChip({
           style={styles.icon}
         />
         <Text style={[styles.locText, { color: txt }]} numberOfLines={1}>
-          {loading ? 'Konum alınıyor…' : label}
+          {loading ? t('locationChip.loading') : label}
         </Text>
       </View>
 

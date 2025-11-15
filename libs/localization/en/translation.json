@@ -68,5 +68,62 @@
     "Dhikr": "Dhikr",
     "AllDhikr": "My Dhikrs",
     "PrayerDhikr": "Prayer Dhikr"
+  },
+  "prayerNames": {
+    "Fajr": "Fajr",
+    "Sunrise": "Sunrise",
+    "Dhuhr": "Dhuhr",
+    "Asr": "Asr",
+    "Maghrib": "Maghrib",
+    "Isha": "Isha"
+  },
+  "prayerTime": {
+    "locationFetching": "Fetching location…",
+    "locationNotFound": "Location not found",
+    "loadingTimes": "Loading prayer times…",
+    "nextPrayerCountdown": "Time left until {{label}} ends",
+    "syncing": "Synchronizing…"
+  },
+  "actionCardGroup": {
+    "pickDate": "Pick Date",
+    "imsakiye": "Timetable",
+    "qibla": "Qibla"
+  },
+  "locationChip": {
+    "accessibilityLabel": "Location: {{label}}, timezone: {{utc}}",
+    "loading": "Fetching location…"
+  },
+  "locationSelector": {
+    "deleteTitle": "Delete Location",
+    "deleteMessage": "Delete it?",
+    "deleteMessageWithName": "Delete \"{{name}}\"?",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deviceTitle": "Your Location",
+    "deviceSubtitle": "Device location",
+    "emptySaved": "No saved locations yet. Search to add a new location.",
+    "searchPlaceholder": "Search city / district / neighborhood",
+    "searchResults": "Search Results",
+    "noResults": "No results found.",
+    "selected": "Selected"
+  },
+  "monthlyCalendar": {
+    "loadingLocation": "Fetching location…",
+    "changeDate": "Change Date",
+    "today": "Today",
+    "dataLoading": "Loading data…",
+    "dailyTimes": "Prayer Times of the Day",
+    "timesLoading": "Loading prayer times…"
+  },
+  "qibla": {
+    "directionLabel": "Direction",
+    "angleLabel": "Qibla Angle",
+    "distanceLabel": "Distance",
+    "loading": "Loading…",
+    "onCourse": "You're Aligned",
+    "turnRight": "Turn Right",
+    "turnLeft": "Turn Left",
+    "permissionDenied": "Location permission denied.",
+    "unknownError": "Unknown error"
   }
 }

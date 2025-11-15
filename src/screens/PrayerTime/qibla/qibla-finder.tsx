@@ -15,6 +15,9 @@ import Geolocation, {
 import CompassHeading from 'react-native-compass-heading';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { Icon, Icons } from '../../../../libs/components';
+import { QiblaLanguageConstants } from '../../../../libs/common/constants/language.constants';
+import { LanguageModel } from '../../../../libs/common/models';
+import { Translate } from '../../../../libs/core/helpers';
 
 /** --- Constants --- */
 const KAABA = { lat: 21.422487, lon: 39.826206 }; // Mescid-i Haram
@@ -65,14 +68,25 @@ function bearingDeg(lat1: number, lon1: number, lat2: number, lon2: number) {
   return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
-function turnHint(delta: number) {
+function turnHint(delta: number): LanguageModel {
   const d = norm(delta);
-  if (d < 5 || d > 355) return 'Doğru Yöndesiniz';
-  return d <= 180 ? 'Sağa Dön' : 'Sola Dön';
+  if (d < 5 || d > 355) return QiblaLanguageConstants.OnCourse;
+  return d <= 180
+    ? QiblaLanguageConstants.TurnRight
+    : QiblaLanguageConstants.TurnLeft;
 }
 
 /** --- Component --- */
 export default function QiblaScreen() {
+  const permissionDeniedMessage = Translate(
+    QiblaLanguageConstants.PermissionDenied,
+  );
+  const unknownErrorMessage = Translate(QiblaLanguageConstants.UnknownError);
+  const directionLabel = Translate(QiblaLanguageConstants.DirectionLabel);
+  const angleLabel = Translate(QiblaLanguageConstants.AngleLabel);
+  const distanceLabel = Translate(QiblaLanguageConstants.DistanceLabel);
+  const loadingLabel = Translate(QiblaLanguageConstants.Loading);
+
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
     null,
   );
@@ -90,13 +104,15 @@ export default function QiblaScreen() {
       try {
         if (Platform.OS === 'ios') {
           const res = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-          if (res !== RESULTS.GRANTED) throw new Error('Konum izni verilmedi.');
+          if (res !== RESULTS.GRANTED) {
+            throw new Error(permissionDeniedMessage);
+          }
         } else {
           const res = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           );
           if (res !== PermissionsAndroid.RESULTS.GRANTED)
-            throw new Error('Konum izni verilmedi.');
+            throw new Error(permissionDeniedMessage);
         }
 
         Geolocation.getCurrentPosition(
@@ -125,7 +141,7 @@ export default function QiblaScreen() {
           setRawHeading(norm(heading));
         });
       } catch (e: any) {
-        setError(e?.message ?? 'Bilinmeyen hata');
+        setError(e?.message ?? unknownErrorMessage);
       }
     })();
 
@@ -136,7 +152,7 @@ export default function QiblaScreen() {
         geoWatchId.current = null;
       }
     };
-  }, []);
+  }, [permissionDeniedMessage, unknownErrorMessage]);
 
   /** Smoothing loop (yaklaşık 60 FPS) */
   useEffect(() => {
@@ -166,10 +182,12 @@ export default function QiblaScreen() {
   const cx = size / 2;
   const cy = size / 2;
 
-  const directionText = qibla ? turnHint(qibla.relative) : 'Yükleniyor…';
-  const isCorrect = directionText === 'Doğru Yöndesiniz';
-//   const isRight = directionText === 'Sağa Dön';
-//   const isLeft = directionText === 'Sola Dön';
+  const directionHint = qibla ? turnHint(qibla.relative) : null;
+  const directionText = directionHint
+    ? Translate(directionHint)
+    : loadingLabel;
+  const isCorrect =
+    directionHint?.key === QiblaLanguageConstants.OnCourse.key;
 
   return (
     <View style={styles.root}>
@@ -344,7 +362,7 @@ export default function QiblaScreen() {
         {/* Alt kart: Bilgi paneli */}
         <View style={styles.infoCard}>
           <View style={styles.infoHeader}>
-            <Text style={styles.infoLabel}>Yön</Text>
+            <Text style={styles.infoLabel}>{directionLabel}</Text>
             <Text
               style={[
                 styles.infoDirection,
@@ -362,7 +380,7 @@ export default function QiblaScreen() {
           {qibla && (
             <View style={styles.metaRow}>
               <View style={styles.metaCol}>
-                <Text style={styles.metaLabel}>Kıble Açısı</Text>
+                <Text style={styles.metaLabel}>{angleLabel}</Text>
                 <Text style={styles.metaValue}>
                   {Math.round(qibla.bearing)}°
                 </Text>
@@ -371,7 +389,7 @@ export default function QiblaScreen() {
               <View style={styles.metaDivider} />
 
               <View style={styles.metaCol}>
-                <Text style={styles.metaLabel}>Uzaklık</Text>
+                <Text style={styles.metaLabel}>{distanceLabel}</Text>
                 <Text style={styles.metaValue}>
                   {qibla.distanceKm.toFixed(1)} km
                 </Text>

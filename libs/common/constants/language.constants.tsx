@@ -243,3 +243,42 @@ export class DhikrLanguageConstants {
     defaultValue: 'Namaz Zikirleri',
   };
 }
+
+export class QiblaLanguageConstants {
+  static DirectionLabel: LanguageModel = {
+    key: 'qibla.directionLabel',
+    defaultValue: 'Yön',
+  };
+  static AngleLabel: LanguageModel = {
+    key: 'qibla.angleLabel',
+    defaultValue: 'Kıble Açısı',
+  };
+  static DistanceLabel: LanguageModel = {
+    key: 'qibla.distanceLabel',
+    defaultValue: 'Uzaklık',
+  };
+  static Loading: LanguageModel = {
+    key: 'qibla.loading',
+    defaultValue: 'Yükleniyor…',
+  };
+  static OnCourse: LanguageModel = {
+    key: 'qibla.onCourse',
+    defaultValue: 'Doğru Yöndesiniz',
+  };
+  static TurnRight: LanguageModel = {
+    key: 'qibla.turnRight',
+    defaultValue: 'Sağa Dön',
+  };
+  static TurnLeft: LanguageModel = {
+    key: 'qibla.turnLeft',
+    defaultValue: 'Sola Dön',
+  };
+  static PermissionDenied: LanguageModel = {
+    key: 'qibla.permissionDenied',
+    defaultValue: 'Konum izni verilmedi.',
+  };
+  static UnknownError: LanguageModel = {
+    key: 'qibla.unknownError',
+    defaultValue: 'Bilinmeyen hata',
+  };
+}

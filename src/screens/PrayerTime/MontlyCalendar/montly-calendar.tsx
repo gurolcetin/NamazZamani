@@ -29,13 +29,22 @@ import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
 import type { PrayerTimeKey, SmallCard } from '../../../../libs/common/types';
 
 type Key = PrayerTimeKey; // aynı tip
-const LABELS_TR: Record<Key, string> = {
-  Fajr: 'İmsak',
-  Sunrise: 'Güneş',
-  Dhuhr: 'Öğle',
-  Asr: 'İkindi',
-  Maghrib: 'Akşam',
-  Isha: 'Yatsı',
+const PRAYER_ORDER: PrayerTimeKey[] = [
+  'Fajr',
+  'Sunrise',
+  'Dhuhr',
+  'Asr',
+  'Maghrib',
+  'Isha',
+];
+
+const PRAYER_NAME_KEYS: Record<Key, string> = {
+  Fajr: 'prayerNames.Fajr',
+  Sunrise: 'prayerNames.Sunrise',
+  Dhuhr: 'prayerNames.Dhuhr',
+  Asr: 'prayerNames.Asr',
+  Maghrib: 'prayerNames.Maghrib',
+  Isha: 'prayerNames.Isha',
 };
 
 function daysInMonth(y: number, m1to12: number) {
@@ -48,22 +57,6 @@ function toTodayDate(hhmm: string, base = new Date()): Date {
   const d = new Date(base);
   d.setHours(h, m, 0, 0);
   return d;
-}
-function buildSequence(t: PrayerTimings, base = new Date()) {
-  const order: PrayerTimeKey[] = [
-    'Fajr',
-    'Sunrise',
-    'Dhuhr',
-    'Asr',
-    'Maghrib',
-    'Isha',
-  ];
-  return order.map(k => ({
-    key: k,
-    label: LABELS_TR[k],
-    time: t[k],
-    date: toTodayDate(t[k], base),
-  }));
 }
 function getCurrentKeyForDay(
   t: PrayerTimings,
@@ -78,7 +71,10 @@ function getCurrentKeyForDay(
   ) {
     return null;
   }
-  const seq = buildSequence(t, now);
+  const seq = PRAYER_ORDER.map(key => ({
+    key,
+    date: toTodayDate(t[key], now),
+  }));
   // now hangi aralıkta? prev (current) olacak
   for (let i = 0; i < seq.length; i++) {
     if (now < seq[i].date) {
@@ -99,11 +95,18 @@ export default function MonthlyCalendar() {
     LanguageLocaleKeys.TURKISH,
   );
   const activeResolved = useSelector(selectActiveResolved);
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
   }, [i18n.language]);
+
+  const prayerLabels = useMemo(() => {
+    return PRAYER_ORDER.reduce((acc, key) => {
+      acc[key] = t(PRAYER_NAME_KEYS[key]);
+      return acc;
+    }, {} as Record<PrayerTimeKey, string>);
+  }, [t, i18n.language]);
 
   const [loading, setLoading] = useState(true);
 
@@ -197,31 +200,24 @@ export default function MonthlyCalendar() {
     if (!t) return [];
 
     const currentKey = getCurrentKeyForDay(t, selectedDate);
-    const order: PrayerTimeKey[] = [
-      'Fajr',
-      'Sunrise',
-      'Dhuhr',
-      'Asr',
-      'Maghrib',
-      'Isha',
-    ];
+    const order = PRAYER_ORDER;
 
     return order.map<SmallCard>(k => ({
       key: k,
-      label: LABELS_TR[k],
+      label: prayerLabels[k] ?? k,
       time: t[k],
       isCurrent: currentKey ? k === currentKey : false,
       // bu ekranda miniLeft/notifications ihtiyari:
       // miniLeft: undefined,
       // notif: k === 'Fajr' || k === 'Maghrib',
     }));
-  }, [monthTimings, year, month, selectedDay, selectedDate]);
+  }, [monthTimings, year, month, selectedDay, selectedDate, prayerLabels]);
 
   if (loading && !coords) {
     return (
       <View style={[styles.center, { flex: 1 }]}>
         <ActivityIndicator />
-        <Text style={{ marginTop: 8 }}>Konum alınıyor…</Text>
+        <Text style={{ marginTop: 8 }}>{t('monthlyCalendar.loadingLocation')}</Text>
       </View>
     );
   }
@@ -267,7 +263,7 @@ export default function MonthlyCalendar() {
                 size={14}
                 color={currentTheme.textColor}
               />
-              <Text style={styles.dateBtnText}>Tarih Değiştir</Text>
+              <Text style={styles.dateBtnText}>{t('monthlyCalendar.changeDate')}</Text>
             </Pressable>
           ) : (
             <View style={{ width: 1 }} />
@@ -292,7 +288,7 @@ export default function MonthlyCalendar() {
             disabled={isMonthLoading}
           >
             <Ionicons name="refresh-outline" size={14} color="#111" />
-            <Text style={styles.todayBtnText}>Bugün</Text>
+            <Text style={styles.todayBtnText}>{t('monthlyCalendar.today')}</Text>
           </Pressable>
         </View>
 
@@ -326,7 +322,7 @@ export default function MonthlyCalendar() {
           {isMonthLoading && (
             <View style={styles.pickerOverlay}>
               <ActivityIndicator />
-              <Text style={styles.overlayText}>Veriler yükleniyor…</Text>
+              <Text style={styles.overlayText}>{t('monthlyCalendar.dataLoading')}</Text>
             </View>
           )}
         </View>
@@ -335,7 +331,7 @@ export default function MonthlyCalendar() {
       {/* Günün Vakitleri – PrayerTimeSmallCard ile 2 sütun */}
       <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
         <Text style={[styles.sectionTitle, { color: '#000' }]}>
-          Günün Vakitleri
+          {t('monthlyCalendar.dailyTimes')}
         </Text>
       </View>
 
@@ -343,7 +339,7 @@ export default function MonthlyCalendar() {
         <View style={[styles.center, { paddingVertical: 12 }]}>
           <ActivityIndicator />
           <Text style={{ marginTop: 6, opacity: 0.8 }}>
-            Vakitler yükleniyor…
+            {t('monthlyCalendar.timesLoading')}
           </Text>
         </View>
       ) : (

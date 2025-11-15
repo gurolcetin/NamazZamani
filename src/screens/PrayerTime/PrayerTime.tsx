@@ -45,13 +45,22 @@ import { useTranslation } from 'react-i18next';
 
 // ----- Types & Maps ---------------------------------------------------------
 
-const LABELS_TR: Record<PrayerTimeKey, string> = {
-  Fajr: 'İmsak',
-  Sunrise: 'Güneş',
-  Dhuhr: 'Öğle',
-  Asr: 'İkindi',
-  Maghrib: 'Akşam',
-  Isha: 'Yatsı',
+const PRAYER_ORDER: PrayerTimeKey[] = [
+  'Fajr',
+  'Sunrise',
+  'Dhuhr',
+  'Asr',
+  'Maghrib',
+  'Isha',
+];
+
+const PRAYER_NAME_KEYS: Record<PrayerTimeKey, string> = {
+  Fajr: 'prayerNames.Fajr',
+  Sunrise: 'prayerNames.Sunrise',
+  Dhuhr: 'prayerNames.Dhuhr',
+  Asr: 'prayerNames.Asr',
+  Maghrib: 'prayerNames.Maghrib',
+  Isha: 'prayerNames.Isha',
 };
 
 export const ICONS: Record<
@@ -91,19 +100,14 @@ function progressBetween(start: Date, end: Date, now = new Date()) {
   const passed = now.getTime() - start.getTime();
   return Math.min(1, Math.max(0, passed / span));
 }
-function buildSequence(t: PrayerTimings) {
-  const order: PrayerTimeKey[] = [
-    'Fajr',
-    'Sunrise',
-    'Dhuhr',
-    'Asr',
-    'Maghrib',
-    'Isha',
-  ];
+function buildSequence(
+  t: PrayerTimings,
+  labels: Record<PrayerTimeKey, string>,
+) {
   const today = new Date();
-  return order.map(k => ({
+  return PRAYER_ORDER.map(k => ({
     key: k,
-    label: LABELS_TR[k],
+    label: labels[k] ?? k,
     time: t[k],
     date: toTodayDate(t[k], today),
   }));
@@ -149,6 +153,7 @@ export default function PrayerTime() {
   const { currentTheme } = useTheme();
   const activeResolved = useSelector(selectActiveResolved);
 
+  const { t, i18n } = useTranslation();
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -157,7 +162,7 @@ export default function PrayerTime() {
   const nextKeyRef = useRef<PrayerTimeKey>('Fajr');
   const currentKeyRef = useRef<PrayerTimeKey>('Fajr');
 
-  const [locationLabel, setLocationLabel] = useState<string>('Konum alınıyor…');
+  const [locationLabel, setLocationLabel] = useState<string>('');
   const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
     null,
@@ -181,7 +186,6 @@ export default function PrayerTime() {
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
 
-  const { i18n } = useTranslation();
   const [dateLocale, setDateLocale] = useState<string>(
     LanguageLocaleKeys.TURKISH,
   );
@@ -189,6 +193,13 @@ export default function PrayerTime() {
   useEffect(() => {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
   }, [i18n.language]);
+
+  const prayerLabels = useMemo(() => {
+    return PRAYER_ORDER.reduce((acc, key) => {
+      acc[key] = t(PRAYER_NAME_KEYS[key]);
+      return acc;
+    }, {} as Record<PrayerTimeKey, string>);
+  }, [t, i18n.language]);
 
   // --- Date formatter'ı memoize et (ESLint uyarısı çözümü) ------------------
   const dtf = useMemo(
@@ -229,7 +240,7 @@ export default function PrayerTime() {
           try {
             label = await reverseGeocode(latitude, longitude);
           } catch {
-            label = 'Konum bulunamadı';
+            label = t('prayerTime.locationNotFound');
           }
         } else {
           latitude = activeResolved.latitude;
@@ -264,14 +275,14 @@ export default function PrayerTime() {
         setIsResyncing(false);
       }
     },
-    [activeResolved],
+    [activeResolved, t],
   );
 
   // timings geldiğinde sequence ve ilk hesap
   useEffect(() => {
     if (!timings) return;
     const now = new Date();
-    seqRef.current = buildSequence(timings);
+    seqRef.current = buildSequence(timings, prayerLabels);
 
     const info = computeNext(seqRef.current, now);
     nextKeyRef.current = info.next.key;
@@ -288,7 +299,7 @@ export default function PrayerTime() {
     if (!seqBaseDayRef.current) {
       seqBaseDayRef.current = ymd(now);
     }
-  }, [timings]);
+  }, [timings, prayerLabels]);
 
   // ilk yükleme
   useEffect(() => {
@@ -394,20 +405,20 @@ export default function PrayerTime() {
       miniLeft: x.key === cur ? leftClock : undefined,
       notif: x.key === 'Fajr' || x.key === 'Maghrib',
     }));
-  }, [timings, leftClock]);
+  }, [timings, leftClock, prayerLabels]);
 
   // ------- render -----------------------------------------------------------
   if (loading && !timings) {
     return (
       <View style={[styles.center, { flex: 1 }]}>
         <ActivityIndicator />
-        <Text style={{ marginTop: 8 }}>Vakitler yükleniyor…</Text>
+        <Text style={{ marginTop: 8 }}>{t('prayerTime.loadingTimes')}</Text>
       </View>
     );
   }
 
   // Büyük kart
-  const currentLabel = LABELS_TR[currentKeyRef.current];
+  const currentLabel = prayerLabels[currentKeyRef.current] ?? '';
   const currentIcon = ICONS[currentKeyRef.current] as any;
   const isCritical = leftSec <= 45 * 60;
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
@@ -437,7 +448,7 @@ export default function PrayerTime() {
             {/* Metinler */}
             <View style={{ flex: 1 }}>
               <Text style={styles.nextLabelText}>
-                {currentLabel} vaktin çıkmasına kalan
+                {t('prayerTime.nextPrayerCountdown', { label: currentLabel })}
               </Text>
               <Text style={styles.nextBigTime}>{leftClock}</Text>
             </View>
@@ -453,7 +464,7 @@ export default function PrayerTime() {
             {isResyncing && (
               <View style={styles.metaSyncRow}>
                 <ActivityIndicator size="small" color="#fff" />
-                <Text style={styles.metaText}>Senkronize ediliyor…</Text>
+                <Text style={styles.metaText}>{t('prayerTime.syncing')}</Text>
               </View>
             )}
           </View>
