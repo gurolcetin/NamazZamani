@@ -68,12 +68,12 @@ function bearingDeg(lat1: number, lon1: number, lat2: number, lon2: number) {
   return (toDeg(Math.atan2(y, x)) + 360) % 360;
 }
 
-function turnHint(delta: number): LanguageModel {
+function turnHint(delta: number): string {
   const d = norm(delta);
-  if (d < 5 || d > 355) return QiblaLanguageConstants.OnCourse;
+  if (d < 5 || d > 355) return QiblaLanguageConstants.OnCourse.key;
   return d <= 180
-    ? QiblaLanguageConstants.TurnRight
-    : QiblaLanguageConstants.TurnLeft;
+    ? QiblaLanguageConstants.TurnRight.key
+    : QiblaLanguageConstants.TurnLeft.key;
 }
 
 /** --- Component --- */
@@ -86,6 +86,14 @@ export default function QiblaScreen() {
   const angleLabel = Translate(QiblaLanguageConstants.AngleLabel);
   const distanceLabel = Translate(QiblaLanguageConstants.DistanceLabel);
   const loadingLabel = Translate(QiblaLanguageConstants.Loading);
+  const turnRightLabel = Translate(QiblaLanguageConstants.TurnRight);
+  const turnLeftLabel = Translate(QiblaLanguageConstants.TurnLeft);
+  const onCourseLabel = Translate(QiblaLanguageConstants.OnCourse);
+  const qiblaLabels: Record<string, string> = {
+    [QiblaLanguageConstants.TurnRight.key]: turnRightLabel,
+    [QiblaLanguageConstants.TurnLeft.key]: turnLeftLabel,
+    [QiblaLanguageConstants.OnCourse.key]: onCourseLabel,
+  };
 
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
     null,
@@ -184,10 +192,9 @@ export default function QiblaScreen() {
 
   const directionHint = qibla ? turnHint(qibla.relative) : null;
   const directionText = directionHint
-    ? Translate(directionHint)
+    ? qiblaLabels[directionHint] ?? loadingLabel
     : loadingLabel;
-  const isCorrect =
-    directionHint?.key === QiblaLanguageConstants.OnCourse.key;
+  const isCorrect = directionHint === QiblaLanguageConstants.OnCourse.key;
 
   return (
     <View style={styles.root}>
