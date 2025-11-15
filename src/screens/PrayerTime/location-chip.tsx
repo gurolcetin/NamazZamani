@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../../libs/core/providers';
 
 type LocationChipProps = {
   label: string;
@@ -24,10 +25,11 @@ export function LocationChip({
 }: LocationChipProps) {
   const [pressed, setPressed] = useState(false);
   const { t } = useTranslation();
+  const { currentTheme } = useTheme();
 
   // Arka planı eskisi gibi primary’den türetiyoruz, ekranın genel dengesi bozulmasın
-  const bg = 'white';
-  const txt = themeColors.text ?? (themeColors.isDark ? '#F5F7FA' : '#15171A');
+  const bg = currentTheme.cardViewBackgroundColor;
+  const txt = currentTheme.textColor;
 
   return (
     <Pressable
@@ -61,7 +63,13 @@ export function LocationChip({
       </View>
 
       {/* Sağ taraf: sade UTC text (pill yok, Figma’ya daha yakın) */}
-      <Text style={styles.utcTextRight} numberOfLines={1}>
+      <Text
+        style={[
+          styles.utcTextRight,
+          { color: currentTheme.placeholderTextColor },
+        ]}
+        numberOfLines={1}
+      >
         {utc}
       </Text>
     </Pressable>
@@ -77,7 +85,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
 
-    borderRadius: 14,   // biraz daha yuvarlak, Figma hissi
+    borderRadius: 14, // biraz daha yuvarlak, Figma hissi
 
     gap: 12,
 
@@ -110,6 +118,5 @@ const styles = StyleSheet.create({
   utcTextRight: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#94A3B8', // slate-400 tarzı
   },
 });

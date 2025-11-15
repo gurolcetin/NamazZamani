@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import { useTranslation } from 'react-i18next';
-import { LocationChip } from '../location';
+import { LocationChip } from '../location-chip';
 
 type Props = {
   label: string;
@@ -161,6 +161,10 @@ const stylesL = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 8,
     paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
   },
   actionLeft: {
     flexDirection: 'column',

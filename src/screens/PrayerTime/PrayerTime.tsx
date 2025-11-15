@@ -199,7 +199,7 @@ export default function PrayerTime() {
       acc[key] = t(PRAYER_NAME_KEYS[key]);
       return acc;
     }, {} as Record<PrayerTimeKey, string>);
-  }, [t, i18n.language]);
+  }, [t]);
 
   // --- Date formatter'ı memoize et (ESLint uyarısı çözümü) ------------------
   const dtf = useMemo(
@@ -405,7 +405,7 @@ export default function PrayerTime() {
       miniLeft: x.key === cur ? leftClock : undefined,
       notif: x.key === 'Fajr' || x.key === 'Maghrib',
     }));
-  }, [timings, leftClock, prayerLabels]);
+  }, [timings, leftClock]);
 
   // ------- render -----------------------------------------------------------
   if (loading && !timings) {
@@ -425,7 +425,7 @@ export default function PrayerTime() {
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
   const ListHeader = () => (
-    <View style={{ marginTop: 16, marginBottom: 12 }}>
+    <View style={styles.listHeaderRoot}>
       <View style={[styles.nextCardWrapper, { backgroundColor: cardBg }]}>
         {/* Dekoratif baloncuklar */}
         <View style={styles.nextDecorTop} />
@@ -474,51 +474,51 @@ export default function PrayerTime() {
   );
 
   return (
-      <ScreenViewContainer>
-        <View style={styles.screenInner}>
-          {/* Konum + 3 buton */}
-          <ActionCardGroup
-            label={locationLabel}
-            utc={utcLabel}
-            loading={(loading || isResyncing) && !timings}
-            isDark={systemDark}
-            theme={{
-              primary: currentTheme.primary,
-              textColor: currentTheme.textColor,
-              cardViewBackgroundColor: currentTheme.cardViewBackgroundColor,
-            }}
-            onOpenLocationSelector={() =>
-              navigation.navigate(PrayerTimeScreens.LocationSelector as never)
-            }
-            onPickDate={() => {
-              if (!coords) return;
-              navigation.navigate(PrayerTimeScreens.MontlyCalendar as never);
-            }}
-            onOpenImsakiye={() => {
-              if (!coords) return;
-              navigation.navigate(PrayerTimeScreens.Imsakiye as never);
-            }}
-            onOpenQibla={() => {
-              if (!coords) return;
-              navigation.navigate(PrayerTimeScreens.Qibla as never);
-            }}
-          />
+    <ScreenViewContainer>
+      <View style={styles.screenInner}>
+        {/* Konum + 3 buton */}
+        <ActionCardGroup
+          label={locationLabel}
+          utc={utcLabel}
+          loading={(loading || isResyncing) && !timings}
+          isDark={systemDark}
+          theme={{
+            primary: currentTheme.primary,
+            textColor: currentTheme.textColor,
+            cardViewBackgroundColor: currentTheme.cardViewBackgroundColor,
+          }}
+          onOpenLocationSelector={() =>
+            navigation.navigate(PrayerTimeScreens.LocationSelector as never)
+          }
+          onPickDate={() => {
+            if (!coords) return;
+            navigation.navigate(PrayerTimeScreens.MontlyCalendar as never);
+          }}
+          onOpenImsakiye={() => {
+            if (!coords) return;
+            navigation.navigate(PrayerTimeScreens.Imsakiye as never);
+          }}
+          onOpenQibla={() => {
+            if (!coords) return;
+            navigation.navigate(PrayerTimeScreens.Qibla as never);
+          }}
+        />
 
-          <FlatList
-            data={smallCards}
-            numColumns={2}
-            keyExtractor={i => i.key}
-            renderItem={renderSmallCard}
-            ListHeaderComponent={ListHeader}
-            contentContainerStyle={styles.listContent}
-            columnWrapperStyle={{ justifyContent: 'space-between' }}
-            showsVerticalScrollIndicator={false}
-            removeClippedSubviews
-            initialNumToRender={6}
-            windowSize={7}
-          />
-        </View>
-      </ScreenViewContainer>
+        <FlatList
+          data={smallCards}
+          numColumns={2}
+          keyExtractor={i => i.key}
+          renderItem={renderSmallCard}
+          ListHeaderComponent={ListHeader}
+          contentContainerStyle={styles.listContent}
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews
+          initialNumToRender={6}
+          windowSize={7}
+        />
+      </View>
+    </ScreenViewContainer>
   );
 }
 
@@ -589,6 +589,14 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 24,
     paddingHorizontal: 16,
+  },
+  listHeaderRoot: {
+    marginTop: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
   },
   nextCardWrapper: {
     borderRadius: 28,

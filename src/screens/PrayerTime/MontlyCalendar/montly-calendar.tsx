@@ -106,7 +106,7 @@ export default function MonthlyCalendar() {
       acc[key] = t(PRAYER_NAME_KEYS[key]);
       return acc;
     }, {} as Record<PrayerTimeKey, string>);
-  }, [t, i18n.language]);
+  }, [t]);
 
   const [loading, setLoading] = useState(true);
 

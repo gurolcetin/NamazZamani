@@ -52,11 +52,13 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
     `format=jsonv2&addressdetails=1&limit=12&q=${encodeURIComponent(q)}`;
   const res = await fetch(url, {
     headers: {
-      'User-Agent': 'YourAppName/1.0 (contact@example.com)',
+      'User-Agent': 'NamazZamani/1.0 (gurolmehmetcetin@gmail.com)',
       Accept: 'application/json',
     },
   });
+  console.log('res', res);
   const data = (await res.json()) as NominatimItem[];
+  console.log('search data', data);
   return data.map(mapNominatimToPlace);
 }
 
@@ -66,7 +68,7 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
 export default function LocationSelector() {
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-//   useModalOptions(navigation, currentTheme);
+  //   useModalOptions(navigation, currentTheme);
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
@@ -103,18 +105,6 @@ export default function LocationSelector() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  /** CRUD Helpers */
-  const removeSaved = (id: string) => {
-    Alert.alert(t('locationSelector.deleteTitle'), t('locationSelector.deleteMessage'), [
-      { text: t('locationSelector.cancel') },
-      {
-        text: t('locationSelector.delete'),
-        style: 'destructive',
-        onPress: () => dispatch(removeSavedRedux(id)),
-      },
-    ]);
-  };
-
   /** Navigation Actions */
   const goDevice = () => {
     dispatch(setActiveDevice());
@@ -135,8 +125,8 @@ export default function LocationSelector() {
 
   /** Small UI Bits */
   const SelectedBadge = () => (
-    <View style={styles.badge}>
-      <Ionicons name="checkmark" size={12} color="#fff" />
+    <View style={[styles.badge, { backgroundColor: currentTheme.primary }]}>
+      <Ionicons name="checkmark" size={12} color={currentTheme.white} />
       <Text style={styles.badgeText}>{t('locationSelector.selected')}</Text>
     </View>
   );
@@ -146,20 +136,33 @@ export default function LocationSelector() {
     const selected = isActiveId(item.id);
     return (
       <Pressable
-        style={[styles.rowCard, selected && styles.rowCardSelected]}
+        style={[
+          styles.rowCard,
+          {
+            backgroundColor: currentTheme.cardViewBackgroundColor,
+          },
+        ]}
         onPress={() => goWith(item)}
       >
         <View style={styles.rowLeft}>
           <View
             style={[
               styles.avatarCircle,
-              selected && styles.avatarCircleSelected,
+              selected && { backgroundColor: currentTheme.primary },
             ]}
           >
-            <Ionicons name="location-outline" size={18} color="#fff" />
+            <Ionicons
+              name="location-outline"
+              size={18}
+              color={currentTheme.white}
+            />
           </View>
           <Text
-            style={[styles.rowTitle, selected && styles.rowTitleSelected]}
+            style={[
+              styles.rowTitle,
+              selected && styles.rowTitleSelected,
+              { color: currentTheme.textColor },
+            ]}
             numberOfLines={2}
           >
             {item.label}
@@ -182,13 +185,19 @@ export default function LocationSelector() {
                     {
                       text: t('locationSelector.delete'),
                       style: 'destructive',
-                      onPress: () => removeSaved(item.id),
+                      onPress: () => {
+                        dispatch(removeSavedRedux(item.id));
+                      },
                     },
                   ],
                 )
               }
             >
-              <Ionicons name="trash-outline" size={18} />
+              <Ionicons
+                name="trash-outline"
+                size={18}
+                color={currentTheme.systemRed}
+              />
             </Pressable>
           )}
         </View>
@@ -200,15 +209,27 @@ export default function LocationSelector() {
     const selected = isActiveId(item.id);
     return (
       <Pressable
-        style={[styles.rowCard, selected && styles.rowCardSelected]}
+        style={[
+          styles.rowCard,
+          { backgroundColor: currentTheme.cardViewBackgroundColor },
+        ]}
         onPress={() => goWith(item)}
       >
         <View style={styles.rowLeft}>
-          <View style={[styles.avatarCircle, { backgroundColor: '#6C8CF5' }]}>
-            <Ionicons name="search-outline" size={18} color="#fff" />
+          <View
+            style={[
+              styles.avatarCircle,
+              { backgroundColor: currentTheme.primary },
+            ]}
+          >
+            <Ionicons
+              name="search-outline"
+              size={18}
+              color={currentTheme.white}
+            />
           </View>
           <Text
-            style={[styles.rowTitle, selected && styles.rowTitleSelected]}
+            style={[styles.rowTitle, { color: currentTheme.textColor }]}
             numberOfLines={2}
           >
             {item.label}
@@ -217,7 +238,11 @@ export default function LocationSelector() {
         {selected ? (
           <SelectedBadge />
         ) : (
-          <Ionicons name="chevron-forward" size={18} />
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={currentTheme.textColor}
+          />
         )}
       </Pressable>
     );
@@ -228,14 +253,19 @@ export default function LocationSelector() {
     <ScreenViewContainer>
       {/* Search Bar */}
       <View style={styles.header}>
-        <View style={styles.searchBox}>
-          <Ionicons name="search" size={18} />
+        <View
+          style={[
+            styles.searchBox,
+            { backgroundColor: currentTheme.cardViewBackgroundColor },
+          ]}
+        >
+          <Ionicons name="search" size={18} color={currentTheme.textColor} />
           <TextInput
             value={query}
             onChangeText={setQuery}
             placeholder={t('locationSelector.searchPlaceholder')}
-            style={styles.searchInput}
-            placeholderTextColor="rgba(0,0,0,0.45)"
+            style={[styles.searchInput, { color: currentTheme.textColor }]}
+            placeholderTextColor={currentTheme.placeholderTextColor}
             autoCorrect={false}
             autoCapitalize="none"
             returnKeyType="search"
@@ -256,7 +286,6 @@ export default function LocationSelector() {
             style={[
               styles.nextCard,
               { backgroundColor: `${currentTheme.primary}CC` },
-              isActiveDevice && styles.nextCardSelected,
             ]}
             onPress={goDevice}
           >
@@ -269,11 +298,15 @@ export default function LocationSelector() {
               }}
             >
               <View style={styles.nextIconWrap}>
-                <Ionicons name="locate" size={22} color="#fff" />
+                <Ionicons name="locate" size={22} color={currentTheme.white} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.nextLabel}>{t('locationSelector.deviceTitle')}</Text>
-                <Text style={styles.nextHint}>{t('locationSelector.deviceSubtitle')}</Text>
+                <Text style={styles.nextLabel}>
+                  {t('locationSelector.deviceTitle')}
+                </Text>
+                <Text style={styles.nextHint}>
+                  {t('locationSelector.deviceSubtitle')}
+                </Text>
               </View>
             </View>
 
@@ -281,13 +314,19 @@ export default function LocationSelector() {
               style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
             >
               {isActiveDevice && <SelectedBadge />}
-              <Ionicons name="arrow-forward" size={16} color="#fff" />
+              <Ionicons
+                name="arrow-forward"
+                size={16}
+                color={currentTheme.white}
+              />
             </View>
           </Pressable>
 
           {/* Kaydedilen Konumlar */}
           {saved.length === 0 ? (
-            <Text style={styles.emptyText}>{t('locationSelector.emptySaved')}</Text>
+            <Text style={styles.emptyText}>
+              {t('locationSelector.emptySaved')}
+            </Text>
           ) : (
             <FlatList
               data={saved}
@@ -307,11 +346,17 @@ export default function LocationSelector() {
       {hasQuery && (
         <>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t('locationSelector.searchResults')}</Text>
+            <Text
+              style={[styles.sectionTitle, { color: currentTheme.textColor }]}
+            >
+              {t('locationSelector.searchResults')}
+            </Text>
             {searching && <ActivityIndicator size="small" />}
           </View>
           {results.length === 0 ? (
-            <Text style={styles.emptyText}>{t('locationSelector.noResults')}</Text>
+            <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>
+              {t('locationSelector.noResults')}
+            </Text>
           ) : (
             <FlatList
               data={results}
@@ -337,7 +382,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(0,0,0,0.06)',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 14,
@@ -363,10 +407,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
-  nextCardSelected: {
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.85)',
-  },
   nextIconWrap: {
     width: 40,
     height: 40,
@@ -383,14 +423,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
-    backgroundColor: 'rgba(255,255,255,0.85)',
     borderRadius: 16,
     padding: 14,
     marginTop: 10,
-  },
-  rowCardSelected: {
-    borderWidth: 2,
-    borderColor: 'rgba(0,0,0,0.15)',
   },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -402,10 +437,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarCircleSelected: { backgroundColor: '#3C87F3' },
-
-  rowTitle: { flex: 1, fontSize: 15, fontWeight: '600' },
-  rowTitleSelected: { fontWeight: '800' },
+  rowTitle: { flex: 1, fontSize: 15, fontWeight: '400' },
+  rowTitleSelected: { fontWeight: '600' },
 
   emptyText: { paddingHorizontal: 16, paddingVertical: 6, opacity: 0.6 },
 
@@ -413,7 +446,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#3C87F3',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
