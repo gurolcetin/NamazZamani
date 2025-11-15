@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '800' },
+  sectionTitle: { fontSize: 20, fontWeight: '500' },
 
   rowCard: {
     marginTop: 10,
@@ -346,11 +346,15 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingHorizontal: 12,
     paddingVertical: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
   },
 
   rowDateText: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '300',
     textTransform: 'capitalize',
   },
 
@@ -376,11 +380,11 @@ const styles = StyleSheet.create({
   },
   gridLabel: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '300',
     opacity: 0.95,
   },
   gridValue: {
     fontSize: 15,
-    fontWeight: '900',
+    fontWeight: '500',
   },
 });

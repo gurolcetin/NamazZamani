@@ -168,8 +168,8 @@ export default function QiblaScreen() {
 
   const directionText = qibla ? turnHint(qibla.relative) : 'Yükleniyor…';
   const isCorrect = directionText === 'Doğru Yöndesiniz';
-  const isRight = directionText === 'Sağa Dön';
-  const isLeft = directionText === 'Sola Dön';
+//   const isRight = directionText === 'Sağa Dön';
+//   const isLeft = directionText === 'Sola Dön';
 
   return (
     <View style={styles.root}>
@@ -292,8 +292,7 @@ export default function QiblaScreen() {
                 </G>
               )}
 
-              {/* merkez daire + DURUMA GÖRE ikon */}
-              <Circle
+              {/* <Circle
                 cx={cx}
                 cy={cy}
                 r={32}
@@ -302,7 +301,6 @@ export default function QiblaScreen() {
                 strokeWidth={2}
               />
 
-              {/* Sağa dön → sağ ok */}
               {isRight && (
                 <Path
                   d={`M ${cx - 8} ${cy - 10}
@@ -312,7 +310,6 @@ export default function QiblaScreen() {
                 />
               )}
 
-              {/* Sola dön → sol ok */}
               {isLeft && (
                 <Path
                   d={`M ${cx + 8} ${cy - 10}
@@ -320,7 +317,7 @@ export default function QiblaScreen() {
                      L ${cx + 8} ${cy + 10} Z`}
                   fill="#b91c1c"
                 />
-              )}
+              )} */}
 
               {/* Doğru yöndesiniz → check */}
               {isCorrect && (
