@@ -67,7 +67,7 @@ function bearingDeg(lat1: number, lon1: number, lat2: number, lon2: number) {
 
 function turnHint(delta: number) {
   const d = norm(delta);
-  if (d < 3 || d > 357) return 'Doğru Yöndesiniz';
+  if (d < 5 || d > 355) return 'Doğru Yöndesiniz';
   return d <= 180 ? 'Sağa Dön' : 'Sola Dön';
 }
 
@@ -168,6 +168,8 @@ export default function QiblaScreen() {
 
   const directionText = qibla ? turnHint(qibla.relative) : 'Yükleniyor…';
   const isCorrect = directionText === 'Doğru Yöndesiniz';
+  const isRight = directionText === 'Sağa Dön';
+  const isLeft = directionText === 'Sola Dön';
 
   return (
     <View style={styles.root}>
@@ -182,7 +184,6 @@ export default function QiblaScreen() {
             size={30}
             color={'black'}
           />
-
           <View style={styles.compassWrapper}>
             <Svg width={size} height={size}>
               {/* dış halka */}
@@ -279,7 +280,7 @@ export default function QiblaScreen() {
                 })}
               </G>
 
-              {/* kıble iğnesi – sadece OK (Kâbe artık sabit yukarıda) */}
+              {/* kıble iğnesi – sadece OK (Kâbe sabit yukarıda) */}
               {qibla && (
                 <G originX={cx} originY={cy} rotation={qibla.relative}>
                   <Path
@@ -291,7 +292,7 @@ export default function QiblaScreen() {
                 </G>
               )}
 
-              {/* merkez daire + ok */}
+              {/* merkez daire + DURUMA GÖRE ikon */}
               <Circle
                 cx={cx}
                 cy={cy}
@@ -300,12 +301,44 @@ export default function QiblaScreen() {
                 stroke="#22c1c3"
                 strokeWidth={2}
               />
-              <Path
-                d={`M ${cx} ${cy - 16} L ${cx + 12} ${cy + 8} L ${cx} ${
-                  cy + 4
-                } Z`}
-                fill="#14b8a6"
-              />
+
+              {/* Sağa dön → sağ ok */}
+              {isRight && (
+                <Path
+                  d={`M ${cx - 8} ${cy - 10}
+                     L ${cx + 10} ${cy}
+                     L ${cx - 8} ${cy + 10} Z`}
+                  fill="#0f766e"
+                />
+              )}
+
+              {/* Sola dön → sol ok */}
+              {isLeft && (
+                <Path
+                  d={`M ${cx + 8} ${cy - 10}
+                     L ${cx - 10} ${cy}
+                     L ${cx + 8} ${cy + 10} Z`}
+                  fill="#b91c1c"
+                />
+              )}
+
+              {/* Doğru yöndesiniz → check */}
+              {isCorrect && (
+                <Path
+                  d={`
+                    M ${cx - 10} ${cy + 2}
+                    L ${cx - 2} ${cy + 10}
+                    L ${cx + 12} ${cy - 6}
+                  `}
+                  fill="none"
+                  stroke="#16a34a"
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+
+              {/* merkez nokta */}
               <Circle cx={cx} cy={cy} r={4} fill="#ffffff" />
             </Svg>
           </View>
@@ -382,7 +415,6 @@ const styles = StyleSheet.create({
     color: '#0f172a',
   },
 
-  // Başlık ile pusula arasındaki sabit Kâbe ikonu
   kaabaStaticWrapper: {
     marginTop: 6,
     marginBottom: 6,
@@ -437,7 +469,7 @@ const styles = StyleSheet.create({
 
   metaRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', // ufak typo düzeltmesi
     alignItems: 'center',
     paddingTop: 10,
     borderTopWidth: StyleSheet.hairlineWidth,
