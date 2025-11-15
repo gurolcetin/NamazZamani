@@ -462,6 +462,7 @@ export default function PrayerTime() {
           theme={{
             primary: currentTheme.primary,
             textColor: currentTheme.textColor,
+            cardViewBackgroundColor: currentTheme.cardViewBackgroundColor
           }}
           onOpenLocationSelector={() =>
             navigation.navigate(PrayerTimeScreens.LocationSelector as never)
