@@ -16,7 +16,6 @@ import CompassHeading from 'react-native-compass-heading';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { Icon, Icons } from '../../../../libs/components';
 import { QiblaLanguageConstants } from '../../../../libs/common/constants/language.constants';
-import { LanguageModel } from '../../../../libs/common/models';
 import { Translate } from '../../../../libs/core/helpers';
 
 /** --- Constants --- */
