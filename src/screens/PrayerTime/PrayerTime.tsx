@@ -414,87 +414,100 @@ export default function PrayerTime() {
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
   const ListHeader = () => (
-    <View>
-      <View style={[styles.nextCard, { backgroundColor: cardBg }]}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={styles.nextIconWrap}>
-            <Icon
-              type={currentIcon.type}
-              name={currentIcon.name as any}
-              color={'#fff'}
-              size={22}
-            />
-          </View>
-          <View style={{ flexShrink: 1 }}>
-            <Text style={styles.nextLabel}>
-              {currentLabel} vaktinin çıkmasına
-            </Text>
-            <Text style={styles.nextHint}>{leftClock} kaldı</Text>
-          </View>
-        </View>
+    <View style={{ marginTop: 16, marginBottom: 12 }}>
+      <View style={[styles.nextCardWrapper, { backgroundColor: cardBg }]}>
+        {/* Dekoratif baloncuklar */}
+        <View style={styles.nextDecorTop} />
+        <View style={styles.nextDecorBottom} />
 
-        {/* Sağ-alt köşe meta alanı */}
-        <View style={styles.nextMeta}>
-          {!isResyncing && !!seqDateLabel && (
-            <Text style={styles.metaText} numberOfLines={1}>
-              {seqDateLabel}
-            </Text>
-          )}
-          {isResyncing && (
-            <View style={styles.metaSyncRow}>
-              <ActivityIndicator size="small" color="#fff" />
-              <Text style={styles.metaText}>Senkronize ediliyor…</Text>
+        <View style={styles.nextCardInner}>
+          <View
+            style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}
+          >
+            {/* Icon box */}
+            <View style={styles.nextIconBox}>
+              <Icon
+                type={currentIcon.type}
+                name={currentIcon.name as any}
+                color={'#FFFFFF'}
+                size={26}
+              />
             </View>
-          )}
+
+            {/* Metinler */}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.nextLabelText}>
+                {currentLabel} vaktin çıkmasına kalan
+              </Text>
+              <Text style={styles.nextBigTime}>{leftClock}</Text>
+            </View>
+          </View>
+
+          {/* Sağ altta tarih / sync */}
+          <View style={styles.nextMeta}>
+            {!isResyncing && !!seqDateLabel && (
+              <Text style={styles.metaText} numberOfLines={1}>
+                {seqDateLabel}
+              </Text>
+            )}
+            {isResyncing && (
+              <View style={styles.metaSyncRow}>
+                <ActivityIndicator size="small" color="#fff" />
+                <Text style={styles.metaText}>Senkronize ediliyor…</Text>
+              </View>
+            )}
+          </View>
         </View>
       </View>
     </View>
   );
 
   return (
-    <ScreenViewContainer>
-      <View style={{ marginTop: 4 }}>
-        <ActionCardGroup
-          label={locationLabel}
-          utc={utcLabel}
-          loading={(loading || isResyncing) && !timings}
-          isDark={systemDark}
-          theme={{
-            primary: currentTheme.primary,
-            textColor: currentTheme.textColor,
-            cardViewBackgroundColor: currentTheme.cardViewBackgroundColor
-          }}
-          onOpenLocationSelector={() =>
-            navigation.navigate(PrayerTimeScreens.LocationSelector as never)
-          }
-          onPickDate={() => {
-            if (!coords) return;
-            navigation.navigate(PrayerTimeScreens.MontlyCalendar as never);
-          }}
-          onOpenImsakiye={() => {
-            if (!coords) return;
-            navigation.navigate(PrayerTimeScreens.Imsakiye as never);
-          }}
-          onOpenQibla={() => {
-            if (!coords) return;
-            navigation.navigate(PrayerTimeScreens.Qibla as never);
-          }}
-        />
-      </View>
-      <FlatList
-        data={smallCards}
-        numColumns={2}
-        keyExtractor={i => i.key}
-        renderItem={renderSmallCard}
-        ListHeaderComponent={ListHeader}
-        contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
-        columnWrapperStyle={{ justifyContent: 'space-between' }}
-        showsVerticalScrollIndicator={false}
-        removeClippedSubviews
-        initialNumToRender={6}
-        windowSize={7}
-      />
-    </ScreenViewContainer>
+      <ScreenViewContainer>
+        <View style={styles.screenInner}>
+          {/* Konum + 3 buton */}
+          <ActionCardGroup
+            label={locationLabel}
+            utc={utcLabel}
+            loading={(loading || isResyncing) && !timings}
+            isDark={systemDark}
+            theme={{
+              primary: currentTheme.primary,
+              textColor: currentTheme.textColor,
+              cardViewBackgroundColor: currentTheme.cardViewBackgroundColor,
+            }}
+            onOpenLocationSelector={() =>
+              navigation.navigate(PrayerTimeScreens.LocationSelector as never)
+            }
+            onPickDate={() => {
+              if (!coords) return;
+              navigation.navigate(PrayerTimeScreens.MontlyCalendar as never);
+            }}
+            onOpenImsakiye={() => {
+              if (!coords) return;
+              navigation.navigate(PrayerTimeScreens.Imsakiye as never);
+            }}
+            onOpenQibla={() => {
+              if (!coords) return;
+              navigation.navigate(PrayerTimeScreens.Qibla as never);
+            }}
+          />
+
+          <FlatList
+            data={smallCards}
+            numColumns={2}
+            keyExtractor={i => i.key}
+            renderItem={renderSmallCard}
+            ListHeaderComponent={ListHeader}
+            contentContainerStyle={styles.listContent}
+            columnWrapperStyle={{ justifyContent: 'space-between' }}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews
+            initialNumToRender={6}
+            windowSize={7}
+          />
+        </View>
+      </ScreenViewContainer>
   );
 }
 
@@ -517,12 +530,6 @@ const styles = StyleSheet.create({
   },
   nextLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
   nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 16, marginTop: 2 },
-  nextBigTime: {
-    color: 'rgba(255,255,255,0.95)',
-    fontSize: 32,
-    fontWeight: '800',
-  },
-
   // Tarih etiketi
   dateText: {
     marginTop: 6,
@@ -552,21 +559,83 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     position: 'relative', // <-- sağ-alt meta için
   },
-  // sağ-alt köşe kapsayıcı
-  nextMeta: {
-    position: 'absolute',
-    right: 14,
-    bottom: 12,
-    alignItems: 'flex-end',
-    maxWidth: '55%', // taşmayı önlemek için
+  screenInner: {
+    flex: 1,
+    maxWidth: 420,
+    alignSelf: 'center',
+    paddingBottom: 24,
   },
-  // metin stili (tarih & senk)
+  screenHeader: {
+    marginTop: 8,
+    marginBottom: 4,
+    alignItems: 'center',
+  },
+  screenTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  listContent: {
+    paddingBottom: 24,
+    paddingHorizontal: 16,
+  },
+  nextCardWrapper: {
+    borderRadius: 28,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  nextCardInner: {
+    padding: 20,
+    borderRadius: 28,
+    backgroundColor: 'transparent',
+  },
+  nextDecorTop: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  nextDecorBottom: {
+    position: 'absolute',
+    bottom: -30,
+    left: -30,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+  },
+  nextIconBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Kartın arka plan rengini dinamik ayarlamak için:
+  nextLabelText: {
+    color: 'rgba(240,253,250,0.95)',
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  nextBigTime: {
+    color: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: '800',
+  },
+  nextMeta: {
+    marginTop: 10,
+    alignItems: 'flex-end',
+  },
   metaText: {
-    color: 'rgba(255,255,255,0.92)',
-    fontSize: 12,
+    color: 'rgba(240,253,250,0.9)',
+    fontSize: 13,
     fontWeight: '600',
   },
-  // senkron satırı
   metaSyncRow: {
     flexDirection: 'row',
     alignItems: 'center',

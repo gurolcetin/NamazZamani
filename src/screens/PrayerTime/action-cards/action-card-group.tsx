@@ -8,7 +8,11 @@ type Props = {
   utc: string;
   loading?: boolean;
   isDark?: boolean;
-  theme: { primary: string; textColor?: string, cardViewBackgroundColor?: string };
+  theme: {
+    primary: string;
+    textColor?: string;
+    cardViewBackgroundColor?: string;
+  };
 
   // Butonlar
   onOpenLocationSelector?: () => void;
@@ -82,11 +86,7 @@ export const ActionCardGroup = memo((props: Props) => {
           ]}
         >
           <View style={stylesL.actionLeft}>
-              <Ionicons
-                name="calendar-outline"
-                size={24}
-                color={theme.primary}
-              />
+            <Ionicons name="calendar-outline" size={24} color={theme.primary} />
             <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
               Tarih Seç
             </Text>
@@ -105,7 +105,7 @@ export const ActionCardGroup = memo((props: Props) => {
           ]}
         >
           <View style={stylesL.actionLeft}>
-              <Ionicons name="list-outline" size={24} color={theme.primary} />
+            <Ionicons name="list-outline" size={24} color={theme.primary} />
             <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
               İmsakiye
             </Text>
@@ -113,23 +113,23 @@ export const ActionCardGroup = memo((props: Props) => {
         </Pressable>
 
         <Pressable
-            onPress={onOpenQibla}
-            style={({ pressed }) => [
-              stylesL.actionBtn,
-              {
-                backgroundColor: theme.cardViewBackgroundColor,
-                borderColor: border,
-                transform: [{ scale: pressed ? 0.98 : 1 }],
-              },
-            ]}
-          >
-            <View style={stylesL.actionLeft}>
-                <Ionicons name="compass-outline" size={24} color={theme.primary} />
-              <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
-                Kıble
-              </Text>
-            </View>
-          </Pressable>
+          onPress={onOpenQibla}
+          style={({ pressed }) => [
+            stylesL.actionBtn,
+            {
+              backgroundColor: theme.cardViewBackgroundColor,
+              borderColor: border,
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+            },
+          ]}
+        >
+          <View style={stylesL.actionLeft}>
+            <Ionicons name="compass-outline" size={24} color={theme.primary} />
+            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
+              Kıble
+            </Text>
+          </View>
+        </Pressable>
       </View>
     </View>
   );
@@ -177,13 +177,21 @@ const stylesL = StyleSheet.create({
   },
   actionBtn: {
     flex: 1,
-    maxWidth: '48%',
     borderRadius: 16,
     borderWidth: 1,
     paddingHorizontal: 8,
-    paddingVertical: 10,
+    paddingVertical: 8,
   },
-  actionLeft: { flexDirection: 'column', alignItems: 'center', gap: 10 },
+  actionLeft: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  actionTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
   iconWrap: {
     width: 32,
     height: 32,
@@ -191,5 +199,4 @@ const stylesL = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionTitle: { fontSize: 14, fontWeight: '800' },
 });

@@ -2,22 +2,6 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@react-native-vector-icons/ionicons';
 
-const withOpacity = (hex: string, alpha = 0.15) => {
-  const m = hex?.replace('#', '');
-  if (!m || (m.length !== 6 && m.length !== 3)) return `rgba(0,0,0,${alpha})`;
-  const norm =
-    m.length === 3
-      ? m
-          .split('')
-          .map(c => c + c)
-          .join('')
-      : m;
-  const r = parseInt(norm.slice(0, 2), 16);
-  const g = parseInt(norm.slice(2, 4), 16);
-  const b = parseInt(norm.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
 type LocationChipProps = {
   label: string;
   utc: string;
@@ -39,16 +23,9 @@ export function LocationChip({
 }: LocationChipProps) {
   const [pressed, setPressed] = useState(false);
 
-  const bg = withOpacity(themeColors.primary, themeColors.isDark ? 0.22 : 0.12);
-  const border = withOpacity(
-    themeColors.primary,
-    themeColors.isDark ? 0.45 : 0.25,
-  );
+  // Arka planı eskisi gibi primary’den türetiyoruz, ekranın genel dengesi bozulmasın
+  const bg = 'white';
   const txt = themeColors.text ?? (themeColors.isDark ? '#F5F7FA' : '#15171A');
-  const utcBg = withOpacity(
-    themeColors.primary,
-    themeColors.isDark ? 0.35 : 0.2,
-  );
 
   return (
     <Pressable
@@ -61,34 +38,27 @@ export function LocationChip({
         styles.locChip,
         {
           backgroundColor: bg,
-          borderColor: border,
           transform: [{ scale: pressed ? 0.98 : 1 }],
         },
       ]}
     >
-      {/* Soldaki kısım (ikon + metin) */}
+      {/* Sol taraf: ikon + metin */}
       <View style={styles.locLeft}>
         <Ionicons
-          name="location"
+          name="location-outline"
           size={20}
           color={themeColors.primary}
           style={styles.icon}
         />
-        <Text style={[styles.locText, { color: txt }]}>
+        <Text style={[styles.locText, { color: txt }]} numberOfLines={1}>
           {loading ? 'Konum alınıyor…' : label}
         </Text>
       </View>
 
-      {/* Sağdaki UTC kısmı */}
-      <View
-        style={[
-          styles.utcPill,
-          { backgroundColor: utcBg, borderColor: border },
-        ]}
-      >
-        <Text style={[styles.utcText, { color: txt }]}>{utc}</Text>
-        <Ionicons name="chevron-down" size={14} color={txt} />
-      </View>
+      {/* Sağ taraf: sade UTC text (pill yok, Figma’ya daha yakın) */}
+      <Text style={styles.utcTextRight} numberOfLines={1}>
+        {utc}
+      </Text>
     </Pressable>
   );
 }
@@ -98,11 +68,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,      // 🔹 dikey boşluk arttı
-    paddingHorizontal: 14,    // 🔹 yatay boşluk arttı
-    borderRadius: 14,
-    borderWidth: 1,
-    gap: 12,                  // 🔹 sol ve sağ bloklar arası nefes payı
+
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+
+    borderRadius: 18,   // biraz daha yuvarlak, Figma hissi
+
+    gap: 12,
+
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
@@ -110,37 +83,28 @@ const styles = StyleSheet.create({
   },
   locLeft: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     flexShrink: 1,
     flexGrow: 1,
     flexBasis: 0,
-    gap: 8, // 🔹 ikon ile metin arası boşluk arttı
+    gap: 8,
     marginRight: 8,
   },
   icon: {
-    marginTop: 2,
+    marginTop: 1,
     flexShrink: 0,
   },
   locText: {
     flex: 1,
     fontSize: 15,
     fontWeight: '700',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     lineHeight: 20,
-    maxWidth: '90%'
+    maxWidth: '100%',
   },
-  utcPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,    // 🔹 UTC etiketinin iç boşluğu da arttı
-    paddingVertical: 5,
-    borderRadius: 10,
-    borderWidth: 1,
-    flexShrink: 0,
-  },
-  utcText: {
-    fontSize: 12,
-    fontWeight: '700',
+  utcTextRight: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#94A3B8', // slate-400 tarzı
   },
 });
