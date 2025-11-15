@@ -24,22 +24,6 @@ type Props = {
   style?: ViewStyle;
 };
 
-const withOpacity = (hex: string, alpha = 0.12) => {
-  const m = hex?.replace('#', '');
-  if (!m || (m.length !== 6 && m.length !== 3)) return `rgba(0,0,0,${alpha})`;
-  const norm =
-    m.length === 3
-      ? m
-          .split('')
-          .map(c => c + c)
-          .join('')
-      : m;
-  const r = parseInt(norm.slice(0, 2), 16);
-  const g = parseInt(norm.slice(2, 4), 16);
-  const b = parseInt(norm.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
 export const ActionCardGroup = memo((props: Props) => {
   const {
     label,
@@ -52,8 +36,6 @@ export const ActionCardGroup = memo((props: Props) => {
     onOpenImsakiye,
     onOpenQibla,
   } = props;
-
-  const border = withOpacity(theme.primary, isDark ? 0.28 : 0.18);
 
   return (
     <View style={[stylesL.card]}>
@@ -80,7 +62,6 @@ export const ActionCardGroup = memo((props: Props) => {
             stylesL.actionBtn,
             {
               backgroundColor: theme.cardViewBackgroundColor,
-              borderColor: border,
               transform: [{ scale: pressed ? 0.98 : 1 }],
             },
           ]}
@@ -99,7 +80,6 @@ export const ActionCardGroup = memo((props: Props) => {
             stylesL.actionBtn,
             {
               backgroundColor: theme.cardViewBackgroundColor,
-              borderColor: border,
               transform: [{ scale: pressed ? 0.98 : 1 }],
             },
           ]}
@@ -118,7 +98,6 @@ export const ActionCardGroup = memo((props: Props) => {
             stylesL.actionBtn,
             {
               backgroundColor: theme.cardViewBackgroundColor,
-              borderColor: border,
               transform: [{ scale: pressed ? 0.98 : 1 }],
             },
           ]}
@@ -178,7 +157,6 @@ const stylesL = StyleSheet.create({
   actionBtn: {
     flex: 1,
     borderRadius: 16,
-    borderWidth: 1,
     paddingHorizontal: 8,
     paddingVertical: 8,
   },

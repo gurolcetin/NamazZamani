@@ -20,16 +20,28 @@ export const PrayerTimeSmallCard: React.FC<{
 }> = ({ item, index }) => {
   const { currentTheme } = useTheme();
   const active = item.isCurrent;
-
+  const withOpacity = (hex: string, alpha = 0.12) => {
+    const m = hex?.replace('#', '');
+    if (!m || (m.length !== 6 && m.length !== 3)) return `rgba(0,0,0,${alpha})`;
+    const norm =
+      m.length === 3
+        ? m
+            .split('')
+            .map(c => c + c)
+            .join('')
+        : m;
+    const r = parseInt(norm.slice(0, 2), 16);
+    const g = parseInt(norm.slice(2, 4), 16);
+    const b = parseInt(norm.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
   const baseCardStyle = active
     ? {
         backgroundColor: currentTheme.primary,
-        borderColor: currentTheme.primary,
         shadowOpacity: 0.25,
       }
     : {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#E2E8F0',
+        backgroundColor: currentTheme.cardViewBackgroundColor,
         shadowOpacity: 0.08,
       };
 
@@ -38,7 +50,7 @@ export const PrayerTimeSmallCard: React.FC<{
         backgroundColor: 'rgba(255,255,255,0.18)',
       }
     : {
-        backgroundColor: '#E6FBF3', // soft yeşil
+        backgroundColor: withOpacity(currentTheme.primary, 0.18),
       };
 
   const textColor = active ? '#FFFFFF' : currentTheme.textColor;
@@ -57,7 +69,7 @@ export const PrayerTimeSmallCard: React.FC<{
             type={ICONS[item.key].type}
             name={ICONS[item.key].name as any}
             color={active ? '#FFFFFF' : currentTheme.primary}
-            size={18}
+            size={20}
           />
         </View>
         <Text style={[styles.smallTitle, { color: textColor }]}>
@@ -84,7 +96,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 8,

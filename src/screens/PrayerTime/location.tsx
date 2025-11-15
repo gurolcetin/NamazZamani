@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
 
-    borderRadius: 18,   // biraz daha yuvarlak, Figma hissi
+    borderRadius: 14,   // biraz daha yuvarlak, Figma hissi
 
     gap: 12,
 
