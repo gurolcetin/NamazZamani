@@ -1,5 +1,4 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
 import {Routes} from '../Routes';
 import Settings from '../../screens/Settings/Settings';
 import LanguageSettings from '../../../libs/core/sections/Settings/LanguageSettings/LanguageSettings';
@@ -8,8 +7,9 @@ import {useTheme} from '../../../libs/core/providers';
 import {Translate} from '../../../libs/core/helpers';
 import {SettingsConstants} from '../../../libs/common/constants';
 import CalculateSettings from '../../../libs/core/sections/Settings/CalculateSettings/CalculateSettings';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 export const SettingsStack = () => {
   const {currentTheme} = useTheme();
   return (
@@ -29,10 +29,8 @@ export const SettingsStack = () => {
           headerStyle: {
             backgroundColor: currentTheme.statusBarColor,
           },
-          headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.LanguageSettings),
-          headerLeftContainerStyle: {paddingLeft: 10},
         }}
       />
       <Stack.Screen
@@ -42,10 +40,8 @@ export const SettingsStack = () => {
           headerStyle: {
             backgroundColor: currentTheme.statusBarColor,
           },
-          headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.ThemeSettings),
-          headerLeftContainerStyle: {paddingLeft: 10},
         }}
       />
       <Stack.Screen
@@ -55,10 +51,8 @@ export const SettingsStack = () => {
           headerStyle: {
             backgroundColor: currentTheme.statusBarColor,
           },
-          headerStatusBarHeight: 0,
           headerTintColor: currentTheme.textColor,
           headerTitle: Translate(SettingsConstants.CalculateSettings),
-          headerLeftContainerStyle: {paddingLeft: 10},
         }}
       />
     </Stack.Navigator>

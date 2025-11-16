@@ -11,8 +11,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ActivityIndicator, LogBox, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { checkForceUpdate } from './libs/core/helpers/update-checker';
+import { enableScreens } from 'react-native-screens';
+
 const App = () => {
   LogBox.ignoreLogs(['Sending...']);
+  enableScreens();
   const [isChecking, setIsChecking] = useState(true);
   const [canContinue, setCanContinue] = useState(true);
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import PrayerTime from '../../screens/PrayerTime/PrayerTime';
 import { PrayerTimeScreens, Routes } from '../Routes';
 import LocationSelector from '../../screens/PrayerTime/location-selector/location-selector';
@@ -7,8 +6,9 @@ import MonthlyCalendar from '../../screens/PrayerTime/MontlyCalendar/montly-cale
 import { useTheme } from '../../../libs/core/providers';
 import TimeTable from '../../screens/PrayerTime/time-table/time-table';
 import QiblaScreen from '../../screens/PrayerTime/qibla/qibla-finder';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export const PrayerTimeStack = () => {
   const { currentTheme } = useTheme();
@@ -17,7 +17,7 @@ export const PrayerTimeStack = () => {
       <Stack.Screen
         name={Routes.PrayerTime}
         component={PrayerTime}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, headerLargeTitle: true }}
       />
       <Stack.Screen
         name={PrayerTimeScreens.LocationSelector}
@@ -26,9 +26,7 @@ export const PrayerTimeStack = () => {
           headerStyle: {
             backgroundColor: currentTheme.statusBarColor,
           },
-          headerStatusBarHeight: 0,
           headerTitle: '',
-          headerLeftContainerStyle: { paddingLeft: 10 },
           gestureEnabled: true,
         }}
       />
@@ -39,9 +37,7 @@ export const PrayerTimeStack = () => {
           headerStyle: {
             backgroundColor: currentTheme.statusBarColor,
           },
-          headerStatusBarHeight: 0,
           headerTitle: '',
-          headerLeftContainerStyle: { paddingLeft: 10 },
           gestureEnabled: true,
         }}
       />
@@ -52,9 +48,7 @@ export const PrayerTimeStack = () => {
           headerStyle: {
             backgroundColor: currentTheme.statusBarColor,
           },
-          headerStatusBarHeight: 0,
           headerTitle: '',
-          headerLeftContainerStyle: { paddingLeft: 10 },
           gestureEnabled: true,
         }}
       />
@@ -65,9 +59,7 @@ export const PrayerTimeStack = () => {
           headerStyle: {
             backgroundColor: currentTheme.statusBarColor,
           },
-          headerStatusBarHeight: 0,
           headerTitle: '',
-          headerLeftContainerStyle: { paddingLeft: 10 },
           gestureEnabled: true,
         }}
       />
