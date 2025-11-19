@@ -21,7 +21,7 @@ const Tab = createBottomTabNavigator();
 const CustomTabBar = ({ state, navigation }: any) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const opacity = useRef(new Animated.Value(0.9)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
 
   return (
     <View
