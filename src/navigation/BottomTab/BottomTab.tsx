@@ -29,7 +29,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
         styles.tabBarContainer,
         {
           height:
-            Platform.OS === 'ios' ? insets.bottom + 10 : insets.bottom + 20,
+            Platform.OS === 'ios' ? insets.bottom + 40 : insets.bottom + 50,
           borderTopColor: currentTheme.bottomTabBorderTopColor,
         },
       ]}
