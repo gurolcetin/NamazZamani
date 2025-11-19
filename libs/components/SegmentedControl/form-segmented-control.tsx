@@ -26,13 +26,15 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
   const [containerWidth, setContainerWidth] = useState(0);
   const translateX = useRef(new Animated.Value(0)).current;
 
-  const selectedIndex = Math.max(
-    0,
-    options.findIndex(o => o.value === value),
-  );
+  // value hangi index'te?
+  const rawIndex = options.findIndex(o => o.value === value);
+  const hasSelection = rawIndex !== -1;
+  const selectedIndex = hasSelection ? rawIndex : null;
 
   useEffect(() => {
     if (!containerWidth) return;
+    if (selectedIndex === null) return; // hiçbir şey seçili değilken oynatma
+
     const innerWidth = containerWidth - 12; // padding (6+6)
     const singleWidth = innerWidth / options.length;
     const target = selectedIndex * singleWidth;
@@ -63,6 +65,7 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
         },
       ]}
     >
+      {/* Seçim arka planı: sadece seçim varken göster */}
       <Animated.View
         pointerEvents="none"
         style={{
@@ -79,6 +82,7 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
           shadowRadius: 8,
           shadowOffset: { width: 0, height: 3 },
           elevation: 4,
+          opacity: hasSelection ? 1 : 0, // 🔑 burada gizliyoruz
           transform: [{ translateX }],
         }}
       />
