@@ -181,22 +181,24 @@ const PrayerForm: React.FC = () => {
 
   return (
     <>
-      <View
-        style={[
-          styles.root,
-          { backgroundColor: '#f3f7ff' }, // gradient yerine tek renk
-        ]}
-      >
+      <View style={[styles.root]}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
           {/* Main card */}
-          <View style={styles.card}>
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: currentTheme.cardViewBackgroundColor },
+            ]}
+          >
             {/* Gender */}
             <FieldGroup
               label={genderLabel}
               error={errors.gender?.message as string}
+              textColor={currentTheme.textColor}
+              errorColor={currentTheme.formErrorColor}
             >
               <Controller
                 control={control}
@@ -219,6 +221,8 @@ const PrayerForm: React.FC = () => {
             <FieldGroup
               label={birthDateLabel}
               error={errors.date?.message as string}
+              textColor={currentTheme.textColor}
+              errorColor={currentTheme.formErrorColor}
             >
               <Controller
                 control={control}
@@ -274,6 +278,8 @@ const PrayerForm: React.FC = () => {
             <FieldGroup
               label={pubertyAgeLabel}
               error={errors.entryIntoPubertyAge?.message as string}
+              textColor={currentTheme.textColor}
+              errorColor={currentTheme.formErrorColor}
             >
               <Controller
                 control={control}
@@ -302,7 +308,7 @@ const PrayerForm: React.FC = () => {
                       onBlur={onBlur}
                       keyboardType="numeric"
                       placeholder="12"
-                      placeholderTextColor="#cbd5e1"
+                      placeholderTextColor={currentTheme.gray}
                       value={(value ?? StringConstants.EMPTY_STRING).toString()}
                       onChangeText={val => {
                         if (isNullOrEmptyString(val) || isNumber(val)) {
@@ -325,6 +331,8 @@ const PrayerForm: React.FC = () => {
             <FieldGroup
               label={daysOfPrayerLabel}
               error={errors.prayersPerformedCount?.message as string}
+              textColor={currentTheme.textColor}
+              errorColor={currentTheme.formErrorColor}
             >
               <Controller
                 control={control}
@@ -387,13 +395,32 @@ type FieldGroupProps = {
   label: string;
   error?: string;
   children: React.ReactNode;
+  textColor: string;
+  errorColor: string;
 };
 
-const FieldGroup: React.FC<FieldGroupProps> = ({ label, error, children }) => (
+const FieldGroup: React.FC<FieldGroupProps> = ({
+  label,
+  error,
+  children,
+  textColor,
+  errorColor,
+}) => (
   <View style={styles.fieldGroup}>
-    <Text style={styles.fieldLabel}>{label}</Text>
+    <Text
+      style={[
+        styles.fieldLabel,
+        {
+          color: textColor,
+        },
+      ]}
+    >
+      {label}
+    </Text>
     {children}
-    {!!error && <Text style={styles.fieldError}>{error}</Text>}
+    {!!error && (
+      <Text style={[styles.fieldError, { color: errorColor }]}>{error}</Text>
+    )}
   </View>
 );
 
@@ -423,7 +450,6 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 30,
-    backgroundColor: '#ffffff',
     paddingHorizontal: 18,
     paddingVertical: 20,
     elevation: 8,
@@ -438,13 +464,11 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
     marginBottom: 10,
   },
   fieldError: {
     marginTop: 4,
     fontSize: 12,
-    color: '#dc2626',
   },
   inputWrapper: {
     height: 52,

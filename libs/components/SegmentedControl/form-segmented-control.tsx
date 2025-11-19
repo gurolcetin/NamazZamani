@@ -54,16 +54,15 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
     <View
       onLayout={handleLayout}
       style={[
-        styles.genderContainer, // kendi style'ında yoksa aşağıya ekleyebilirsin
+        styles.genderContainer,
         {
           flexDirection: 'row',
           padding: 6,
           borderRadius: 24,
-          backgroundColor: '#f3f4f6',
+          backgroundColor: currentTheme.backgroundColor,
         },
       ]}
     >
-      {/* Kayan beyaz pill (GenderChip tarzı) */}
       <Animated.View
         pointerEvents="none"
         style={{
@@ -74,7 +73,7 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
           width:
             containerWidth > 0 ? (containerWidth - 12) / options.length : 0,
           borderRadius: 18,
-          backgroundColor: '#ffffff',
+          backgroundColor: currentTheme.cardViewBackgroundColor,
           shadowColor: '#000',
           shadowOpacity: 0.16,
           shadowRadius: 8,
@@ -92,7 +91,6 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
               style={[
                 styles.genderChip,
                 {
-                  // Artık arka planı pill hallediyor, chip transparan
                   backgroundColor: 'transparent',
                   shadowOpacity: 0,
                   height: 38,
@@ -107,7 +105,7 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
                 style={[
                   styles.genderChipText,
                   {
-                    color: active ? primary : '#6b7280',
+                    color: active ? primary : currentTheme.textColor,
                     fontSize: 14,
                     fontWeight: '600',
                   },
@@ -134,7 +132,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingVertical: 10,
     marginHorizontal: 4,
-    backgroundColor: '#ffffff',
     shadowColor: '#000',
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
