@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, Text, TextInput, TouchableOpacity, View} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   DhikrTabKeys,
   GeneralLanguageConstants,
@@ -22,21 +22,21 @@ import {
   resetDhikrByItem,
   updateDhikr,
 } from '../../../redux/reducers/Dhikr';
-import {Translate, getDhikrProgress, hapticFeedback} from '../../helpers';
-import {ScrollView} from 'react-native-gesture-handler';
+import { Translate, getDhikrProgress, hapticFeedback } from '../../helpers';
+import { ScrollView } from 'react-native-gesture-handler';
 import {
   isNullOrEmptyString,
   isNullOrUndefined,
   isNumber,
 } from 'typescript-util-functions';
-import {useTheme} from '../../providers';
-import {useForm} from 'react-hook-form';
+import { useTheme } from '../../providers';
+import { useForm } from 'react-hook-form';
 
 const AllDhikr = () => {
   const {
     control,
     handleSubmit,
-    formState: {errors},
+    formState: { errors },
   } = useForm({
     defaultValues: {
       dhikrName: StringConstants.EMPTY_STRING,
@@ -45,9 +45,9 @@ const AllDhikr = () => {
   });
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
-  const {currentTheme} = useTheme();
+  const { currentTheme } = useTheme();
   const allDhikrList = useSelector((state: any) =>
-    state.dhikr.dhikrs.find((x: {id: number}) => x.id === DhikrTabKeys.All),
+    state.dhikr.dhikrs.find((x: { id: number }) => x.id === DhikrTabKeys.All),
   );
   const [value, setValue] = useState('');
   const [radioButtonList, setRadioButtonList] = useState([]);
@@ -108,16 +108,23 @@ const AllDhikr = () => {
               flex: 1,
               marginRight: 20,
               marginLeft: 15,
-            }}>
+            }}
+          >
             <ScrollView
               horizontal={true}
               showsHorizontalScrollIndicator={false}
-              style={{flex: 0.85}}>
+              style={{ flex: 0.85 }}
+            >
               <RadioButton
                 radioButtonList={radioButtonList}
                 selectedValue={value}
                 onValueChange={value => setValue(value)}
-                buttonStyle={{width: 120, height: 30}}
+                buttonStyle={{
+                  width: 120,
+                  height: 30,
+                  borderWidth: 2,
+                  borderColor: currentTheme.primary,
+                }}
               />
             </ScrollView>
             <View style={styles.dhikrAddButtonContainer}>
@@ -132,13 +139,15 @@ const AllDhikr = () => {
                     borderColor: currentTheme.primary,
                     backgroundColor: currentTheme.cardViewBackgroundColor,
                   },
-                ]}>
+                ]}
+              >
                 <Text
                   style={{
                     fontSize: 20,
                     fontWeight: 'bold',
                     color: currentTheme.primary,
-                  }}>
+                  }}
+                >
                   {StringConstants.PLUS}
                 </Text>
               </TouchableOpacity>
@@ -159,7 +168,8 @@ const AllDhikr = () => {
                       key={item.dhikrId + 'card'}
                       cardStyle={styles.containerSingleDhikr}
                       paddingLeft={0}
-                      shadow>
+                      shadow
+                    >
                       <CircleProgressBar
                         key={item.dhikrId}
                         progress={getDhikrProgress(item.count, item.maxCount)}
@@ -185,7 +195,8 @@ const AllDhikr = () => {
                         alignItems: 'center',
                         marginHorizontal: 25,
                         marginTop: 15,
-                      }}>
+                      }}
+                    >
                       <SubmitButton
                         key={item.dhikrId + 'buttonRemove'}
                         label="Sil"
@@ -214,17 +225,17 @@ const AllDhikr = () => {
                                 },
                               },
                             ],
-                            {userInterfaceStyle: applicationTheme.theme},
+                            { userInterfaceStyle: applicationTheme.theme },
                           );
                         }}
-                        buttonStyle={{marginRight: 20}}
+                        buttonStyle={{ marginRight: 20 }}
                         backgroundColor={currentTheme.systemRed}
                       />
                       <SubmitButton
                         key={item.dhikrId + 'buttonReset'}
                         label={reset}
                         onSubmit={() => {
-                          dispatch(resetDhikrByItem({dhikrId: item.dhikrId}));
+                          dispatch(resetDhikrByItem({ dhikrId: item.dhikrId }));
                           hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
                         }}
                         backgroundColor={currentTheme.systemGreen}
@@ -245,7 +256,7 @@ const AllDhikr = () => {
               showAddDhikrModal();
               hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
             }}
-            buttonStyle={{marginHorizontal: 25, marginTop: 30}}
+            buttonStyle={{ marginHorizontal: 25, marginTop: 30 }}
           />
         </View>
       )}
@@ -269,7 +280,8 @@ const AllDhikr = () => {
             title: 'Kaydet',
             onPress: handleSubmit(onSubmit),
           },
-        ]}>
+        ]}
+      >
         <>
           <FormControl
             rules={{
@@ -280,7 +292,7 @@ const AllDhikr = () => {
             )}
             control={control}
             name="dhikrName"
-            render={({field: {onChange, onBlur, value}}) => (
+            render={({ field: { onChange, onBlur, value } }) => (
               <>
                 <TextInput
                   style={[
@@ -304,7 +316,7 @@ const AllDhikr = () => {
               </>
             )}
           />
-          <View style={{marginVertical: 5}} />
+          <View style={{ marginVertical: 5 }} />
           <FormControl
             rules={{
               required: true,
@@ -322,7 +334,7 @@ const AllDhikr = () => {
             control={control}
             name="dhikrCount"
             defaultValue={33}
-            render={({field: {onChange, onBlur, value}}) => (
+            render={({ field: { onChange, onBlur, value } }) => (
               <>
                 <TextInput
                   style={[

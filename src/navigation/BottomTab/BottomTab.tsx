@@ -39,7 +39,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
         pointerEvents="none" // <-- dokunmaları yutmasın
         style={[
           StyleSheet.absoluteFill,
-          { opacity, backgroundColor: currentTheme.statusBarColor },
+          { opacity, backgroundColor: currentTheme.menuBackgroundColor },
         ]}
       />
 

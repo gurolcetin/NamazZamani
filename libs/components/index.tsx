@@ -1,4 +1,3 @@
-import TabButton from './TabButton/TabButton';
 import { SafeAreaWithStatusBar } from './SafeAreaWithStatusBar/SafeAreaWithStatusBar';
 import CardView from './CardView/CardView';
 import { CardViewProps } from './CardView/CardView';
@@ -22,8 +21,9 @@ import ErrorView from './ErrorView/ErrorView';
 import CircleProgressBar from './CircleProgressBar/CircleProgressBar';
 import CustomModal from './CustomModal/CustomModal';
 import { PrayerTimeSmallCard } from './display/prayer-time-small-card';
+import BackButton from './back-button/back-button';
+import FormSegmentedControl from './SegmentedControl/form-segmented-control';
 export {
-  TabButton,
   SafeAreaWithStatusBar,
   CardView,
   RadioButtonVerticalGroup,
@@ -44,6 +44,8 @@ export {
   CircleProgressBar,
   CustomModal,
   PrayerTimeSmallCard,
+  BackButton,
+  FormSegmentedControl,
 };
 export type {
   RadioButtonVerticalGroupProps,
