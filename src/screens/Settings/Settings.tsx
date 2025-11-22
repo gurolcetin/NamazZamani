@@ -17,7 +17,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  BackButton,
   Icon,
   Icons,
   ScreenViewContainer,
@@ -93,13 +92,6 @@ const Settings = ({ navigation }: SettingsProps) => {
   const [themeSelection, setThemeSelection] = useState<Theme>(Theme.SYSTEM);
   const [menstrualDays, setMenstrualDays] = useState<string>('');
   const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
-
-  const canGoBack = navigation?.canGoBack?.() ?? false;
-
-  const handleGoBack = useCallback(() => {
-    navigation?.goBack?.();
-  }, [navigation]);
-
   useEffect(() => {
     AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
       .then(language => {
@@ -231,15 +223,6 @@ const Settings = ({ navigation }: SettingsProps) => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          {canGoBack ? (
-            <BackButton
-              onPress={handleGoBack}
-              backgroundColor={currentTheme.cardViewBackgroundColor}
-              iconColor={currentTheme.textColor}
-            />
-          ) : (
-            <View style={styles.headerSpacer} />
-          )}
           <Text style={styles.headerTitle}>
             {Translate(MenuNameLanguageConstants.Settings)}
           </Text>
