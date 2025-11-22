@@ -1,13 +1,7 @@
 import { SafeAreaWithStatusBar } from './SafeAreaWithStatusBar/SafeAreaWithStatusBar';
 import CardView from './CardView/CardView';
 import { CardViewProps } from './CardView/CardView';
-import RadioButtonVerticalGroup, {
-  RadioButtonVerticalGroupProps,
-  RadioButtonOption,
-} from './RadioButtonVerticalGroup/RadioButtonVerticalGroup';
 import { Icons, IconProps, Icon } from './Icons/Icons';
-import TableView from './TableView/TableView';
-import { TableViewProps } from './TableView/TableView';
 import TouchableFloatView from './TouchableFloatView/TouchableFloatView';
 import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
 import SegmentedControl from './SegmentedControl/SegmentedControl';
@@ -25,10 +19,8 @@ import FormSegmentedControl from './SegmentedControl/form-segmented-control';
 export {
   SafeAreaWithStatusBar,
   CardView,
-  RadioButtonVerticalGroup,
   Icon,
   Icons,
-  TableView,
   TouchableFloatView,
   ScreenViewContainer,
   SegmentedControl,
@@ -44,10 +36,4 @@ export {
   BackButton,
   FormSegmentedControl,
 };
-export type {
-  RadioButtonVerticalGroupProps,
-  RadioButtonOption,
-  IconProps,
-  TableViewProps,
-  CardViewProps,
-};
+export type { IconProps, CardViewProps };
