@@ -22,6 +22,7 @@ export const StackRoutes = {
 };
 
 export const RootRoutes = {
+  Privacy: 'Privacy',
   Onboarding: 'Onboarding',
   Main: 'Main',
 };

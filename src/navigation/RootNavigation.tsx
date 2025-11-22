@@ -12,6 +12,8 @@ import BootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingScreen from '../screens/Onboarding/OnboardingScreen';
 import { RootRoutes } from './Routes';
+import PrivacyScreen, { PRIVACY_KEY } from '../screens/Privacy/PrivacyScreen';
+import { ActivityIndicator, View } from 'react-native';
 
 const RootStack = createNativeStackNavigator();
 const ONBOARDING_KEY = 'onboarded';
@@ -19,14 +21,25 @@ const ONBOARDING_KEY = 'onboarded';
 const RootNavigation = () => {
   const { theme, currentTheme } = useTheme();
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
+  const [hasAcceptedPrivacy, setHasAcceptedPrivacy] = useState<boolean | null>(
+    null,
+  );
+  const [isCheckingPrivacy, setIsCheckingPrivacy] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const stored = await AsyncStorage.getItem(ONBOARDING_KEY);
-        setHasOnboarded(stored === 'true');
+        const [[, storedPrivacy], [, storedOnboarding]] = await AsyncStorage.multiGet([
+          PRIVACY_KEY,
+          ONBOARDING_KEY,
+        ]);
+        setHasAcceptedPrivacy(storedPrivacy === 'true');
+        setHasOnboarded(storedOnboarding === 'true');
       } catch {
+        setHasAcceptedPrivacy(false);
         setHasOnboarded(false);
+      } finally {
+        setIsCheckingPrivacy(false);
       }
     })();
   }, []);
@@ -47,9 +60,19 @@ const RootNavigation = () => {
     };
   }, [currentTheme, theme]);
 
-  if (hasOnboarded === null) {
-    return null;
+  if (isCheckingPrivacy || hasAcceptedPrivacy === null || hasOnboarded === null) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={currentTheme?.primary} />
+      </View>
+    );
   }
+
+  const initialRouteName = !hasAcceptedPrivacy
+    ? RootRoutes.Privacy
+    : !hasOnboarded
+    ? RootRoutes.Onboarding
+    : RootRoutes.Main;
 
   return (
     <NavigationContainer
@@ -58,8 +81,22 @@ const RootNavigation = () => {
         BootSplash.hide();
       }}
     >
-      <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {!hasOnboarded && (
+      <RootStack.Navigator
+        screenOptions={{ headerShown: false }}
+        initialRouteName={initialRouteName}
+      >
+        {!hasAcceptedPrivacy && (
+          <RootStack.Screen name={RootRoutes.Privacy}>
+            {props => (
+              <PrivacyScreen
+                {...props}
+                onAccept={() => setHasAcceptedPrivacy(true)}
+                nextRoute={hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding}
+              />
+            )}
+          </RootStack.Screen>
+        )}
+        {hasAcceptedPrivacy && !hasOnboarded && (
           <RootStack.Screen name={RootRoutes.Onboarding}>
             {props => (
               <OnboardingScreen
