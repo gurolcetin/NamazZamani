@@ -16,11 +16,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Icon,
-  Icons,
-  ScreenViewContainer,
-} from '../../../libs/components';
+import { Icon, Icons, ScreenViewContainer } from '../../../libs/components';
 import {
   AsyncStorageConstants,
   CalculateSettingsLanguageConstants,
@@ -39,6 +35,7 @@ import { updateApplicationTheme } from '../../../libs/redux/reducers/Application
 import { updateMenstrualCycle } from '../../../libs/redux/reducers/CalculateSettings';
 import { isNullOrEmptyString, isNumber } from 'typescript-util-functions';
 import { createStyles } from './style';
+import { DevSettings } from 'react-native';
 
 const accentOptions: Accent[] = [
   Accent.TEAL,
@@ -214,6 +211,14 @@ const Settings = ({ navigation }: SettingsProps) => {
       label: Translate(ThemeSettingsConstants.SystemDefault),
     },
   ];
+  const handleClearStorage = useCallback(async () => {
+    try {
+      await AsyncStorage.clear();
+      DevSettings.reload();
+    } catch (error) {
+      console.warn('AsyncStorage clear error:', error);
+    }
+  }, []);
 
   return (
     <ScreenViewContainer>
@@ -478,6 +483,34 @@ const Settings = ({ navigation }: SettingsProps) => {
             <Text style={styles.saveButtonLabel}>
               {Translate(GeneralLanguageConstants.Save)}
             </Text>
+          </Pressable>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Gelişmiş</Text>
+          <Text
+            style={[
+              styles.helperText,
+              { color: currentTheme.gray, marginBottom: 12 },
+            ]}
+          >
+            Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları
+            vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara döner.
+          </Text>
+          <Pressable
+            style={[
+              styles.saveButton,
+              {
+                backgroundColor: currentTheme.systemRed || '#EF4444',
+                shadowColor: currentTheme.systemRed || '#EF4444',
+              },
+            ]}
+            onPress={handleClearStorage}
+            android_ripple={{
+              color: currentTheme.gray,
+              borderless: false,
+            }}
+          >
+            <Text style={styles.saveButtonLabel}>Tüm verileri temizle</Text>
           </Pressable>
         </View>
       </ScrollView>
