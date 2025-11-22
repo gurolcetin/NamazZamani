@@ -1,2 +1,2 @@
-export {ThemeType} from './ThemeType';
-export {LanguageModel} from './LanguageModel';
+export type {ThemeType} from './ThemeType';
+export type {LanguageModel} from './LanguageModel';

@@ -1,9 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {
-  CircleProgressBar,
-  ScreenViewContainer,
-  SegmentedControl,
-} from '../../../libs/components';
+import React, {useState} from 'react';
+import {ScreenViewContainer, SegmentedControl} from '../../../libs/components';
 import {ScrollView} from 'react-native';
 import {
   DhikrLanguageConstants,
@@ -11,12 +7,9 @@ import {
 } from '../../../libs/common/constants';
 import {Translate} from '../../../libs/core/helpers';
 import {horizontalScale} from '../../../libs/core/utils';
-import {useSelector} from 'react-redux';
 import {AllDhikr, PrayerDhikr} from '../../../libs/core/sections';
 
 const Dhikr = () => {
-  const dhikr = useSelector((state: any) => state.dhikr);
-  useEffect(() => {}, []);
   const tabs = [
     {
       key: DhikrTabKeys.Prayer,
@@ -27,9 +20,11 @@ const Dhikr = () => {
       value: Translate(DhikrLanguageConstants.AllDhikr),
     },
   ];
-  const [selectedTab, setSelectedTab] = useState(tabs[0].key);
-  const onTabChange = index => {
-    setSelectedTab(index);
+  const [selectedTab, setSelectedTab] = useState<string | number>(
+    tabs[0].key,
+  );
+  const onTabChange = (key: string | number) => {
+    setSelectedTab(key);
   };
 
   return (

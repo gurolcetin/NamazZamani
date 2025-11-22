@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -8,11 +8,7 @@ import {
 } from '../../../common/constants';
 import {CardView, CircleProgressBar, SubmitButton} from '../../../components';
 import styles from './style';
-import {
-  resetDhikr,
-  resetPrayerDhikr,
-  updateDhikr,
-} from '../../../redux/reducers/Dhikr';
+import {resetPrayerDhikr, updateDhikr} from '../../../redux/reducers/Dhikr';
 import {Translate, hapticFeedback} from '../../helpers';
 
 const PrayerDhikr = () => {
@@ -23,8 +19,6 @@ const PrayerDhikr = () => {
       state.dhikr.dhikrs.find((x: {id: number}) => x.id === DhikrTabKeys.Prayer)
         .dhikrList,
   );
-  useEffect(() => {
-  }, []);
   return (
     <View>
       <CardView cardStyle={styles.container} paddingLeft={0} shadow>

@@ -257,7 +257,7 @@ const PrayerForm: React.FC = () => {
                         testID="dateTimePicker"
                         value={value ?? new Date()}
                         mode={'date' as any}
-                        onChange={(event, selectedDate) => {
+                        onChange={(_event, selectedDate) => {
                           const currentDate = selectedDate ?? new Date();
                           setDate(currentDate);
                           onChange(currentDate);

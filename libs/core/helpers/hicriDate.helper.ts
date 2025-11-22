@@ -1,4 +1,4 @@
-function basecal(date, adjust) {
+function basecal(date: Date, adjust = 0) {
   var today = date;
   if (adjust) {
     var adjustmili = 1000 * 60 * 60 * 24 * adjust;
@@ -70,7 +70,7 @@ function basecal(date, adjust) {
   }
   var id = z - Math.floor(29.5001 * im - 29);
 
-  var myRes = new Array(8);
+  var myRes = new Array<number>(8);
 
   myRes[0] = day; //calculated day (CE)
   myRes[1] = month - 1; //calculated month (CE)
@@ -83,8 +83,20 @@ function basecal(date, adjust) {
   return myRes;
 }
 
-export const convertMiladiDateToHicriDate = (date, adjustment) => {
-  var wdNames = new Array(
+type HicriDate = {
+  dayOfWeekText: string;
+  dayOfWeek: number;
+  dayOfMonth: number;
+  month: number;
+  monthText: string;
+  year: number;
+};
+
+export const convertMiladiDateToHicriDate = (
+  date: Date,
+  adjustment = 0,
+): HicriDate => {
+  var wdNames = new Array<string>(
     'Pazar',
     'Pazartesi',
     'Salı',
@@ -93,7 +105,7 @@ export const convertMiladiDateToHicriDate = (date, adjustment) => {
     'Cuma',
     'Cumartesi',
   );
-  var iMonthNames = new Array(
+  var iMonthNames = new Array<string>(
     'Muharrem',
     'Safar',
     'Rebiülevvel',
@@ -111,7 +123,7 @@ export const convertMiladiDateToHicriDate = (date, adjustment) => {
   //var outputIslamicDate = wdNames[iDate[4]] + ', '
   //+ iDate[5] + ' ' + iMonthNames[iDate[6]] + ' ' + iDate[7] + ' AH';
   //Create Object for out
-  var islamicDateObject = {
+  var islamicDateObject: HicriDate = {
     dayOfWeekText: wdNames[iDate[4]],
     dayOfWeek: iDate[4] + 1,
     dayOfMonth: iDate[5],

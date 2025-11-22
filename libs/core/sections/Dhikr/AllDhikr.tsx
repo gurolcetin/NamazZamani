@@ -32,12 +32,21 @@ import {
 import { useTheme } from '../../providers';
 import { useForm } from 'react-hook-form';
 
+type DhikrFormFields = {
+  dhikrName: string;
+  dhikrCount: number;
+};
+
+type RadioButtonItem = {
+  value: string;
+  label: string;
+};
+
 const AllDhikr = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
-  } = useForm({
+  } = useForm<DhikrFormFields>({
     defaultValues: {
       dhikrName: StringConstants.EMPTY_STRING,
       dhikrCount: 33,
@@ -50,7 +59,9 @@ const AllDhikr = () => {
     state.dhikr.dhikrs.find((x: { id: number }) => x.id === DhikrTabKeys.All),
   );
   const [value, setValue] = useState('');
-  const [radioButtonList, setRadioButtonList] = useState([]);
+  const [radioButtonList, setRadioButtonList] = useState<RadioButtonItem[]>(
+    [],
+  );
   const no = Translate(GeneralLanguageConstants.No);
   const yes = Translate(GeneralLanguageConstants.Yes);
   const reset = Translate(GeneralLanguageConstants.Reset);
@@ -85,7 +96,7 @@ const AllDhikr = () => {
   const showAddDhikrModal = () => {
     setVisible(true);
   };
-  const onSubmit = data => {
+  const onSubmit = (data: DhikrFormFields) => {
     dispatch(
       addDhikr({
         id: DhikrTabKeys.All,

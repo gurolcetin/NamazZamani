@@ -43,9 +43,11 @@ const MissedTracking = () => {
       value: Translate(MissedTrackingLanguageConstants.MissedFasting),
     },
   ];
-  const [selectedTab, setSelectedTab] = useState(tabs[0].key);
-  const onTabChange = index => {
-    setSelectedTab(index);
+  const [selectedTab, setSelectedTab] = useState<string | number>(
+    tabs[0].key,
+  );
+  const onTabChange = (key: string | number) => {
+    setSelectedTab(key);
   };
 
   return (

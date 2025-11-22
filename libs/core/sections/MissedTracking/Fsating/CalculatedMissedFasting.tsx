@@ -10,7 +10,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Alert, Text, View} from 'react-native';
 import styles from './style';
 import {useTheme} from '../../../providers';
-import {GetPrayerNameByLanguage, Translate, hapticFeedback} from '../../../helpers';
+import {Translate, hapticFeedback} from '../../../helpers';
 import {
   CalculatedMissedFastingLanguageConstants,
   CalculatedMissedPrayerLanguageConstants,

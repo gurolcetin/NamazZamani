@@ -28,14 +28,14 @@ const MissedFasting = createSlice({
       state.missedFasting.date = new Date(); // kaza orucu eklendiği tarihi güncelle
       state.missedFasting.performedFastingCount = 0; // tutulan oruç sayısını sıfırla
     },
-    increasePerformedFasting: (state, action) => {
+    increasePerformedFasting: state => {
       if (state.missedFasting.performedFastingCount > 0) {
         state.missedFasting.performedFastingCount -= 1;
         state.missedFasting.date = new Date();
         state.lastUpdateDate = new Date();
       }
     },
-    decreasePerformedFasting: (state, action) => {
+    decreasePerformedFasting: state => {
       if (
         state.missedFasting.performedFastingCount <
         state.missedFasting.missedFastingCount

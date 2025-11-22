@@ -5,30 +5,38 @@ import TableView from '../TableView/TableView';
 import TouchableFloatView from '../TouchableFloatView/TouchableFloatView';
 import {RadioButtonCheckIcon} from '../../common/constants';
 
-interface RadioButtonOption {
+export interface RadioButtonOption<TKey = string | number> {
   iconProps: IconProps;
   iconBackgroundColor?: string;
   title: string;
-  key: string;
+  key: TKey;
 }
 
-export interface RadioButtonVerticalGroupProps {
-  options: RadioButtonOption[];
-  onSelect: () => void;
-  initialOption: string;
+export interface RadioButtonVerticalGroupProps<TKey = string | number> {
+  options: RadioButtonOption<TKey>[];
+  onSelect: (option: RadioButtonOption<TKey>) => void;
+  initialOption: TKey;
 }
 
-const RadioButtonVerticalGroup = ({options, onSelect, initialOption}: any) => {
+const RadioButtonVerticalGroup = <
+  TKey extends string | number = string | number,
+>({
+  options,
+  onSelect,
+  initialOption,
+}: RadioButtonVerticalGroupProps<TKey>) => {
   const {currentTheme} = useTheme();
-  const [selectedOption, setSelectedOption] = useState<RadioButtonOption>();
+  const [selectedOption, setSelectedOption] = useState<
+    RadioButtonOption<TKey>
+  >();
 
   useEffect(() => {
     setSelectedOption(
       options.find(option => option.key === initialOption) || options[0],
     );
-  }, [initialOption]);
+  }, [initialOption, options]);
 
-  const handleSelect = option => {
+  const handleSelect = (option: RadioButtonOption<TKey>) => {
     setSelectedOption(option);
     onSelect(option);
   };

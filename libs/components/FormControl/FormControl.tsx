@@ -9,7 +9,6 @@ import {StyleProp, Text, View} from 'react-native';
 import {ViewStyle} from 'react-native';
 import styles from './style';
 import FormError from '../FormError/FormError';
-import Info from '../Info/Info';
 import {scaleFontSize} from '../../core/utils';
 import {useTheme} from '../../core/providers';
 
@@ -23,7 +22,6 @@ interface FormControlProps<
   extra?: ReactNode;
   requiredMessage?: string;
   validateMessage?: string;
-  infoText?: string;
 }
 
 export const FormControl = <
@@ -37,7 +35,6 @@ export const FormControl = <
   extra,
   requiredMessage,
   validateMessage,
-  infoText,
   ...rest
 }: FormControlProps<TFieldValues, TName>) => {
   const {currentTheme} = useTheme();
@@ -62,12 +59,6 @@ export const FormControl = <
               )}
               <View style={styles.renderContainer}>
                 {extra !== undefined ? extra : render(props)}
-                {infoText && (
-                  <Info
-                    infoText={infoText}
-                    styleTouchableOpacity={styles.infoIcon}
-                  />
-                )}
               </View>
             </View>
             <View>

@@ -56,7 +56,12 @@ const accentColorMap: Record<Accent, string> = {
   [Accent.ORANGE]: '#F97316',
 };
 
-const themeModeIcons: Record<Theme, string> = {
+type IoniconThemeName =
+  | 'sunny-outline'
+  | 'moon-outline'
+  | 'phone-portrait-outline';
+
+const themeModeIcons: Record<Theme, IoniconThemeName> = {
   [Theme.LIGHT]: 'sunny-outline',
   [Theme.DARK]: 'moon-outline',
   [Theme.SYSTEM]: 'phone-portrait-outline',
@@ -65,7 +70,14 @@ const themeModeIcons: Record<Theme, string> = {
 const normalizeLanguageKey = (value?: string | null) =>
   (value ?? LanguagePrefix.TURKISH).slice(0, 2);
 
-const Settings = ({ navigation }) => {
+type SettingsProps = {
+  navigation?: {
+    canGoBack?: () => boolean;
+    goBack: () => void;
+  };
+};
+
+const Settings = ({ navigation }: SettingsProps) => {
   const dispatch = useDispatch();
   const { i18n } = useTranslation();
   const { currentTheme, toggleTheme, accent, setAccent, gradient } = useTheme();
@@ -82,6 +94,10 @@ const Settings = ({ navigation }) => {
   const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
   const canGoBack = navigation?.canGoBack?.() ?? false;
+
+  const handleGoBack = useCallback(() => {
+    navigation?.goBack?.();
+  }, [navigation]);
 
   useEffect(() => {
     AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
@@ -221,7 +237,7 @@ const Settings = ({ navigation }) => {
         <View style={styles.header}>
           {canGoBack ? (
             <BackButton
-              onPress={() => navigation.goBack()}
+              onPress={handleGoBack}
               backgroundColor={currentTheme.cardViewBackgroundColor}
               iconColor={currentTheme.textColor}
             />

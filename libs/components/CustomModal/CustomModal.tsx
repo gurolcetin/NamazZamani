@@ -5,9 +5,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Dimensions,
-  Button,
   Text,
-  TouchableOpacity,
   TouchableHighlight,
 } from 'react-native';
 import {useTheme} from '../../core/providers';

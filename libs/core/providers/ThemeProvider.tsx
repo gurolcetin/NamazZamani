@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, {
+  PropsWithChildren,
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+} from 'react';
 import { useColorScheme } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,7 +34,9 @@ const ThemeContext = createContext({} as Ctx);
 const THEME_KEY = 'app_theme_mode';
 const ACCENT_KEY = 'app_theme_accent';
 
-export const ThemeProvider = ({ children }) => {
+type ThemeProviderProps = PropsWithChildren<{}>;
+
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const dispatch = useDispatch();
   const systemDark = useColorScheme() === 'dark';
   const colorScheme = useColorScheme();

@@ -62,7 +62,7 @@ const MissedPrayer = createSlice({
       state.isMissedPrayerCalculated = true;
       state.beginDate = new Date();
       state.lastUpdateDate = new Date();
-      state.missedPrayers.map((item, index) => {
+      state.missedPrayers.map(item => {
         item.missedPrayerCount = action.payload; // hesaplanan kaza namazı sayısını her vakit için güncelle
         item.date = new Date(); // kaza namazı eklendiği tarihi güncelle
         item.performedPrayerCount = 0; // kılınan namaz sayısını sıfırla
@@ -70,7 +70,7 @@ const MissedPrayer = createSlice({
       });
     },
     increasePerformedPrayer: (state, action) => {
-      state.missedPrayers.map((item, index) => {
+      state.missedPrayers.map(item => {
         if (item.id === action.payload.id && item.performedPrayerCount > 0) {
           item.performedPrayerCount -= 1;
           item.date = new Date();
@@ -80,7 +80,7 @@ const MissedPrayer = createSlice({
       });
     },
     decreasePerformedPrayer: (state, action) => {
-      state.missedPrayers.map((item, index) => {
+      state.missedPrayers.map(item => {
         if (
           item.id === action.payload.id &&
           item.performedPrayerCount < item.missedPrayerCount
