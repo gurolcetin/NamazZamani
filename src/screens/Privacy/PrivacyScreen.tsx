@@ -9,15 +9,31 @@ import {
   View,
   ViewStyle,
   ActivityIndicator,
+  Image,
+  LayoutChangeEvent,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../../libs/core/providers';
 import { RootRoutes } from '../../navigation/Routes';
+import { useTranslation } from 'react-i18next';
 
 const PRIVACY_KEY = 'privacyAccepted';
 
-const PRIVACY_HTML_URL =
-  'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/tr.html';
+// Dil → HTML URL haritası
+const PRIVACY_MAP: Record<string, string> = {
+  tr: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/tr.html',
+  en: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/en.html',
+  ar: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/ar.html',
+  es: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/es.html',
+  de: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/de.html',
+  fr: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/fr.html',
+  it: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/it.html',
+  id: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/id.html',
+  pt: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/pt.html',
+  zh: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/zh.html',
+  ja: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/ja.html',
+  ko: 'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/ko.html',
+};
 
 type Props = {
   navigation: any;
@@ -154,10 +170,23 @@ const renderRichText = (source: string, textColor: string) => {
 
 /* ----------------------- SADECE DESCRIPTION BÖLÜMÜ ------------------------ */
 
-const PrivacyContent = ({ currentTheme }: { currentTheme: any }) => {
+type PrivacyContentProps = {
+  currentTheme: any;
+  language: string;
+};
+
+const PrivacyContent: React.FC<PrivacyContentProps> = ({
+  currentTheme,
+  language,
+}) => {
   const [html, setHtml] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const url = useMemo(() => {
+    const baseLang = (language || 'en').split('-')[0];
+    return PRIVACY_MAP[baseLang] ?? PRIVACY_MAP['en'];
+  }, [language]);
 
   useEffect(() => {
     let mounted = true;
@@ -167,7 +196,7 @@ const PrivacyContent = ({ currentTheme }: { currentTheme: any }) => {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(PRIVACY_HTML_URL);
+        const res = await fetch(url);
         if (!res.ok) {
           throw new Error('Response not ok');
         }
@@ -194,7 +223,7 @@ const PrivacyContent = ({ currentTheme }: { currentTheme: any }) => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [url]);
 
   const parsedText = useMemo(
     () => (html ? convertHtmlToMarkdownLike(html) : ''),
@@ -242,12 +271,111 @@ const PrivacyContent = ({ currentTheme }: { currentTheme: any }) => {
   );
 };
 
+/* ---------------------------- ANA EKRAN BÖLÜMÜ ---------------------------- */
+
 const PrivacyScreen: React.FC<Props> = ({
   navigation,
   onAccept,
   nextRoute,
 }) => {
   const { currentTheme } = useTheme();
+  const { i18n } = useTranslation();
+
+  const initialBaseLang = (i18n.language || 'tr').split('-')[0];
+  const [selectedLang, setSelectedLang] = useState<string>(initialBaseLang);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const [langButtonLayout, setLangButtonLayout] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const baseLang = (i18n.language || 'tr').split('-')[0];
+    setSelectedLang(baseLang);
+  }, [i18n.language]);
+
+  type LangOption = {
+    key: string;
+    label: string;
+    flag?: any;
+  };
+
+  const languageOptions: LangOption[] = useMemo(
+    () => [
+      {
+        key: 'tr',
+        label: 'Türkçe',
+        flag: require('../../../assets/images/flags/turkey.png'),
+      },
+      {
+        key: 'en',
+        label: 'English',
+        flag: require('../../../assets/images/flags/united-kingdom.png'),
+      },
+      {
+        key: 'ar',
+        label: 'العربية',
+      },
+      {
+        key: 'es',
+        label: 'Español',
+      },
+      {
+        key: 'de',
+        label: 'Deutsch',
+      },
+      {
+        key: 'fr',
+        label: 'Français',
+      },
+      {
+        key: 'it',
+        label: 'Italiano',
+      },
+      {
+        key: 'id',
+        label: 'Bahasa Indonesia',
+      },
+      {
+        key: 'pt',
+        label: 'Português',
+      },
+      {
+        key: 'zh',
+        label: '中文',
+      },
+      {
+        key: 'ja',
+        label: '日本語',
+      },
+      {
+        key: 'ko',
+        label: '한국어',
+      },
+    ],
+    [],
+  );
+
+  const currentLangOption =
+    languageOptions.find(o => o.key === selectedLang) || languageOptions[0];
+
+  const handleLangChange = useCallback(
+    (code: string) => {
+      if (code === selectedLang) {
+        setIsLangOpen(false);
+        return;
+      }
+      setSelectedLang(code);
+      setIsLangOpen(false);
+
+      if (code === 'tr' || code === 'en') {
+        i18n.changeLanguage(code);
+      }
+    },
+    [selectedLang, i18n],
+  );
 
   const handleAccept = useCallback(async () => {
     await AsyncStorage.setItem(PRIVACY_KEY, 'true');
@@ -269,6 +397,11 @@ const PrivacyScreen: React.FC<Props> = ({
     );
   }, []);
 
+  const onLangButtonLayout = useCallback((e: LayoutChangeEvent) => {
+    const { x, y, width, height } = e.nativeEvent.layout;
+    setLangButtonLayout({ x, y, width, height });
+  }, []);
+
   return (
     <View
       style={[
@@ -276,18 +409,131 @@ const PrivacyScreen: React.FC<Props> = ({
         { backgroundColor: currentTheme.backgroundColor },
       ]}
     >
-      <View style={styles.header}>
-        <Text style={[styles.screenTitle, { color: currentTheme.textColor }]}>
-          Gizlilik Politikası ve Kullanım Şartları
-        </Text>
+      {/* Header ve dropdown'u saran relative wrapper */}
+      <View style={styles.headerWrapper}>
+        <View style={styles.header}>
+          <Text style={[styles.screenTitle, { color: currentTheme.textColor }]}>
+            Gizlilik Politikası ve Kullanım Şartları
+          </Text>
+
+          {/* Dil seçici buton */}
+          <TouchableOpacity
+            style={[
+              styles.langSelectorButton,
+              {
+                borderColor: currentTheme.menuBorderColor,
+                backgroundColor: currentTheme.cardViewBackgroundColor,
+              },
+            ]}
+            onPress={() => setIsLangOpen(prev => !prev)}
+            activeOpacity={0.9}
+            onLayout={onLangButtonLayout}
+          >
+            <View style={styles.langSelectorContent}>
+              {currentLangOption.flag && (
+                <Image
+                  source={currentLangOption.flag}
+                  style={styles.langFlagSmall}
+                />
+              )}
+              <View style={{ marginLeft: 6 }}>
+                <Text
+                  style={[
+                    styles.langSelectorLabel,
+                    { color: currentTheme.textColor },
+                  ]}
+                >
+                  {currentLangOption.label}
+                </Text>
+              </View>
+            </View>
+            <Text
+              style={[
+                styles.langSelectorArrow,
+                { color: currentTheme.textColor },
+              ]}
+            >
+              {isLangOpen ? '▲' : '▼'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Inline dropdown - header'ın üstünde overlay, diğer componentleri itmeden */}
+        {isLangOpen && langButtonLayout && (
+          <View
+            style={[
+              styles.langDropdown,
+              {
+                backgroundColor: currentTheme.cardViewBackgroundColor,
+                borderColor: currentTheme.menuBorderColor,
+                top: langButtonLayout.y + langButtonLayout.height + 6,
+                left: langButtonLayout.x,
+                width: langButtonLayout.width,
+              },
+            ]}
+          >
+            <ScrollView
+              style={{ maxHeight: 260 }}
+              nestedScrollEnabled
+              showsVerticalScrollIndicator={false}
+            >
+              {languageOptions.map(opt => {
+                const active = opt.key === selectedLang;
+                return (
+                  <TouchableOpacity
+                    key={opt.key}
+                    style={[
+                      styles.langOptionRow,
+                      {
+                        backgroundColor: active
+                          ? currentTheme.menuBorderColor
+                          : 'transparent',
+                      },
+                    ]}
+                    onPress={() => handleLangChange(opt.key)}
+                    activeOpacity={0.9}
+                  >
+                    <View style={styles.langOptionLeft}>
+                      {opt.flag && (
+                        <Image
+                          source={opt.flag}
+                          style={styles.langFlag}
+                          resizeMode="cover"
+                        />
+                      )}
+                      <Text
+                        style={[
+                          styles.langOptionLabel,
+                          { color: currentTheme.textColor },
+                        ]}
+                      >
+                        {opt.label}
+                      </Text>
+                    </View>
+                    {active && (
+                      <Text
+                        style={[
+                          styles.langOptionActiveMark,
+                          { color: currentTheme.primary },
+                        ]}
+                      >
+                        ✓
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
       </View>
 
-      {/*  👇 sadece içerik kısmı artık GitHub HTML'den geliyor */}
-      <PrivacyContent currentTheme={currentTheme} />
+      {/* İçerik artık GitHub HTML'den ve seçili dile göre geliyor */}
+      <PrivacyContent currentTheme={currentTheme} language={selectedLang} />
 
       <View style={styles.actions}>
         <ActionButton
-          label="Kabul Etmiyorum"
+          label="Reddet"
           onPress={handleDecline}
           type="secondary"
           color={currentTheme.primary}
@@ -296,7 +542,7 @@ const PrivacyScreen: React.FC<Props> = ({
           style={styles.actionSpacing}
         />
         <ActionButton
-          label="Kabul Ediyorum"
+          label="Kabul Et"
           onPress={handleAccept}
           color={currentTheme.primary}
           textColor={currentTheme.backgroundColor}
@@ -315,18 +561,108 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingVertical: 32,
+    position: 'relative',
+  },
+
+  headerWrapper: {
+    marginBottom: 12,
+    position: 'relative', // dropdown bunun içinde absolute
   },
   header: {
-    marginBottom: 12,
+    flexDirection: 'column',
+    gap: 8,
   },
   screenTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '800',
   },
   subtitle: {
     fontSize: 16,
     opacity: 0.7,
   },
+
+  // Dil seçici (kapalı görünüm)
+  langSelectorButton: {
+    marginTop: 4,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    // hafif shadow
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  langSelectorContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langSelectorGlobe: {
+    fontSize: 16,
+    marginRight: 4,
+  },
+  langSelectorLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  langSelectorSubLabel: {
+    fontSize: 11,
+    opacity: 0.6,
+  },
+  langSelectorArrow: {
+    fontSize: 11,
+    opacity: 0.7,
+    marginLeft: 8,
+  },
+  langFlagSmall: {
+    width: 20,
+    height: 20,
+    borderRadius: 3,
+    marginLeft: 2,
+  },
+
+  // Inline dropdown (overlay)
+  langDropdown: {
+    position: 'absolute',
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingVertical: 4,
+    overflow: 'hidden',
+    zIndex: 20,
+  },
+  langOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    marginHorizontal: 4,
+    marginBottom: 4,
+  },
+  langOptionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  langFlag: {
+    width: 24,
+    height: 16,
+    borderRadius: 3,
+    marginRight: 8,
+  },
+  langOptionLabel: {
+    fontSize: 14,
+  },
+  langOptionActiveMark: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
   card: {
     borderRadius: 24,
     padding: 20,
