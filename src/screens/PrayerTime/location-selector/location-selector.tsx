@@ -25,18 +25,18 @@ import {
   SavedPlace,
 } from '../../../../libs/redux/reducers/location';
 
-type NominatimItem = {
+type LocationIQItem = {
   place_id: string;
   lat: string;
   lon: string;
   display_name: string;
-  type: string;
-  class: string;
   address?: Record<string, string>;
+  type?: string;
+  class?: string;
 };
 
 /** ---------- Mapping & Search ---------- */
-function mapNominatimToPlace(n: NominatimItem): SavedPlace {
+function mapLocationIQToPlace(n: LocationIQItem): SavedPlace {
   return {
     id: `nom:${n.place_id}`,
     label: n.display_name,
@@ -45,21 +45,39 @@ function mapNominatimToPlace(n: NominatimItem): SavedPlace {
   };
 }
 
+const LOCATIONIQ_API_KEY = 'pk.b319608e31f0680f9a8c4ed7fef57626';
+
 async function searchPlaces(q: string): Promise<SavedPlace[]> {
   if (!q.trim()) return [];
+
   const url =
-    'https://nominatim.openstreetmap.org/search?' +
-    `format=jsonv2&addressdetails=1&limit=12&q=${encodeURIComponent(q)}`;
-  const res = await fetch(url, {
-    headers: {
-      'User-Agent': 'NamazZamani/1.0 (gurolmehmetcetin@gmail.com)',
-      Accept: 'application/json',
-    },
-  });
-  console.log('res', res);
-  const data = (await res.json()) as NominatimItem[];
-  console.log('search data', data);
-  return data.map(mapNominatimToPlace);
+    `https://us1.locationiq.com/v1/search?` +
+    `key=${LOCATIONIQ_API_KEY}&` +
+    `q=${encodeURIComponent(q)}&` +
+    `format=json&normalizeaddress=1&limit=12&addressdetails=1&accept-language=tr,en`;
+
+  console.log('🔍 [LocationIQ] Search URL:', url);
+
+  try {
+    const res = await fetch(url);
+
+    console.log('📡 [LocationIQ] Search Status:', res.status);
+
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      console.log('❌ [LocationIQ] Search failed:', errBody);
+      return [];
+    }
+
+    const data = (await res.json()) as LocationIQItem[];
+
+    console.log('📦 [LocationIQ] Search Data:', data);
+
+    return data.map(mapLocationIQToPlace);
+  } catch (err) {
+    console.log('🔥 [LocationIQ] Search Catch:', err);
+    return [];
+  }
 }
 
 /** =======================================================================

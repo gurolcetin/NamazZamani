@@ -2,10 +2,8 @@ import tzlookup from '@photostructure/tz-lookup';
 
 export function getTimeZoneByCoords(lat: number, lon: number): string {
   try {
-    console.log(tzlookup(lat, lon));
     return tzlookup(lat, lon);
-  } catch (e) {
-    console.warn('TZ lookup failed', e);
+  } catch {
     return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   }
 }
@@ -14,11 +12,6 @@ export function getUtcLabelFromTimeZone(
   timeZone: string,
   at: Date = new Date(),
 ): string {
-  console.log('🕐 [getUtcLabelFromTimeZone] GİRİŞ:', {
-    timeZone,
-    at: at.toISOString?.() ?? at,
-  });
-
   try {
     // --- 1️⃣ Boş veya geçersiz timezone guard ---
     if (!timeZone) {
@@ -81,8 +74,7 @@ export function getUtcLabelFromTimeZone(
       .replace(/\.0+$/, '')}`;
 
     return label;
-  } catch (err) {
-    console.warn('Exception:', err);
+  } catch {
     return deviceOffsetLabel();
   }
 }
