@@ -180,6 +180,7 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
   currentTheme,
   language,
 }) => {
+  const { t } = useTranslation();
   const [html, setHtml] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -199,7 +200,7 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
 
         const res = await fetch(url);
         if (!res.ok) {
-          throw new Error('Response not ok');
+          setError(t('privacyScreen.loadError'));
         }
 
         const text = await res.text();
@@ -208,9 +209,7 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
         }
       } catch {
         if (mounted) {
-          setError(
-            'Gizlilik metni yüklenemedi. Lütfen daha sonra tekrar deneyin.',
-          );
+          setError(t('privacyScreen.loadError'));
         }
       } finally {
         if (mounted) {
@@ -224,7 +223,7 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
     return () => {
       mounted = false;
     };
-  }, [url]);
+  }, [url, t]);
 
   const parsedText = useMemo(
     () => (html ? convertHtmlToMarkdownLike(html) : ''),
@@ -245,7 +244,7 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
         <View style={styles.loadingBox}>
           <ActivityIndicator color={currentTheme.primary} />
           <Text style={{ marginTop: 8, color: currentTheme.textColor }}>
-            Gizlilik metni yükleniyor...
+            {t('privacyScreen.loading')}
           </Text>
         </View>
       ) : error ? (
@@ -280,7 +279,7 @@ const PrivacyScreen: React.FC<Props> = ({
   nextRoute,
 }) => {
   const { currentTheme } = useTheme();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const initialBaseLang = (i18n.language || 'tr').split('-')[0];
   const [selectedLang, setSelectedLang] = useState<string>(initialBaseLang);
@@ -371,6 +370,7 @@ const PrivacyScreen: React.FC<Props> = ({
       setSelectedLang(code);
       setIsLangOpen(false);
 
+      // TODO: diğer diller gelince bu koşul silinecek
       if (code === 'tr' || code === 'en') {
         i18n.changeLanguage(code);
       }
@@ -386,17 +386,17 @@ const PrivacyScreen: React.FC<Props> = ({
 
   const handleDecline = useCallback(() => {
     Alert.alert(
-      'Gizlilik Politikası',
-      'Gizlilik politikasını kabul etmeden uygulamayı kullanamazsınız.',
+      t('privacyScreen.alertTitle'),
+      t('privacyScreen.alertMessage'),
       [
         {
-          text: 'Kapat',
+          text: t('privacyScreen.alertClose'),
           style: 'cancel',
         },
       ],
       { cancelable: true },
     );
-  }, []);
+  }, [t]);
 
   const onLangButtonLayout = useCallback((e: LayoutChangeEvent) => {
     const { x, y, width, height } = e.nativeEvent.layout;
@@ -414,7 +414,7 @@ const PrivacyScreen: React.FC<Props> = ({
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <Text style={[styles.screenTitle, { color: currentTheme.textColor }]}>
-            Gizlilik Politikası ve Kullanım Şartları
+            {t('privacyScreen.title')}
           </Text>
 
           {/* Dil seçici buton */}
@@ -530,7 +530,7 @@ const PrivacyScreen: React.FC<Props> = ({
 
       <View style={styles.actions}>
         <ActionButton
-          label="Reddet"
+          label={t('privacyScreen.decline')}
           onPress={handleDecline}
           type="secondary"
           color={currentTheme.primary}
@@ -539,7 +539,7 @@ const PrivacyScreen: React.FC<Props> = ({
           style={styles.actionSpacing}
         />
         <ActionButton
-          label="Kabul Et"
+          label={t('privacyScreen.accept')}
           onPress={handleAccept}
           color={currentTheme.primary}
           textColor={currentTheme.backgroundColor}

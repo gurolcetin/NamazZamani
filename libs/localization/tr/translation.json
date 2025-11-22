@@ -125,5 +125,15 @@
     "turnLeft": "Sola Dön",
     "permissionDenied": "Konum izni verilmedi.",
     "unknownError": "Bilinmeyen hata"
+  },
+  "privacyScreen": {
+    "title": "Gizlilik Politikası ve Kullanım Şartları",
+    "loading": "Gizlilik metni yükleniyor...",
+    "loadError": "Gizlilik metni yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+    "alertTitle": "Gizlilik Politikası",
+    "alertMessage": "Gizlilik politikasını kabul etmeden uygulamayı kullanamazsınız.",
+    "alertClose": "Kapat",
+    "accept": "Kabul Et",
+    "decline": "Reddet"
   }
 }

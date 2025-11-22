@@ -125,5 +125,15 @@
     "turnLeft": "Turn Left",
     "permissionDenied": "Location permission denied.",
     "unknownError": "Unknown error"
+  },
+  "privacyScreen": {
+    "title": "Privacy Policy & Terms of Use",
+    "loading": "Loading privacy text...",
+    "loadError": "Could not load the privacy text. Please try again later.",
+    "alertTitle": "Privacy Policy",
+    "alertMessage": "You cannot use the app without accepting the privacy policy.",
+    "alertClose": "Close",
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }
