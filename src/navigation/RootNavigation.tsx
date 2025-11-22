@@ -14,6 +14,7 @@ import OnboardingScreen from '../screens/Onboarding/OnboardingScreen';
 import { RootRoutes } from './Routes';
 import PrivacyScreen, { PRIVACY_KEY } from '../screens/Privacy/PrivacyScreen';
 import { ActivityIndicator, View } from 'react-native';
+import { SafeAreaWithStatusBar } from '../../libs/components';
 
 const RootStack = createNativeStackNavigator();
 const ONBOARDING_KEY = 'onboarded';
@@ -29,10 +30,8 @@ const RootNavigation = () => {
   useEffect(() => {
     (async () => {
       try {
-        const [[, storedPrivacy], [, storedOnboarding]] = await AsyncStorage.multiGet([
-          PRIVACY_KEY,
-          ONBOARDING_KEY,
-        ]);
+        const [[, storedPrivacy], [, storedOnboarding]] =
+          await AsyncStorage.multiGet([PRIVACY_KEY, ONBOARDING_KEY]);
         setHasAcceptedPrivacy(storedPrivacy === 'true');
         setHasOnboarded(storedOnboarding === 'true');
       } catch {
@@ -60,7 +59,11 @@ const RootNavigation = () => {
     };
   }, [currentTheme, theme]);
 
-  if (isCheckingPrivacy || hasAcceptedPrivacy === null || hasOnboarded === null) {
+  if (
+    isCheckingPrivacy ||
+    hasAcceptedPrivacy === null ||
+    hasOnboarded === null
+  ) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator color={currentTheme?.primary} />
@@ -81,35 +84,39 @@ const RootNavigation = () => {
         BootSplash.hide();
       }}
     >
-      <RootStack.Navigator
-        screenOptions={{ headerShown: false }}
-        initialRouteName={initialRouteName}
-      >
-        {!hasAcceptedPrivacy && (
-          <RootStack.Screen name={RootRoutes.Privacy}>
-            {props => (
-              <PrivacyScreen
-                {...props}
-                onAccept={() => setHasAcceptedPrivacy(true)}
-                nextRoute={hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding}
-              />
-            )}
-          </RootStack.Screen>
-        )}
-        {hasAcceptedPrivacy && !hasOnboarded && (
-          <RootStack.Screen name={RootRoutes.Onboarding}>
-            {props => (
-              <OnboardingScreen
-                {...props}
-                onFinish={() => {
-                  setHasOnboarded(true);
-                }}
-              />
-            )}
-          </RootStack.Screen>
-        )}
-        <RootStack.Screen name={RootRoutes.Main} component={Authenticated} />
-      </RootStack.Navigator>
+      <SafeAreaWithStatusBar>
+        <RootStack.Navigator
+          screenOptions={{ headerShown: false }}
+          initialRouteName={initialRouteName}
+        >
+          {!hasAcceptedPrivacy && (
+            <RootStack.Screen name={RootRoutes.Privacy}>
+              {props => (
+                <PrivacyScreen
+                  {...props}
+                  onAccept={() => setHasAcceptedPrivacy(true)}
+                  nextRoute={
+                    hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding
+                  }
+                />
+              )}
+            </RootStack.Screen>
+          )}
+          {hasAcceptedPrivacy && !hasOnboarded && (
+            <RootStack.Screen name={RootRoutes.Onboarding}>
+              {props => (
+                <OnboardingScreen
+                  {...props}
+                  onFinish={() => {
+                    setHasOnboarded(true);
+                  }}
+                />
+              )}
+            </RootStack.Screen>
+          )}
+          <RootStack.Screen name={RootRoutes.Main} component={Authenticated} />
+        </RootStack.Navigator>
+      </SafeAreaWithStatusBar>
     </NavigationContainer>
   );
 };

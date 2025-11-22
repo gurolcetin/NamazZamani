@@ -1,7 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  BackHandler,
   ScrollView,
   StyleSheet,
   StyleProp,
@@ -9,12 +8,16 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
+  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../../libs/core/providers';
 import { RootRoutes } from '../../navigation/Routes';
 
 const PRIVACY_KEY = 'privacyAccepted';
+
+const PRIVACY_HTML_URL =
+  'https://gurolcetin.github.io/namaz-zamani-public-files/privacy-terms/tr.html';
 
 type Props = {
   navigation: any;
@@ -67,15 +70,137 @@ const ActionButton: React.FC<ButtonProps> = ({
   );
 };
 
-const PrivacyContent = ({
-  title,
-  description,
-  currentTheme,
-}: {
-  title: string;
-  description: string;
-  currentTheme: any;
-}) => {
+/* -------------------------------------------------------------------------- */
+/* HTML → Basit Markdown Benzeri Metin → RN <Text>                            */
+/* -------------------------------------------------------------------------- */
+
+const extractBodyOrHtml = (html: string) => {
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  return bodyMatch ? bodyMatch[1] : html;
+};
+
+// HTML'deki bazı tagleri markdown benzeri bir stringe çeviriyoruz
+const convertHtmlToMarkdownLike = (html: string) => {
+  let body = extractBodyOrHtml(html);
+
+  // Satır sonları için normalize
+  body = body.replace(/\r\n/g, '\n');
+
+  // <br> → satır sonu
+  body = body.replace(/<br\s*\/?>/gi, '\n');
+
+  // Başlıklar
+  body = body.replace(/<h1[^>]*>/gi, '# ');
+  body = body.replace(/<\/h1>/gi, '\n\n');
+  body = body.replace(/<h2[^>]*>/gi, '## ');
+  body = body.replace(/<\/h2>/gi, '\n\n');
+
+  // Paragraflar
+  body = body.replace(/<p[^>]*>/gi, '');
+  body = body.replace(/<\/p>/gi, '\n\n');
+
+  // Bold
+  body = body.replace(/<(strong|b)>/gi, '**');
+  body = body.replace(/<\/(strong|b)>/gi, '**');
+
+  // Diğer HTML taglerini tamamen sil
+  body = body.replace(/<\/?[^>]+(>|$)/g, '');
+
+  return body.trim();
+};
+
+// Bu fonksiyon markdown benzeri metni parçalayıp Text olarak render ediyor
+const renderRichText = (source: string, textColor: string) => {
+  const lines = source.split('\n');
+
+  return lines.map((line, index) => {
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      // Boş satır → görsel boşluk
+      return <Text key={index} style={{ height: 8 }} />;
+    }
+
+    let textLine = trimmed;
+    let style: any = [styles.descriptionLine, { color: textColor }];
+
+    if (trimmed.startsWith('## ')) {
+      style = [styles.heading2, { color: textColor }];
+      textLine = trimmed.substring(3);
+    } else if (trimmed.startsWith('# ')) {
+      style = [styles.heading1, { color: textColor }];
+      textLine = trimmed.substring(2);
+    }
+
+    const parts = textLine.split(/(\*\*.*?\*\*)/g);
+
+    return (
+      <Text key={index} style={style}>
+        {parts.map((part, idx) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            const content = part.slice(2, -2);
+            return (
+              <Text key={idx} style={{ fontWeight: '700' }}>
+                {content}
+              </Text>
+            );
+          }
+          return part;
+        })}
+      </Text>
+    );
+  });
+};
+
+/* ----------------------- SADECE DESCRIPTION BÖLÜMÜ ------------------------ */
+
+const PrivacyContent = ({ currentTheme }: { currentTheme: any }) => {
+  const [html, setHtml] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const res = await fetch(PRIVACY_HTML_URL);
+        if (!res.ok) {
+          throw new Error('Response not ok');
+        }
+
+        const text = await res.text();
+        if (mounted) {
+          setHtml(text);
+        }
+      } catch {
+        if (mounted) {
+          setError(
+            'Gizlilik metni yüklenemedi. Lütfen daha sonra tekrar deneyin.',
+          );
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    load();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const parsedText = useMemo(
+    () => (html ? convertHtmlToMarkdownLike(html) : ''),
+    [html],
+  );
+
   return (
     <View
       style={[
@@ -86,17 +211,33 @@ const PrivacyContent = ({
         },
       ]}
     >
-      <Text style={[styles.title, { color: currentTheme.textColor }]}>
-        {title}
-      </Text>
-      <ScrollView
-        style={styles.descriptionContainer}
-        showsVerticalScrollIndicator
-      >
-        <Text style={[styles.description, { color: currentTheme.textColor }]}>
-          {description}
-        </Text>
-      </ScrollView>
+      {loading ? (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator color={currentTheme.primary} />
+          <Text style={{ marginTop: 8, color: currentTheme.textColor }}>
+            Gizlilik metni yükleniyor...
+          </Text>
+        </View>
+      ) : error ? (
+        <ScrollView
+          style={styles.descriptionContainer}
+          contentContainerStyle={{ paddingBottom: 12 }}
+        >
+          <Text
+            style={[styles.descriptionLine, { color: currentTheme.textColor }]}
+          >
+            {error}
+          </Text>
+        </ScrollView>
+      ) : (
+        <ScrollView
+          style={styles.descriptionContainer}
+          contentContainerStyle={{ paddingBottom: 12 }}
+          showsVerticalScrollIndicator
+        >
+          {renderRichText(parsedText, currentTheme.textColor)}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -107,12 +248,6 @@ const PrivacyScreen: React.FC<Props> = ({
   nextRoute,
 }) => {
   const { currentTheme } = useTheme();
-
-  const descriptionText = useMemo(
-    () =>
-      'Kişisel verilerinizin korunması bizim için önemli. Bu uygulamayı kullanırken konum, bildirim ve kullanım verileri işlenebilir. Bu veriler yalnızca namaz vakitleri, bildirimler ve kullanıcı deneyimini geliştirmek amacıyla kullanılacaktır. Daha fazla bilgi için gizlilik politikamızı inceleyebilirsiniz. Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz. Kişisel verilerinizin korunması bizim için önemli. Bu uygulamayı kullanırken konum, bildirim ve kullanım verileri işlenebilir. Bu veriler yalnızca namaz vakitleri, bildirimler ve kullanıcı deneyimini geliştirmek amacıyla kullanılacaktır. Daha fazla bilgi için gizlilik politikamızı inceleyebilirsiniz. Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz. Kişisel verilerinizin korunması bizim için önemli. Bu uygulamayı kullanırken konum, bildirim ve kullanım verileri işlenebilir. Bu veriler yalnızca namaz vakitleri, bildirimler ve kullanıcı deneyimini geliştirmek amacıyla kullanılacaktır. Daha fazla bilgi için gizlilik politikamızı inceleyebilirsiniz. Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz. Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.Bu metin yalnızca örnek olarak sunulmuştur. Gerçek politika metnini burada gösterebilirsiniz.',
-    [],
-  );
 
   const handleAccept = useCallback(async () => {
     await AsyncStorage.setItem(PRIVACY_KEY, 'true');
@@ -125,13 +260,6 @@ const PrivacyScreen: React.FC<Props> = ({
       'Gizlilik Politikası',
       'Gizlilik politikasını kabul etmeden uygulamayı kullanamazsınız.',
       [
-        {
-          text: 'Uygulamadan çık',
-          onPress: () => {
-            BackHandler.exitApp();
-            // veya kullanıcıyı markete yönlendirmek için Linking.openURL kullanılabilir.
-          },
-        },
         {
           text: 'Kapat',
           style: 'cancel',
@@ -150,22 +278,16 @@ const PrivacyScreen: React.FC<Props> = ({
     >
       <View style={styles.header}>
         <Text style={[styles.screenTitle, { color: currentTheme.textColor }]}>
-          Gizlilik Politikası
-        </Text>
-        <Text style={[styles.subtitle, { color: currentTheme.textColor }]}>
-          Privacy Policy
+          Gizlilik Politikası ve Kullanım Şartları
         </Text>
       </View>
 
-      <PrivacyContent
-        title="Gizlilik Politikası"
-        description={descriptionText}
-        currentTheme={currentTheme}
-      />
+      {/*  👇 sadece içerik kısmı artık GitHub HTML'den geliyor */}
+      <PrivacyContent currentTheme={currentTheme} />
 
       <View style={styles.actions}>
         <ActionButton
-          label="Kabul etmiyorum"
+          label="Kabul Etmiyorum"
           onPress={handleDecline}
           type="secondary"
           color={currentTheme.primary}
@@ -174,7 +296,7 @@ const PrivacyScreen: React.FC<Props> = ({
           style={styles.actionSpacing}
         />
         <ActionButton
-          label="Kabul ediyorum"
+          label="Kabul Ediyorum"
           onPress={handleAccept}
           color={currentTheme.primary}
           textColor={currentTheme.backgroundColor}
@@ -185,6 +307,8 @@ const PrivacyScreen: React.FC<Props> = ({
     </View>
   );
 };
+
+/* ---------------------------------- Styles --------------------------------- */
 
 const styles = StyleSheet.create({
   container: {
@@ -209,25 +333,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flex: 1,
   },
-  descriptionContainer: {
-    flex: 1,       // maxHeight: 260 yerine
-  },
   title: {
     fontSize: 22,
     fontWeight: '700',
     marginBottom: 12,
   },
-  description: {
+  descriptionContainer: {
+    flex: 1,
+  },
+  descriptionLine: {
     fontSize: 14,
     lineHeight: 20,
   },
-  linkButton: {
-    marginTop: 16,
-    alignSelf: 'flex-start',
+  heading1: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginTop: 8,
+    marginBottom: 4,
   },
-  linkLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+  heading2: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 6,
+    marginBottom: 2,
   },
   actions: {
     flexDirection: 'row',
@@ -248,25 +376,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  modalBackdrop: {
+  loadingBox: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-  },
-  modalCard: {
-    borderRadius: 18,
-    padding: 20,
-    borderWidth: 1,
-    maxHeight: '80%',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-  modalBody: {
-    marginBottom: 16,
   },
 });
 
