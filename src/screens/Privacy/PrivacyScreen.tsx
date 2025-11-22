@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Image,
   LayoutChangeEvent,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../../libs/core/providers';
@@ -495,10 +496,7 @@ const PrivacyScreen: React.FC<Props> = ({
                   >
                     <View style={styles.langOptionLeft}>
                       {opt.flag && (
-                        <Image
-                          source={opt.flag}
-                          style={styles.langFlag}
-                        />
+                        <Image source={opt.flag} style={styles.langFlag} />
                       )}
                       <Text
                         style={[
@@ -549,6 +547,13 @@ const PrivacyScreen: React.FC<Props> = ({
           style={styles.actionSpacing}
         />
       </View>
+
+      {/* Ekranın herhangi bir yerine basınca dropdown'ı kapat */}
+      {isLangOpen && (
+        <TouchableWithoutFeedback onPress={() => setIsLangOpen(false)}>
+          <View style={styles.outsideTapArea} />
+        </TouchableWithoutFeedback>
+      )}
     </View>
   );
 };
@@ -601,17 +606,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  langSelectorGlobe: {
-    fontSize: 16,
-    marginRight: 4,
-  },
   langSelectorLabel: {
     fontSize: 13,
     fontWeight: '600',
-  },
-  langSelectorSubLabel: {
-    fontSize: 11,
-    opacity: 0.6,
   },
   langSelectorArrow: {
     fontSize: 11,
@@ -623,7 +620,7 @@ const styles = StyleSheet.create({
     height: 25,
     borderRadius: 3,
     marginLeft: 2,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
 
   // Inline dropdown (overlay)
@@ -654,7 +651,7 @@ const styles = StyleSheet.create({
     height: 25,
     borderRadius: 3,
     marginRight: 8,
-    resizeMode: 'contain'
+    resizeMode: 'contain',
   },
   langOptionLabel: {
     fontSize: 14,
@@ -717,6 +714,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // dışarı tıklama overlay'i
+  outsideTapArea: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+    zIndex: 10,
   },
 });
 
