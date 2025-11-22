@@ -7,12 +7,16 @@ import { SafeAreaWithStatusBar } from '../SafeAreaWithStatusBar/SafeAreaWithStat
 
 interface ScreenViewContainerProps {
   children: React.ReactNode;
+  hasBottomMenu?: boolean; // default true olacak
 }
 
-const ScreenViewContainer = (props: ScreenViewContainerProps) => {
-  const { children } = props;
+const ScreenViewContainer = ({
+  children,
+  hasBottomMenu = true, // <-- DEFAULT DEĞER
+}: ScreenViewContainerProps) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
+
   return (
     <SafeAreaWithStatusBar>
       <View
@@ -22,8 +26,11 @@ const ScreenViewContainer = (props: ScreenViewContainerProps) => {
             backgroundColor: currentTheme.backgroundColor,
             paddingLeft: insets.left,
             paddingRight: insets.right,
-            paddingBottom:
-              Platform.OS === 'ios' ? insets.bottom + 40 : insets.bottom + 50,
+            paddingBottom: hasBottomMenu
+              ? Platform.OS === 'ios'
+                ? insets.bottom + 40
+                : insets.bottom + 50
+              : 0,
           },
         ]}
       >

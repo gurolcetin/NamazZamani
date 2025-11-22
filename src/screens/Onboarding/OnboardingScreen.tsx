@@ -108,7 +108,7 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
   const isLastSlide = currentIndex === slides.length - 1;
 
   return (
-    <ScreenViewContainer>
+    <ScreenViewContainer hasBottomMenu={false}>
       <View
         style={[
           styles.screen,

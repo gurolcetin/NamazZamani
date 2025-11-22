@@ -405,7 +405,7 @@ const PrivacyScreen: React.FC<Props> = ({
   }, []);
 
   return (
-    <ScreenViewContainer>
+    <ScreenViewContainer hasBottomMenu={false}>
       <View
         style={[
           styles.container,
