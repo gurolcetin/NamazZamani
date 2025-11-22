@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../../libs/core/providers';
 import { RootRoutes } from '../../navigation/Routes';
 import { useTranslation } from 'react-i18next';
+import { ScreenViewContainer } from '../../../libs/components';
 
 const PRIVACY_KEY = 'privacyAccepted';
 
@@ -187,7 +188,7 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
 
   const url = useMemo(() => {
     const baseLang = (language || 'en').split('-')[0];
-    return PRIVACY_MAP[baseLang] ?? PRIVACY_MAP['en'];
+    return PRIVACY_MAP[baseLang] ?? PRIVACY_MAP.en;
   }, [language]);
 
   useEffect(() => {
@@ -404,157 +405,161 @@ const PrivacyScreen: React.FC<Props> = ({
   }, []);
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: currentTheme.backgroundColor },
-      ]}
-    >
-      {/* Header ve dropdown'u saran relative wrapper */}
-      <View style={styles.headerWrapper}>
-        <View style={styles.header}>
-          <Text style={[styles.screenTitle, { color: currentTheme.textColor }]}>
-            {t('privacyScreen.title')}
-          </Text>
-
-          {/* Dil seçici buton */}
-          <TouchableOpacity
-            style={[
-              styles.langSelectorButton,
-              {
-                borderColor: currentTheme.menuBorderColor,
-                backgroundColor: currentTheme.cardViewBackgroundColor,
-              },
-            ]}
-            onPress={() => setIsLangOpen(prev => !prev)}
-            activeOpacity={0.9}
-            onLayout={onLangButtonLayout}
-          >
-            <View style={styles.langSelectorContent}>
-              {currentLangOption.flag && (
-                <Image
-                  source={currentLangOption.flag}
-                  style={styles.langFlagSmall}
-                />
-              )}
-              <View style={{ marginLeft: 6 }}>
-                <Text
-                  style={[
-                    styles.langSelectorLabel,
-                    { color: currentTheme.textColor },
-                  ]}
-                >
-                  {currentLangOption.label}
-                </Text>
-              </View>
-            </View>
+    <ScreenViewContainer>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
+        {/* Header ve dropdown'u saran relative wrapper */}
+        <View style={styles.headerWrapper}>
+          <View style={styles.header}>
             <Text
+              style={[styles.screenTitle, { color: currentTheme.textColor }]}
+            >
+              {t('privacyScreen.title')}
+            </Text>
+
+            {/* Dil seçici buton */}
+            <TouchableOpacity
               style={[
-                styles.langSelectorArrow,
-                { color: currentTheme.textColor },
+                styles.langSelectorButton,
+                {
+                  borderColor: currentTheme.menuBorderColor,
+                  backgroundColor: currentTheme.cardViewBackgroundColor,
+                },
+              ]}
+              onPress={() => setIsLangOpen(prev => !prev)}
+              activeOpacity={0.9}
+              onLayout={onLangButtonLayout}
+            >
+              <View style={styles.langSelectorContent}>
+                {currentLangOption.flag && (
+                  <Image
+                    source={currentLangOption.flag}
+                    style={styles.langFlagSmall}
+                  />
+                )}
+                <View style={{ marginLeft: 6 }}>
+                  <Text
+                    style={[
+                      styles.langSelectorLabel,
+                      { color: currentTheme.textColor },
+                    ]}
+                  >
+                    {currentLangOption.label}
+                  </Text>
+                </View>
+              </View>
+              <Text
+                style={[
+                  styles.langSelectorArrow,
+                  { color: currentTheme.textColor },
+                ]}
+              >
+                {isLangOpen ? '▲' : '▼'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Inline dropdown - header'ın üstünde overlay, diğer componentleri itmeden */}
+          {isLangOpen && langButtonLayout && (
+            <View
+              style={[
+                styles.langDropdown,
+                {
+                  backgroundColor: currentTheme.cardViewBackgroundColor,
+                  borderColor: currentTheme.menuBorderColor,
+                  top: langButtonLayout.y + langButtonLayout.height + 6,
+                  left: langButtonLayout.x,
+                  width: langButtonLayout.width,
+                },
               ]}
             >
-              {isLangOpen ? '▲' : '▼'}
-            </Text>
-          </TouchableOpacity>
+              <ScrollView
+                style={{ maxHeight: 260 }}
+                nestedScrollEnabled
+                showsVerticalScrollIndicator={false}
+              >
+                {languageOptions.map(opt => {
+                  const active = opt.key === selectedLang;
+                  return (
+                    <TouchableOpacity
+                      key={opt.key}
+                      style={[
+                        styles.langOptionRow,
+                        {
+                          backgroundColor: active
+                            ? currentTheme.menuBorderColor
+                            : 'transparent',
+                        },
+                      ]}
+                      onPress={() => handleLangChange(opt.key)}
+                      activeOpacity={0.9}
+                    >
+                      <View style={styles.langOptionLeft}>
+                        {opt.flag && (
+                          <Image source={opt.flag} style={styles.langFlag} />
+                        )}
+                        <Text
+                          style={[
+                            styles.langOptionLabel,
+                            { color: currentTheme.textColor },
+                          ]}
+                        >
+                          {opt.label}
+                        </Text>
+                      </View>
+                      {active && (
+                        <Text
+                          style={[
+                            styles.langOptionActiveMark,
+                            { color: currentTheme.primary },
+                          ]}
+                        >
+                          ✓
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
         </View>
 
-        {/* Inline dropdown - header'ın üstünde overlay, diğer componentleri itmeden */}
-        {isLangOpen && langButtonLayout && (
-          <View
-            style={[
-              styles.langDropdown,
-              {
-                backgroundColor: currentTheme.cardViewBackgroundColor,
-                borderColor: currentTheme.menuBorderColor,
-                top: langButtonLayout.y + langButtonLayout.height + 6,
-                left: langButtonLayout.x,
-                width: langButtonLayout.width,
-              },
-            ]}
-          >
-            <ScrollView
-              style={{ maxHeight: 260 }}
-              nestedScrollEnabled
-              showsVerticalScrollIndicator={false}
-            >
-              {languageOptions.map(opt => {
-                const active = opt.key === selectedLang;
-                return (
-                  <TouchableOpacity
-                    key={opt.key}
-                    style={[
-                      styles.langOptionRow,
-                      {
-                        backgroundColor: active
-                          ? currentTheme.menuBorderColor
-                          : 'transparent',
-                      },
-                    ]}
-                    onPress={() => handleLangChange(opt.key)}
-                    activeOpacity={0.9}
-                  >
-                    <View style={styles.langOptionLeft}>
-                      {opt.flag && (
-                        <Image source={opt.flag} style={styles.langFlag} />
-                      )}
-                      <Text
-                        style={[
-                          styles.langOptionLabel,
-                          { color: currentTheme.textColor },
-                        ]}
-                      >
-                        {opt.label}
-                      </Text>
-                    </View>
-                    {active && (
-                      <Text
-                        style={[
-                          styles.langOptionActiveMark,
-                          { color: currentTheme.primary },
-                        ]}
-                      >
-                        ✓
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </View>
+        {/* İçerik artık GitHub HTML'den ve seçili dile göre geliyor */}
+        <PrivacyContent currentTheme={currentTheme} language={selectedLang} />
+
+        <View style={styles.actions}>
+          <ActionButton
+            label={t('privacyScreen.decline')}
+            onPress={handleDecline}
+            type="secondary"
+            color={currentTheme.primary}
+            textColor={currentTheme.backgroundColor}
+            borderColor={currentTheme.primary}
+            style={styles.actionSpacing}
+          />
+          <ActionButton
+            label={t('privacyScreen.accept')}
+            onPress={handleAccept}
+            color={currentTheme.primary}
+            textColor={currentTheme.backgroundColor}
+            borderColor={currentTheme.primary}
+            style={styles.actionSpacing}
+          />
+        </View>
+
+        {/* Ekranın herhangi bir yerine basınca dropdown'ı kapat */}
+        {isLangOpen && (
+          <TouchableWithoutFeedback onPress={() => setIsLangOpen(false)}>
+            <View style={styles.outsideTapArea} />
+          </TouchableWithoutFeedback>
         )}
       </View>
-
-      {/* İçerik artık GitHub HTML'den ve seçili dile göre geliyor */}
-      <PrivacyContent currentTheme={currentTheme} language={selectedLang} />
-
-      <View style={styles.actions}>
-        <ActionButton
-          label={t('privacyScreen.decline')}
-          onPress={handleDecline}
-          type="secondary"
-          color={currentTheme.primary}
-          textColor={currentTheme.backgroundColor}
-          borderColor={currentTheme.primary}
-          style={styles.actionSpacing}
-        />
-        <ActionButton
-          label={t('privacyScreen.accept')}
-          onPress={handleAccept}
-          color={currentTheme.primary}
-          textColor={currentTheme.backgroundColor}
-          borderColor={currentTheme.primary}
-          style={styles.actionSpacing}
-        />
-      </View>
-
-      {/* Ekranın herhangi bir yerine basınca dropdown'ı kapat */}
-      {isLangOpen && (
-        <TouchableWithoutFeedback onPress={() => setIsLangOpen(false)}>
-          <View style={styles.outsideTapArea} />
-        </TouchableWithoutFeedback>
-      )}
-    </View>
+    </ScreenViewContainer>
   );
 };
 

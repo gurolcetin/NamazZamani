@@ -16,6 +16,7 @@ import { RootRoutes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../libs/core/providers';
 import { ThemeType } from '../../../libs/common/models';
+import { ScreenViewContainer } from '../../../libs/components';
 
 type OnboardingSlide = {
   key: string;
@@ -107,57 +108,68 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
   const isLastSlide = currentIndex === slides.length - 1;
 
   return (
-    <View
-      style={[styles.screen, { backgroundColor: currentTheme.backgroundColor }]}
-    >
-      <Animated.FlatList
-        ref={flatListRef}
-        data={slides}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        pagingEnabled
-        renderItem={renderItem}
-        keyExtractor={item => item.key}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          {
-            useNativeDriver: false,
-          },
-        )}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        scrollEventThrottle={16}
-      />
+    <ScreenViewContainer>
+      <View
+        style={[
+          styles.screen,
+          { backgroundColor: currentTheme.backgroundColor },
+        ]}
+      >
+        <Animated.FlatList
+          ref={flatListRef}
+          data={slides}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          pagingEnabled
+          renderItem={renderItem}
+          keyExtractor={item => item.key}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+            {
+              useNativeDriver: false,
+            },
+          )}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          scrollEventThrottle={16}
+        />
 
-      <Pagination
-        data={slides}
-        scrollX={scrollX}
-        width={width}
-        activeColor={currentTheme.primary}
-        inactiveColor={currentTheme.textColor}
-      />
+        <Pagination
+          data={slides}
+          scrollX={scrollX}
+          width={width}
+          activeColor={currentTheme.primary}
+          inactiveColor={currentTheme.textColor}
+        />
 
-      <View style={styles.bottomBar}>
-        <TouchableOpacity onPress={handleSkip} style={styles.textButton}>
-          <Text
-            style={[styles.textButtonLabel, { color: currentTheme.textColor }]}
+        <View style={styles.bottomBar}>
+          <TouchableOpacity onPress={handleSkip} style={styles.textButton}>
+            <Text
+              style={[
+                styles.textButtonLabel,
+                { color: currentTheme.textColor },
+              ]}
+            >
+              Skip
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={isLastSlide ? completeOnboarding : handleNext}
+            style={[
+              styles.ctaButton,
+              { backgroundColor: currentTheme.primary },
+            ]}
           >
-            Skip
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={isLastSlide ? completeOnboarding : handleNext}
-          style={[styles.ctaButton, { backgroundColor: currentTheme.primary }]}
-        >
-          <Text
-            style={[styles.ctaLabel, { color: currentTheme.backgroundColor }]}
-          >
-            {isLastSlide ? 'Get Started' : 'Next'}
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[styles.ctaLabel, { color: currentTheme.backgroundColor }]}
+            >
+              {isLastSlide ? 'Get Started' : 'Next'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </ScreenViewContainer>
   );
 };
 
