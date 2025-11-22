@@ -574,7 +574,6 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: 420,
     alignSelf: 'center',
-    paddingBottom: 24,
   },
   screenHeader: {
     marginTop: 8,
