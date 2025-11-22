@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Ionicons from '@react-native-vector-icons/ionicons';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../libs/core/providers';
+import { Icon, Icons } from '../../../libs/components';
 
 type LocationChipProps = {
   label: string;
@@ -51,11 +51,13 @@ export function LocationChip({
     >
       {/* Sol taraf: ikon + metin */}
       <View style={styles.locLeft}>
-        <Ionicons
-          name="location-outline"
+        <Icon
+          type={Icons.FontAwesome6}
+          name="location-dot"
           size={20}
           color={themeColors.primary}
           style={styles.icon}
+          solid
         />
         <Text style={[styles.locText, { color: txt }]} numberOfLines={1}>
           {loading ? t('locationChip.loading') : label}

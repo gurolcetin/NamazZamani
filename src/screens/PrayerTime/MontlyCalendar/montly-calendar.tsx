@@ -10,12 +10,13 @@ import {
   ListRenderItemInfo,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
 
 import { useTheme } from '../../../../libs/core/providers';
 import {
   ScreenViewContainer,
   PrayerTimeSmallCard,
+  Icons,
+  Icon,
 } from '../../../../libs/components';
 import { fetchMonthlyPrayerTimesByCoords, type PrayerTimings } from './api';
 import { getCurrentPosition, requestLocationPermission } from '../permission';
@@ -217,7 +218,9 @@ export default function MonthlyCalendar() {
     return (
       <View style={[styles.center, { flex: 1 }]}>
         <ActivityIndicator />
-        <Text style={{ marginTop: 8 }}>{t('monthlyCalendar.loadingLocation')}</Text>
+        <Text style={{ marginTop: 8 }}>
+          {t('monthlyCalendar.loadingLocation')}
+        </Text>
       </View>
     );
   }
@@ -258,12 +261,15 @@ export default function MonthlyCalendar() {
               style={styles.dateBtn}
               disabled={isMonthLoading}
             >
-              <Ionicons
-                name="calendar-outline"
+              <Icon
+                name="calendar-multiselect-outline"
+                type={Icons.MaterialDesignIcons}
                 size={14}
-                color={currentTheme.textColor}
+                color={currentTheme.primary}
               />
-              <Text style={styles.dateBtnText}>{t('monthlyCalendar.changeDate')}</Text>
+              <Text style={styles.dateBtnText}>
+                {t('monthlyCalendar.changeDate')}
+              </Text>
             </Pressable>
           ) : (
             <View style={{ width: 1 }} />
@@ -287,8 +293,15 @@ export default function MonthlyCalendar() {
             style={styles.todayBtn}
             disabled={isMonthLoading}
           >
-            <Ionicons name="refresh-outline" size={14} color="#111" />
-            <Text style={styles.todayBtnText}>{t('monthlyCalendar.today')}</Text>
+            <Icon
+              type={Icons.MaterialDesignIcons}
+              name="refresh"
+              size={14}
+              color={currentTheme.textColor}
+            />
+            <Text style={styles.todayBtnText}>
+              {t('monthlyCalendar.today')}
+            </Text>
           </Pressable>
         </View>
 
@@ -322,7 +335,9 @@ export default function MonthlyCalendar() {
           {isMonthLoading && (
             <View style={styles.pickerOverlay}>
               <ActivityIndicator />
-              <Text style={styles.overlayText}>{t('monthlyCalendar.dataLoading')}</Text>
+              <Text style={styles.overlayText}>
+                {t('monthlyCalendar.dataLoading')}
+              </Text>
             </View>
           )}
         </View>

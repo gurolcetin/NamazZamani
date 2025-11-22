@@ -12,7 +12,10 @@ import ProgressBar from './ProgressBar/ProgressBar';
 import ErrorView from './ErrorView/ErrorView';
 import CircleProgressBar from './CircleProgressBar/CircleProgressBar';
 import CustomModal from './CustomModal/CustomModal';
-import { PrayerTimeSmallCard } from './display/prayer-time-small-card';
+import {
+  PrayerTimeSmallCard,
+  PRAYER_TIME_ICONS,
+} from './display/prayer-time-small-card';
 import BackButton from './back-button/back-button';
 import FormSegmentedControl from './SegmentedControl/form-segmented-control';
 export {
@@ -33,5 +36,6 @@ export {
   PrayerTimeSmallCard,
   BackButton,
   FormSegmentedControl,
+  PRAYER_TIME_ICONS,
 };
 export type { IconProps, CardViewProps };

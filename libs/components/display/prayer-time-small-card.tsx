@@ -5,13 +5,13 @@ import { useTheme } from '../../core/providers';
 import { Icon, Icons } from '../Icons/Icons';
 import { PrayerTimeKey, SmallCard } from '../../common/types';
 
-export const ICONS: Record<PrayerTimeKey, { type: any; name: string }> = {
-  Fajr: { type: Icons.Ionicons, name: 'moon-outline' },
+export const PRAYER_TIME_ICONS: Record<PrayerTimeKey, { type: any; name: string }> = {
+  Fajr: { type: Icons.MaterialDesignIcons, name: 'weather-moonset-down' },
   Sunrise: { type: Icons.MaterialDesignIcons, name: 'weather-sunset-up' },
   Dhuhr: { type: Icons.MaterialDesignIcons, name: 'weather-sunny' },
   Asr: { type: Icons.MaterialDesignIcons, name: 'weather-sunset' },
   Maghrib: { type: Icons.MaterialDesignIcons, name: 'weather-sunset-down' },
-  Isha: { type: Icons.Ionicons, name: 'moon' },
+  Isha: { type: Icons.FontAwesome6, name: 'moon' },
 };
 
 export const PrayerTimeSmallCard: React.FC<{
@@ -66,10 +66,11 @@ export const PrayerTimeSmallCard: React.FC<{
       <View style={styles.left}>
         <View style={[styles.iconBox, iconBoxStyle]}>
           <Icon
-            type={ICONS[item.key].type}
-            name={ICONS[item.key].name as any}
+            type={PRAYER_TIME_ICONS[item.key].type}
+            name={PRAYER_TIME_ICONS[item.key].name as any}
             color={active ? '#FFFFFF' : currentTheme.primary}
             size={20}
+            solid
           />
         </View>
         <Text style={[styles.smallTitle, { color: textColor }]}>

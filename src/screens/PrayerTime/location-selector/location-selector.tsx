@@ -11,8 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../../libs/core/providers';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
-import { ScreenViewContainer } from '../../../../libs/components';
+import { Icon, Icons, ScreenViewContainer } from '../../../../libs/components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
@@ -144,7 +143,12 @@ export default function LocationSelector() {
   /** Small UI Bits */
   const SelectedBadge = () => (
     <View style={[styles.badge, { backgroundColor: currentTheme.primary }]}>
-      <Ionicons name="checkmark" size={12} color={currentTheme.white} />
+      <Icon
+        type={Icons.MaterialDesignIcons}
+        name="check"
+        size={12}
+        color={currentTheme.white}
+      />
       <Text style={styles.badgeText}>{t('locationSelector.selected')}</Text>
     </View>
   );
@@ -169,10 +173,12 @@ export default function LocationSelector() {
               selected && { backgroundColor: currentTheme.primary },
             ]}
           >
-            <Ionicons
-              name="location-outline"
+            <Icon
+              type={Icons.FontAwesome6}
+              name="location-dot"
               size={18}
               color={currentTheme.white}
+              solid
             />
           </View>
           <Text
@@ -211,9 +217,10 @@ export default function LocationSelector() {
                 )
               }
             >
-              <Ionicons
-                name="trash-outline"
-                size={18}
+              <Icon
+                type={Icons.MaterialDesignIcons}
+                name="trash-can-outline"
+                size={20}
                 color={currentTheme.systemRed}
               />
             </Pressable>
@@ -240,10 +247,12 @@ export default function LocationSelector() {
               { backgroundColor: currentTheme.primary },
             ]}
           >
-            <Ionicons
-              name="search-outline"
+            <Icon
+              type={Icons.FontAwesome6}
+              name="magnifying-glass"
               size={18}
               color={currentTheme.white}
+              solid
             />
           </View>
           <Text
@@ -256,10 +265,12 @@ export default function LocationSelector() {
         {selected ? (
           <SelectedBadge />
         ) : (
-          <Ionicons
-            name="chevron-forward"
+          <Icon
+            type={Icons.FontAwesome6}
+            name="chevron-right"
             size={18}
             color={currentTheme.textColor}
+            solid
           />
         )}
       </Pressable>
@@ -277,7 +288,13 @@ export default function LocationSelector() {
             { backgroundColor: currentTheme.cardViewBackgroundColor },
           ]}
         >
-          <Ionicons name="search" size={18} color={currentTheme.textColor} />
+          <Icon
+            type={Icons.FontAwesome6}
+            name="magnifying-glass"
+            size={18}
+            color={currentTheme.textColor}
+            solid
+          />
           <TextInput
             value={query}
             onChangeText={setQuery}
@@ -290,7 +307,11 @@ export default function LocationSelector() {
           />
           {!!query && (
             <Pressable onPress={() => setQuery('')}>
-              <Ionicons name="close-circle" size={16} />
+              <Icon
+                type={Icons.MaterialDesignIcons}
+                name="close-circle"
+                size={18}
+              />
             </Pressable>
           )}
         </View>
@@ -316,7 +337,13 @@ export default function LocationSelector() {
               }}
             >
               <View style={styles.nextIconWrap}>
-                <Ionicons name="locate" size={22} color={currentTheme.white} />
+                <Icon
+                  type={Icons.FontAwesome6}
+                  name="location-crosshairs"
+                  size={22}
+                  color={currentTheme.white}
+                  solid
+                />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.nextLabel}>
@@ -332,10 +359,12 @@ export default function LocationSelector() {
               style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
             >
               {isActiveDevice && <SelectedBadge />}
-              <Ionicons
-                name="arrow-forward"
+              <Icon
+                type={Icons.FontAwesome6}
+                name="arrow-right"
                 size={16}
                 color={currentTheme.white}
+                solid
               />
             </View>
           </Pressable>

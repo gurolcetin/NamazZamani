@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import Ionicons from '@react-native-vector-icons/ionicons';
+import { Icon, Icons } from '../Icons/Icons';
 
 const BackButton = ({
   onPress,
@@ -20,7 +20,13 @@ const BackButton = ({
     ]}
     onPress={onPress}
   >
-    <Ionicons name="chevron-back" size={30} color={iconColor} />
+    <Icon
+      type={Icons.FontAwesome6}
+      name="chevron-left"
+      size={30}
+      color={iconColor}
+      solid
+    />
   </Pressable>
 );
 

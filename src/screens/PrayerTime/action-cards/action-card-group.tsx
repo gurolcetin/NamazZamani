@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
-import Ionicons from '@react-native-vector-icons/ionicons';
 import { useTranslation } from 'react-i18next';
 import { LocationChip } from '../location-chip';
+import { Icon, Icons } from '../../../../libs/components';
 
 type Props = {
   label: string;
@@ -69,7 +69,12 @@ export const ActionCardGroup = memo((props: Props) => {
           ]}
         >
           <View style={stylesL.actionLeft}>
-            <Ionicons name="calendar-outline" size={24} color={theme.primary} />
+            <Icon
+              name="calendar-multiselect-outline"
+              type={Icons.MaterialDesignIcons}
+              size={28}
+              color={theme.primary}
+            />
             <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
               {t('actionCardGroup.pickDate')}
             </Text>
@@ -87,7 +92,12 @@ export const ActionCardGroup = memo((props: Props) => {
           ]}
         >
           <View style={stylesL.actionLeft}>
-            <Ionicons name="list-outline" size={24} color={theme.primary} />
+            <Icon
+              type={Icons.MaterialDesignIcons}
+              name="format-list-bulleted"
+              size={28}
+              color={theme.primary}
+            />
             <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
               {t('actionCardGroup.imsakiye')}
             </Text>
@@ -105,7 +115,12 @@ export const ActionCardGroup = memo((props: Props) => {
           ]}
         >
           <View style={stylesL.actionLeft}>
-            <Ionicons name="compass-outline" size={24} color={theme.primary} />
+            <Icon
+              type={Icons.MaterialDesignIcons}
+              name="compass-outline"
+              size={28}
+              color={theme.primary}
+            />
             <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
               {t('actionCardGroup.qibla')}
             </Text>

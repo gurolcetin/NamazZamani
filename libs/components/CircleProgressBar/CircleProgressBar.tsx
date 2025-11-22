@@ -3,9 +3,9 @@ import { Animated, View, Text as NativeText } from 'react-native';
 import Svg, { Circle, Text } from 'react-native-svg';
 import { useTheme } from '../../core/providers';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { DhikrRepeatIcon, HapticFeedbackMethods } from '../../common/constants';
+import { HapticFeedbackMethods } from '../../common/constants';
 import { hapticFeedback } from '../../core/helpers';
-import { Icon } from '../Icons/Icons';
+import { Icon, Icons } from '../Icons/Icons';
 
 interface CircleProgressBarProps {
   progress: number;
@@ -132,7 +132,12 @@ const CircleProgressBar = ({
             justifyContent: 'center',
           }}
         >
-          <Icon {...DhikrRepeatIcon(currentTheme)} />
+          <Icon
+            name={'repeat'}
+            type={Icons.FontAwesome6}
+            color={currentTheme.textColor}
+            size={15}
+          />
           <NativeText
             style={{
               marginLeft: 5,

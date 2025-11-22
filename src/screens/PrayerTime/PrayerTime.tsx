@@ -22,7 +22,7 @@ import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
 import { requestLocationPermission, getCurrentPosition } from './permission';
 import {
   Icon,
-  Icons,
+  PRAYER_TIME_ICONS,
   PrayerTimeSmallCard,
   ScreenViewContainer,
 } from '../../../libs/components';
@@ -61,21 +61,6 @@ const PRAYER_NAME_KEYS: Record<PrayerTimeKey, string> = {
   Asr: 'prayerNames.Asr',
   Maghrib: 'prayerNames.Maghrib',
   Isha: 'prayerNames.Isha',
-};
-
-export const ICONS: Record<
-  PrayerTimeKey,
-  {
-    type: any;
-    name: string;
-  }
-> = {
-  Fajr: { type: Icons.Ionicons, name: 'moon-outline' },
-  Sunrise: { type: Icons.MaterialDesignIcons, name: 'weather-sunset-up' },
-  Dhuhr: { type: Icons.MaterialDesignIcons, name: 'weather-sunny' },
-  Asr: { type: Icons.MaterialDesignIcons, name: 'weather-sunset' },
-  Maghrib: { type: Icons.MaterialDesignIcons, name: 'weather-sunset-down' },
-  Isha: { type: Icons.Ionicons, name: 'moon' },
 };
 
 // ----- Time helpers ---------------------------------------------------------
@@ -419,7 +404,7 @@ export default function PrayerTime() {
 
   // Büyük kart
   const currentLabel = prayerLabels[currentKeyRef.current] ?? '';
-  const currentIcon = ICONS[currentKeyRef.current] as any;
+  const currentIcon = PRAYER_TIME_ICONS[currentKeyRef.current] as any;
   const isCritical = leftSec <= 45 * 60;
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
@@ -442,6 +427,7 @@ export default function PrayerTime() {
                 name={currentIcon.name as any}
                 color={'#FFFFFF'}
                 size={26}
+                solid
               />
             </View>
 

@@ -1,13 +1,11 @@
 import React from 'react';
 import { FontAwesome6 } from '@react-native-vector-icons/fontawesome6';
-import { Ionicons } from '@react-native-vector-icons/ionicons';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 
 import { Image, StyleProp, ViewStyle } from 'react-native';
 import { scaleFontSize } from '../../core/utils';
 
 export const Icons = {
-  Ionicons,
   FontAwesome6,
   Image,
   MaterialDesignIcons,

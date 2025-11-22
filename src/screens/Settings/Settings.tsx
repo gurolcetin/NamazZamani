@@ -14,11 +14,12 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Ionicons from '@react-native-vector-icons/ionicons';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   BackButton,
+  Icon,
+  Icons,
   ScreenViewContainer,
 } from '../../../libs/components';
 import {
@@ -56,15 +57,15 @@ const accentColorMap: Record<Accent, string> = {
   [Accent.ORANGE]: '#F97316',
 };
 
-type IoniconThemeName =
-  | 'sunny-outline'
-  | 'moon-outline'
-  | 'phone-portrait-outline';
+type MaterialDesignIconsThemeName =
+  | 'weather-sunny'
+  | 'moon-waning-crescent'
+  | 'cellphone-cog';
 
-const themeModeIcons: Record<Theme, IoniconThemeName> = {
-  [Theme.LIGHT]: 'sunny-outline',
-  [Theme.DARK]: 'moon-outline',
-  [Theme.SYSTEM]: 'phone-portrait-outline',
+const themeModeIcons: Record<Theme, MaterialDesignIconsThemeName> = {
+  [Theme.LIGHT]: 'weather-sunny',
+  [Theme.DARK]: 'moon-waning-crescent',
+  [Theme.SYSTEM]: 'cellphone-cog',
 };
 
 const normalizeLanguageKey = (value?: string | null) =>
@@ -127,9 +128,7 @@ const Settings = ({ navigation }: SettingsProps) => {
       setMenstrualDays('');
       return;
     }
-    setMenstrualDays(
-      String(calculateSettings?.numberOfMenstrualCycle ?? ''),
-    );
+    setMenstrualDays(String(calculateSettings?.numberOfMenstrualCycle ?? ''));
   }, [calculateSettings?.numberOfMenstrualCycle]);
 
   const languageOptions = [
@@ -177,20 +176,17 @@ const Settings = ({ navigation }: SettingsProps) => {
     [setAccent],
   );
 
-  const handleMenstrualDaysChange = useCallback(
-    (value: string) => {
-      if (isNullOrEmptyString(value)) {
-        setMenstrualDays('');
-        return;
-      }
-      if (!isNumber(value)) {
-        return;
-      }
-      const numeric = Math.min(Math.max(Number(value), 0), 10);
-      setMenstrualDays(numeric.toString());
-    },
-    [],
-  );
+  const handleMenstrualDaysChange = useCallback((value: string) => {
+    if (isNullOrEmptyString(value)) {
+      setMenstrualDays('');
+      return;
+    }
+    if (!isNumber(value)) {
+      return;
+    }
+    const numeric = Math.min(Math.max(Number(value), 0), 10);
+    setMenstrualDays(numeric.toString());
+  }, []);
 
   const handleSave = useCallback(() => {
     if (isNullOrEmptyString(menstrualDays)) {
@@ -263,26 +259,19 @@ const Settings = ({ navigation }: SettingsProps) => {
                 borderColor: currentTheme.gray,
               },
             ]}
-            onPress={() =>
-              setLanguageDropdownVisible(prevState => !prevState)
-            }
+            onPress={() => setLanguageDropdownVisible(prevState => !prevState)}
             android_ripple={{ color: currentTheme.gray, borderless: false }}
           >
             <View style={styles.languageInfo}>
-              <Image
-                source={selectedLanguageOption.flag}
-                style={styles.flag}
-              />
+              <Image source={selectedLanguageOption.flag} style={styles.flag} />
               <Text
-                style={[
-                  styles.languageText,
-                  { color: currentTheme.textColor },
-                ]}
+                style={[styles.languageText, { color: currentTheme.textColor }]}
               >
                 {selectedLanguageOption.title}
               </Text>
             </View>
-            <Ionicons
+            <Icon
+              type={Icons.MaterialDesignIcons}
               name={languageDropdownVisible ? 'chevron-up' : 'chevron-down'}
               size={20}
               color={currentTheme.textColor}
@@ -321,8 +310,9 @@ const Settings = ({ navigation }: SettingsProps) => {
                       </Text>
                     </View>
                     {selectedLanguage === option.key && (
-                      <Ionicons
-                        name="checkmark"
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="check"
                         size={18}
                         color={currentTheme.primary}
                       />
@@ -374,10 +364,13 @@ const Settings = ({ navigation }: SettingsProps) => {
                     borderless: false,
                   }}
                 >
-                  <Ionicons
+                  <Icon
+                    type={Icons.MaterialDesignIcons}
                     name={themeModeIcons[option.key]}
-                    size={18}
-                    color={isActive ? currentTheme.white : currentTheme.textColor}
+                    size={22}
+                    color={
+                      isActive ? currentTheme.white : currentTheme.textColor
+                    }
                   />
                   <Text
                     style={[
@@ -437,7 +430,12 @@ const Settings = ({ navigation }: SettingsProps) => {
                     ]}
                   >
                     {isActive && (
-                      <Ionicons name="checkmark" size={18} color="#fff" />
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="check"
+                        size={18}
+                        color={currentTheme.white}
+                      />
                     )}
                   </View>
                 </Pressable>
