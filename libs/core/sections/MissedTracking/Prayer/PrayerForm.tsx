@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 30,
     paddingHorizontal: 18,
-    paddingVertical: 20,
+    paddingBottom: 20,
     elevation: 8,
     shadowColor: '#000',
     shadowOpacity: 0.08,
