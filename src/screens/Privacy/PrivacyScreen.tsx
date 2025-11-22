@@ -498,7 +498,6 @@ const PrivacyScreen: React.FC<Props> = ({
                         <Image
                           source={opt.flag}
                           style={styles.langFlag}
-                          resizeMode="cover"
                         />
                       )}
                       <Text
@@ -620,10 +619,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   langFlagSmall: {
-    width: 20,
-    height: 20,
+    width: 25,
+    height: 25,
     borderRadius: 3,
     marginLeft: 2,
+    resizeMode: 'contain'
   },
 
   // Inline dropdown (overlay)
@@ -650,10 +650,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   langFlag: {
-    width: 24,
-    height: 16,
+    width: 25,
+    height: 25,
     borderRadius: 3,
     marginRight: 8,
+    resizeMode: 'contain'
   },
   langOptionLabel: {
     fontSize: 14,
