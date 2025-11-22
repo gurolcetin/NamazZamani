@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   PermissionsAndroid,
+  ScrollView,
 } from 'react-native';
 import Svg, { Circle, G, Line, Text as SvgText, Path } from 'react-native-svg';
 import Geolocation, {
@@ -186,7 +187,7 @@ export default function QiblaScreen() {
   }, [coords, heading]);
 
   /** UI sizes */
-  const size = 380;
+  const size = 360;
   const rOuter = size * 0.46;
   const cx = size / 2;
   const cy = size / 2;
@@ -199,7 +200,7 @@ export default function QiblaScreen() {
 
   return (
     <ScreenViewContainer>
-      <View style={styles.root}>
+      <ScrollView style={styles.root}>
         <View style={styles.screenInner}>
           {/* Başlık + sabit Kâbe + pusula */}
           <View style={styles.compassContainer}>
@@ -460,7 +461,7 @@ export default function QiblaScreen() {
 
           <View style={{ height: 12 }} />
         </View>
-      </View>
+      </ScrollView>
     </ScreenViewContainer>
   );
 }
