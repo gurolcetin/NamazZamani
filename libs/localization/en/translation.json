@@ -8,7 +8,8 @@
     "BeginDate": "Begin Date",
     "Yes": "Yes",
     "No": "No",
-    "Reset": "Reset"
+    "Reset": "Reset",
+    "Save": "Save"
   },
   "settings": {
     "SystemDefault": "System Default",
@@ -18,7 +19,12 @@
     "LanguageSettings": "Language Settings",
     "Turkish": "Turkish",
     "English": "English",
-    "CalculateSettings": "Calculate Settings"
+    "CalculateSettings": "Calculate Settings",
+    "Language": "Language",
+    "ThemeAndAccent": "Theme & Accent",
+    "ThemeMode": "Theme Mode",
+    "AccentColor": "Accent Color",
+    "CalculationHelper": "Used while calculating missed prayers."
   },
   "menu": {
     "PrayerTime": "Prayer Time",

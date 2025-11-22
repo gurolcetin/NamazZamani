@@ -15,6 +15,29 @@ export class SettingsConstants {
   };
 }
 
+export class SettingsScreenLanguageConstants {
+  static Language: LanguageModel = {
+    key: 'settings.Language',
+    defaultValue: 'Dil',
+  };
+  static ThemeAndAccent: LanguageModel = {
+    key: 'settings.ThemeAndAccent',
+    defaultValue: 'Tema & Vurgu',
+  };
+  static ThemeMode: LanguageModel = {
+    key: 'settings.ThemeMode',
+    defaultValue: 'Tema Modu',
+  };
+  static AccentColor: LanguageModel = {
+    key: 'settings.AccentColor',
+    defaultValue: 'Vurgu Rengi',
+  };
+  static CalculationHelper: LanguageModel = {
+    key: 'settings.CalculationHelper',
+    defaultValue: 'Kaza namaz hesaplamasında kullanılır',
+  };
+}
+
 export class LanguageSettingsConstants {
   static Turkish: LanguageModel = {
     key: 'settings.Turkish',
@@ -120,6 +143,10 @@ export class GeneralLanguageConstants {
   static Reset: LanguageModel = {
     key: 'General.Reset',
     defaultValue: 'Sıfırla',
+  };
+  static Save: LanguageModel = {
+    key: 'General.Save',
+    defaultValue: 'Kaydet',
   };
 }
 
