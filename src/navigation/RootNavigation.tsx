@@ -14,7 +14,6 @@ import OnboardingScreen from '../screens/Onboarding/OnboardingScreen';
 import { RootRoutes } from './Routes';
 import PrivacyScreen, { PRIVACY_KEY } from '../screens/Privacy/PrivacyScreen';
 import { ActivityIndicator, View } from 'react-native';
-import { SafeAreaWithStatusBar } from '../../libs/components';
 
 const RootStack = createNativeStackNavigator();
 const ONBOARDING_KEY = 'onboarded';
@@ -84,35 +83,31 @@ const RootNavigation = () => {
         BootSplash.hide();
       }}
     >
-      <SafeAreaWithStatusBar>
-        <RootStack.Navigator
-          screenOptions={{ headerShown: false }}
-          initialRouteName={initialRouteName}
-        >
-          <RootStack.Screen name={RootRoutes.Privacy}>
-            {props => (
-              <PrivacyScreen
-                {...props}
-                onAccept={() => setHasAcceptedPrivacy(true)}
-                nextRoute={
-                  hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding
-                }
-              />
-            )}
-          </RootStack.Screen>
+      <RootStack.Navigator
+        screenOptions={{ headerShown: false }}
+        initialRouteName={initialRouteName}
+      >
+        <RootStack.Screen name={RootRoutes.Privacy}>
+          {props => (
+            <PrivacyScreen
+              {...props}
+              onAccept={() => setHasAcceptedPrivacy(true)}
+              nextRoute={hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding}
+            />
+          )}
+        </RootStack.Screen>
 
-          <RootStack.Screen name={RootRoutes.Onboarding}>
-            {props => (
-              <OnboardingScreen
-                {...props}
-                onFinish={() => setHasOnboarded(true)}
-              />
-            )}
-          </RootStack.Screen>
+        <RootStack.Screen name={RootRoutes.Onboarding}>
+          {props => (
+            <OnboardingScreen
+              {...props}
+              onFinish={() => setHasOnboarded(true)}
+            />
+          )}
+        </RootStack.Screen>
 
-          <RootStack.Screen name={RootRoutes.Main} component={Authenticated} />
-        </RootStack.Navigator>
-      </SafeAreaWithStatusBar>
+        <RootStack.Screen name={RootRoutes.Main} component={Authenticated} />
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 };
