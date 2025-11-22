@@ -2,7 +2,6 @@ import { SafeAreaWithStatusBar } from './SafeAreaWithStatusBar/SafeAreaWithStatu
 import CardView from './CardView/CardView';
 import { CardViewProps } from './CardView/CardView';
 import { Icons, IconProps, Icon } from './Icons/Icons';
-import TouchableFloatView from './TouchableFloatView/TouchableFloatView';
 import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
 import SegmentedControl from './SegmentedControl/SegmentedControl';
 import { FormControl } from './FormControl/FormControl';
@@ -21,7 +20,6 @@ export {
   CardView,
   Icon,
   Icons,
-  TouchableFloatView,
   ScreenViewContainer,
   SegmentedControl,
   FormControl,
