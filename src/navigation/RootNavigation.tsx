@@ -89,31 +89,27 @@ const RootNavigation = () => {
           screenOptions={{ headerShown: false }}
           initialRouteName={initialRouteName}
         >
-          {!hasAcceptedPrivacy && (
-            <RootStack.Screen name={RootRoutes.Privacy}>
-              {props => (
-                <PrivacyScreen
-                  {...props}
-                  onAccept={() => setHasAcceptedPrivacy(true)}
-                  nextRoute={
-                    hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding
-                  }
-                />
-              )}
-            </RootStack.Screen>
-          )}
-          {hasAcceptedPrivacy && !hasOnboarded && (
-            <RootStack.Screen name={RootRoutes.Onboarding}>
-              {props => (
-                <OnboardingScreen
-                  {...props}
-                  onFinish={() => {
-                    setHasOnboarded(true);
-                  }}
-                />
-              )}
-            </RootStack.Screen>
-          )}
+          <RootStack.Screen name={RootRoutes.Privacy}>
+            {props => (
+              <PrivacyScreen
+                {...props}
+                onAccept={() => setHasAcceptedPrivacy(true)}
+                nextRoute={
+                  hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding
+                }
+              />
+            )}
+          </RootStack.Screen>
+
+          <RootStack.Screen name={RootRoutes.Onboarding}>
+            {props => (
+              <OnboardingScreen
+                {...props}
+                onFinish={() => setHasOnboarded(true)}
+              />
+            )}
+          </RootStack.Screen>
+
           <RootStack.Screen name={RootRoutes.Main} component={Authenticated} />
         </RootStack.Navigator>
       </SafeAreaWithStatusBar>
