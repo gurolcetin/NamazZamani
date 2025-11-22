@@ -180,6 +180,7 @@ const stylesL = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
+    elevation: 2,
   },
   actionLeft: {
     flexDirection: 'column',

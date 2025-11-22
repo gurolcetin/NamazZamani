@@ -32,7 +32,7 @@ export const createStyles = (theme: ThemeType) =>
       shadowOpacity: 0.08,
       shadowRadius: 16,
       shadowOffset: { width: 0, height: 10 },
-      elevation: 4,
+      elevation: 2,
     },
     cardTitle: {
       fontSize: 16,
@@ -145,10 +145,6 @@ export const createStyles = (theme: ThemeType) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 8,
-      shadowOpacity: 0.25,
-      shadowRadius: 16,
-      shadowOffset: { width: 0, height: 10 },
-      elevation: 3,
     },
     saveButtonLabel: {
       fontSize: 16,

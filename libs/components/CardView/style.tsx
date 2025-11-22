@@ -1,5 +1,9 @@
-import {StyleSheet} from 'react-native';
-import {horizontalScale, scaleFontSize, verticalScale} from '../../core/utils';
+import { StyleSheet } from 'react-native';
+import {
+  horizontalScale,
+  scaleFontSize,
+  verticalScale,
+} from '../../core/utils';
 
 export const style = StyleSheet.create({
   container: {
@@ -16,9 +20,9 @@ export const style = StyleSheet.create({
     fontWeight: 'bold',
   },
   shadow: {
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 5, // Android için gerekli
+    elevation: 2, // Android için gerekli
   },
 });

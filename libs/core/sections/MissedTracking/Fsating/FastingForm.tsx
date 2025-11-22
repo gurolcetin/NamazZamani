@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     paddingHorizontal: 18,
     paddingBottom: 20,
-    elevation: 8,
+    elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 16,

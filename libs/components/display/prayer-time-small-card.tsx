@@ -5,7 +5,10 @@ import { useTheme } from '../../core/providers';
 import { Icon, Icons } from '../Icons/Icons';
 import { PrayerTimeKey, SmallCard } from '../../common/types';
 
-export const PRAYER_TIME_ICONS: Record<PrayerTimeKey, { type: any; name: string }> = {
+export const PRAYER_TIME_ICONS: Record<
+  PrayerTimeKey,
+  { type: any; name: string }
+> = {
   Fajr: { type: Icons.MaterialDesignIcons, name: 'weather-moonset-down' },
   Sunrise: { type: Icons.MaterialDesignIcons, name: 'weather-sunset-up' },
   Dhuhr: { type: Icons.MaterialDesignIcons, name: 'weather-sunny' },
@@ -100,7 +103,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
   left: {
     flexDirection: 'row',

@@ -81,7 +81,7 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
           shadowOpacity: 0.16,
           shadowRadius: 8,
           shadowOffset: { width: 0, height: 3 },
-          elevation: 4,
+          elevation: 2,
           opacity: hasSelection ? 1 : 0, // 🔑 burada gizliyoruz
           transform: [{ translateX }],
         }}
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
   },
   genderChipText: {
     textAlign: 'center',

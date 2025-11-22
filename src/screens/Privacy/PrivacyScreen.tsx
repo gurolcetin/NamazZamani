@@ -605,7 +605,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
+    elevation: 2,
   },
   langSelectorContent: {
     flexDirection: 'row',
