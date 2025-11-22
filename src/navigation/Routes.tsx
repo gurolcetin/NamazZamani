@@ -10,7 +10,7 @@ export const PrayerTimeScreens = {
   LocationSelector: 'LocationSelector',
   MontlyCalendar: 'MontlyCalendar',
   Imsakiye: 'Imsakiye',
-  Qibla: "Qibla"
+  Qibla: 'Qibla',
 };
 
 export const StackRoutes = {
@@ -19,4 +19,9 @@ export const StackRoutes = {
   MissedTrackingStack: 'MissedTrackingStack',
   DhikrStack: 'DhikrStack',
   SettingsStack: 'SettingsStack',
+};
+
+export const RootRoutes = {
+  Onboarding: 'Onboarding',
+  Main: 'Main',
 };
