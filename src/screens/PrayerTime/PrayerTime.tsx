@@ -141,6 +141,7 @@ export default function PrayerTime() {
   const { t, i18n } = useTranslation();
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [leftClock, setLeftClock] = useState('00:00:00');
   const [leftSec, setLeftSec] = useState(0);
@@ -291,6 +292,20 @@ export default function PrayerTime() {
     load();
   }, [load]);
 
+  // Pull-to-refresh için handler
+  const handleRefresh = useCallback(async () => {
+    if (isResyncingRef.current) {
+      // Zaten reload çalışıyorsa ikinci isteğe gerek yok
+      return;
+    }
+    setRefreshing(true);
+    try {
+      await load(new Date());
+    } finally {
+      setRefreshing(false);
+    }
+  }, [load]);
+
   // Timer'ı kur/yeniden kur
   const startTimer = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -417,7 +432,7 @@ export default function PrayerTime() {
         <View style={styles.nextDecorBottom} />
 
         <View style={styles.nextCardInner}>
-              <View style={styles.nextCardRow}>
+          <View style={styles.nextCardRow}>
             {/* Icon box */}
             <View style={styles.nextIconBox}>
               <Icon
@@ -430,7 +445,7 @@ export default function PrayerTime() {
             </View>
 
             {/* Metinler */}
-                <View style={styles.nextTextWrap}>
+            <View style={styles.nextTextWrap}>
               <Text style={styles.nextLabelText}>
                 {t('prayerTime.nextPrayerCountdown', { label: currentLabel })}
               </Text>
@@ -500,6 +515,8 @@ export default function PrayerTime() {
           removeClippedSubviews
           initialNumToRender={6}
           windowSize={7}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
         />
       </View>
     </ScreenViewContainer>
@@ -545,7 +562,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.95)',
     fontSize: 13,
     fontWeight: '600',
-  }, // ... mevcut stiller
+  },
   nextCard: {
     marginTop: 14,
     borderRadius: 22,
@@ -628,7 +645,6 @@ const styles = StyleSheet.create({
   nextTextWrap: {
     flex: 1,
   },
-  // Kartın arka plan rengini dinamik ayarlamak için:
   nextLabelText: {
     color: 'rgba(240,253,250,0.95)',
     fontSize: 14,
