@@ -3,8 +3,8 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    borderRadius: 9,
-    padding: 3,
+    borderRadius: 24,
+    padding: 6,
   },
   item: {
     justifyContent: 'center',
@@ -13,15 +13,24 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   text: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    includeFontPadding: false as any,
   },
   animatedView: {
-    left: 0,
-    height: '100%',
-    borderRadius: 7,
     position: 'absolute',
-    margin: 3,
+    left: 6,
+    top: 6,
+    bottom: 6,
+    borderRadius: 20,
+  },
+  tabButton: {
+    height: 38,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

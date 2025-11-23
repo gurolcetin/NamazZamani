@@ -218,7 +218,7 @@ export default function MonthlyCalendar() {
     return (
       <View style={[styles.center, { flex: 1 }]}>
         <ActivityIndicator />
-        <Text style={{ marginTop: 8 }}>
+        <Text style={styles.loadingText}>
           {t('monthlyCalendar.loadingLocation')}
         </Text>
       </View>
@@ -272,11 +272,11 @@ export default function MonthlyCalendar() {
               </Text>
             </Pressable>
           ) : (
-            <View style={{ width: 1 }} />
+            <View style={styles.headerSpacer} />
           )}
 
           {/* Orta: seçili gün bilgisi */}
-          <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={styles.headerTitleWrap}>
             <Text style={[styles.cardTitle, { color: currentTheme.textColor }]}>
               {selectedDate.toLocaleDateString(dateLocale, {
                 weekday: 'long',
@@ -344,7 +344,7 @@ export default function MonthlyCalendar() {
       </View>
 
       {/* Günün Vakitleri – PrayerTimeSmallCard ile 2 sütun */}
-      <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+      <View style={styles.dailyTimesHeader}>
         <Text style={[styles.sectionTitle, { color: '#000' }]}>
           {t('monthlyCalendar.dailyTimes')}
         </Text>
@@ -353,7 +353,7 @@ export default function MonthlyCalendar() {
       {smallCards.length === 0 ? (
         <View style={[styles.center, { paddingVertical: 12 }]}>
           <ActivityIndicator />
-          <Text style={{ marginTop: 6, opacity: 0.8 }}>
+          <Text style={styles.timesLoadingText}>
             {t('monthlyCalendar.timesLoading')}
           </Text>
         </View>
@@ -363,11 +363,8 @@ export default function MonthlyCalendar() {
           numColumns={2}
           keyExtractor={i => i.key}
           renderItem={renderSmallCard}
-          contentContainerStyle={{
-            paddingBottom: 24,
-            paddingHorizontal: 16,
-          }}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          contentContainerStyle={styles.listContent}
+          columnWrapperStyle={styles.listColumnWrapper}
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
           initialNumToRender={6}
@@ -400,6 +397,7 @@ export default function MonthlyCalendar() {
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
+  loadingText: { marginTop: 8 },
 
   /* --- Beyaz Card Takvim --- */
   cardWrap: {
@@ -431,6 +429,13 @@ const styles = StyleSheet.create({
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerSpacer: {
+    width: 1,
+  },
+  headerTitleWrap: {
+    flex: 1,
+    alignItems: 'center',
   },
 
   // Sol buton (Android)
@@ -472,4 +477,11 @@ const styles = StyleSheet.create({
   overlayText: { marginTop: 6, color: '#111', fontWeight: '600', opacity: 0.8 },
 
   sectionTitle: { fontSize: 16, fontWeight: '900' },
+  dailyTimesHeader: { paddingHorizontal: 16, paddingTop: 10 },
+  timesLoadingText: { marginTop: 6, opacity: 0.8 },
+  listContent: {
+    paddingBottom: 24,
+    paddingHorizontal: 16,
+  },
+  listColumnWrapper: { justifyContent: 'space-between' },
 });

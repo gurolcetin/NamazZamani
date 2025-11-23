@@ -136,7 +136,7 @@ const renderRichText = (source: string, textColor: string) => {
 
     if (!trimmed) {
       // Boş satır → görsel boşluk
-      return <Text key={index} style={{ height: 8 }} />;
+      return <Text key={index} style={styles.emptyLine} />;
     }
 
     let textLine = trimmed;
@@ -158,7 +158,7 @@ const renderRichText = (source: string, textColor: string) => {
           if (part.startsWith('**') && part.endsWith('**')) {
             const content = part.slice(2, -2);
             return (
-              <Text key={idx} style={{ fontWeight: '700' }}>
+              <Text key={idx} style={styles.boldText}>
                 {content}
               </Text>
             );
@@ -244,14 +244,14 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
       {loading ? (
         <View style={styles.loadingBox}>
           <ActivityIndicator color={currentTheme.primary} />
-          <Text style={{ marginTop: 8, color: currentTheme.textColor }}>
+          <Text style={[styles.loadingText, { color: currentTheme.textColor }]}>
             {t('privacyScreen.loading')}
           </Text>
         </View>
       ) : error ? (
         <ScrollView
           style={styles.descriptionContainer}
-          contentContainerStyle={{ paddingBottom: 12 }}
+          contentContainerStyle={styles.descriptionContent}
         >
           <Text
             style={[styles.descriptionLine, { color: currentTheme.textColor }]}
@@ -262,7 +262,7 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
       ) : (
         <ScrollView
           style={styles.descriptionContainer}
-          contentContainerStyle={{ paddingBottom: 12 }}
+          contentContainerStyle={styles.descriptionContent}
           showsVerticalScrollIndicator
         >
           {renderRichText(parsedText, currentTheme.textColor)}
@@ -441,7 +441,7 @@ const PrivacyScreen: React.FC<Props> = ({
                     style={styles.langFlagSmall}
                   />
                 )}
-                <View style={{ marginLeft: 6 }}>
+                <View style={styles.langLabelGap}>
                   <Text
                     style={[
                       styles.langSelectorLabel,
@@ -478,7 +478,7 @@ const PrivacyScreen: React.FC<Props> = ({
               ]}
             >
               <ScrollView
-                style={{ maxHeight: 260 }}
+                style={styles.langDropdownScroll}
                 nestedScrollEnabled
                 showsVerticalScrollIndicator={false}
               >
@@ -611,6 +611,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  langLabelGap: {
+    marginLeft: 6,
+  },
   langSelectorLabel: {
     fontSize: 13,
     fontWeight: '600',
@@ -645,6 +648,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginHorizontal: 4,
     marginBottom: 4,
+  },
+  langDropdownScroll: {
+    maxHeight: 260,
   },
   langOptionLeft: {
     flexDirection: 'row',
@@ -684,6 +690,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  descriptionContent: {
+    paddingBottom: 12,
+  },
+  emptyLine: {
+    height: 8,
+  },
   heading1: {
     fontSize: 18,
     fontWeight: '800',
@@ -715,10 +727,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  boldText: {
+    fontWeight: '700',
+  },
   loadingBox: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 8,
   },
   // dışarı tıklama overlay'i
   outsideTapArea: {
@@ -734,3 +752,4 @@ const styles = StyleSheet.create({
 
 export default PrivacyScreen;
 export { PRIVACY_KEY };
+

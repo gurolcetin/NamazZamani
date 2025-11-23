@@ -236,7 +236,7 @@ export default function TimeTable() {
       <ScreenViewContainer>
         <View style={styles.center}>
           <ActivityIndicator />
-          <Text style={{ marginTop: 8 }}>İmsakiye yükleniyor…</Text>
+          <Text style={styles.loadingText}>İmsakiye yükleniyor…</Text>
         </View>
       </ScreenViewContainer>
     );
@@ -330,6 +330,7 @@ const CELL_GAP = 8;
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center', paddingTop: 24 },
+  loadingText: { marginTop: 8 },
 
   sectionHeader: {
     marginTop: 14,

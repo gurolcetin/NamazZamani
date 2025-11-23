@@ -397,7 +397,7 @@ export default function PrayerTime() {
     return (
       <View style={[styles.center, { flex: 1 }]}>
         <ActivityIndicator />
-        <Text style={{ marginTop: 8 }}>{t('prayerTime.loadingTimes')}</Text>
+        <Text style={styles.loadingText}>{t('prayerTime.loadingTimes')}</Text>
       </View>
     );
   }
@@ -417,9 +417,7 @@ export default function PrayerTime() {
         <View style={styles.nextDecorBottom} />
 
         <View style={styles.nextCardInner}>
-          <View
-            style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}
-          >
+              <View style={styles.nextCardRow}>
             {/* Icon box */}
             <View style={styles.nextIconBox}>
               <Icon
@@ -432,7 +430,7 @@ export default function PrayerTime() {
             </View>
 
             {/* Metinler */}
-            <View style={{ flex: 1 }}>
+                <View style={styles.nextTextWrap}>
               <Text style={styles.nextLabelText}>
                 {t('prayerTime.nextPrayerCountdown', { label: currentLabel })}
               </Text>
@@ -497,7 +495,7 @@ export default function PrayerTime() {
           renderItem={renderSmallCard}
           ListHeaderComponent={ListHeader}
           contentContainerStyle={styles.listContent}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          columnWrapperStyle={styles.columnWrapper}
           showsVerticalScrollIndicator={false}
           removeClippedSubviews
           initialNumToRender={6}
@@ -511,6 +509,7 @@ export default function PrayerTime() {
 // ----- styles ---------------------------------------------------------------
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
+  loadingText: { marginTop: 8 },
   headerTop: {
     paddingHorizontal: 16,
     paddingTop: 4,
@@ -575,6 +574,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     paddingHorizontal: 16,
   },
+  columnWrapper: { justifyContent: 'space-between' },
   listHeaderRoot: {
     marginTop: 16,
     marginBottom: 12,
@@ -619,6 +619,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.22)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  nextCardRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  nextTextWrap: {
+    flex: 1,
   },
   // Kartın arka plan rengini dinamik ayarlamak için:
   nextLabelText: {

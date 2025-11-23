@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, View, Text as NativeText } from 'react-native';
+import { Animated, StyleSheet, View, Text as NativeText } from 'react-native';
 import Svg, { Circle, Text } from 'react-native-svg';
 import { useTheme } from '../../core/providers';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -123,14 +123,10 @@ const CircleProgressBar = ({
       </Svg>
       {isCyclical && (
         <View
-          style={{
-            position: 'absolute',
-            top: radius + 30,
-            left: radius - 17,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          style={[
+            styles.cyclicalWrapper,
+            { top: radius + 30, left: radius - 17 },
+          ]}
         >
           <Icon
             name={'repeat'}
@@ -139,13 +135,10 @@ const CircleProgressBar = ({
             size={15}
           />
           <NativeText
-            style={{
-              marginLeft: 5,
-              alignSelf: 'center',
-              textAlign: 'center',
-              fontSize: 20,
-              color: currentTheme.textColor,
-            }}
+            style={[
+              styles.cyclicalCountText,
+              { color: currentTheme.textColor },
+            ]}
           >
             {getCyclicalCount()}
           </NativeText>
@@ -156,5 +149,20 @@ const CircleProgressBar = ({
 };
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+const styles = StyleSheet.create({
+  cyclicalWrapper: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cyclicalCountText: {
+    marginLeft: 5,
+    alignSelf: 'center',
+    textAlign: 'center',
+    fontSize: 20,
+  },
+});
 
 export default CircleProgressBar;

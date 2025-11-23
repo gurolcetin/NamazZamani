@@ -26,14 +26,13 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
   const [containerWidth, setContainerWidth] = useState(0);
   const translateX = useRef(new Animated.Value(0)).current;
 
-  // value hangi index'te?
   const rawIndex = options.findIndex(o => o.value === value);
   const hasSelection = rawIndex !== -1;
   const selectedIndex = hasSelection ? rawIndex : null;
 
   useEffect(() => {
     if (!containerWidth) return;
-    if (selectedIndex === null) return; // hiçbir şey seçili değilken oynatma
+    if (selectedIndex === null) return; // nothing selected; don't animate
 
     const innerWidth = containerWidth - 12; // padding (6+6)
     const singleWidth = innerWidth / options.length;
@@ -57,52 +56,31 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
       onLayout={handleLayout}
       style={[
         styles.genderContainer,
-        {
-          flexDirection: 'row',
-          padding: 6,
-          borderRadius: 24,
-          backgroundColor: currentTheme.backgroundColor,
-        },
+        styles.genderContainerInner,
+        { backgroundColor: currentTheme.backgroundColor },
       ]}
     >
-      {/* Seçim arka planı: sadece seçim varken göster */}
+      {/* Selection background: only visible when something is selected */}
       <Animated.View
         pointerEvents="none"
-        style={{
-          position: 'absolute',
-          left: 6,
-          top: 6,
-          bottom: 6,
-          width:
-            containerWidth > 0 ? (containerWidth - 12) / options.length : 0,
-          borderRadius: 18,
-          backgroundColor: currentTheme.cardViewBackgroundColor,
-          shadowColor: '#000',
-          shadowOpacity: 0.16,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 2,
-          opacity: hasSelection ? 1 : 0, // 🔑 burada gizliyoruz
-          transform: [{ translateX }],
-        }}
+        style={[
+          styles.selectionOverlay,
+          {
+            width:
+              containerWidth > 0 ? (containerWidth - 12) / options.length : 0,
+            backgroundColor: currentTheme.cardViewBackgroundColor,
+            opacity: hasSelection ? 1 : 0,
+            transform: [{ translateX }],
+          },
+        ]}
       />
 
       {options.map(opt => {
         const active = value === opt.value;
         return (
-          <View style={{ flex: 1 }} key={opt.value}>
+          <View style={styles.genderOption} key={opt.value}>
             <Pressable
-              style={[
-                styles.genderChip,
-                {
-                  backgroundColor: 'transparent',
-                  shadowOpacity: 0,
-                  height: 38,
-                  borderRadius: 18,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                },
-              ]}
+              style={[styles.genderChip, styles.genderChipPressable]}
               onPress={() => onChange(opt.value)}
             >
               <Text
@@ -110,8 +88,6 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
                   styles.genderChipText,
                   {
                     color: active ? primary : currentTheme.textColor,
-                    fontSize: 14,
-                    fontWeight: '600',
                   },
                 ]}
               >
@@ -129,6 +105,26 @@ const styles = StyleSheet.create({
   genderContainer: {
     flexDirection: 'row',
   },
+  genderContainerInner: {
+    flexDirection: 'row',
+    padding: 6,
+    borderRadius: 24,
+  },
+  selectionOverlay: {
+    position: 'absolute',
+    left: 6,
+    top: 6,
+    bottom: 6,
+    borderRadius: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  genderOption: {
+    flex: 1,
+  },
   genderChip: {
     flex: 1,
     alignItems: 'center',
@@ -139,10 +135,20 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
+    elevation: 0,
+  },
+  genderChipPressable: {
+    height: 38,
+    backgroundColor: 'transparent',
+    shadowOpacity: 0,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   genderChipText: {
     textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

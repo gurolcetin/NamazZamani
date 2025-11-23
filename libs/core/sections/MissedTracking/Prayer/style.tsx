@@ -57,6 +57,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 10,
   },
+  bottomDescriptionText: {
+    textAlign: 'center',
+  },
 });
 
 export default styles;

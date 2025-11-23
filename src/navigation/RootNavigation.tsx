@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingScreen from '../screens/Onboarding/OnboardingScreen';
 import { RootRoutes } from './Routes';
 import PrivacyScreen, { PRIVACY_KEY } from '../screens/Privacy/PrivacyScreen';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const RootStack = createNativeStackNavigator();
 const ONBOARDING_KEY = 'onboarded';
@@ -64,7 +64,7 @@ const RootNavigation = () => {
     hasOnboarded === null
   ) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={styles.loader}>
         <ActivityIndicator color={currentTheme?.primary} />
       </View>
     );
@@ -111,5 +111,13 @@ const RootNavigation = () => {
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  loader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 export default RootNavigation;

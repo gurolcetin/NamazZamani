@@ -35,6 +35,47 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 3,
   },
+  addButtonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  radioRow: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 20,
+    marginLeft: 15,
+  },
+  radioScroll: {
+    flex: 0.85,
+  },
+  radioButtonStyle: {
+    width: 120,
+    height: 30,
+    borderWidth: 2,
+  },
+  dhikrActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 25,
+    marginTop: 15,
+  },
+  deleteButtonStyle: {
+    marginRight: 20,
+  },
+  addDhikrButton: {
+    marginHorizontal: 25,
+    marginTop: 30,
+  },
+  formSpacer: {
+    marginVertical: 5,
+  },
+  inputFlex: {
+    flex: 1,
+  },
 });
 
 export default styles;

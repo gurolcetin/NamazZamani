@@ -44,12 +44,15 @@ const RadioButton = (props: RadioButtonListProps) => {
                 props.buttonStyle,
               ]}>
               <Text
-                style={{
-                  color:
-                    props.selectedValue === item.value
-                      ? currentTheme.white
-                      : currentTheme.textColor,
-                }}>
+                style={[
+                  style.label,
+                  {
+                    color:
+                      props.selectedValue === item.value
+                        ? currentTheme.white
+                        : currentTheme.textColor,
+                  },
+                ]}>
                 {item.label}
               </Text>
             </TouchableOpacity>

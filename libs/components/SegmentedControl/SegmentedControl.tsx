@@ -81,9 +81,6 @@ const SegmentedControl = (props: SegmentedControlProps) => {
       style={[
         styles.container,
         {
-          flexDirection: 'row',
-          padding: 6, // padding biraz arttı
-          borderRadius: 24,
           backgroundColor: currentTheme.cardViewBackgroundColor,
           marginHorizontal: props.marginHorizontal ?? 0,
           marginTop: props.marginTop ?? 0,
@@ -94,16 +91,14 @@ const SegmentedControl = (props: SegmentedControlProps) => {
       {/* Gezen primary pill */}
       <Animated.View
         pointerEvents="none"
-        style={{
-          position: 'absolute',
-          left: 6,
-          top: 6,
-          bottom: 6,
-          width: tabViewWidth / tabs.length || 0,
-          borderRadius: 20,
-          backgroundColor: primary,
-          transform: [{ translateX }],
-        }}
+        style={[
+          styles.animatedView,
+          {
+            width: tabViewWidth / tabs.length || 0,
+            backgroundColor: primary,
+            transform: [{ translateX }],
+          },
+        ]}
       />
 
       {tabs.map((item, index) => {
@@ -116,23 +111,11 @@ const SegmentedControl = (props: SegmentedControlProps) => {
                 onTabChange(item.key);
               }}
             >
-              <View
-                style={{
-                  height: 38, // biraz daha yüksek
-                  borderRadius: 20,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
+              <View style={styles.tabButton}>
                 <Text
                   style={[
                     styles.text, // önce base stil
                     {
-                      fontSize: 14, // bunu istediğin gibi değiştir
-                      fontWeight: '600',
-                      textAlign: 'center',
-                      textAlignVertical: 'center',
-                      includeFontPadding: false as any,
                       color: isActive
                         ? currentTheme.white
                         : currentTheme.textColor,

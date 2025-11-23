@@ -459,7 +459,7 @@ export default function QiblaScreen() {
             {error ? <Text style={styles.error}>{error}</Text> : null}
           </View>
 
-          <View style={{ height: 12 }} />
+          <View style={styles.bottomSpacer} />
         </View>
       </ScrollView>
     </ScreenViewContainer>
@@ -559,5 +559,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: 'center',
     color: '#ef4444',
+  },
+  bottomSpacer: {
+    height: 12,
   },
 });

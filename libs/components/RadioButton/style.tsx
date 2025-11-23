@@ -16,6 +16,9 @@ const style = StyleSheet.create({
     marginLeft: 10,
     paddingHorizontal: 5,
   },
+  label: {
+    fontSize: 14,
+  },
 });
 
 export default style;

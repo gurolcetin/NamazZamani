@@ -110,32 +110,20 @@ const AllDhikr = () => {
     <>
       {radioButtonList.length > 0 && (
         <View>
-          <View
-            style={{
-              marginTop: 20,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flex: 1,
-              marginRight: 20,
-              marginLeft: 15,
-            }}
-          >
+          <View style={styles.radioRow}>
             <ScrollView
               horizontal={true}
               showsHorizontalScrollIndicator={false}
-              style={{ flex: 0.85 }}
+              style={styles.radioScroll}
             >
               <RadioButton
                 radioButtonList={radioButtonList}
                 selectedValue={value}
                 onValueChange={value => setValue(value)}
-                buttonStyle={{
-                  width: 120,
-                  height: 30,
-                  borderWidth: 2,
-                  borderColor: currentTheme.primary,
-                }}
+                buttonStyle={[
+                  styles.radioButtonStyle,
+                  { borderColor: currentTheme.primary },
+                ]}
               />
             </ScrollView>
             <View style={styles.dhikrAddButtonContainer}>
@@ -150,18 +138,17 @@ const AllDhikr = () => {
                     borderColor: currentTheme.primary,
                     backgroundColor: currentTheme.cardViewBackgroundColor,
                   },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.addButtonText,
+                  { color: currentTheme.primary },
                 ]}
               >
-                <Text
-                  style={{
-                    fontSize: 20,
-                    fontWeight: 'bold',
-                    color: currentTheme.primary,
-                  }}
-                >
-                  {StringConstants.PLUS}
-                </Text>
-              </TouchableOpacity>
+                {StringConstants.PLUS}
+              </Text>
+            </TouchableOpacity>
             </View>
           </View>
           {allDhikrList?.dhikrList?.map(
@@ -197,17 +184,11 @@ const AllDhikr = () => {
                           );
                         }}
                       />
-                    </CardView>
-                    <View
-                      key={item.dhikrId + 'buttons'}
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginHorizontal: 25,
-                        marginTop: 15,
-                      }}
-                    >
+                  </CardView>
+                  <View
+                    key={item.dhikrId + 'buttons'}
+                    style={styles.dhikrActionRow}
+                  >
                       <SubmitButton
                         key={item.dhikrId + 'buttonRemove'}
                         label="Sil"
@@ -237,11 +218,11 @@ const AllDhikr = () => {
                               },
                             ],
                             { userInterfaceStyle: applicationTheme.theme },
-                          );
-                        }}
-                        buttonStyle={{ marginRight: 20 }}
-                        backgroundColor={currentTheme.systemRed}
-                      />
+                        );
+                      }}
+                      buttonStyle={styles.deleteButtonStyle}
+                      backgroundColor={currentTheme.systemRed}
+                    />
                       <SubmitButton
                         key={item.dhikrId + 'buttonReset'}
                         label={reset}
@@ -267,7 +248,7 @@ const AllDhikr = () => {
               showAddDhikrModal();
               hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
             }}
-            buttonStyle={{ marginHorizontal: 25, marginTop: 30 }}
+            buttonStyle={styles.addDhikrButton}
           />
         </View>
       )}
@@ -304,16 +285,16 @@ const AllDhikr = () => {
             control={control}
             name="dhikrName"
             render={({ field: { onChange, onBlur, value } }) => (
-              <>
-                <TextInput
-                  style={[
-                    styles.smallInput,
-                    {
-                      backgroundColor: currentTheme.inputBackgroundColor,
-                      color: currentTheme.textColor,
-                      flex: 1,
-                    },
-                  ]}
+                <>
+                  <TextInput
+                    style={[
+                      styles.smallInput,
+                      styles.inputFlex,
+                      {
+                        backgroundColor: currentTheme.inputBackgroundColor,
+                        color: currentTheme.textColor,
+                      },
+                    ]}
                   onBlur={onBlur}
                   onChangeText={val => {
                     onChange(val);
@@ -327,7 +308,7 @@ const AllDhikr = () => {
               </>
             )}
           />
-          <View style={{ marginVertical: 5 }} />
+          <View style={styles.formSpacer} />
           <FormControl
             rules={{
               required: true,
@@ -346,16 +327,16 @@ const AllDhikr = () => {
             name="dhikrCount"
             defaultValue={33}
             render={({ field: { onChange, onBlur, value } }) => (
-              <>
-                <TextInput
-                  style={[
-                    styles.smallInput,
-                    {
-                      backgroundColor: currentTheme.inputBackgroundColor,
-                      color: currentTheme.textColor,
-                      flex: 1,
-                    },
-                  ]}
+                <>
+                  <TextInput
+                    style={[
+                      styles.smallInput,
+                      styles.inputFlex,
+                      {
+                        backgroundColor: currentTheme.inputBackgroundColor,
+                        color: currentTheme.textColor,
+                      },
+                    ]}
                   onBlur={onBlur}
                   onChangeText={val => {
                     if (isNullOrEmptyString(val) || isNumber(val)) {

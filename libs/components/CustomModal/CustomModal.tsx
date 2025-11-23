@@ -120,18 +120,18 @@ const ButtonRow = ({buttons}: ButtonRowProps) => {
         <View key={index + 'buttonRow'}>
           <TouchableHighlight
             underlayColor={'transparent'}
-            style={{
-              backgroundColor: 'transparent',
-            }}
+            style={buttonStyles.touchable}
             onPress={button.onPress}>
             <Text
-              style={{
-                color:
-                  button.type === 'cancel'
-                    ? currentTheme.systemRed
-                    : currentTheme.systemBlue,
-                fontSize: 17,
-              }}>
+              style={[
+                buttonStyles.buttonText,
+                {
+                  color:
+                    button.type === 'cancel'
+                      ? currentTheme.systemRed
+                      : currentTheme.systemBlue,
+                },
+              ]}>
               {button.title}
             </Text>
           </TouchableHighlight>
@@ -147,5 +147,11 @@ const buttonStyles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 30,
     marginBottom: 10,
+  },
+  touchable: {
+    backgroundColor: 'transparent',
+  },
+  buttonText: {
+    fontSize: 17,
   },
 });

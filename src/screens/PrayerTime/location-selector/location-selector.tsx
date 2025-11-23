@@ -329,12 +329,7 @@ export default function LocationSelector() {
             onPress={goDevice}
           >
             <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 12,
-                flex: 1,
-              }}
+              style={styles.nextCardLeft}
             >
               <View style={styles.nextIconWrap}>
                 <Icon
@@ -345,7 +340,7 @@ export default function LocationSelector() {
                   solid
                 />
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={styles.flex1}>
                 <Text style={styles.nextLabel}>
                   {t('locationSelector.deviceTitle')}
                 </Text>
@@ -355,9 +350,7 @@ export default function LocationSelector() {
               </View>
             </View>
 
-            <View
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-            >
+            <View style={styles.nextCardRight}>
               {isActiveDevice && <SelectedBadge />}
               <Icon
                 type={Icons.FontAwesome6}
@@ -380,10 +373,7 @@ export default function LocationSelector() {
               keyExtractor={i => i.id}
               renderItem={renderSaved}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingBottom: 8,
-              }}
+              contentContainerStyle={styles.savedListContent}
             />
           )}
         </>
@@ -410,10 +400,7 @@ export default function LocationSelector() {
               keyExtractor={i => i.id}
               renderItem={renderResult}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingBottom: 24,
-              }}
+              contentContainerStyle={styles.searchListContent}
             />
           )}
         </>
@@ -454,6 +441,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
+  nextCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  flex1: { flex: 1 },
+  nextCardRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   nextIconWrap: {
     width: 40,
     height: 40,
@@ -488,6 +487,14 @@ const styles = StyleSheet.create({
   rowTitleSelected: { fontWeight: '600' },
 
   emptyText: { paddingHorizontal: 16, paddingVertical: 6, opacity: 0.6 },
+  savedListContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  searchListContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
 
   badge: {
     flexDirection: 'row',
