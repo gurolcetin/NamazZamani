@@ -74,7 +74,7 @@ type SettingsProps = {
   };
 };
 
-const Settings = ({ navigation }: SettingsProps) => {
+const Settings = ({}: SettingsProps) => {
   const dispatch = useDispatch();
   const { i18n } = useTranslation();
   const { currentTheme, toggleTheme, accent, setAccent, gradient } = useTheme();

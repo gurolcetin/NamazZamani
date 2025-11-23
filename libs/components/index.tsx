@@ -6,7 +6,6 @@ import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
 import SegmentedControl from './SegmentedControl/SegmentedControl';
 import { FormControl } from './FormControl/FormControl';
 import SubmitButton from './SubmitButton/SubmitButton';
-import RadioButton from './RadioButton/RadioButton';
 import InputSpinner from './InputSpinner/InputSpinner';
 import ProgressBar from './ProgressBar/ProgressBar';
 import ErrorView from './ErrorView/ErrorView';
@@ -27,7 +26,6 @@ export {
   SegmentedControl,
   FormControl,
   SubmitButton,
-  RadioButton,
   InputSpinner,
   ProgressBar,
   ErrorView,

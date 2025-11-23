@@ -13,16 +13,16 @@ export const style = StyleSheet.create({
   },
   cardContainer: {
     height: 'auto',
-    borderRadius: 10,
+    borderRadius: 30,
   },
   title: {
     fontSize: scaleFontSize(16),
     fontWeight: 'bold',
   },
   shadow: {
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
     elevation: 2, // Android için gerekli
   },
 });

@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   calculateButton: {
     marginTop: 24,
     borderRadius: 24,
-    height: 56,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },

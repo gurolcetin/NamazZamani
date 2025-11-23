@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   DhikrTabKeys,
@@ -12,8 +12,8 @@ import {
   CircleProgressBar,
   CustomModal,
   FormControl,
-  RadioButton,
-  SubmitButton,
+  Icon,
+  Icons,
 } from '../../../components';
 import styles from './style';
 import {
@@ -43,37 +43,37 @@ type RadioButtonItem = {
 };
 
 const AllDhikr = () => {
-  const {
-    control,
-    handleSubmit,
-  } = useForm<DhikrFormFields>({
+  const { control, handleSubmit, reset } = useForm<DhikrFormFields>({
     defaultValues: {
       dhikrName: StringConstants.EMPTY_STRING,
       dhikrCount: 33,
     },
   });
+
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
   const { currentTheme } = useTheme();
+
   const allDhikrList = useSelector((state: any) =>
     state.dhikr.dhikrs.find((x: { id: number }) => x.id === DhikrTabKeys.All),
   );
+
   const [value, setValue] = useState('');
-  const [radioButtonList, setRadioButtonList] = useState<RadioButtonItem[]>(
-    [],
-  );
+  const [radioButtonList, setRadioButtonList] = useState<RadioButtonItem[]>([]);
+
   const no = Translate(GeneralLanguageConstants.No);
   const yes = Translate(GeneralLanguageConstants.Yes);
-  const reset = Translate(GeneralLanguageConstants.Reset);
+  const resetText = Translate(GeneralLanguageConstants.Reset);
 
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+
   useEffect(() => {
     if (
       !isNullOrUndefined(allDhikrList) &&
       !isNullOrUndefined(allDhikrList.dhikrList) &&
       allDhikrList.dhikrList.length > 0
     ) {
-      let radioButtonList = allDhikrList.dhikrList.map(
+      const mappedList: RadioButtonItem[] = allDhikrList.dhikrList.map(
         (item: {
           dhikrId: number;
           name: string;
@@ -86,71 +86,104 @@ const AllDhikr = () => {
           };
         },
       );
-      setRadioButtonList(radioButtonList);
-      setValue(radioButtonList[0].value);
+      setRadioButtonList(mappedList);
+      setValue(mappedList[0].value);
     } else {
       setRadioButtonList([]);
       setValue('');
     }
-  }, [allDhikrList.dhikrList.length]);
+  }, [allDhikrList]);
+
   const showAddDhikrModal = () => {
     setVisible(true);
   };
+
   const onSubmit = (data: DhikrFormFields) => {
+    const maxCount = Number(data.dhikrCount) || 0;
+
     dispatch(
       addDhikr({
         id: DhikrTabKeys.All,
         name: data.dhikrName,
-        maxCount: data.dhikrCount,
+        maxCount,
       }),
     );
     setVisible(false);
+    reset({
+      dhikrName: StringConstants.EMPTY_STRING,
+      dhikrCount: 33,
+    });
   };
+
   return (
     <>
       {radioButtonList.length > 0 && (
         <View>
           <View style={styles.radioRow}>
             <ScrollView
-              horizontal={true}
+              horizontal
               showsHorizontalScrollIndicator={false}
-              style={styles.radioScroll}
+              contentContainerStyle={styles.radioScrollContent}
             >
-              <RadioButton
-                radioButtonList={radioButtonList}
-                selectedValue={value}
-                onValueChange={value => setValue(value)}
-                buttonStyle={[
-                  styles.radioButtonStyle,
-                  { borderColor: currentTheme.primary },
-                ]}
-              />
+              {radioButtonList.map(item => {
+                const isSelected = value === item.value;
+
+                return (
+                  <Pressable
+                    key={item.value}
+                    onPress={() => {
+                      setValue(item.value);
+                      hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
+                    }}
+                    style={[
+                      styles.dhikrChip,
+                      {
+                        backgroundColor: isSelected
+                          ? currentTheme.primary
+                          : currentTheme.cardViewBackgroundColor,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.dhikrChipText,
+                        {
+                          color: isSelected
+                            ? currentTheme.white
+                            : currentTheme.textColor,
+                        },
+                      ]}
+                    >
+                      {item.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </ScrollView>
-            <View style={styles.dhikrAddButtonContainer}>
-              <TouchableOpacity
-                onPress={() => {
-                  hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
-                  showAddDhikrModal();
-                }}
-                style={[
-                  styles.dhikrAddButton,
-                  {
-                    borderColor: currentTheme.primary,
-                    backgroundColor: currentTheme.cardViewBackgroundColor,
-                  },
+
+            <Pressable
+              onPress={() => {
+                hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
+                showAddDhikrModal();
+              }}
+              style={({ pressed }) => [
+                styles.dhikrAddFabNeo,
+                {
+                  backgroundColor: currentTheme.primary,
+                  transform: [{ scale: pressed ? 0.95 : 1 }],
+                },
               ]}
             >
-              <Text
-                style={[
-                  styles.addButtonText,
-                  { color: currentTheme.primary },
-                ]}
-              >
-                {StringConstants.PLUS}
-              </Text>
-            </TouchableOpacity>
-            </View>
+              <Icon
+                type={Icons.FontAwesome6}
+                name="plus"
+                size={18}
+                color={currentTheme.white}
+                solid
+              />
+            </Pressable>
           </View>
+
           {allDhikrList?.dhikrList?.map(
             (item: {
               dhikrId: number;
@@ -184,15 +217,22 @@ const AllDhikr = () => {
                           );
                         }}
                       />
-                  </CardView>
-                  <View
-                    key={item.dhikrId + 'buttons'}
-                    style={styles.dhikrActionRow}
-                  >
-                      <SubmitButton
+                    </CardView>
+                    <View
+                      key={item.dhikrId + 'buttons'}
+                      style={styles.dhikrActionRow}
+                    >
+                      <Pressable
                         key={item.dhikrId + 'buttonRemove'}
-                        label="Sil"
-                        onSubmit={() => {
+                        style={[
+                          styles.deleteResetButtonStyle,
+                          {
+                            backgroundColor:
+                              currentTheme.cardViewBackgroundColor,
+                            borderColor: currentTheme.primary,
+                          },
+                        ]}
+                        onPress={() => {
                           Alert.alert(
                             'Zikri silmek istediğinize emin misiniz?',
                             '',
@@ -218,20 +258,42 @@ const AllDhikr = () => {
                               },
                             ],
                             { userInterfaceStyle: applicationTheme.theme },
-                        );
-                      }}
-                      buttonStyle={styles.deleteButtonStyle}
-                      backgroundColor={currentTheme.systemRed}
-                    />
-                      <SubmitButton
+                          );
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.deleteResetButtonText,
+                            { color: currentTheme.textColor },
+                          ]}
+                        >
+                          SİL
+                        </Text>
+                      </Pressable>
+
+                      <Pressable
                         key={item.dhikrId + 'buttonReset'}
-                        label={reset}
-                        onSubmit={() => {
+                        style={[
+                          styles.deleteResetButtonStyle,
+                          {
+                            backgroundColor: currentTheme.primary,
+                            borderColor: currentTheme.primary,
+                          },
+                        ]}
+                        onPress={() => {
                           dispatch(resetDhikrByItem({ dhikrId: item.dhikrId }));
                           hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
                         }}
-                        backgroundColor={currentTheme.systemGreen}
-                      />
+                      >
+                        <Text
+                          style={[
+                            styles.deleteResetButtonText,
+                            { color: currentTheme.white },
+                          ]}
+                        >
+                          {resetText.toLocaleUpperCase()}
+                        </Text>
+                      </Pressable>
                     </View>
                   </View>
                 )
@@ -240,31 +302,68 @@ const AllDhikr = () => {
           )}
         </View>
       )}
+
       {radioButtonList.length === 0 && (
-        <View>
-          <SubmitButton
-            label="Zikir Eklemek İçin Tıklayın"
-            onSubmit={() => {
-              showAddDhikrModal();
-              hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
-            }}
-            buttonStyle={styles.addDhikrButton}
-          />
+        <View style={styles.emptyStateContainer}>
+          <CardView
+            cardStyle={[
+              styles.emptyStateCard,
+              { backgroundColor: currentTheme.cardViewBackgroundColor },
+            ]}
+            shadow
+          >
+            <Text
+              style={[
+                styles.emptyStateTitle,
+                { color: currentTheme.textColor },
+              ]}
+            >
+              Henüz özel bir zikriniz bulunmuyor.
+            </Text>
+
+            <Text
+              style={[
+                styles.emptyStateDescription,
+                { color: currentTheme.gray },
+              ]}
+            >
+              Sık tekrar ettiğiniz zikirleri buraya ekleyerek kolayca takip
+              edebilirsiniz. Başlamak için aşağıdaki butona dokunarak ilk
+              zikrinizi oluşturun.
+            </Text>
+
+            <Pressable
+              style={[
+                styles.emptyStateButton,
+                { backgroundColor: currentTheme.primary },
+              ]}
+              onPress={showAddDhikrModal}
+            >
+              <Text style={styles.emptyStateButtonText}>Zikir Ekle</Text>
+            </Pressable>
+          </CardView>
         </View>
       )}
+
       <CustomModal
         visible={visible}
         title={'Yeni Zikir Kaydı'}
         onClose={() => {
           setVisible(false);
-          control._reset();
+          reset({
+            dhikrName: StringConstants.EMPTY_STRING,
+            dhikrCount: 33,
+          });
         }}
         buttons={[
           {
             title: 'Kapat',
             onPress: () => {
               setVisible(false);
-              control._reset();
+              reset({
+                dhikrName: StringConstants.EMPTY_STRING,
+                dhikrCount: 33,
+              });
             },
             type: 'cancel',
           },
@@ -285,16 +384,16 @@ const AllDhikr = () => {
             control={control}
             name="dhikrName"
             render={({ field: { onChange, onBlur, value } }) => (
-                <>
-                  <TextInput
-                    style={[
-                      styles.smallInput,
-                      styles.inputFlex,
-                      {
-                        backgroundColor: currentTheme.inputBackgroundColor,
-                        color: currentTheme.textColor,
-                      },
-                    ]}
+              <>
+                <TextInput
+                  style={[
+                    styles.smallInput,
+                    styles.inputFlex,
+                    {
+                      backgroundColor: currentTheme.inputBackgroundColor,
+                      color: currentTheme.textColor,
+                    },
+                  ]}
                   onBlur={onBlur}
                   onChangeText={val => {
                     onChange(val);
@@ -325,25 +424,25 @@ const AllDhikr = () => {
             )}
             control={control}
             name="dhikrCount"
-            defaultValue={33}
+            defaultValue={33 as any}
             render={({ field: { onChange, onBlur, value } }) => (
-                <>
-                  <TextInput
-                    style={[
-                      styles.smallInput,
-                      styles.inputFlex,
-                      {
-                        backgroundColor: currentTheme.inputBackgroundColor,
-                        color: currentTheme.textColor,
-                      },
-                    ]}
+              <>
+                <TextInput
+                  style={[
+                    styles.smallInput,
+                    styles.inputFlex,
+                    {
+                      backgroundColor: currentTheme.inputBackgroundColor,
+                      color: currentTheme.textColor,
+                    },
+                  ]}
                   onBlur={onBlur}
                   onChangeText={val => {
                     if (isNullOrEmptyString(val) || isNumber(val)) {
                       if (Number(val) > 99999) {
-                        return onChange(99999);
+                        return onChange(99999 as any);
                       } else {
-                        onChange(val);
+                        onChange(val as any);
                       }
                     }
                   }}

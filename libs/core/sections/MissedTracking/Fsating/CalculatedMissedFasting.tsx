@@ -6,11 +6,11 @@ import {
   ProgressBar,
   SubmitButton,
 } from '../../../../components';
-import {useDispatch, useSelector} from 'react-redux';
-import {Alert, Text, View} from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { Alert, Text, View } from 'react-native';
 import styles from './style';
-import {useTheme} from '../../../providers';
-import {Translate, hapticFeedback} from '../../../helpers';
+import { useTheme } from '../../../providers';
+import { Translate, hapticFeedback } from '../../../helpers';
 import {
   CalculatedMissedFastingLanguageConstants,
   CalculatedMissedPrayerLanguageConstants,
@@ -18,7 +18,7 @@ import {
   HapticFeedbackMethods,
   StringConstants,
 } from '../../../../common/constants';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
   decreasePerformedFasting,
   increasePerformedFasting,
@@ -28,8 +28,8 @@ import {
 const CalculatedMissedFasting = () => {
   const dispatch = useDispatch();
   const missedFasting = useSelector((state: any) => state.missedFasting);
-  const {currentTheme} = useTheme();
-  const {i18n} = useTranslation();
+  const { currentTheme } = useTheme();
+  const { i18n } = useTranslation();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const recalculateMessage = Translate(
     CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
@@ -37,17 +37,22 @@ const CalculatedMissedFasting = () => {
   const no = Translate(GeneralLanguageConstants.No);
   const yes = Translate(GeneralLanguageConstants.Yes);
   const reCalculateButtonAlert = () =>
-    Alert.alert(recalculateMessage, '', [
-      {
-        text: no,
-        onPress: () => {},
-        style: 'cancel',
-      },
-      {
-        text: yes,
-        onPress: () => dispatch(resetMissedFasting()),
-      },
-    ], {userInterfaceStyle: applicationTheme.theme});
+    Alert.alert(
+      recalculateMessage,
+      '',
+      [
+        {
+          text: no,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: yes,
+          onPress: () => dispatch(resetMissedFasting()),
+        },
+      ],
+      { userInterfaceStyle: applicationTheme.theme },
+    );
 
   const cardViewProps: CardViewProps = {
     paddingLeft: 0,
@@ -58,14 +63,14 @@ const CalculatedMissedFasting = () => {
       missedFasting.missedFasting.performedFastingCount,
     bottomDescriptionStyle: [
       styles.bottomDescription,
-      {color: currentTheme.textColor},
+      { color: currentTheme.textColor },
     ],
-    cardStyle: {overflow: 'hidden'},
+    cardStyle: { overflow: 'hidden' },
     children: (
       <>
         <View style={styles.container}>
           <View style={styles.inputContainer}>
-            <Text style={[styles.label, {color: currentTheme.textColor}]}>
+            <Text style={[styles.label, { color: currentTheme.textColor }]}>
               {Translate(CalculatedMissedFastingLanguageConstants.Fasting)}
             </Text>
             <View style={styles.calculatedMissedPrayerRightContainer}>
@@ -112,28 +117,30 @@ const CalculatedMissedFasting = () => {
         }}
         backgroundColor={currentTheme.systemRed}
         marginHorizontal={25}
-      marginTop={20}
-    />
-    <View style={styles.calculatedMissedPrayerBottomDescription}>
-      <Text
-        style={[
-          styles.bottomDescriptionText,
-          {color: currentTheme.textColor},
-        ]}>
-        {Translate(GeneralLanguageConstants.LastUpdateDate)}
-        {StringConstants.COLON}
-        {StringConstants.SPACE}
-        {new Date(missedFasting.lastUpdateDate).toLocaleString(i18n.language)}
-      </Text>
-      <Text
-        style={[
-          styles.bottomDescriptionText,
-          {color: currentTheme.textColor},
-        ]}>
-        {Translate(GeneralLanguageConstants.BeginDate)}
-        {StringConstants.COLON}
-        {StringConstants.SPACE}
-        {new Date(missedFasting.beginDate).toLocaleString(i18n.language)}
+        marginTop={20}
+      />
+      <View style={styles.calculatedMissedPrayerBottomDescription}>
+        <Text
+          style={[
+            styles.bottomDescriptionText,
+            { color: currentTheme.textColor },
+          ]}
+        >
+          {Translate(GeneralLanguageConstants.LastUpdateDate)}
+          {StringConstants.COLON}
+          {StringConstants.SPACE}
+          {new Date(missedFasting.lastUpdateDate).toLocaleString(i18n.language)}
+        </Text>
+        <Text
+          style={[
+            styles.bottomDescriptionText,
+            { color: currentTheme.textColor },
+          ]}
+        >
+          {Translate(GeneralLanguageConstants.BeginDate)}
+          {StringConstants.COLON}
+          {StringConstants.SPACE}
+          {new Date(missedFasting.beginDate).toLocaleString(i18n.language)}
         </Text>
       </View>
     </>
