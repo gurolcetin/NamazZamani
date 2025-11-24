@@ -22,6 +22,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
   },
+  containerSingleDhikrCompact: {
+    paddingVertical: 16,
+  },
   smallInput: {
     textAlign: 'center',
     flex: 0.2,
@@ -55,6 +58,10 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 4,
   },
+  radioRowCompact: {
+    paddingTop: 6,
+    paddingBottom: 0,
+  },
   radioScrollContent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -73,6 +80,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 25,
     marginTop: 15,
   },
+  dhikrActionRowCompact: {
+    marginTop: 10,
+  },
   deleteResetButtonStyle: {
     marginTop: 12,
     borderRadius: 24,
@@ -81,6 +91,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '49%',
     borderWidth: 1,
+  },
+  deleteResetButtonCompact: {
+    paddingVertical: 8,
   },
   addDhikrButton: {
     marginHorizontal: 25,

@@ -1,5 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  Alert,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   DhikrTabKeys,
@@ -53,6 +60,7 @@ const AllDhikr = () => {
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
   const { currentTheme } = useTheme();
+  const { height } = useWindowDimensions();
 
   const allDhikrList = useSelector((state: any) =>
     state.dhikr.dhikrs.find((x: { id: number }) => x.id === DhikrTabKeys.All),
@@ -66,6 +74,14 @@ const AllDhikr = () => {
   const resetText = Translate(GeneralLanguageConstants.Reset);
 
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const isCompactHeight = height < 740;
+  const circleSize = useMemo(() => {
+    const minSize = 130;
+    const maxSize = 200;
+    const computedSize = height * 0.19;
+
+    return Math.max(minSize, Math.min(maxSize, computedSize));
+  }, [height]);
 
   useEffect(() => {
     if (
@@ -119,7 +135,9 @@ const AllDhikr = () => {
     <>
       {radioButtonList.length > 0 && (
         <View>
-          <View style={styles.radioRow}>
+          <View
+            style={[styles.radioRow, isCompactHeight && styles.radioRowCompact]}
+          >
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -197,14 +215,17 @@ const AllDhikr = () => {
                   <View key={item.dhikrId + 'container'}>
                     <CardView
                       key={item.dhikrId + 'card'}
-                      cardStyle={styles.containerSingleDhikr}
+                      cardStyle={[
+                        styles.containerSingleDhikr,
+                        isCompactHeight && styles.containerSingleDhikrCompact,
+                      ]}
                       paddingLeft={0}
                       shadow
                     >
                       <CircleProgressBar
                         key={item.dhikrId}
                         progress={getDhikrProgress(item.count, item.maxCount)}
-                        size={150}
+                        size={circleSize}
                         count={item.count}
                         maxCount={item.maxCount}
                         isCyclical={item.isCyclical}
@@ -220,12 +241,16 @@ const AllDhikr = () => {
                     </CardView>
                     <View
                       key={item.dhikrId + 'buttons'}
-                      style={styles.dhikrActionRow}
+                      style={[
+                        styles.dhikrActionRow,
+                        isCompactHeight && styles.dhikrActionRowCompact,
+                      ]}
                     >
                       <Pressable
                         key={item.dhikrId + 'buttonRemove'}
                         style={[
                           styles.deleteResetButtonStyle,
+                          isCompactHeight && styles.deleteResetButtonCompact,
                           {
                             backgroundColor:
                               currentTheme.cardViewBackgroundColor,
@@ -275,6 +300,7 @@ const AllDhikr = () => {
                         key={item.dhikrId + 'buttonReset'}
                         style={[
                           styles.deleteResetButtonStyle,
+                          isCompactHeight && styles.deleteResetButtonCompact,
                           {
                             backgroundColor: currentTheme.primary,
                             borderColor: currentTheme.primary,
