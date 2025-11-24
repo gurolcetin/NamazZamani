@@ -1,9 +1,9 @@
 import React, {
-  Fragment,
   useEffect,
   useMemo,
   useState,
   useCallback,
+  useRef,
 } from 'react';
 import {
   Image,
@@ -12,6 +12,9 @@ import {
   Text,
   TextInput,
   View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
@@ -86,13 +89,26 @@ const Settings = ({}: SettingsProps) => {
   const calculateSettings = useSelector(
     (state: any) => state.calculateSettings,
   );
+
   const [selectedLanguage, setSelectedLanguage] = useState(
     LanguagePrefix.TURKISH,
   );
-  const [languageDropdownVisible, setLanguageDropdownVisible] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const [langButtonLayout, setLangButtonLayout] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
   const [themeSelection, setThemeSelection] = useState<Theme>(Theme.SYSTEM);
   const [menstrualDays, setMenstrualDays] = useState<string>('');
+
   const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
+
+  // Dil butonuna ref
+  const langButtonRef = useRef<any>(null);
+
   useEffect(() => {
     AsyncStorage.getItem(AsyncStorageConstants.LanguageKey)
       .then(language => {
@@ -143,7 +159,7 @@ const Settings = ({}: SettingsProps) => {
 
   const handleLanguageChange = useCallback(
     (lang: string) => {
-      setLanguageDropdownVisible(false);
+      setIsLangOpen(false);
       if (lang === selectedLanguage) {
         return;
       }
@@ -152,6 +168,27 @@ const Settings = ({}: SettingsProps) => {
     },
     [i18n, selectedLanguage],
   );
+
+  const openLanguageDropdown = useCallback(() => {
+    if (langButtonRef.current) {
+      langButtonRef.current.measureInWindow(
+        (x: any, y: any, width: any, height: any) => {
+          setLangButtonLayout({ x, y, width, height });
+          setIsLangOpen(true);
+        },
+      );
+    } else {
+      setIsLangOpen(true);
+    }
+  }, []);
+
+  const handleLanguageButtonPress = useCallback(() => {
+    if (isLangOpen) {
+      setIsLangOpen(false);
+    } else {
+      openLanguageDropdown();
+    }
+  }, [isLangOpen, openLanguageDropdown]);
 
   const handleThemeChange = useCallback(
     (mode: Theme) => {
@@ -210,281 +247,360 @@ const Settings = ({}: SettingsProps) => {
     }
   }, []);
 
+  const closeDropdown = useCallback(() => {
+    setIsLangOpen(false);
+  }, []);
+
   return (
-    <ScreenViewContainer>
-      <ScrollView
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>
-            {Translate(SettingsScreenLanguageConstants.Language)}
-          </Text>
-          <Pressable
-            style={[
-              styles.languageButton,
-              {
-                backgroundColor: currentTheme.inputBackgroundColor,
-                borderWidth: 1,
-                borderColor: currentTheme.gray,
-              },
-            ]}
-            onPress={() => setLanguageDropdownVisible(prevState => !prevState)}
-            android_ripple={{ color: currentTheme.gray, borderless: false }}
+    <>
+      <ScreenViewContainer>
+        <View style={{ flex: 1 }}>
+          <ScrollView
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
-            <View style={styles.languageInfo}>
-              <Image source={selectedLanguageOption.flag} style={styles.flag} />
-              <Text
-                style={[styles.languageText, { color: currentTheme.textColor }]}
-              >
-                {selectedLanguageOption.title}
+            {/* Dil kartı */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>
+                {Translate(SettingsScreenLanguageConstants.Language)}
               </Text>
-            </View>
-            <Icon
-              type={Icons.MaterialDesignIcons}
-              name={languageDropdownVisible ? 'chevron-up' : 'chevron-down'}
-              size={20}
-              color={currentTheme.textColor}
-            />
-          </Pressable>
-          {languageDropdownVisible && (
-            <View
-              style={[
-                styles.dropdown,
-                {
-                  backgroundColor: currentTheme.cardViewBackgroundColor,
-                  borderWidth: 1,
-                  borderColor: currentTheme.gray,
-                },
-              ]}
-            >
-              {languageOptions.map((option, index) => (
-                <Fragment key={option.key}>
-                  <Pressable
-                    style={styles.dropdownOption}
-                    onPress={() => handleLanguageChange(option.key)}
-                    android_ripple={{
-                      color: currentTheme.inputBackgroundColor,
-                      borderless: false,
-                    }}
+              <Pressable
+                ref={langButtonRef}
+                style={[
+                  styles.languageButton,
+                  {
+                    backgroundColor: currentTheme.inputBackgroundColor,
+                    borderWidth: 1,
+                    borderColor: currentTheme.gray,
+                  },
+                ]}
+                onPress={handleLanguageButtonPress}
+                android_ripple={{ color: currentTheme.gray, borderless: false }}
+              >
+                <View style={styles.languageInfo}>
+                  <Image
+                    source={selectedLanguageOption.flag}
+                    style={styles.flag}
+                  />
+                  <Text
+                    style={[
+                      styles.languageText,
+                      { color: currentTheme.textColor },
+                    ]}
                   >
-                    <View style={styles.languageInfo}>
-                      <Image source={option.flag} style={styles.flag} />
-                      <Text
+                    {selectedLanguageOption.title}
+                  </Text>
+                </View>
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name={isLangOpen ? 'chevron-up' : 'chevron-down'}
+                  size={20}
+                  color={currentTheme.textColor}
+                />
+              </Pressable>
+            </View>
+
+            {/* Tema + Accent */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>
+                {Translate(SettingsScreenLanguageConstants.ThemeAndAccent)}
+              </Text>
+              <Text style={styles.themeSectionLabel}>
+                {Translate(SettingsScreenLanguageConstants.ThemeMode)}
+              </Text>
+              <FormSegmentedControl
+                options={[
+                  {
+                    label: Translate(ThemeSettingsConstants.Light),
+                    value: Theme.LIGHT,
+                    iconProps: {
+                      name: themeModeIcons.light,
+                      type: Icons.MaterialDesignIcons,
+                      size: 18,
+                    },
+                  },
+                  {
+                    label: Translate(ThemeSettingsConstants.Dark),
+                    value: Theme.DARK,
+                    iconProps: {
+                      name: themeModeIcons.dark,
+                      type: Icons.MaterialDesignIcons,
+                      size: 18,
+                    },
+                  },
+                  {
+                    label: Translate(ThemeSettingsConstants.SystemDefault),
+                    value: Theme.SYSTEM,
+                    iconProps: {
+                      name: themeModeIcons.system,
+                      type: Icons.MaterialDesignIcons,
+                      size: 18,
+                    },
+                  },
+                ]}
+                value={themeSelection}
+                onChange={(theme: any) => {
+                  handleThemeChange(theme);
+                }}
+              />
+              <Text
+                style={[
+                  styles.themeSectionLabel,
+                  {
+                    marginTop: 18,
+                  },
+                ]}
+              >
+                {Translate(SettingsScreenLanguageConstants.AccentColor)}
+              </Text>
+              <View style={styles.accentRow}>
+                {accentOptions.map(opt => {
+                  const color = accentColorMap[opt];
+                  const isActive = accent === opt;
+                  return (
+                    <Pressable
+                      key={opt}
+                      onPress={() => handleAccentPress(opt)}
+                      android_ripple={{
+                        color: currentTheme.gray,
+                        borderless: false,
+                      }}
+                      style={[
+                        styles.accentSwatchWrapper,
+                        {
+                          backgroundColor: isActive
+                            ? `${color}22`
+                            : currentTheme.inputBackgroundColor,
+                          borderWidth: isActive ? 2 : 0,
+                          borderColor: isActive ? color : 'transparent',
+                        },
+                      ]}
+                    >
+                      <View
                         style={[
-                          styles.languageText,
-                          { color: currentTheme.textColor },
+                          styles.accentSwatch,
+                          {
+                            backgroundColor: color,
+                          },
                         ]}
                       >
-                        {option.title}
-                      </Text>
-                    </View>
-                    {selectedLanguage === option.key && (
-                      <Icon
-                        type={Icons.MaterialDesignIcons}
-                        name="check"
-                        size={18}
-                        color={currentTheme.primary}
-                      />
-                    )}
-                  </Pressable>
-                  {index !== languageOptions.length - 1 && (
-                    <View
-                      style={[
-                        styles.dropdownDivider,
-                        { backgroundColor: currentTheme.gray },
-                      ]}
-                    />
-                  )}
-                </Fragment>
-              ))}
+                        {isActive && (
+                          <Icon
+                            type={Icons.MaterialDesignIcons}
+                            name="check"
+                            size={18}
+                            color={currentTheme.white}
+                          />
+                        )}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
-          )}
-        </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>
-            {Translate(SettingsScreenLanguageConstants.ThemeAndAccent)}
-          </Text>
-          <Text style={styles.themeSectionLabel}>
-            {Translate(SettingsScreenLanguageConstants.ThemeMode)}
-          </Text>
-          <FormSegmentedControl
-            options={[
-              {
-                label: Translate(ThemeSettingsConstants.Light),
-                value: Theme.LIGHT,
-                iconProps: {
-                  name: themeModeIcons.light,
-                  type: Icons.MaterialDesignIcons,
-                  size: 18,
-                },
-              },
-              {
-                label: Translate(ThemeSettingsConstants.Dark),
-                value: Theme.DARK,
-                iconProps: {
-                  name: themeModeIcons.dark,
-                  type: Icons.MaterialDesignIcons,
-                  size: 18,
-                },
-              },
-              {
-                label: Translate(ThemeSettingsConstants.SystemDefault),
-                value: Theme.SYSTEM,
-                iconProps: {
-                  name: themeModeIcons.system,
-                  type: Icons.MaterialDesignIcons,
-                  size: 18,
-                },
-              },
-            ]}
-            value={themeSelection}
-            onChange={(theme: any) => {
-              handleThemeChange(theme);
-            }}
-          />
-          <Text
-            style={[
-              styles.themeSectionLabel,
-              {
-                marginTop: 18,
-              },
-            ]}
-          >
-            {Translate(SettingsScreenLanguageConstants.AccentColor)}
-          </Text>
-          <View style={styles.accentRow}>
-            {accentOptions.map(opt => {
-              const color = accentColorMap[opt];
-              const isActive = accent === opt;
-              return (
-                <Pressable
-                  key={opt}
-                  onPress={() => handleAccentPress(opt)}
-                  android_ripple={{
+            {/* Hesaplama Ayarları */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>
+                {Translate(SettingsConstants.CalculateSettings)}
+              </Text>
+              <Text style={styles.label}>
+                {Translate(
+                  CalculateSettingsLanguageConstants.NumberOfMenstrualDays,
+                )}
+              </Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: currentTheme.inputBackgroundColor,
+                    color: currentTheme.textColor,
+                  },
+                ]}
+                value={menstrualDays}
+                onChangeText={handleMenstrualDaysChange}
+                keyboardType="numeric"
+                placeholder="7"
+                placeholderTextColor={currentTheme.placeholderTextColor}
+                maxLength={2}
+              />
+              <Text
+                style={[
+                  styles.helperText,
+                  {
                     color: currentTheme.gray,
-                    borderless: false,
-                  }}
+                  },
+                ]}
+              >
+                {Translate(SettingsScreenLanguageConstants.CalculationHelper)}
+              </Text>
+              <Pressable
+                style={[
+                  styles.saveButton,
+                  {
+                    backgroundColor: gradient?.[0] ?? currentTheme.primary,
+                    shadowColor: gradient?.[0] ?? currentTheme.primary,
+                  },
+                ]}
+                onPress={handleSave}
+                android_ripple={{
+                  color: currentTheme.gray,
+                  borderless: false,
+                }}
+              >
+                <Text style={styles.saveButtonLabel}>
+                  {Translate(GeneralLanguageConstants.Save)}
+                </Text>
+              </Pressable>
+            </View>
+
+            {/* Gelişmiş */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Gelişmiş</Text>
+              <Text
+                style={[
+                  styles.helperText,
+                  { color: currentTheme.gray, marginBottom: 12 },
+                ]}
+              >
+                Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları
+                vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara
+                döner.
+              </Text>
+              <Pressable
+                style={[
+                  styles.saveButton,
+                  {
+                    backgroundColor: currentTheme.systemRed || '#EF4444',
+                    shadowColor: currentTheme.systemRed || '#EF4444',
+                  },
+                ]}
+                onPress={handleClearStorage}
+                android_ripple={{
+                  color: currentTheme.gray,
+                  borderless: false,
+                }}
+              >
+                <Text style={styles.saveButtonLabel}>Tüm verileri temizle</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </View>
+      </ScreenViewContainer>
+
+      {/* Dropdown'u tüm ekranın üstünde gösteren Modal */}
+      {isLangOpen && langButtonLayout && (
+        <Modal
+          transparent
+          visible={isLangOpen}
+          animationType="fade"
+          onRequestClose={closeDropdown}
+        >
+          <TouchableWithoutFeedback onPress={closeDropdown}>
+            <View style={dropdownStyles.modalBackdrop}>
+              <TouchableWithoutFeedback onPress={() => {}}>
+                <View
                   style={[
-                    styles.accentSwatchWrapper,
+                    dropdownStyles.globalLangDropdown,
                     {
-                      backgroundColor: isActive
-                        ? `${color}22`
-                        : currentTheme.inputBackgroundColor,
-                      borderWidth: isActive ? 2 : 0,
-                      borderColor: isActive ? color : 'transparent',
+                      backgroundColor: currentTheme.cardViewBackgroundColor,
+                      borderColor: currentTheme.gray,
+                      top: langButtonLayout.y + langButtonLayout.height + 6,
+                      left: langButtonLayout.x,
+                      width: langButtonLayout.width,
                     },
                   ]}
                 >
-                  <View
-                    style={[
-                      styles.accentSwatch,
-                      {
-                        backgroundColor: color,
-                      },
-                    ]}
+                  <ScrollView
+                    style={dropdownStyles.langDropdownScroll}
+                    nestedScrollEnabled
+                    showsVerticalScrollIndicator={false}
                   >
-                    {isActive && (
-                      <Icon
-                        type={Icons.MaterialDesignIcons}
-                        name="check"
-                        size={18}
-                        color={currentTheme.white}
-                      />
-                    )}
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>
-            {Translate(SettingsConstants.CalculateSettings)}
-          </Text>
-          <Text style={styles.label}>
-            {Translate(
-              CalculateSettingsLanguageConstants.NumberOfMenstrualDays,
-            )}
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: currentTheme.inputBackgroundColor,
-                color: currentTheme.textColor,
-              },
-            ]}
-            value={menstrualDays}
-            onChangeText={handleMenstrualDaysChange}
-            keyboardType="numeric"
-            placeholder="7"
-            placeholderTextColor={currentTheme.placeholderTextColor}
-            maxLength={2}
-          />
-          <Text
-            style={[
-              styles.helperText,
-              {
-                color: currentTheme.gray,
-              },
-            ]}
-          >
-            {Translate(SettingsScreenLanguageConstants.CalculationHelper)}
-          </Text>
-          <Pressable
-            style={[
-              styles.saveButton,
-              {
-                backgroundColor: gradient?.[0] ?? currentTheme.primary,
-                shadowColor: gradient?.[0] ?? currentTheme.primary,
-              },
-            ]}
-            onPress={handleSave}
-            android_ripple={{
-              color: currentTheme.gray,
-              borderless: false,
-            }}
-          >
-            <Text style={styles.saveButtonLabel}>
-              {Translate(GeneralLanguageConstants.Save)}
-            </Text>
-          </Pressable>
-        </View>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Gelişmiş</Text>
-          <Text
-            style={[
-              styles.helperText,
-              { color: currentTheme.gray, marginBottom: 12 },
-            ]}
-          >
-            Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları
-            vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara döner.
-          </Text>
-          <Pressable
-            style={[
-              styles.saveButton,
-              {
-                backgroundColor: currentTheme.systemRed || '#EF4444',
-                shadowColor: currentTheme.systemRed || '#EF4444',
-              },
-            ]}
-            onPress={handleClearStorage}
-            android_ripple={{
-              color: currentTheme.gray,
-              borderless: false,
-            }}
-          >
-            <Text style={styles.saveButtonLabel}>Tüm verileri temizle</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </ScreenViewContainer>
+                    {languageOptions.map(option => {
+                      const active = option.key === selectedLanguage;
+                      return (
+                        <Pressable
+                          key={option.key}
+                          style={[
+                            dropdownStyles.langOptionRow,
+                            {
+                              backgroundColor: active
+                                ? `${currentTheme.gray}33`
+                                : 'transparent',
+                            },
+                          ]}
+                          onPress={() => handleLanguageChange(option.key)}
+                        >
+                          <View style={dropdownStyles.langOptionLeft}>
+                            <Image
+                              source={option.flag}
+                              style={dropdownStyles.langFlag}
+                            />
+                            <Text
+                              style={{
+                                fontSize: 14,
+                                color: currentTheme.textColor,
+                              }}
+                            >
+                              {option.title}
+                            </Text>
+                          </View>
+                          {active && (
+                            <Icon
+                              type={Icons.MaterialDesignIcons}
+                              name="check"
+                              size={18}
+                              color={currentTheme.primary}
+                            />
+                          )}
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      )}
+    </>
   );
 };
 
 export default Settings;
+
+const dropdownStyles = StyleSheet.create({
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  globalLangDropdown: {
+    position: 'absolute',
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingVertical: 4,
+    overflow: 'hidden',
+  },
+  langDropdownScroll: {
+    maxHeight: 220,
+  },
+  langOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+  },
+  langOptionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  langFlag: {
+    width: 25,
+    height: 25,
+    borderRadius: 3,
+    marginRight: 8,
+    resizeMode: 'contain',
+  },
+});
