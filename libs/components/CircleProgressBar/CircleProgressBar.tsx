@@ -130,7 +130,6 @@ const CircleProgressBar = ({
             height: radius * 2 + 24,
             borderRadius: radius + 12,
             backgroundColor,
-            shadowColor: baseColor,
             transform: [{ scale }],
           },
         ]}
