@@ -243,11 +243,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    shadowColor: '#000',
-    shadowOpacity: 0.16,
-    shadowRadius: 40,
-    shadowOffset: { width: 0, height: 24 },
-    elevation: 2,
   },
 
   cyclicalWrapper: {

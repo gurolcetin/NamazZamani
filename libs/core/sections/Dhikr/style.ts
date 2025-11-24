@@ -2,12 +2,19 @@ import { StyleSheet } from 'react-native';
 import { horizontalScale } from '../../utils';
 
 const styles = StyleSheet.create({
-  container: {
+  prayerDhikrCard: {
+    paddingVertical: 20,
+  },
+  dhikrGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 20,
+  },
+  dhikrItem: {
+    width: '50%',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   containerSingleDhikr: {
     flexDirection: 'column',
