@@ -6,15 +6,19 @@ import { globalStyle } from '../../styles';
 
 interface ScreenViewContainerProps {
   children: React.ReactNode;
-  hasBottomMenu?: boolean; // default true olacak
+  disableBottomPadding?: boolean;
 }
 
 const ScreenViewContainer = ({
   children,
-  hasBottomMenu = true, // <-- DEFAULT DEĞER
+  disableBottomPadding = false,
 }: ScreenViewContainerProps) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
+  const defaultExtraBottomSpace = Platform.OS === 'ios' ? 40 : 50;
+  const bottomPadding = disableBottomPadding
+    ? 0
+    : insets.bottom + defaultExtraBottomSpace;
 
   return (
     <View
@@ -24,11 +28,7 @@ const ScreenViewContainer = ({
           backgroundColor: currentTheme.backgroundColor,
           paddingLeft: insets.left,
           paddingRight: insets.right,
-          paddingBottom: hasBottomMenu
-            ? Platform.OS === 'ios'
-              ? insets.bottom + 40
-              : insets.bottom + 50
-            : 0,
+          paddingBottom: bottomPadding,
         },
       ]}
     >

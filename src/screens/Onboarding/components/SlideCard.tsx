@@ -75,7 +75,7 @@ const SlideCard: React.FC<Props> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 0,
     alignItems: 'center',
   },
   title: {

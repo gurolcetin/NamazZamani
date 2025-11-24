@@ -16,7 +16,11 @@ import { RootRoutes } from '../../navigation/Routes';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../../libs/core/providers';
 import { ThemeType } from '../../../libs/common/models';
-import { ScreenViewContainer } from '../../../libs/components';
+import {
+  SafeAreaWithStatusBar,
+  ScreenViewContainer,
+} from '../../../libs/components';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type OnboardingSlide = {
   key: string;
@@ -62,6 +66,7 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList<OnboardingSlide>>(null);
+  const insets = useSafeAreaInsets();
 
   const renderItem: ListRenderItem<OnboardingSlide> = useCallback(
     ({ item }) => (
@@ -108,68 +113,83 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
   const isLastSlide = currentIndex === slides.length - 1;
 
   return (
-    <ScreenViewContainer hasBottomMenu={false}>
-      <View
-        style={[
-          styles.screen,
-          { backgroundColor: currentTheme.backgroundColor },
-        ]}
-      >
-        <Animated.FlatList
-          ref={flatListRef}
-          data={slides}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          pagingEnabled
-          renderItem={renderItem}
-          keyExtractor={item => item.key}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-            {
-              useNativeDriver: false,
-            },
-          )}
-          onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
-          scrollEventThrottle={16}
-        />
+    <SafeAreaWithStatusBar>
+      <ScreenViewContainer disableBottomPadding>
+        <View
+          style={[
+            styles.screen,
+            { backgroundColor: currentTheme.backgroundColor },
+          ]}
+        >
+          <View style={styles.content}>
+            <Animated.FlatList
+              ref={flatListRef}
+              data={slides}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              pagingEnabled
+              renderItem={renderItem}
+              keyExtractor={item => item.key}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                {
+                  useNativeDriver: false,
+                },
+              )}
+              onViewableItemsChanged={onViewableItemsChanged}
+              viewabilityConfig={viewabilityConfig}
+              scrollEventThrottle={16}
+              style={styles.carousel}
+            />
 
-        <Pagination
-          data={slides}
-          scrollX={scrollX}
-          width={width}
-          activeColor={currentTheme.primary}
-          inactiveColor={currentTheme.textColor}
-        />
+            <View style={styles.paginationWrapper}>
+              <Pagination
+                data={slides}
+                scrollX={scrollX}
+                width={width}
+                activeColor={currentTheme.primary}
+                inactiveColor={currentTheme.textColor}
+              />
+            </View>
+          </View>
 
-        <View style={styles.bottomBar}>
-          <TouchableOpacity onPress={handleSkip} style={styles.textButton}>
-            <Text
-              style={[
-                styles.textButtonLabel,
-                { color: currentTheme.textColor },
-              ]}
-            >
-              Skip
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={isLastSlide ? completeOnboarding : handleNext}
+          <View
             style={[
-              styles.ctaButton,
-              { backgroundColor: currentTheme.primary },
+              styles.bottomBar,
+              { paddingBottom: Math.max(insets.bottom, 16) },
             ]}
           >
-            <Text
-              style={[styles.ctaLabel, { color: currentTheme.backgroundColor }]}
+            <TouchableOpacity onPress={handleSkip} style={styles.textButton}>
+              <Text
+                style={[
+                  styles.textButtonLabel,
+                  { color: currentTheme.textColor },
+                ]}
+              >
+                Skip
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={isLastSlide ? completeOnboarding : handleNext}
+              style={[
+                styles.ctaButton,
+                { backgroundColor: currentTheme.primary },
+              ]}
             >
-              {isLastSlide ? 'Get Started' : 'Next'}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.ctaLabel,
+                  { color: currentTheme.backgroundColor },
+                ]}
+              >
+                {isLastSlide ? 'Get Started' : 'Next'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </ScreenViewContainer>
+      </ScreenViewContainer>
+    </SafeAreaWithStatusBar>
   );
 };
 
@@ -177,9 +197,18 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+  content: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  carousel: {
+    flex: 1,
+  },
+  paginationWrapper: {
+    paddingVertical: 12,
+  },
   bottomBar: {
     paddingHorizontal: 24,
-    paddingBottom: 32,
     paddingTop: 8,
     flexDirection: 'row',
     alignItems: 'center',

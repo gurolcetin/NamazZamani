@@ -30,7 +30,7 @@ const MissedTracking = () => {
   useEffect(() => {
     setIsMissedPrayerCalculated(missedPrayer.isMissedPrayerCalculated);
     setIsMissedFastingCalculated(missedFasting.isMissedFastingCalculated);
-  }, []);
+  }, [missedFasting.isMissedFastingCalculated, missedPrayer.isMissedPrayerCalculated]);
   useEffect(() => {
     setIsMissedPrayerCalculated(missedPrayer.isMissedPrayerCalculated);
   }, [missedPrayer.isMissedPrayerCalculated]);
