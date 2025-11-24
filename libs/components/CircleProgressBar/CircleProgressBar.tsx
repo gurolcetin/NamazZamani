@@ -197,7 +197,7 @@ const CircleProgressBar = ({
             style={[
               styles.cyclicalWrapper,
               {
-                top: radius + 12,
+                top: radius + 40,
                 left: radius - 17 + 12,
               },
             ]}
@@ -207,6 +207,7 @@ const CircleProgressBar = ({
               type={Icons.FontAwesome6}
               color={currentTheme.textColor}
               size={15}
+              solid
             />
             <NativeText
               style={[
