@@ -8,11 +8,16 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTheme } from '../../core/providers';
+import { Icon, IconProps } from '../Icons/Icons';
 
-type GenderOption = { label: string; value: string };
+type SegmentedOption = {
+  label: string;
+  value: string;
+  iconProps?: IconProps;
+};
 
 interface GenderSegmentedControlProps {
-  options: GenderOption[];
+  options: SegmentedOption[];
   value: string;
   onChange: (value: string) => void;
 }
@@ -32,9 +37,9 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
 
   useEffect(() => {
     if (!containerWidth) return;
-    if (selectedIndex === null) return; // nothing selected; don't animate
+    if (selectedIndex === null) return;
 
-    const innerWidth = containerWidth - 12; // padding (6+6)
+    const innerWidth = containerWidth - 12;
     const singleWidth = innerWidth / options.length;
     const target = selectedIndex * singleWidth;
 
@@ -60,7 +65,7 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
         { backgroundColor: currentTheme.backgroundColor },
       ]}
     >
-      {/* Selection background: only visible when something is selected */}
+      {/* SEÇİLİ ARKA PLAN (kayma animasyonu) */}
       <Animated.View
         pointerEvents="none"
         style={[
@@ -83,16 +88,28 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
               style={[styles.genderChip, styles.genderChipPressable]}
               onPress={() => onChange(opt.value)}
             >
-              <Text
-                style={[
-                  styles.genderChipText,
-                  {
-                    color: active ? primary : currentTheme.textColor,
-                  },
-                ]}
-              >
-                {opt.label}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {/* ICON (varsa gösterilir) */}
+                {opt.iconProps && (
+                  <View style={{ marginRight: 6 }}>
+                    <Icon
+                      {...opt.iconProps}
+                      color={
+                        active ? currentTheme.primary : currentTheme.textColor
+                      }
+                    />
+                  </View>
+                )}
+
+                <Text
+                  style={[
+                    styles.genderChipText,
+                    { color: active ? primary : currentTheme.textColor },
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+              </View>
             </Pressable>
           </View>
         );

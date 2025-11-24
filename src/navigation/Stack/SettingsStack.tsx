@@ -2,6 +2,8 @@ import React from 'react';
 import { Routes } from '../Routes';
 import Settings from '../../screens/Settings/Settings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { MenuNameLanguageConstants } from '../../../libs/common/constants';
+import { Translate } from '../../../libs/core/helpers';
 
 const Stack = createNativeStackNavigator();
 export const SettingsStack = () => {
@@ -11,8 +13,7 @@ export const SettingsStack = () => {
         name={Routes.Settings}
         component={Settings}
         options={{
-          headerShown: false,
-          header: () => null,
+          headerTitle: Translate(MenuNameLanguageConstants.Settings),
         }}
       />
     </Stack.Navigator>

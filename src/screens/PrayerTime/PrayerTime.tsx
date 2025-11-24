@@ -24,6 +24,7 @@ import {
   Icon,
   PRAYER_TIME_ICONS,
   PrayerTimeSmallCard,
+  SafeAreaWithStatusBar,
   ScreenViewContainer,
 } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
@@ -473,53 +474,55 @@ export default function PrayerTime() {
   );
 
   return (
-    <ScreenViewContainer>
-      <View style={styles.screenInner}>
-        {/* Konum + 3 buton */}
-        <ActionCardGroup
-          label={locationLabel}
-          utc={utcLabel}
-          loading={(loading || isResyncing) && !timings}
-          isDark={systemDark}
-          theme={{
-            primary: currentTheme.primary,
-            textColor: currentTheme.textColor,
-            cardViewBackgroundColor: currentTheme.cardViewBackgroundColor,
-          }}
-          onOpenLocationSelector={() =>
-            navigation.navigate(PrayerTimeScreens.LocationSelector as never)
-          }
-          onPickDate={() => {
-            if (!coords) return;
-            navigation.navigate(PrayerTimeScreens.MontlyCalendar as never);
-          }}
-          onOpenImsakiye={() => {
-            if (!coords) return;
-            navigation.navigate(PrayerTimeScreens.Imsakiye as never);
-          }}
-          onOpenQibla={() => {
-            if (!coords) return;
-            navigation.navigate(PrayerTimeScreens.Qibla as never);
-          }}
-        />
+    <SafeAreaWithStatusBar>
+      <ScreenViewContainer>
+        <View style={styles.screenInner}>
+          {/* Konum + 3 buton */}
+          <ActionCardGroup
+            label={locationLabel}
+            utc={utcLabel}
+            loading={(loading || isResyncing) && !timings}
+            isDark={systemDark}
+            theme={{
+              primary: currentTheme.primary,
+              textColor: currentTheme.textColor,
+              cardViewBackgroundColor: currentTheme.cardViewBackgroundColor,
+            }}
+            onOpenLocationSelector={() =>
+              navigation.navigate(PrayerTimeScreens.LocationSelector as never)
+            }
+            onPickDate={() => {
+              if (!coords) return;
+              navigation.navigate(PrayerTimeScreens.MontlyCalendar as never);
+            }}
+            onOpenImsakiye={() => {
+              if (!coords) return;
+              navigation.navigate(PrayerTimeScreens.Imsakiye as never);
+            }}
+            onOpenQibla={() => {
+              if (!coords) return;
+              navigation.navigate(PrayerTimeScreens.Qibla as never);
+            }}
+          />
 
-        <FlatList
-          data={smallCards}
-          numColumns={2}
-          keyExtractor={i => i.key}
-          renderItem={renderSmallCard}
-          ListHeaderComponent={ListHeader}
-          contentContainerStyle={styles.listContent}
-          columnWrapperStyle={styles.columnWrapper}
-          showsVerticalScrollIndicator={false}
-          removeClippedSubviews
-          initialNumToRender={6}
-          windowSize={7}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-        />
-      </View>
-    </ScreenViewContainer>
+          <FlatList
+            data={smallCards}
+            numColumns={2}
+            keyExtractor={i => i.key}
+            renderItem={renderSmallCard}
+            ListHeaderComponent={ListHeader}
+            contentContainerStyle={styles.listContent}
+            columnWrapperStyle={styles.columnWrapper}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews
+            initialNumToRender={6}
+            windowSize={7}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+          />
+        </View>
+      </ScreenViewContainer>
+    </SafeAreaWithStatusBar>
   );
 }
 

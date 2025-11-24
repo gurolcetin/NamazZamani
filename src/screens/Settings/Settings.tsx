@@ -16,14 +16,18 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Icon, Icons, ScreenViewContainer } from '../../../libs/components';
+import {
+  FormSegmentedControl,
+  Icon,
+  Icons,
+  ScreenViewContainer,
+} from '../../../libs/components';
 import {
   AsyncStorageConstants,
   CalculateSettingsLanguageConstants,
   GeneralLanguageConstants,
   LanguagePrefix,
   LanguageSettingsConstants,
-  MenuNameLanguageConstants,
   SettingsConstants,
   SettingsScreenLanguageConstants,
   ThemeSettingsConstants,
@@ -197,20 +201,6 @@ const Settings = ({}: SettingsProps) => {
     );
   }, [dispatch, menstrualDays]);
 
-  const themeOptions = [
-    {
-      key: Theme.LIGHT,
-      label: Translate(ThemeSettingsConstants.Light),
-    },
-    {
-      key: Theme.DARK,
-      label: Translate(ThemeSettingsConstants.Dark),
-    },
-    {
-      key: Theme.SYSTEM,
-      label: Translate(ThemeSettingsConstants.SystemDefault),
-    },
-  ];
   const handleClearStorage = useCallback(async () => {
     try {
       await AsyncStorage.clear();
@@ -227,13 +217,6 @@ const Settings = ({}: SettingsProps) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>
-            {Translate(MenuNameLanguageConstants.Settings)}
-          </Text>
-          <View style={styles.headerSpacer} />
-        </View>
-
         <View style={styles.card}>
           <Text style={styles.cardTitle}>
             {Translate(SettingsScreenLanguageConstants.Language)}
@@ -327,55 +310,41 @@ const Settings = ({}: SettingsProps) => {
           <Text style={styles.themeSectionLabel}>
             {Translate(SettingsScreenLanguageConstants.ThemeMode)}
           </Text>
-          <View
-            style={[
-              styles.themeOptionsRow,
-              { backgroundColor: currentTheme.inputBackgroundColor },
+          <FormSegmentedControl
+            options={[
+              {
+                label: Translate(ThemeSettingsConstants.Light),
+                value: Theme.LIGHT,
+                iconProps: {
+                  name: themeModeIcons.light,
+                  type: Icons.MaterialDesignIcons,
+                  size: 18,
+                },
+              },
+              {
+                label: Translate(ThemeSettingsConstants.Dark),
+                value: Theme.DARK,
+                iconProps: {
+                  name: themeModeIcons.dark,
+                  type: Icons.MaterialDesignIcons,
+                  size: 18,
+                },
+              },
+              {
+                label: Translate(ThemeSettingsConstants.SystemDefault),
+                value: Theme.SYSTEM,
+                iconProps: {
+                  name: themeModeIcons.system,
+                  type: Icons.MaterialDesignIcons,
+                  size: 18,
+                },
+              },
             ]}
-          >
-            {themeOptions.map(option => {
-              const isActive = themeSelection === option.key;
-              return (
-                <Pressable
-                  key={option.key}
-                  style={[
-                    styles.themeOption,
-                    {
-                      backgroundColor: isActive
-                        ? currentTheme.primary
-                        : 'transparent',
-                    },
-                  ]}
-                  onPress={() => handleThemeChange(option.key)}
-                  android_ripple={{
-                    color: currentTheme.gray,
-                    borderless: false,
-                  }}
-                >
-                  <Icon
-                    type={Icons.MaterialDesignIcons}
-                    name={themeModeIcons[option.key]}
-                    size={22}
-                    color={
-                      isActive ? currentTheme.white : currentTheme.textColor
-                    }
-                  />
-                  <Text
-                    style={[
-                      styles.themeOptionText,
-                      {
-                        color: isActive
-                          ? currentTheme.white
-                          : currentTheme.textColor,
-                      },
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+            value={themeSelection}
+            onChange={(theme: any) => {
+              handleThemeChange(theme);
+            }}
+          />
           <Text
             style={[
               styles.themeSectionLabel,

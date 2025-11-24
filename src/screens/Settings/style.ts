@@ -5,7 +5,7 @@ export const createStyles = (theme: ThemeType) =>
   StyleSheet.create({
     contentContainer: {
       paddingHorizontal: 20,
-      paddingTop: 10,
+      paddingTop: 20,
       paddingBottom: 40,
     },
     header: {

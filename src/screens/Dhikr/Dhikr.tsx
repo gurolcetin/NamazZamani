@@ -1,13 +1,17 @@
-import React, {useState} from 'react';
-import {ScreenViewContainer, SegmentedControl} from '../../../libs/components';
-import {ScrollView} from 'react-native';
+import React, { useState } from 'react';
+import {
+  SafeAreaWithStatusBar,
+  ScreenViewContainer,
+  SegmentedControl,
+} from '../../../libs/components';
+import { ScrollView } from 'react-native';
 import {
   DhikrLanguageConstants,
   DhikrTabKeys,
 } from '../../../libs/common/constants';
-import {Translate} from '../../../libs/core/helpers';
-import {horizontalScale} from '../../../libs/core/utils';
-import {AllDhikr, PrayerDhikr} from '../../../libs/core/sections';
+import { Translate } from '../../../libs/core/helpers';
+import { horizontalScale } from '../../../libs/core/utils';
+import { AllDhikr, PrayerDhikr } from '../../../libs/core/sections';
 
 const Dhikr = () => {
   const tabs = [
@@ -20,26 +24,26 @@ const Dhikr = () => {
       value: Translate(DhikrLanguageConstants.AllDhikr),
     },
   ];
-  const [selectedTab, setSelectedTab] = useState<string | number>(
-    tabs[0].key,
-  );
+  const [selectedTab, setSelectedTab] = useState<string | number>(tabs[0].key);
   const onTabChange = (key: string | number) => {
     setSelectedTab(key);
   };
 
   return (
-    <ScreenViewContainer>
-      <SegmentedControl
-        tabs={tabs}
-        onTabChange={onTabChange}
-        marginHorizontal={horizontalScale(20)}
-        marginTop={horizontalScale(20)}
-      />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {selectedTab === DhikrTabKeys.All && <AllDhikr />}
-        {selectedTab === DhikrTabKeys.Prayer && <PrayerDhikr />}
-      </ScrollView>
-    </ScreenViewContainer>
+    <SafeAreaWithStatusBar>
+      <ScreenViewContainer>
+        <SegmentedControl
+          tabs={tabs}
+          onTabChange={onTabChange}
+          marginHorizontal={horizontalScale(20)}
+          marginTop={horizontalScale(20)}
+        />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {selectedTab === DhikrTabKeys.All && <AllDhikr />}
+          {selectedTab === DhikrTabKeys.Prayer && <PrayerDhikr />}
+        </ScrollView>
+      </ScreenViewContainer>
+    </SafeAreaWithStatusBar>
   );
 };
 
