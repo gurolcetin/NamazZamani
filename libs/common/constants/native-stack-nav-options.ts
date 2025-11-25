@@ -12,8 +12,5 @@ export const defaultNativeStackNavOptions = (
   headerShown: item.headerShown,
   headerBackVisible: item.headerShown,
   headerTitle: item.label ? t(item.label.key) : undefined,
-  headerStyle: {
-    backgroundColor: currentTheme.statusBarColor,
-  },
   headerTintColor: currentTheme.textColor,
 });

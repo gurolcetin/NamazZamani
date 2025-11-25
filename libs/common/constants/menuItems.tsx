@@ -31,7 +31,7 @@ export const bottomTabMenuItems = (currentTheme: ThemeType) => [
     color: currentTheme.primary,
     size: 20,
     solid: true,
-    headerShown: false,
+    headerShown: true,
   },
   {
     id: 3,
@@ -43,7 +43,7 @@ export const bottomTabMenuItems = (currentTheme: ThemeType) => [
     color: currentTheme.primary,
     size: 20,
     solid: true,
-    headerShown: false,
+    headerShown: true,
   },
   {
     id: 4,

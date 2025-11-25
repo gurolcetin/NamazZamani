@@ -235,7 +235,7 @@ export default function TimeTable() {
     return (
       <ScreenViewContainer>
         <View style={styles.center}>
-          <ActivityIndicator />
+          <ActivityIndicator color={currentTheme.primary} />
           <Text style={styles.loadingText}>İmsakiye yükleniyor…</Text>
         </View>
       </ScreenViewContainer>

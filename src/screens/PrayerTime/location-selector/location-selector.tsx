@@ -328,9 +328,7 @@ export default function LocationSelector() {
             ]}
             onPress={goDevice}
           >
-            <View
-              style={styles.nextCardLeft}
-            >
+            <View style={styles.nextCardLeft}>
               <View style={styles.nextIconWrap}>
                 <Icon
                   type={Icons.FontAwesome6}
@@ -388,7 +386,9 @@ export default function LocationSelector() {
             >
               {t('locationSelector.searchResults')}
             </Text>
-            {searching && <ActivityIndicator size="small" />}
+            {searching && (
+              <ActivityIndicator size="small" color={currentTheme.primary} />
+            )}
           </View>
           {results.length === 0 ? (
             <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>

@@ -16,6 +16,7 @@ import {
   View,
   useColorScheme,
   AppState,
+  RefreshControl,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -77,10 +78,9 @@ function fmtClock(totalSec: number) {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = s % 60;
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(
-    2,
-    '0',
-  )}:${String(sec).padStart(2, '0')}`;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(
+    sec,
+  ).padStart(2, '0')}`;
 }
 function progressBetween(start: Date, end: Date, now = new Date()) {
   const span = end.getTime() - start.getTime();
@@ -569,6 +569,18 @@ export default function PrayerTime() {
             windowSize={7}
             refreshing={refreshing}
             onRefresh={handleRefresh}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+                // Android için spinner rengi
+                colors={[currentTheme.primary]}
+                // iOS için spinner rengi
+                tintColor={currentTheme.primary}
+                // İstersen arka plan da tema ile uyumlu olsun:
+                progressBackgroundColor={currentTheme.cardViewBackgroundColor}
+              />
+            }
           />
         </View>
       </ScreenViewContainer>

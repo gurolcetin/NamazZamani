@@ -217,7 +217,7 @@ export default function MonthlyCalendar() {
   if (loading && !coords) {
     return (
       <View style={[styles.center, { flex: 1 }]}>
-        <ActivityIndicator />
+        <ActivityIndicator color={currentTheme.primary} />
         <Text style={styles.loadingText}>
           {t('monthlyCalendar.loadingLocation')}
         </Text>
@@ -334,7 +334,7 @@ export default function MonthlyCalendar() {
           {/* Ay verisi yüklenirken overlay */}
           {isMonthLoading && (
             <View style={styles.pickerOverlay}>
-              <ActivityIndicator />
+              <ActivityIndicator color={currentTheme.primary} />
               <Text style={styles.overlayText}>
                 {t('monthlyCalendar.dataLoading')}
               </Text>
@@ -352,7 +352,7 @@ export default function MonthlyCalendar() {
 
       {smallCards.length === 0 ? (
         <View style={[styles.center, { paddingVertical: 12 }]}>
-          <ActivityIndicator />
+          <ActivityIndicator color={currentTheme.primary} />
           <Text style={styles.timesLoadingText}>
             {t('monthlyCalendar.timesLoading')}
           </Text>
