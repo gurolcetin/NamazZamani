@@ -1,10 +1,19 @@
 import React from 'react';
-import { StackRoutes } from './Routes';
+import { PrayerTimeScreens, StackRoutes } from './Routes';
 import BottomTabNavigator from './BottomTab/BottomTab';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import MonthlyCalendar from '../screens/PrayerTime/MontlyCalendar/montly-calendar';
+import TimeTable from '../screens/PrayerTime/time-table/time-table';
+import QiblaScreen from '../screens/PrayerTime/qibla/qibla-finder';
+import LocationSelector from '../screens/PrayerTime/location-selector/location-selector';
+import { useTheme } from '../../libs/core/providers';
+import { useTranslation } from 'react-i18next';
 
 const Stack = createNativeStackNavigator();
 export const Authenticated = () => {
+  const { currentTheme } = useTheme();
+  const { t } = useTranslation();
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -20,6 +29,48 @@ export const Authenticated = () => {
           header: () => null,
         }}
       />
+      <Stack.Group
+        screenOptions={({}) => ({
+          headerShown: true,
+          headerShadowVisible: true,
+          headerBackVisible: true,
+          headerTintColor: currentTheme.textColor,
+          headerBackTitle: '',
+          headerBackTitleVisible: false,
+          headerBackButtonDisplayMode: 'minimal',
+          // headerBlurEffect: 'systemThinMaterial',
+          // headerTransparent: Platform.OS === 'ios',
+        })}
+      >
+        <Stack.Screen
+          name={PrayerTimeScreens.MontlyCalendar}
+          component={MonthlyCalendar}
+          options={{
+            headerTitle: t('actionCardGroup.pickDate'),
+          }}
+        />
+        <Stack.Screen
+          name={PrayerTimeScreens.Imsakiye}
+          component={TimeTable}
+          options={{
+            headerTitle: t('actionCardGroup.imsakiye'),
+          }}
+        />
+        <Stack.Screen
+          name={PrayerTimeScreens.Qibla}
+          component={QiblaScreen}
+          options={{
+            headerTitle: t('actionCardGroup.qibla'),
+          }}
+        />
+        <Stack.Screen
+          name={PrayerTimeScreens.LocationSelector}
+          component={LocationSelector}
+          options={{
+            headerTitle: t('locationSelector.locationSelect'),
+          }}
+        />
+      </Stack.Group>
     </Stack.Navigator>
   );
 };

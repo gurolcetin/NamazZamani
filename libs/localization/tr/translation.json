@@ -9,7 +9,9 @@
     "Yes": "Evet",
     "No": "Hayır",
     "Reset": "Sıfırla",
-    "Save": "Kaydet"
+    "Save": "Kaydet",
+    "SearchPlaceHolder": "Ara",
+    "SearchCancelText": "İptal"
   },
   "settings": {
     "SystemDefault": "Sistem",
@@ -111,7 +113,8 @@
     "searchPlaceholder": "Şehir / ilçe / mahalle ara",
     "searchResults": "Arama Sonuçları",
     "noResults": "Sonuç bulunamadı.",
-    "selected": "Seçili"
+    "selected": "Seçili",
+    "locationSelect": "Konum Seç"
   },
   "monthlyCalendar": {
     "loadingLocation": "Konum alınıyor…",

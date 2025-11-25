@@ -355,7 +355,7 @@ export default function QiblaScreen() {
                     L ${cx + 12} ${cy - 6}
                   `}
                     fill="none"
-                    stroke="#16a34a"
+                    stroke={currentTheme.systemGreen}
                     strokeWidth={3}
                     strokeLinecap="round"
                     strokeLinejoin="round"

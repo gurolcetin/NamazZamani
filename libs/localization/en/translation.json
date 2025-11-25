@@ -9,7 +9,9 @@
     "Yes": "Yes",
     "No": "No",
     "Reset": "Reset",
-    "Save": "Save"
+    "Save": "Save",
+    "SearchPlaceHolder": "Search",
+    "SearchCancelText": "Cancel"
   },
   "settings": {
     "SystemDefault": "System",
@@ -111,7 +113,8 @@
     "searchPlaceholder": "Search city / district / neighborhood",
     "searchResults": "Search Results",
     "noResults": "No results found.",
-    "selected": "Selected"
+    "selected": "Selected",
+    "locationSelect": "Select Location"
   },
   "monthlyCalendar": {
     "loadingLocation": "Fetching location…",

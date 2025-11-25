@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  SafeAreaWithStatusBar,
   ScreenViewContainer,
   SegmentedControl,
 } from '../../../libs/components';
@@ -31,7 +30,10 @@ const MissedTracking = () => {
   useEffect(() => {
     setIsMissedPrayerCalculated(missedPrayer.isMissedPrayerCalculated);
     setIsMissedFastingCalculated(missedFasting.isMissedFastingCalculated);
-  }, [missedFasting.isMissedFastingCalculated, missedPrayer.isMissedPrayerCalculated]);
+  }, [
+    missedFasting.isMissedFastingCalculated,
+    missedPrayer.isMissedPrayerCalculated,
+  ]);
   useEffect(() => {
     setIsMissedPrayerCalculated(missedPrayer.isMissedPrayerCalculated);
   }, [missedPrayer.isMissedPrayerCalculated]);
@@ -54,33 +56,31 @@ const MissedTracking = () => {
   };
 
   return (
-    <SafeAreaWithStatusBar>
-      <ScreenViewContainer>
-        <SegmentedControl
-          tabs={tabs}
-          onTabChange={onTabChange}
-          marginHorizontal={horizontalScale(20)}
-          marginTop={horizontalScale(20)}
-        />
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={globalStyle.marginBottomScrollView}
-        >
-          {selectedTab === MissedTrackingTabKeys.Prayer &&
-            (!isMissedPrayerCalculated ? (
-              <PrayerForm />
-            ) : (
-              <CalculatedMissedPrayer />
-            ))}
-          {selectedTab === MissedTrackingTabKeys.Fasting &&
-            (!isMissedFastingCalculated ? (
-              <FastingForm />
-            ) : (
-              <CalculatedMissedFasting />
-            ))}
-        </ScrollView>
-      </ScreenViewContainer>
-    </SafeAreaWithStatusBar>
+    <ScreenViewContainer>
+      <SegmentedControl
+        tabs={tabs}
+        onTabChange={onTabChange}
+        marginHorizontal={horizontalScale(20)}
+        marginTop={horizontalScale(15)}
+      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={globalStyle.marginBottomScrollView}
+      >
+        {selectedTab === MissedTrackingTabKeys.Prayer &&
+          (!isMissedPrayerCalculated ? (
+            <PrayerForm />
+          ) : (
+            <CalculatedMissedPrayer />
+          ))}
+        {selectedTab === MissedTrackingTabKeys.Fasting &&
+          (!isMissedFastingCalculated ? (
+            <FastingForm />
+          ) : (
+            <CalculatedMissedFasting />
+          ))}
+      </ScrollView>
+    </ScreenViewContainer>
   );
 };
 

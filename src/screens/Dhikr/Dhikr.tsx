@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  SafeAreaWithStatusBar,
   ScreenViewContainer,
   SegmentedControl,
 } from '../../../libs/components';
@@ -31,20 +30,18 @@ const Dhikr = () => {
   };
 
   return (
-    <SafeAreaWithStatusBar>
-      <ScreenViewContainer>
-        <SegmentedControl
-          tabs={tabs}
-          onTabChange={onTabChange}
-          marginHorizontal={horizontalScale(20)}
-          marginTop={horizontalScale(20)}
-        />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {selectedTab === DhikrTabKeys.All && <AllDhikr />}
-          {selectedTab === DhikrTabKeys.Prayer && <PrayerDhikr />}
-        </ScrollView>
-      </ScreenViewContainer>
-    </SafeAreaWithStatusBar>
+    <ScreenViewContainer>
+      <SegmentedControl
+        tabs={tabs}
+        onTabChange={onTabChange}
+        marginHorizontal={horizontalScale(20)}
+        marginTop={horizontalScale(15)}
+      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {selectedTab === DhikrTabKeys.All && <AllDhikr />}
+        {selectedTab === DhikrTabKeys.Prayer && <PrayerDhikr />}
+      </ScrollView>
+    </ScreenViewContainer>
   );
 };
 

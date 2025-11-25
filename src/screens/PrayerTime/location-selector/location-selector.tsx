@@ -1,19 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
-  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useTheme } from '../../../../libs/core/providers';
 import { Icon, Icons, ScreenViewContainer } from '../../../../libs/components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { SearchBarCommands } from 'react-native-screens';
+import { useNavigationSearch } from '../../../../libs/core/hooks';
 import {
   upsertSavedPlace,
   removeSavedPlace as removeSavedRedux,
@@ -85,25 +88,36 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
 export default function LocationSelector() {
   const navigation = useNavigation();
   const { currentTheme } = useTheme();
-  //   useModalOptions(navigation, currentTheme);
-
   const dispatch = useDispatch();
   const { t } = useTranslation();
+  const headerHeight = useHeaderHeight();
+  const headerOffset = Platform.OS === 'ios' ? headerHeight : 0;
+  const searchRef = useRef<SearchBarCommands>(null);
+  const search = useNavigationSearch({
+    searchBarOptions: {
+      placeholder: t('General.SearchPlaceHolder'),
+      cancelButtonText: t('General.SearchCancelText'),
+      ref: searchRef,
+    },
+  });
 
   // UI State
 
   const saved = useSelector(selectSavedPlaces);
   const active = useSelector(selectActivePlace);
 
-  const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SavedPlace[]>([]);
-  const hasQuery = query.trim().length > 0;
+  const query = search.trim();
+  const hasQuery = query.length > 0;
 
   /** Debounced Search */
-  const timerRef = useRef<any>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     if (!hasQuery) {
       setResults([]);
       return;
@@ -119,20 +133,30 @@ export default function LocationSelector() {
         setSearching(false);
       }
     }, 350);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [hasQuery, query]);
 
   /** Navigation Actions */
+  const clearSearch = () => {
+    searchRef.current?.clearText();
+    searchRef.current?.cancelSearch();
+  };
+
   const goDevice = () => {
     dispatch(setActiveDevice());
-    setQuery('');
+    clearSearch();
     navigation.goBack(); // <- navigate yerine
   };
 
   const goWith = (p: SavedPlace) => {
     dispatch(upsertSavedPlace(p));
     dispatch(setActiveById(p.id));
-    setQuery('');
+    clearSearch();
     navigation.goBack(); // <- navigate yerine
   };
 
@@ -280,48 +304,12 @@ export default function LocationSelector() {
   /** ---------- Render ---------- */
   return (
     <ScreenViewContainer>
-      {/* Search Bar */}
-      <View style={styles.header}>
-        <View
-          style={[
-            styles.searchBox,
-            { backgroundColor: currentTheme.cardViewBackgroundColor },
-          ]}
-        >
-          <Icon
-            type={Icons.FontAwesome6}
-            name="magnifying-glass"
-            size={18}
-            color={currentTheme.textColor}
-            solid
-          />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder={t('locationSelector.searchPlaceholder')}
-            style={[styles.searchInput, { color: currentTheme.textColor }]}
-            placeholderTextColor={currentTheme.placeholderTextColor}
-            autoCorrect={false}
-            autoCapitalize="none"
-            returnKeyType="search"
-          />
-          {!!query && (
-            <Pressable onPress={() => setQuery('')}>
-              <Icon
-                type={Icons.MaterialDesignIcons}
-                name="close-circle"
-                size={18}
-              />
-            </Pressable>
-          )}
-        </View>
-      </View>
-
-      {/* ---- hasQuery: false → Mevcut + Kaydedilenler ---- */}
-      {!hasQuery && (
-        <>
-          {/* Mevcut Konum */}
-          <Pressable
+      <View style={[styles.content, { paddingTop: headerOffset + 12 }]}>
+        {/* ---- hasQuery: false → Mevcut + Kaydedilenler ---- */}
+        {!hasQuery && (
+          <>
+            {/* Mevcut Konum */}
+            <Pressable
             style={[
               styles.nextCard,
               { backgroundColor: `${currentTheme.primary}CC` },
@@ -405,23 +393,16 @@ export default function LocationSelector() {
           )}
         </>
       )}
+      </View>
     </ScreenViewContainer>
   );
 }
 
 /** ---------- Styles ---------- */
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 14,
+  content: {
+    flex: 1,
   },
-  searchInput: { flex: 1, fontSize: 15 },
-
   sectionHeader: {
     paddingHorizontal: 16,
     paddingTop: 12,

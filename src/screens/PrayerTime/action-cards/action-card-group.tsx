@@ -133,7 +133,7 @@ export const ActionCardGroup = memo((props: Props) => {
 
 const stylesL = StyleSheet.create({
   card: {
-    marginTop: 12,
+    marginTop: 0,
     marginHorizontal: 16,
   },
   headerRow: {
