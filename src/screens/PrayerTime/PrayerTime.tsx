@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  memo,
 } from 'react';
 import {
   ActivityIndicator,
@@ -29,7 +30,7 @@ import {
 } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
 import { reverseGeocode, getUTCLabel } from './reverse-geocode';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { PrayerTimeScreens } from '../../navigation/Routes';
 import { selectActiveResolved } from '../../../libs/redux/reducers/location';
 import {
@@ -76,9 +77,10 @@ function fmtClock(totalSec: number) {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = s % 60;
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(
-    sec,
-  ).padStart(2, '0')}`;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(
+    2,
+    '0',
+  )}:${String(sec).padStart(2, '0')}`;
 }
 function progressBetween(start: Date, end: Date, now = new Date()) {
   const span = end.getTime() - start.getTime();
@@ -132,6 +134,79 @@ function ymd(d: Date) {
   return `${d.getFullYear()}-${mm}-${dd}`;
 }
 const MAX_SPAN_SEC = 26 * 3600; // güvenli üst sınır (clamp)
+
+// ---------------------------------------------------------------------------
+// HOISTED HEADER COMPONENT (FlatList ListHeader dışarı alındı)
+// ---------------------------------------------------------------------------
+type HeaderProps = {
+  cardBg: string;
+  iconType: any;
+  iconName: string;
+  countdownTitle: string;
+  leftClock: string;
+  isResyncing: boolean;
+  seqDateLabel: string;
+  syncingText: string;
+};
+
+const PrayerTimeHeader: React.FC<HeaderProps> = memo(
+  ({
+    cardBg,
+    iconType,
+    iconName,
+    countdownTitle,
+    leftClock,
+    isResyncing,
+    seqDateLabel,
+    syncingText,
+  }) => {
+    return (
+      <View style={styles.listHeaderRoot}>
+        <View style={[styles.nextCardWrapper, { backgroundColor: cardBg }]}>
+          {/* Dekoratif baloncuklar */}
+          <View style={styles.nextDecorTop} />
+          <View style={styles.nextDecorBottom} />
+
+          <View style={styles.nextCardInner}>
+            <View style={styles.nextCardRow}>
+              {/* Icon box */}
+              <View style={styles.nextIconBox}>
+                <Icon
+                  type={iconType}
+                  name={iconName as any}
+                  color={'#FFFFFF'}
+                  size={26}
+                  solid
+                />
+              </View>
+
+              {/* Metinler */}
+              <View style={styles.nextTextWrap}>
+                <Text style={styles.nextLabelText}>{countdownTitle}</Text>
+                <Text style={styles.nextBigTime}>{leftClock}</Text>
+              </View>
+            </View>
+
+            {/* Sağ altta tarih / sync */}
+            <View style={styles.nextMeta}>
+              {!isResyncing && !!seqDateLabel && (
+                <Text style={styles.metaText} numberOfLines={1}>
+                  {seqDateLabel}
+                </Text>
+              )}
+              {isResyncing && (
+                <View style={styles.metaSyncRow}>
+                  <ActivityIndicator size="small" color="#fff" />
+                  <Text style={styles.metaText}>{syncingText}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  },
+);
 
 // ----- UI -------------------------------------------------------------------
 
@@ -364,28 +439,35 @@ export default function PrayerTime() {
     intervalRef.current = setInterval(tick, 1000);
   }, [load]);
 
-  // Timer yaşam döngüsü
-  useEffect(() => {
-    if (!seqRef.current && !timings) return;
-    startTimer();
+  // Timer yaşam döngüsü – SADECE EKRAN FOKUSTA İKEN
+  useFocusEffect(
+    useCallback(() => {
+      // timings henüz gelmediyse bile timer başlatılır, softRecalc sıfır çalışır;
+      // timings gelince effect tekrar çalışıp timer'ı tazeler.
+      startTimer();
 
-    const sub = AppState.addEventListener('change', s => {
-      if (s === 'active') {
-        startTimer();
-      } else if (s === 'background') {
+      const appSub = AppState.addEventListener('change', s => {
+        if (s === 'active') {
+          // Uygulama yeniden aktive olduğunda, eğer bu ekran odaktaysa timer'ı tazele
+          startTimer();
+        } else if (s === 'background') {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+        }
+      });
+
+      return () => {
+        // EKRANDAN ÇIKARKEN / TAB DEĞİŞİRKEN her şeyi temizle
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
         }
-      }
-    });
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      intervalRef.current = null;
-      sub.remove();
-    };
-  }, [startTimer, timings]);
+        appSub.remove();
+      };
+    }, [startTimer]),
+  );
 
   // küçük kart listesi
   const renderSmallCard = useCallback(
@@ -425,53 +507,10 @@ export default function PrayerTime() {
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
-  const ListHeader = () => (
-    <View style={styles.listHeaderRoot}>
-      <View style={[styles.nextCardWrapper, { backgroundColor: cardBg }]}>
-        {/* Dekoratif baloncuklar */}
-        <View style={styles.nextDecorTop} />
-        <View style={styles.nextDecorBottom} />
-
-        <View style={styles.nextCardInner}>
-          <View style={styles.nextCardRow}>
-            {/* Icon box */}
-            <View style={styles.nextIconBox}>
-              <Icon
-                type={currentIcon.type}
-                name={currentIcon.name as any}
-                color={'#FFFFFF'}
-                size={26}
-                solid
-              />
-            </View>
-
-            {/* Metinler */}
-            <View style={styles.nextTextWrap}>
-              <Text style={styles.nextLabelText}>
-                {t('prayerTime.nextPrayerCountdown', { label: currentLabel })}
-              </Text>
-              <Text style={styles.nextBigTime}>{leftClock}</Text>
-            </View>
-          </View>
-
-          {/* Sağ altta tarih / sync */}
-          <View style={styles.nextMeta}>
-            {!isResyncing && !!seqDateLabel && (
-              <Text style={styles.metaText} numberOfLines={1}>
-                {seqDateLabel}
-              </Text>
-            )}
-            {isResyncing && (
-              <View style={styles.metaSyncRow}>
-                <ActivityIndicator size="small" color="#fff" />
-                <Text style={styles.metaText}>{t('prayerTime.syncing')}</Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-    </View>
-  );
+  const countdownTitle = t('prayerTime.nextPrayerCountdown', {
+    label: currentLabel,
+  });
+  const syncingText = t('prayerTime.syncing');
 
   return (
     <SafeAreaWithStatusBar>
@@ -510,7 +549,18 @@ export default function PrayerTime() {
             numColumns={2}
             keyExtractor={i => i.key}
             renderItem={renderSmallCard}
-            ListHeaderComponent={ListHeader}
+            ListHeaderComponent={
+              <PrayerTimeHeader
+                cardBg={cardBg}
+                iconType={currentIcon.type}
+                iconName={currentIcon.name as any}
+                countdownTitle={countdownTitle}
+                leftClock={leftClock}
+                isResyncing={isResyncing}
+                seqDateLabel={seqDateLabel}
+                syncingText={syncingText}
+              />
+            }
             contentContainerStyle={styles.listContent}
             columnWrapperStyle={styles.columnWrapper}
             showsVerticalScrollIndicator={false}
@@ -546,15 +596,12 @@ const styles = StyleSheet.create({
   },
   nextLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
   nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 16, marginTop: 2 },
-  // Tarih etiketi
   dateText: {
     marginTop: 6,
     color: 'rgba(255,255,255,0.9)',
     fontSize: 13,
     fontWeight: '600',
   },
-
-  // Senkron göstergesi stilleri
   syncRow: {
     marginTop: 8,
     flexDirection: 'row',
@@ -573,7 +620,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    position: 'relative', // <-- sağ-alt meta için
+    position: 'relative',
   },
   screenInner: {
     flex: 1,
