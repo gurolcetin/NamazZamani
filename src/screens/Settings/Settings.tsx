@@ -42,7 +42,6 @@ import { updateMenstrualCycle } from '../../../libs/redux/reducers/CalculateSett
 import { isNullOrEmptyString, isNumber } from 'typescript-util-functions';
 import { createStyles } from './style';
 import { DevSettings } from 'react-native';
-import type { LanguageModel } from '../../../libs/common/models';
 
 const accentOptions: Accent[] = [
   Accent.TEAL,
@@ -88,11 +87,6 @@ const Settings = ({}: SettingsProps) => {
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const calculateSettings = useSelector(
     (state: any) => state.calculateSettings,
-  );
-
-  const translate = useCallback(
-    (languageModel: LanguageModel) => t(languageModel.key),
-    [t],
   );
 
   const [selectedLanguage, setSelectedLanguage] = useState(
@@ -148,12 +142,12 @@ const Settings = ({}: SettingsProps) => {
   const languageOptions = [
     {
       key: LanguagePrefix.TURKISH,
-      title: translate(LanguageSettingsConstants.Turkish),
+      title: t(LanguageSettingsConstants.Turkish.key),
       flag: require('../../../assets/images/flags/turkey.png'),
     },
     {
       key: LanguagePrefix.ENGLISH,
-      title: translate(LanguageSettingsConstants.English),
+      title: t(LanguageSettingsConstants.English.key),
       flag: require('../../../assets/images/flags/united-kingdom.png'),
     },
   ];
@@ -268,7 +262,7 @@ const Settings = ({}: SettingsProps) => {
             {/* Dil kartı */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>
-                {translate(SettingsScreenLanguageConstants.Language)}
+                {t(SettingsScreenLanguageConstants.Language.key)}
               </Text>
               <Pressable
                 ref={langButtonRef}
@@ -309,15 +303,15 @@ const Settings = ({}: SettingsProps) => {
             {/* Tema + Accent */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>
-                {translate(SettingsScreenLanguageConstants.ThemeAndAccent)}
+                {t(SettingsScreenLanguageConstants.ThemeAndAccent.key)}
               </Text>
               <Text style={styles.themeSectionLabel}>
-                {translate(SettingsScreenLanguageConstants.ThemeMode)}
+                {t(SettingsScreenLanguageConstants.ThemeMode.key)}
               </Text>
               <FormSegmentedControl
                 options={[
                   {
-                    label: translate(ThemeSettingsConstants.Light),
+                    label: t(ThemeSettingsConstants.Light.key),
                     value: Theme.LIGHT,
                     iconProps: {
                       name: themeModeIcons.light,
@@ -326,7 +320,7 @@ const Settings = ({}: SettingsProps) => {
                     },
                   },
                   {
-                    label: translate(ThemeSettingsConstants.Dark),
+                    label: t(ThemeSettingsConstants.Dark.key),
                     value: Theme.DARK,
                     iconProps: {
                       name: themeModeIcons.dark,
@@ -335,7 +329,7 @@ const Settings = ({}: SettingsProps) => {
                     },
                   },
                   {
-                    label: translate(ThemeSettingsConstants.SystemDefault),
+                    label: t(ThemeSettingsConstants.SystemDefault.key),
                     value: Theme.SYSTEM,
                     iconProps: {
                       name: themeModeIcons.system,
@@ -357,7 +351,7 @@ const Settings = ({}: SettingsProps) => {
                   },
                 ]}
               >
-                {translate(SettingsScreenLanguageConstants.AccentColor)}
+                {t(SettingsScreenLanguageConstants.AccentColor.key)}
               </Text>
               <View style={styles.accentRow}>
                 {accentOptions.map(opt => {
@@ -408,11 +402,11 @@ const Settings = ({}: SettingsProps) => {
             {/* Hesaplama Ayarları */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>
-                {translate(SettingsConstants.CalculateSettings)}
+                {t(SettingsConstants.CalculateSettings.key)}
               </Text>
               <Text style={styles.label}>
-                {translate(
-                  CalculateSettingsLanguageConstants.NumberOfMenstrualDays,
+                {t(
+                  CalculateSettingsLanguageConstants.NumberOfMenstrualDays.key,
                 )}
               </Text>
               <TextInput
@@ -438,7 +432,7 @@ const Settings = ({}: SettingsProps) => {
                   },
                 ]}
               >
-                {translate(SettingsScreenLanguageConstants.CalculationHelper)}
+                {t(SettingsScreenLanguageConstants.CalculationHelper.key)}
               </Text>
               <Pressable
                 style={[
@@ -455,7 +449,7 @@ const Settings = ({}: SettingsProps) => {
                 }}
               >
                 <Text style={styles.saveButtonLabel}>
-                  {translate(GeneralLanguageConstants.Save)}
+                  {t(GeneralLanguageConstants.Save.key)}
                 </Text>
               </Pressable>
             </View>

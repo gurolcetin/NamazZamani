@@ -24,7 +24,6 @@ import {
   increasePerformedFasting,
   resetMissedFasting,
 } from '../../../../redux/reducers/MissedFasting';
-import type { LanguageModel } from '../../../../common/models';
 
 const CalculatedMissedFasting = () => {
   const dispatch = useDispatch();
@@ -32,13 +31,11 @@ const CalculatedMissedFasting = () => {
   const { currentTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
-  const translate = (languageModel: LanguageModel) => t(languageModel.key);
-
-  const recalculateMessage = translate(
-    CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
+  const recalculateMessage = t(
+    CalculatedMissedPrayerLanguageConstants.RecalculateMessage.key,
   );
-  const no = translate(GeneralLanguageConstants.No);
-  const yes = translate(GeneralLanguageConstants.Yes);
+  const no = t(GeneralLanguageConstants.No.key);
+  const yes = t(GeneralLanguageConstants.Yes.key);
   const reCalculateButtonAlert = () =>
     Alert.alert(
       recalculateMessage,
@@ -60,9 +57,7 @@ const CalculatedMissedFasting = () => {
   const cardViewProps: CardViewProps = {
     paddingLeft: 0,
     bottomDescription:
-      translate(
-        CalculatedMissedFastingLanguageConstants.NumberofFastsKept,
-      ) +
+      t(CalculatedMissedFastingLanguageConstants.NumberofFastsKept.key) +
       StringConstants.COLON +
       StringConstants.SPACE +
       missedFasting.missedFasting.performedFastingCount,
@@ -76,7 +71,7 @@ const CalculatedMissedFasting = () => {
         <View style={styles.container}>
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: currentTheme.textColor }]}>
-              {translate(CalculatedMissedFastingLanguageConstants.Fasting)}
+              {t(CalculatedMissedFastingLanguageConstants.Fasting.key)}
             </Text>
             <View style={styles.calculatedMissedPrayerRightContainer}>
               <InputSpinner
@@ -115,7 +110,7 @@ const CalculatedMissedFasting = () => {
     <>
       <CardView {...cardViewProps} paddingLeft={0} />
       <SubmitButton
-        label={translate(CalculatedMissedPrayerLanguageConstants.Recalculate)}
+        label={t(CalculatedMissedPrayerLanguageConstants.Recalculate.key)}
         onSubmit={() => {
           reCalculateButtonAlert();
           hapticFeedback(HapticFeedbackMethods.ImpactMedium);
@@ -131,7 +126,7 @@ const CalculatedMissedFasting = () => {
             { color: currentTheme.textColor },
           ]}
         >
-          {translate(GeneralLanguageConstants.LastUpdateDate)}
+          {t(GeneralLanguageConstants.LastUpdateDate.key)}
           {StringConstants.COLON}
           {StringConstants.SPACE}
           {new Date(missedFasting.lastUpdateDate).toLocaleString(i18n.language)}
@@ -142,7 +137,7 @@ const CalculatedMissedFasting = () => {
             { color: currentTheme.textColor },
           ]}
         >
-          {translate(GeneralLanguageConstants.BeginDate)}
+          {t(GeneralLanguageConstants.BeginDate.key)}
           {StringConstants.COLON}
           {StringConstants.SPACE}
           {new Date(missedFasting.beginDate).toLocaleString(i18n.language)}

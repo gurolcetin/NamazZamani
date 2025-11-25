@@ -23,7 +23,6 @@ import {
   StringConstants,
 } from '../../../../common/constants';
 import {useTranslation} from 'react-i18next';
-import type {LanguageModel} from '../../../../common/models';
 
 const CalculatedMissedPrayer = () => {
   const dispatch = useDispatch();
@@ -31,12 +30,11 @@ const CalculatedMissedPrayer = () => {
   const {currentTheme} = useTheme();
   const {t, i18n} = useTranslation();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
-  const translate = (languageModel: LanguageModel) => t(languageModel.key);
-  const recalculateMessage = translate(
-    CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
+  const recalculateMessage = t(
+    CalculatedMissedPrayerLanguageConstants.RecalculateMessage.key,
   );
-  const no = translate(GeneralLanguageConstants.No);
-  const yes = translate(GeneralLanguageConstants.Yes);
+  const no = t(GeneralLanguageConstants.No.key);
+  const yes = t(GeneralLanguageConstants.Yes.key);
   const reCalculateButtonAlert = () => {
     Alert.alert(recalculateMessage, '', [
       {
@@ -102,7 +100,7 @@ const CalculatedMissedPrayer = () => {
         return <CardView key={index} {...cardViewProps} paddingLeft={0} />;
       })}
       <SubmitButton
-        label={translate(CalculatedMissedPrayerLanguageConstants.Recalculate)}
+        label={t(CalculatedMissedPrayerLanguageConstants.Recalculate.key)}
         onSubmit={() => {
           reCalculateButtonAlert();
           hapticFeedback(HapticFeedbackMethods.ImpactMedium);
@@ -117,7 +115,7 @@ const CalculatedMissedPrayer = () => {
           styles.bottomDescriptionText,
           {color: currentTheme.textColor},
         ]}>
-        {translate(GeneralLanguageConstants.LastUpdateDate)}
+        {t(GeneralLanguageConstants.LastUpdateDate.key)}
         {StringConstants.COLON}
         {StringConstants.SPACE}
         {new Date(missedPrayer.lastUpdateDate).toLocaleString(i18n.language)}
@@ -127,7 +125,7 @@ const CalculatedMissedPrayer = () => {
           styles.bottomDescriptionText,
           {color: currentTheme.textColor},
         ]}>
-        {translate(GeneralLanguageConstants.BeginDate)}
+        {t(GeneralLanguageConstants.BeginDate.key)}
         {StringConstants.COLON}
         {StringConstants.SPACE}
         {new Date(missedPrayer.beginDate).toLocaleString(i18n.language)}
