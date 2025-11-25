@@ -29,7 +29,7 @@ import {
   resetDhikrByItem,
   updateDhikr,
 } from '../../../redux/reducers/Dhikr';
-import { Translate, getDhikrProgress, hapticFeedback } from '../../helpers';
+import { getDhikrProgress, hapticFeedback } from '../../helpers';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
   isNullOrEmptyString,
@@ -38,6 +38,7 @@ import {
 } from 'typescript-util-functions';
 import { useTheme } from '../../providers';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 type DhikrFormFields = {
   dhikrName: string;
@@ -57,6 +58,7 @@ const AllDhikr = () => {
     },
   });
 
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
   const { currentTheme } = useTheme();
@@ -69,9 +71,10 @@ const AllDhikr = () => {
   const [value, setValue] = useState('');
   const [radioButtonList, setRadioButtonList] = useState<RadioButtonItem[]>([]);
 
-  const no = Translate(GeneralLanguageConstants.No);
-  const yes = Translate(GeneralLanguageConstants.Yes);
-  const resetText = Translate(GeneralLanguageConstants.Reset);
+  const no = t(GeneralLanguageConstants.No.key);
+  const yes = t(GeneralLanguageConstants.Yes.key);
+  const resetText = t(GeneralLanguageConstants.Reset.key);
+  const requiredMessage = t(GeneralLanguageConstants.RequiredMessage.key);
 
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const isCompactHeight = height < 740;
@@ -404,9 +407,7 @@ const AllDhikr = () => {
             rules={{
               required: true,
             }}
-            requiredMessage={Translate(
-              GeneralLanguageConstants.RequiredMessage,
-            )}
+            requiredMessage={requiredMessage}
             control={control}
             name="dhikrName"
             render={({ field: { onChange, onBlur, value } }) => (
@@ -445,9 +446,7 @@ const AllDhikr = () => {
               },
             }}
             validateMessage="Zikir döngü sayısı 0 ile 99999 arasında olmalıdır."
-            requiredMessage={Translate(
-              GeneralLanguageConstants.RequiredMessage,
-            )}
+            requiredMessage={requiredMessage}
             control={control}
             name="dhikrCount"
             defaultValue={33 as any}

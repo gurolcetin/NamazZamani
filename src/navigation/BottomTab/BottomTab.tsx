@@ -15,10 +15,12 @@ import {
   bottomTabMenuItems,
   defaultNativeStackNavOptions,
 } from '../../../libs/common/constants';
+import { useTranslation } from 'react-i18next';
 
 const Tab = createBottomTabNavigator();
 
 const CustomTabBar = ({ state, navigation }: any) => {
+  const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(1)).current;
@@ -89,7 +91,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {item?.label}
+                  {item && t(item.label.key)}
                 </Text>
               </View>
             );
@@ -102,6 +104,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
 
 const BottomTabNavigator = () => {
   const { currentTheme } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Tab.Navigator
@@ -116,7 +119,7 @@ const BottomTabNavigator = () => {
           key={item.id}
           name={item.route}
           component={item.component}
-          options={defaultNativeStackNavOptions(currentTheme, item)}
+          options={defaultNativeStackNavOptions(currentTheme, item, t)}
         />
       ))}
     </Tab.Navigator>

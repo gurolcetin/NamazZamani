@@ -9,10 +9,12 @@ import {
 import { CardView, CircleProgressBar } from '../../../components';
 import styles from './style';
 import { resetPrayerDhikr, updateDhikr } from '../../../redux/reducers/Dhikr';
-import { Translate, hapticFeedback } from '../../helpers';
+import { hapticFeedback } from '../../helpers';
 import { useTheme } from '../../providers';
+import { useTranslation } from 'react-i18next';
 
 const PrayerDhikr = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { currentTheme } = useTheme();
   const [cardWidth, setCardWidth] = useState(0);
@@ -88,7 +90,7 @@ const PrayerDhikr = () => {
         }}
       >
         <Text style={styles.emptyStateButtonText}>
-          {Translate(GeneralLanguageConstants.Reset).toLocaleUpperCase()}
+          {t(GeneralLanguageConstants.Reset.key).toLocaleUpperCase()}
         </Text>
       </Pressable>
     </View>

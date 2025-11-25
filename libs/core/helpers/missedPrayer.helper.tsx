@@ -3,22 +3,25 @@ import {
   PrayerTimeConstants,
   StringConstants,
 } from '../../common/constants';
-import {Translate} from './language.helper';
+import {TFunction} from 'i18next';
 
-export const GetPrayerNameByLanguage = (prayerName: string) => {
+export const GetPrayerNameByLanguage = (
+  prayerName: string,
+  t: TFunction,
+) => {
   switch (prayerName) {
     case PrayerTimeConstants.SUNRISE:
-      return Translate(CalculatedMissedPrayerLanguageConstants.Sunrise);
+      return t(CalculatedMissedPrayerLanguageConstants.Sunrise.key);
     case PrayerTimeConstants.DHUHR:
-      return Translate(CalculatedMissedPrayerLanguageConstants.Dhuhr);
+      return t(CalculatedMissedPrayerLanguageConstants.Dhuhr.key);
     case PrayerTimeConstants.ASR:
-      return Translate(CalculatedMissedPrayerLanguageConstants.Asr);
+      return t(CalculatedMissedPrayerLanguageConstants.Asr.key);
     case PrayerTimeConstants.MAGHRIB:
-      return Translate(CalculatedMissedPrayerLanguageConstants.Maghrib);
+      return t(CalculatedMissedPrayerLanguageConstants.Maghrib.key);
     case PrayerTimeConstants.ISHA:
-      return Translate(CalculatedMissedPrayerLanguageConstants.Isha);
+      return t(CalculatedMissedPrayerLanguageConstants.Isha.key);
     case PrayerTimeConstants.WITR:
-      return Translate(CalculatedMissedPrayerLanguageConstants.Witr);
+      return t(CalculatedMissedPrayerLanguageConstants.Witr.key);
     default:
       return StringConstants.EMPTY_STRING;
   }

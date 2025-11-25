@@ -15,11 +15,7 @@ import {
 } from '../../../../redux/reducers/MissedPrayer';
 import styles from './style';
 import {useTheme} from '../../../providers';
-import {
-  GetPrayerNameByLanguage,
-  Translate,
-  hapticFeedback,
-} from '../../../helpers';
+import {GetPrayerNameByLanguage, hapticFeedback} from '../../../helpers';
 import {
   CalculatedMissedPrayerLanguageConstants,
   GeneralLanguageConstants,
@@ -27,18 +23,20 @@ import {
   StringConstants,
 } from '../../../../common/constants';
 import {useTranslation} from 'react-i18next';
+import type {LanguageModel} from '../../../../common/models';
 
 const CalculatedMissedPrayer = () => {
   const dispatch = useDispatch();
   const missedPrayer = useSelector((state: any) => state.missedPrayer);
   const {currentTheme} = useTheme();
-  const {i18n} = useTranslation();
+  const {t, i18n} = useTranslation();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
-  const recalculateMessage = Translate(
+  const translate = (languageModel: LanguageModel) => t(languageModel.key);
+  const recalculateMessage = translate(
     CalculatedMissedPrayerLanguageConstants.RecalculateMessage,
   );
-  const no = Translate(GeneralLanguageConstants.No);
-  const yes = Translate(GeneralLanguageConstants.Yes);
+  const no = translate(GeneralLanguageConstants.No);
+  const yes = translate(GeneralLanguageConstants.Yes);
   const reCalculateButtonAlert = () => {
     Alert.alert(recalculateMessage, '', [
       {
@@ -60,7 +58,7 @@ const CalculatedMissedPrayer = () => {
           paddingLeft: 0,
           bottomDescription:
             'Kılınan Toplam ' +
-            GetPrayerNameByLanguage(prayer.name) +
+            GetPrayerNameByLanguage(prayer.name, t) +
             ' Namazı Sayısı: ' +
             prayer.performedPrayerCount,
           bottomDescriptionStyle: [
@@ -73,7 +71,7 @@ const CalculatedMissedPrayer = () => {
               <View style={styles.container}>
                 <View style={styles.inputContainer}>
                   <Text style={[styles.label, {color: currentTheme.textColor}]}>
-                    {GetPrayerNameByLanguage(prayer.name)}
+                    {GetPrayerNameByLanguage(prayer.name, t)}
                   </Text>
                   <View style={styles.calculatedMissedPrayerRightContainer}>
                     <InputSpinner
@@ -104,7 +102,7 @@ const CalculatedMissedPrayer = () => {
         return <CardView key={index} {...cardViewProps} paddingLeft={0} />;
       })}
       <SubmitButton
-        label={Translate(CalculatedMissedPrayerLanguageConstants.Recalculate)}
+        label={translate(CalculatedMissedPrayerLanguageConstants.Recalculate)}
         onSubmit={() => {
           reCalculateButtonAlert();
           hapticFeedback(HapticFeedbackMethods.ImpactMedium);
@@ -119,7 +117,7 @@ const CalculatedMissedPrayer = () => {
           styles.bottomDescriptionText,
           {color: currentTheme.textColor},
         ]}>
-        {Translate(GeneralLanguageConstants.LastUpdateDate)}
+        {translate(GeneralLanguageConstants.LastUpdateDate)}
         {StringConstants.COLON}
         {StringConstants.SPACE}
         {new Date(missedPrayer.lastUpdateDate).toLocaleString(i18n.language)}
@@ -129,7 +127,7 @@ const CalculatedMissedPrayer = () => {
           styles.bottomDescriptionText,
           {color: currentTheme.textColor},
         ]}>
-        {Translate(GeneralLanguageConstants.BeginDate)}
+        {translate(GeneralLanguageConstants.BeginDate)}
         {StringConstants.COLON}
         {StringConstants.SPACE}
         {new Date(missedPrayer.beginDate).toLocaleString(i18n.language)}

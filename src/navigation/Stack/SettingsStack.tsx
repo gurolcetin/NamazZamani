@@ -3,17 +3,18 @@ import { Routes } from '../Routes';
 import Settings from '../../screens/Settings/Settings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MenuNameLanguageConstants } from '../../../libs/common/constants';
-import { Translate } from '../../../libs/core/helpers';
+import { useTranslation } from 'react-i18next';
 
 const Stack = createNativeStackNavigator();
 export const SettingsStack = () => {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator initialRouteName={Routes.Settings}>
       <Stack.Screen
         name={Routes.Settings}
         component={Settings}
         options={{
-          headerTitle: Translate(MenuNameLanguageConstants.Settings),
+          headerTitle: t(MenuNameLanguageConstants.Settings.key),
         }}
       />
     </Stack.Navigator>

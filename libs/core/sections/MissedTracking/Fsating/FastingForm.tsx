@@ -26,8 +26,9 @@ import {
   MissedTrackingLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
-import { Translate, calculateRamadanCountBetweenDates } from '../../../helpers';
+import { calculateRamadanCountBetweenDates } from '../../../helpers';
 import { createMissedFasting } from '../../../../redux/reducers/MissedFasting';
+import type { LanguageModel } from '../../../../common/models';
 
 type FastingFormValues = {
   gender: Gender | '';
@@ -43,7 +44,7 @@ const FastingForm: React.FC = () => {
     (state: any) => state.calculateSettings,
   );
   const { currentTheme } = useTheme();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -54,37 +55,39 @@ const FastingForm: React.FC = () => {
     LanguageLocaleKeys.TURKISH,
   );
 
-  // --- Translations / labels -------------------------------------------------
-  const maleLabel = Translate(GeneralLanguageConstants.Male);
-  const femaleLabel = Translate(GeneralLanguageConstants.Female);
-  const calculateLabel = Translate(GeneralLanguageConstants.Calculate);
+  const translate = (languageModel: LanguageModel) => t(languageModel.key);
 
-  const genderLabel = Translate(MissedPrayerFormLanguageConstants.Gender);
-  const birthDateLabel = Translate(MissedPrayerFormLanguageConstants.BirthDate);
-  const pubertyAgeLabel = Translate(
+  // --- Translations / labels -------------------------------------------------
+  const maleLabel = translate(GeneralLanguageConstants.Male);
+  const femaleLabel = translate(GeneralLanguageConstants.Female);
+  const calculateLabel = translate(GeneralLanguageConstants.Calculate);
+
+  const genderLabel = translate(MissedPrayerFormLanguageConstants.Gender);
+  const birthDateLabel = translate(MissedPrayerFormLanguageConstants.BirthDate);
+  const pubertyAgeLabel = translate(
     MissedPrayerFormLanguageConstants.EntryIntoPubertyAge,
   );
-  const fastingPerformedLabel = Translate(
+  const fastingPerformedLabel = translate(
     CalculatedMissedFastingLanguageConstants.NumberofFastsKept,
   );
 
-  const birthDateError = Translate(
+  const birthDateError = translate(
     MissedTrackingLanguageConstants.BirthDateError,
   );
-  const birthDatePubertyError = Translate(
+  const birthDatePubertyError = translate(
     MissedTrackingLanguageConstants.BirthDatePubertyError,
   );
-  const birthDateControlError = Translate(
+  const birthDateControlError = translate(
     MissedTrackingLanguageConstants.BirthDateControlError,
   );
-  const fastsNotCalculatedError = Translate(
+  const fastsNotCalculatedError = translate(
     FastingFormLanguageConstants.FastsNotCalculatedError,
   );
-  const noOutstandingFasts = Translate(
+  const noOutstandingFasts = translate(
     FastingFormLanguageConstants.NoOutstandingFasts,
   );
-  const requiredMessage = Translate(GeneralLanguageConstants.RequiredMessage);
-  const pubertyValidateMessage = Translate(
+  const requiredMessage = translate(GeneralLanguageConstants.RequiredMessage);
+  const pubertyValidateMessage = translate(
     MissedPrayerFormLanguageConstants.EntryIntoPubertyAgeValidateMessage,
   );
 

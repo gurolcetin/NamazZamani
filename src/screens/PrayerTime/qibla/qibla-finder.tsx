@@ -17,8 +17,8 @@ import CompassHeading from 'react-native-compass-heading';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { Icon, Icons, ScreenViewContainer } from '../../../../libs/components';
 import { QiblaLanguageConstants } from '../../../../libs/common/constants/language.constants';
-import { Translate } from '../../../../libs/core/helpers';
 import { useTheme } from '../../../../libs/core/providers';
+import { useTranslation } from 'react-i18next';
 
 /** --- Constants --- */
 const KAABA = { lat: 21.422487, lon: 39.826206 }; // Mescid-i Haram
@@ -79,17 +79,16 @@ function turnHint(delta: number): string {
 
 /** --- Component --- */
 export default function QiblaScreen() {
-  const permissionDeniedMessage = Translate(
-    QiblaLanguageConstants.PermissionDenied,
-  );
-  const unknownErrorMessage = Translate(QiblaLanguageConstants.UnknownError);
-  const directionLabel = Translate(QiblaLanguageConstants.DirectionLabel);
-  const angleLabel = Translate(QiblaLanguageConstants.AngleLabel);
-  const distanceLabel = Translate(QiblaLanguageConstants.DistanceLabel);
-  const loadingLabel = Translate(QiblaLanguageConstants.Loading);
-  const turnRightLabel = Translate(QiblaLanguageConstants.TurnRight);
-  const turnLeftLabel = Translate(QiblaLanguageConstants.TurnLeft);
-  const onCourseLabel = Translate(QiblaLanguageConstants.OnCourse);
+  const { t } = useTranslation();
+  const permissionDeniedMessage = t(QiblaLanguageConstants.PermissionDenied.key);
+  const unknownErrorMessage = t(QiblaLanguageConstants.UnknownError.key);
+  const directionLabel = t(QiblaLanguageConstants.DirectionLabel.key);
+  const angleLabel = t(QiblaLanguageConstants.AngleLabel.key);
+  const distanceLabel = t(QiblaLanguageConstants.DistanceLabel.key);
+  const loadingLabel = t(QiblaLanguageConstants.Loading.key);
+  const turnRightLabel = t(QiblaLanguageConstants.TurnRight.key);
+  const turnLeftLabel = t(QiblaLanguageConstants.TurnLeft.key);
+  const onCourseLabel = t(QiblaLanguageConstants.OnCourse.key);
   const qiblaLabels: Record<string, string> = {
     [QiblaLanguageConstants.TurnRight.key]: turnRightLabel,
     [QiblaLanguageConstants.TurnLeft.key]: turnLeftLabel,

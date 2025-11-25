@@ -28,12 +28,12 @@ import {
   MissedTrackingLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
-import { Translate } from '../../../helpers';
 import {
   calculateDaysBetweenDates,
   calculateMonthsBetweenDates,
 } from '../../../utils';
 import { createMissedPrayer } from '../../../../redux/reducers/MissedPrayer';
+import type { LanguageModel } from '../../../../common/models';
 
 type PrayerFormValues = {
   gender: Gender | '';
@@ -49,7 +49,7 @@ const PrayerForm: React.FC = () => {
     (state: any) => state.calculateSettings,
   );
   const { currentTheme } = useTheme();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -60,40 +60,44 @@ const PrayerForm: React.FC = () => {
     LanguageLocaleKeys.TURKISH,
   );
 
-  // --- Translations / labels -------------------------------------------------
-  const maleLabel = Translate(GeneralLanguageConstants.Male);
-  const femaleLabel = Translate(GeneralLanguageConstants.Female);
-  const calculateLabel = Translate(GeneralLanguageConstants.Calculate);
+  const translate = (languageModel: LanguageModel) => t(languageModel.key);
 
-  const genderLabel = Translate(MissedPrayerFormLanguageConstants.Gender);
-  const birthDateLabel = Translate(MissedPrayerFormLanguageConstants.BirthDate);
-  const pubertyAgeLabel = Translate(
+  // --- Translations / labels -------------------------------------------------
+  const maleLabel = translate(GeneralLanguageConstants.Male);
+  const femaleLabel = translate(GeneralLanguageConstants.Female);
+  const calculateLabel = translate(GeneralLanguageConstants.Calculate);
+
+  const genderLabel = translate(MissedPrayerFormLanguageConstants.Gender);
+  const birthDateLabel = translate(
+    MissedPrayerFormLanguageConstants.BirthDate,
+  );
+  const pubertyAgeLabel = translate(
     MissedPrayerFormLanguageConstants.EntryIntoPubertyAge,
   );
-  const daysOfPrayerLabel = Translate(
+  const daysOfPrayerLabel = translate(
     MissedPrayerFormLanguageConstants.NumberofDaysofPrayer,
   );
 
-  const birthDateError = Translate(
+  const birthDateError = translate(
     MissedTrackingLanguageConstants.BirthDateError,
   );
-  const birthDatePubertyError = Translate(
+  const birthDatePubertyError = translate(
     MissedTrackingLanguageConstants.BirthDatePubertyError,
   );
-  const birthDateControlError = Translate(
+  const birthDateControlError = translate(
     MissedTrackingLanguageConstants.BirthDateControlError,
   );
-  const numberofMissedPrayerBirthDatePubertyError = Translate(
+  const numberofMissedPrayerBirthDatePubertyError = translate(
     MissedPrayerFormLanguageConstants.NumberofMissedPrayerBirthDatePubertyError,
   );
-  const missedPrayerNotCalculatedError = Translate(
+  const missedPrayerNotCalculatedError = translate(
     MissedPrayerFormLanguageConstants.MissedPrayerNotCalculatedError,
   );
-  const noMissedPrayer = Translate(
+  const noMissedPrayer = translate(
     MissedPrayerFormLanguageConstants.NoMissedPrayer,
   );
-  const requiredMessage = Translate(GeneralLanguageConstants.RequiredMessage);
-  const pubertyValidateMessage = Translate(
+  const requiredMessage = translate(GeneralLanguageConstants.RequiredMessage);
+  const pubertyValidateMessage = translate(
     MissedPrayerFormLanguageConstants.EntryIntoPubertyAgeValidateMessage,
   );
 

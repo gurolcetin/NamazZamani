@@ -14,13 +14,14 @@ import {
   PrayerForm,
   CalculatedMissedFasting,
 } from '../../../libs/core/sections';
-import { Translate } from '../../../libs/core/helpers';
 import { horizontalScale } from '../../../libs/core/utils';
 import { ScrollView } from 'react-native';
 import { globalStyle } from '../../../libs/styles';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 const MissedTracking = () => {
+  const { t } = useTranslation();
   const missedPrayer = useSelector((state: any) => state.missedPrayer);
   const missedFasting = useSelector((state: any) => state.missedFasting);
   const [isMissedPrayerCalculated, setIsMissedPrayerCalculated] =
@@ -40,11 +41,11 @@ const MissedTracking = () => {
   const tabs = [
     {
       key: MissedTrackingTabKeys.Prayer,
-      value: Translate(MissedTrackingLanguageConstants.MissedPrayer),
+      value: t(MissedTrackingLanguageConstants.MissedPrayer.key),
     },
     {
       key: MissedTrackingTabKeys.Fasting,
-      value: Translate(MissedTrackingLanguageConstants.MissedFasting),
+      value: t(MissedTrackingLanguageConstants.MissedFasting.key),
     },
   ];
   const [selectedTab, setSelectedTab] = useState<string | number>(tabs[0].key);

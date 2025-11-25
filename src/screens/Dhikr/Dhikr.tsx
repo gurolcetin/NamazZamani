@@ -9,19 +9,20 @@ import {
   DhikrLanguageConstants,
   DhikrTabKeys,
 } from '../../../libs/common/constants';
-import { Translate } from '../../../libs/core/helpers';
+import { useTranslation } from 'react-i18next';
 import { horizontalScale } from '../../../libs/core/utils';
 import { AllDhikr, PrayerDhikr } from '../../../libs/core/sections';
 
 const Dhikr = () => {
+  const { t } = useTranslation();
   const tabs = [
     {
       key: DhikrTabKeys.Prayer,
-      value: Translate(DhikrLanguageConstants.PrayerDhikr),
+      value: t(DhikrLanguageConstants.PrayerDhikr.key),
     },
     {
       key: DhikrTabKeys.All,
-      value: Translate(DhikrLanguageConstants.AllDhikr),
+      value: t(DhikrLanguageConstants.AllDhikr.key),
     },
   ];
   const [selectedTab, setSelectedTab] = useState<string | number>(tabs[0].key);
