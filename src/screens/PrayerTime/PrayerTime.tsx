@@ -896,7 +896,7 @@ const styles = StyleSheet.create({
   // ---- Ramadan card styles -------------------------------------------------
   ramadanSingleRoot: {
     marginTop: 16,
-    marginBottom: 28,
+    marginBottom: 12,
   },
   ramadanSingleCard: {
     flexDirection: 'row',
