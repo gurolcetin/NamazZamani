@@ -92,7 +92,7 @@ export default function LocationSelector() {
   const { t } = useTranslation();
   const headerHeight = useHeaderHeight();
   const headerOffset = Platform.OS === 'ios' ? headerHeight : 0;
-  const searchRef = useRef<SearchBarCommands>(null);
+  const searchRef = useRef<SearchBarCommands>(null!);
   const search = useNavigationSearch({
     searchBarOptions: {
       placeholder: t('General.SearchPlaceHolder'),
