@@ -239,27 +239,21 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
 type RamadanCountdownProps = {
   timings: PrayerTimings | null;
   systemRed?: string;
+  currentNow: Date;
 };
 
 const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
-  ({ timings, systemRed }) => {
+  ({ timings, systemRed, currentNow }) => {
     const { t } = useTranslation();
-    const [now, setNow] = useState(new Date());
-
-    useEffect(() => {
-      const id = setInterval(() => setNow(new Date()), 1000);
-      return () => clearInterval(id);
-    }, []);
-
     if (!timings) return null;
 
     const { iftarTarget, sahurTarget, maghribToday, fajrToday } =
-      getIftarAndSahurTargets(timings, now);
+      getIftarAndSahurTargets(timings, currentNow);
 
     const FIFTEEN_MIN = 15 * 60;
 
     // Akşamdan imsağa kadar sahur bilgisi göster, diğer zamanlarda iftar
-    const isNightPhase = now >= maghribToday || now < fajrToday;
+    const isNightPhase = currentNow >= maghribToday || currentNow < fajrToday;
     const activeTarget = isNightPhase ? sahurTarget : iftarTarget;
     const activeLabel = isNightPhase
       ? t('prayerTime.ramadanSahurCountdown')
@@ -267,7 +261,7 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
 
     const secondsLeft = Math.max(
       0,
-      Math.floor((activeTarget.getTime() - now.getTime()) / 1000),
+      Math.floor((activeTarget.getTime() - currentNow.getTime()) / 1000),
     );
     const countdownClock = fmtClock(secondsLeft);
     const isCritical = secondsLeft > 0 && secondsLeft <= FIFTEEN_MIN;
@@ -331,6 +325,7 @@ export default function PrayerTime() {
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
     null,
   );
+  const [nowTick, setNowTick] = useState(new Date());
 
   // Senkron durumu: hem ref (timer closure güvenliği) hem state (UI)
   const isResyncingRef = useRef<boolean>(false);
@@ -508,6 +503,7 @@ export default function PrayerTime() {
 
     const tick = () => {
       const now = new Date();
+      setNowTick(now);
       const delta = now.getTime() - lastNowRef.current.getTime();
 
       const jumped =
@@ -667,6 +663,7 @@ export default function PrayerTime() {
               <RamadanCountdownCard
                 timings={timings}
                 systemRed={currentTheme.systemRed}
+                currentNow={nowTick}
               />
             }
             contentContainerStyle={styles.listContent}
