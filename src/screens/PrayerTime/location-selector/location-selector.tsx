@@ -95,7 +95,7 @@ export default function LocationSelector() {
   const searchRef = useRef<SearchBarCommands>(null!);
   const search = useNavigationSearch({
     searchBarOptions: {
-      placeholder: t('General.SearchPlaceHolder'),
+      placeholder: t('General.SearchNewLocation'),
       cancelButtonText: t('General.SearchCancelText'),
       ref: searchRef,
     },

@@ -11,7 +11,8 @@
     "Reset": "Sıfırla",
     "Save": "Kaydet",
     "SearchPlaceHolder": "Ara",
-    "SearchCancelText": "İptal"
+    "SearchCancelText": "İptal",
+    "SearchNewLocation": "Yeni Konum Ara"
   },
   "settings": {
     "SystemDefault": "Sistem",

@@ -114,7 +114,8 @@
     "searchResults": "Search Results",
     "noResults": "No results found.",
     "selected": "Selected",
-    "locationSelect": "Select Location"
+    "locationSelect": "Select Location",
+    "SearchNewLocation": "Search New Location"
   },
   "monthlyCalendar": {
     "loadingLocation": "Fetching location…",
