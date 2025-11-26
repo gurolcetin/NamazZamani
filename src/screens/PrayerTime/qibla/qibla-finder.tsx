@@ -80,7 +80,9 @@ function turnHint(delta: number): string {
 /** --- Component --- */
 export default function QiblaScreen() {
   const { t } = useTranslation();
-  const permissionDeniedMessage = t(QiblaLanguageConstants.PermissionDenied.key);
+  const permissionDeniedMessage = t(
+    QiblaLanguageConstants.PermissionDenied.key,
+  );
   const unknownErrorMessage = t(QiblaLanguageConstants.UnknownError.key);
   const directionLabel = t(QiblaLanguageConstants.DirectionLabel.key);
   const angleLabel = t(QiblaLanguageConstants.AngleLabel.key);

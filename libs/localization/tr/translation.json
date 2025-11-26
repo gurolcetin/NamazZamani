@@ -91,7 +91,9 @@
     "locationNotFound": "Konum bulunamadı",
     "loadingTimes": "Vakitler yükleniyor…",
     "nextPrayerCountdown": "{{label}} vaktinin çıkmasına kalan",
-    "syncing": "Senkronize ediliyor…"
+    "syncing": "Senkronize ediliyor…",
+    "ramadanIftarCountdown": "İftara kalan süre",
+    "ramadanSahurCountdown": "Sahura kalan süre"
   },
   "actionCardGroup": {
     "pickDate": "Tarih Seç",

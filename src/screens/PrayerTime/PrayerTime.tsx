@@ -45,6 +45,7 @@ import {
   LanguagePrefix,
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
+import RamadanIcon from '../../../libs/components/svg/icons/ramadan-icon';
 
 // ----- Types & Maps ---------------------------------------------------------
 
@@ -100,6 +101,30 @@ function buildSequence(
     date: toTodayDate(t[k], today),
   }));
 }
+
+// İftar ve sahur hedeflerini hesaplayan helper
+function getIftarAndSahurTargets(t: PrayerTimings, base = new Date()) {
+  const now = base;
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const fajrToday = toTodayDate(t.Fajr, today);
+  const maghribToday = toTodayDate(t.Maghrib, today);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const fajrTomorrow = toTodayDate(t.Fajr, tomorrow);
+  const maghribTomorrow = toTodayDate(t.Maghrib, tomorrow);
+
+  // İftar hedefi: bir sonraki Maghrib
+  const iftarTarget = now < maghribToday ? maghribToday : maghribTomorrow;
+
+  // Sahur hedefi: bir sonraki Fajr
+  const sahurTarget = now < fajrToday ? fajrToday : fajrTomorrow;
+
+  return { iftarTarget, sahurTarget, maghribToday, fajrToday };
+}
+
 function computeNext(seq: ReturnType<typeof buildSequence>, now = new Date()) {
   for (let i = 0; i < seq.length; i++) {
     if (now < seq[i].date) {
@@ -201,6 +226,85 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
                 </View>
               )}
             </View>
+          </View>
+        </View>
+      </View>
+    );
+  },
+);
+
+// ---------------------------------------------------------------------------
+// RAMAZAN COUNTDOWN CARD (FlatList footer'ı)
+// ---------------------------------------------------------------------------
+type RamadanCountdownProps = {
+  timings: PrayerTimings | null;
+  primaryColor: string;
+  systemRed?: string;
+};
+
+const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
+  ({ timings, primaryColor, systemRed }) => {
+    const { t } = useTranslation();
+    const [now, setNow] = useState(new Date());
+
+    useEffect(() => {
+      const id = setInterval(() => setNow(new Date()), 1000);
+      return () => clearInterval(id);
+    }, []);
+
+    if (!timings) return null;
+
+    const { iftarTarget, sahurTarget, maghribToday, fajrToday } =
+      getIftarAndSahurTargets(timings, now);
+
+    const FIFTEEN_MIN = 15 * 60;
+
+    // Akşamdan imsağa kadar sahur bilgisi göster, diğer zamanlarda iftar
+    const isNightPhase = now >= maghribToday || now < fajrToday;
+    const activeTarget = isNightPhase ? sahurTarget : iftarTarget;
+    const activeLabel = isNightPhase
+      ? t('prayerTime.ramadanSahurCountdown')
+      : t('prayerTime.ramadanIftarCountdown');
+    const targetPrayerTime = isNightPhase ? timings.Fajr : timings.Maghrib;
+
+    const secondsLeft = Math.max(
+      0,
+      Math.floor((activeTarget.getTime() - now.getTime()) / 1000),
+    );
+    const countdownClock = fmtClock(secondsLeft);
+    const isCritical = secondsLeft > 0 && secondsLeft <= FIFTEEN_MIN;
+
+    // Ramazan temalı renk önerileri:
+    // const ramadanIndigo = '#312E81';
+    // const ramadanPalm = '#14532D';
+    // const ramadanSunset = '#9D174D';
+    // const ramadanBase = '#0F766E'; // turkuaz-yeşil ton (Ramazan için çok kullanılır)
+    // const ramadanBase = '#4C1D95'; // mor gece tonu
+    // const ramadanBase = '#166534'; // koyu yeşil, cami / hilal çağrışımı
+    const ramadanBase = '#F4D03F';
+
+    const safeSystemRed = systemRed || '#B91C1C';
+    const cardBg = isCritical ? `${safeSystemRed}E6` : `${ramadanBase}F0`;
+
+    return (
+      <View style={styles.ramadanSingleRoot}>
+        <View style={[styles.ramadanSingleCard, { backgroundColor: cardBg }]}>
+          <View style={styles.ramadanIconBadge}>
+            <RamadanIcon size={50} color="#fff" opacity={1} />
+          </View>
+          <View style={styles.ramadanTextWrap}>
+            <Text style={styles.ramadanActiveText}>{activeLabel}</Text>
+          </View>
+
+          <View style={styles.ramadanCountdownWrap}>
+            <Text
+              style={[
+                styles.ramadanCountdownText,
+                isCritical && styles.ramadanCountdownCritical,
+              ]}
+            >
+              {countdownClock}
+            </Text>
           </View>
         </View>
       </View>
@@ -561,6 +665,13 @@ export default function PrayerTime() {
                 syncingText={syncingText}
               />
             }
+            ListFooterComponent={
+              <RamadanCountdownCard
+                timings={timings}
+                primaryColor={currentTheme.primary}
+                systemRed={currentTheme.systemRed}
+              />
+            }
             contentContainerStyle={styles.listContent}
             columnWrapperStyle={styles.columnWrapper}
             showsVerticalScrollIndicator={false}
@@ -729,5 +840,60 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+
+  // ---- Ramadan card styles -------------------------------------------------
+  ramadanSingleRoot: {
+    marginTop: 16,
+    marginBottom: 28,
+  },
+  ramadanSingleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderRadius: 28,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  ramadanIconBadge: {
+    borderRadius: 26,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  ramadanTextWrap: {
+    flex: 1,
+  },
+  ramadanActiveText: {
+    marginTop: 4,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FEF9C3',
+  },
+  ramadanCountdownWrap: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 18,
+    backgroundColor: 'rgba(15,23,42,0.2)',
+  },
+  ramadanCountdownText: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 1,
+  },
+  ramadanCountdownCritical: {
+    color: '#FFE4E6',
   },
 });

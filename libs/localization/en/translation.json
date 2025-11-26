@@ -90,7 +90,9 @@
     "locationNotFound": "Location not found",
     "loadingTimes": "Loading prayer times…",
     "nextPrayerCountdown": "Time left until {{label}} ends",
-    "syncing": "Synchronizing…"
+    "syncing": "Synchronizing…",
+    "ramadanIftarCountdown": "Counting down to Iftar",
+    "ramadanSahurCountdown": "Counting down to Suhoor"
   },
   "actionCardGroup": {
     "pickDate": "Pick Date",
