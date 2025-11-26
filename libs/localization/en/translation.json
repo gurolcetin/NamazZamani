@@ -26,7 +26,9 @@
     "ThemeAndAccent": "Theme & Accent",
     "ThemeMode": "Theme Mode",
     "AccentColor": "Accent Color",
-    "CalculationHelper": "Used while calculating missed prayers."
+    "CalculationHelper": "Used while calculating missed prayers.",
+    "RamadanCountdownToggleLabel": "Show/Hide Iftar & Suhoor Counter",
+    "RamadanCountdownToggleHint": "Always visible during Ramadan."
   },
   "menu": {
     "PrayerTime": "Prayer Time",

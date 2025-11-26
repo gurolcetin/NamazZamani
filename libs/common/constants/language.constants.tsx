@@ -36,6 +36,14 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.CalculationHelper',
     defaultValue: 'Kaza namaz hesaplamasında kullanılır',
   };
+  static RamadanCountdownToggleLabel: LanguageModel = {
+    key: 'settings.RamadanCountdownToggleLabel',
+    defaultValue: 'İftar Sahur Sayacı Göster/Gizle',
+  };
+  static RamadanCountdownToggleHint: LanguageModel = {
+    key: 'settings.RamadanCountdownToggleHint',
+    defaultValue: 'Ramazan ayında her zaman gösterilir.',
+  };
 }
 
 export class LanguageSettingsConstants {

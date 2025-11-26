@@ -15,6 +15,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Modal,
+  Switch,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +40,7 @@ import { Accent, Theme } from '../../../libs/common/enums';
 import { useTheme } from '../../../libs/core/providers';
 import { updateApplicationTheme } from '../../../libs/redux/reducers/ApplicationTheme';
 import { updateMenstrualCycle } from '../../../libs/redux/reducers/CalculateSettings';
+import { setShowRamadanCountdownCard } from '../../../libs/redux/reducers/ApplicationSettings';
 import { isNullOrEmptyString, isNumber } from 'typescript-util-functions';
 import { createStyles } from './style';
 import { DevSettings } from 'react-native';
@@ -88,6 +90,9 @@ const Settings = ({}: SettingsProps) => {
   const calculateSettings = useSelector(
     (state: any) => state.calculateSettings,
   );
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
 
   const [selectedLanguage, setSelectedLanguage] = useState(
     LanguagePrefix.TURKISH,
@@ -102,6 +107,8 @@ const Settings = ({}: SettingsProps) => {
 
   const [themeSelection, setThemeSelection] = useState<Theme>(Theme.SYSTEM);
   const [menstrualDays, setMenstrualDays] = useState<string>('');
+  const showRamadanCountdownCard =
+    applicationSettings?.showRamadanCountdownCard ?? true;
 
   const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
@@ -236,6 +243,13 @@ const Settings = ({}: SettingsProps) => {
       }),
     );
   }, [dispatch, menstrualDays]);
+
+  const handleRamadanCountdownToggle = useCallback(
+    (value: boolean) => {
+      dispatch(setShowRamadanCountdownCard(value));
+    },
+    [dispatch],
+  );
 
   const handleClearStorage = useCallback(async () => {
     try {
@@ -457,6 +471,34 @@ const Settings = ({}: SettingsProps) => {
             {/* Gelişmiş */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Gelişmiş</Text>
+              <View style={styles.toggleRow}>
+                <Text style={styles.toggleLabel}>
+                  {t(
+                    SettingsScreenLanguageConstants.RamadanCountdownToggleLabel
+                      .key,
+                  )}
+                </Text>
+                <Switch
+                  value={showRamadanCountdownCard}
+                  onValueChange={handleRamadanCountdownToggle}
+                  trackColor={{
+                    false: `${currentTheme.gray}44`,
+                    true: gradient?.[0] ?? currentTheme.primary,
+                  }}
+                  thumbColor={
+                    showRamadanCountdownCard
+                      ? currentTheme.white
+                      : currentTheme.cardViewBackgroundColor
+                  }
+                  ios_backgroundColor={`${currentTheme.gray}33`}
+                />
+              </View>
+              <Text style={styles.toggleHint}>
+                {t(
+                  SettingsScreenLanguageConstants.RamadanCountdownToggleHint
+                    .key,
+                )}
+              </Text>
               <Text
                 style={[
                   styles.helperText,

@@ -27,7 +27,9 @@
     "ThemeAndAccent": "Tema & Vurgu",
     "ThemeMode": "Tema Modu",
     "AccentColor": "Vurgu Rengi",
-    "CalculationHelper": "Kaza namaz hesaplamasında kullanılır"
+    "CalculationHelper": "Kaza namaz hesaplamasında kullanılır",
+    "RamadanCountdownToggleLabel": "İftar Sahur Sayacı Göster/Gizle",
+    "RamadanCountdownToggleHint": "Ramazan ayında her zaman gösterilir."
   },
   "menu": {
     "PrayerTime": "Namaz Vakitleri",

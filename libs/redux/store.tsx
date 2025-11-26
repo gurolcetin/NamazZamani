@@ -12,6 +12,7 @@ import MissedFasting from './reducers/MissedFasting';
 import CalculateSettings from './reducers/CalculateSettings';
 import Dhikr from './reducers/Dhikr';
 import Location from './reducers/location';
+import ApplicationSettings from './reducers/ApplicationSettings';
 
 // Creating a rootReducer that combines all reducers in the app
 const rootReducer = combineReducers({
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   calculateSettings: CalculateSettings,
   dhikr: Dhikr,
   location: Location,
+  applicationSettings: ApplicationSettings,
 });
 
 // Configuring the redux-persist library to persist the root reducer with AsyncStorage

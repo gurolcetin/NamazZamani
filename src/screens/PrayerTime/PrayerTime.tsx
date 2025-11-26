@@ -46,6 +46,8 @@ import {
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
 import RamadanIcon from '../../../libs/components/svg/icons/ramadan-icon';
+import { convertMiladiDateToHicriDate } from '../../../libs/core/helpers/hicriDate.helper';
+import type { RootState } from '../../../libs/redux/store';
 
 // ----- Types & Maps ---------------------------------------------------------
 
@@ -309,6 +311,10 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
 export default function PrayerTime() {
   const { currentTheme } = useTheme();
   const activeResolved = useSelector(selectActiveResolved);
+  const showRamadanCountdownPreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.showRamadanCountdownCard ?? true,
+  );
 
   const { t, i18n } = useTranslation();
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
@@ -352,6 +358,21 @@ export default function PrayerTime() {
   useEffect(() => {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
   }, [i18n.language]);
+
+  const isRamadanWindow = useMemo(() => {
+    const hijriToday = convertMiladiDateToHicriDate(nowTick);
+    if (hijriToday.month === 9) {
+      return true;
+    }
+    if (hijriToday.month === 8 && hijriToday.dayOfMonth >= 29) {
+      // Keep countdown visible on the day before Ramadan begins.
+      return true;
+    }
+    return false;
+  }, [nowTick]);
+
+  const shouldShowRamadanCountdown =
+    showRamadanCountdownPreference || isRamadanWindow;
 
   const prayerLabels = useMemo(() => {
     return PRAYER_ORDER.reduce((acc, key) => {
@@ -660,11 +681,13 @@ export default function PrayerTime() {
               />
             }
             ListFooterComponent={
-              <RamadanCountdownCard
-                timings={timings}
-                systemRed={currentTheme.systemRed}
-                currentNow={nowTick}
-              />
+              shouldShowRamadanCountdown ? (
+                <RamadanCountdownCard
+                  timings={timings}
+                  systemRed={currentTheme.systemRed}
+                  currentNow={nowTick}
+                />
+              ) : null
             }
             contentContainerStyle={styles.listContent}
             columnWrapperStyle={styles.columnWrapper}

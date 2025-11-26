@@ -139,6 +139,24 @@ export const createStyles = (theme: ThemeType) =>
       marginTop: 10,
       fontSize: 13,
     },
+    toggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 16,
+    },
+    toggleLabel: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: '500',
+      color: theme.textColor,
+      marginRight: 12,
+    },
+    toggleHint: {
+      marginTop: 6,
+      fontSize: 12,
+      color: theme.gray,
+    },
     saveButton: {
       borderRadius: 26,
       paddingVertical: 16,
