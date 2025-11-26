@@ -39,6 +39,11 @@ import {
   getUtcLabelFromTimeZone,
 } from '../../../libs/core/helpers';
 import { ActionCardGroup } from './action-cards/action-card-group';
+import {
+  AsmaulHusnaCard,
+  HadithCard,
+  QuranAyahCard,
+} from './inspiration-cards';
 import { PrayerTimeKey, SmallCard } from '../../../libs/common/types';
 import {
   LanguageLocaleKeys,
@@ -160,6 +165,8 @@ function ymd(d: Date) {
   const dd = String(d.getDate()).padStart(2, '0');
   return `${d.getFullYear()}-${mm}-${dd}`;
 }
+
+const getCurrentDateKey = (d: Date) => ymd(d);
 const MAX_SPAN_SEC = 26 * 3600; // güvenli üst sınır (clamp)
 
 // ---------------------------------------------------------------------------
@@ -373,6 +380,11 @@ export default function PrayerTime() {
 
   const shouldShowRamadanCountdown =
     showRamadanCountdownPreference || isRamadanWindow;
+
+  const currentDateKey = useMemo(
+    () => getCurrentDateKey(nowTick),
+    [nowTick],
+  );
 
   const prayerLabels = useMemo(() => {
     return PRAYER_ORDER.reduce((acc, key) => {
@@ -609,6 +621,30 @@ export default function PrayerTime() {
     }));
   }, [timings, leftClock]);
 
+  const listFooter = useMemo(
+    () => (
+      <View style={styles.footerStack}>
+        {shouldShowRamadanCountdown ? (
+          <RamadanCountdownCard
+            timings={timings}
+            systemRed={currentTheme.systemRed}
+            currentNow={nowTick}
+          />
+        ) : null}
+        <QuranAyahCard currentDateKey={currentDateKey} />
+        <AsmaulHusnaCard currentDateKey={currentDateKey} />
+        <HadithCard currentDateKey={currentDateKey} />
+      </View>
+    ),
+    [
+      shouldShowRamadanCountdown,
+      timings,
+      currentTheme.systemRed,
+      nowTick,
+      currentDateKey,
+    ],
+  );
+
   // ------- render -----------------------------------------------------------
   if (loading && !timings) {
     return (
@@ -680,15 +716,7 @@ export default function PrayerTime() {
                 syncingText={syncingText}
               />
             }
-            ListFooterComponent={
-              shouldShowRamadanCountdown ? (
-                <RamadanCountdownCard
-                  timings={timings}
-                  systemRed={currentTheme.systemRed}
-                  currentNow={nowTick}
-                />
-              ) : null
-            }
+            ListFooterComponent={listFooter}
             contentContainerStyle={styles.listContent}
             columnWrapperStyle={styles.columnWrapper}
             showsVerticalScrollIndicator={false}
@@ -778,6 +806,10 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 24,
     paddingHorizontal: 16,
+  },
+  footerStack: {
+    marginTop: 12,
+    marginBottom: 32,
   },
   columnWrapper: { justifyContent: 'space-between' },
   listHeaderRoot: {

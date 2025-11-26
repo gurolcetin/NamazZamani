@@ -95,7 +95,17 @@
     "nextPrayerCountdown": "{{label}} vaktinin çıkmasına kalan",
     "syncing": "Senkronize ediliyor…",
     "ramadanIftarCountdown": "İftara kalan süre",
-    "ramadanSahurCountdown": "Sahura kalan süre"
+    "ramadanSahurCountdown": "Sahura kalan süre",
+    "inspiration": {
+      "quranTitle": "Günün Ayeti",
+      "asmaTitle": "Esmaül Hüsna",
+      "hadithTitle": "Hadis Köşesi",
+      "loading": "İlham yükleniyor…",
+      "error": "Bir sorun oluştu. Yeniden denemek için dokunun.",
+      "apiKeyError": "İçeriğin yüklenmesi için API anahtarlarını tanımlayın.",
+      "refresh": "Yenile",
+      "hadithSource": "{{book}}, Hadis {{number}}"
+    }
   },
   "actionCardGroup": {
     "pickDate": "Tarih Seç",

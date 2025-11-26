@@ -94,7 +94,17 @@
     "nextPrayerCountdown": "Time left until {{label}} ends",
     "syncing": "Synchronizing…",
     "ramadanIftarCountdown": "Counting down to Iftar",
-    "ramadanSahurCountdown": "Counting down to Suhoor"
+    "ramadanSahurCountdown": "Counting down to Suhoor",
+    "inspiration": {
+      "quranTitle": "Verse of the Day",
+      "asmaTitle": "Asma-ul-Husna",
+      "hadithTitle": "Hadith Reflection",
+      "loading": "Fetching inspiration…",
+      "error": "Something went wrong. Tap to retry.",
+      "apiKeyError": "Set the Islamic API & Hadith API keys to load this content.",
+      "refresh": "Refresh",
+      "hadithSource": "{{book}}, Hadith {{number}}"
+    }
   },
   "actionCardGroup": {
     "pickDate": "Pick Date",
