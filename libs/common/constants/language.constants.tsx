@@ -10,8 +10,8 @@ export class SettingsConstants {
     defaultValue: 'Tema Ayarları',
   };
   static CalculateSettings: LanguageModel = {
-    key: 'settings.CalculateSettings',
-    defaultValue: 'Hesaplama Ayarları',
+    key: 'settings.ApplicationSettings',
+    defaultValue: 'Uygulama Ayarları',
   };
 }
 

@@ -135,6 +135,15 @@ export const createStyles = (theme: ThemeType) =>
       paddingVertical: 14,
       fontSize: 16,
     },
+    menstrualRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 4,
+    },
+    menstrualInput: {
+      flex: 1,
+      marginRight: 12,
+    },
     helperText: {
       marginTop: 10,
       fontSize: 13,
@@ -163,6 +172,13 @@ export const createStyles = (theme: ThemeType) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 8,
+    },
+    inlineSaveButton: {
+      borderRadius: 22,
+      paddingHorizontal: 18,
+      paddingVertical: 14,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     saveButtonLabel: {
       fontSize: 16,

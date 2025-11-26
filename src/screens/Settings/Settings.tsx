@@ -423,21 +423,42 @@ const Settings = ({}: SettingsProps) => {
                   CalculateSettingsLanguageConstants.NumberOfMenstrualDays.key,
                 )}
               </Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: currentTheme.inputBackgroundColor,
-                    color: currentTheme.textColor,
-                  },
-                ]}
-                value={menstrualDays}
-                onChangeText={handleMenstrualDaysChange}
-                keyboardType="numeric"
-                placeholder="7"
-                placeholderTextColor={currentTheme.placeholderTextColor}
-                maxLength={2}
-              />
+              <View style={styles.menstrualRow}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.menstrualInput,
+                    {
+                      backgroundColor: currentTheme.inputBackgroundColor,
+                      color: currentTheme.textColor,
+                    },
+                  ]}
+                  value={menstrualDays}
+                  onChangeText={handleMenstrualDaysChange}
+                  keyboardType="numeric"
+                  placeholder="7"
+                  placeholderTextColor={currentTheme.placeholderTextColor}
+                  maxLength={2}
+                />
+                <Pressable
+                  style={[
+                    styles.inlineSaveButton,
+                    {
+                      backgroundColor: gradient?.[0] ?? currentTheme.primary,
+                      shadowColor: gradient?.[0] ?? currentTheme.primary,
+                    },
+                  ]}
+                  onPress={handleSave}
+                  android_ripple={{
+                    color: currentTheme.gray,
+                    borderless: false,
+                  }}
+                >
+                  <Text style={styles.saveButtonLabel}>
+                    {t(GeneralLanguageConstants.Save.key)}
+                  </Text>
+                </Pressable>
+              </View>
               <Text
                 style={[
                   styles.helperText,
@@ -448,29 +469,6 @@ const Settings = ({}: SettingsProps) => {
               >
                 {t(SettingsScreenLanguageConstants.CalculationHelper.key)}
               </Text>
-              <Pressable
-                style={[
-                  styles.saveButton,
-                  {
-                    backgroundColor: gradient?.[0] ?? currentTheme.primary,
-                    shadowColor: gradient?.[0] ?? currentTheme.primary,
-                  },
-                ]}
-                onPress={handleSave}
-                android_ripple={{
-                  color: currentTheme.gray,
-                  borderless: false,
-                }}
-              >
-                <Text style={styles.saveButtonLabel}>
-                  {t(GeneralLanguageConstants.Save.key)}
-                </Text>
-              </Pressable>
-            </View>
-
-            {/* Gelişmiş */}
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Gelişmiş</Text>
               <View style={styles.toggleRow}>
                 <Text style={styles.toggleLabel}>
                   {t(
@@ -482,8 +480,8 @@ const Settings = ({}: SettingsProps) => {
                   value={showRamadanCountdownCard}
                   onValueChange={handleRamadanCountdownToggle}
                   trackColor={{
-                    false: `${currentTheme.gray}44`,
-                    true: gradient?.[0] ?? currentTheme.primary,
+                    false: `${currentTheme.gray}`,
+                    true: currentTheme.primary,
                   }}
                   thumbColor={
                     showRamadanCountdownCard
@@ -499,6 +497,11 @@ const Settings = ({}: SettingsProps) => {
                     .key,
                 )}
               </Text>
+            </View>
+
+            {/* Gelişmiş */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Gelişmiş</Text>
               <Text
                 style={[
                   styles.helperText,
