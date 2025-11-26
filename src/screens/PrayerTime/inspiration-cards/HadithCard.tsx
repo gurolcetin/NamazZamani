@@ -10,12 +10,8 @@ import { useTranslation } from 'react-i18next';
 
 import { Icon, Icons } from '../../../../libs/components';
 import { useTheme } from '../../../../libs/core/providers';
-import {
-  HADITH_API_BASE_URL,
-  HADITH_API_KEY,
-  HADITH_DEFAULT_BOOK,
-} from '../../../../libs/common/constants/externalApis';
-import { getApiLanguage } from './helpers';
+import { HADITH_API_BASE_URL } from '../../../../libs/common/constants/externalApis';
+import { ApiLanguage, getApiLanguage, pickRandomItem } from './helpers';
 
 type Props = {
   currentDateKey: string;
@@ -26,6 +22,42 @@ type HadithData = {
   translation: string;
   bookName?: string;
   number?: string | number;
+};
+
+type HadeethEncOneResponse = {
+  id?: string | number;
+  title?: string;
+  hadeeth?: string;
+  translation?: string;
+  explanation?: string;
+  grade?: string;
+  reference?: string;
+  attribution?: string;
+  categories?: string[];
+  translations?: string[];
+};
+
+type HadeethCategory = {
+  id: string;
+  title?: string;
+  hadeeths_count?: string;
+  parent_id?: string | null;
+};
+
+type HadeethListItem = {
+  id: string;
+  title?: string;
+  translations?: string[];
+};
+
+type HadeethListResponse = {
+  data?: HadeethListItem[];
+  meta?: {
+    current_page?: string;
+    last_page?: string;
+    total_items?: number | string;
+    per_page?: string;
+  };
 };
 
 type LoadState<T> = {
@@ -108,28 +140,213 @@ const createStyles = (colors: {
     },
   });
 
-const extractHadithCandidate = (payload: any) => {
-  if (!payload) {
+const HADEETH_LIST_PER_PAGE = 20;
+const HADEETH_CATEGORY_ATTEMPTS = 6;
+const HADEETH_LIST_ATTEMPTS = 4;
+const HADEETH_SOURCE_LABEL = 'HadeethEnc.com';
+
+type HadeethLanguage = ApiLanguage | 'ar';
+
+const buildApiUrl = (
+  path: string,
+  params: Record<string, string | number | undefined>,
+) => {
+  const query = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
+    )
+    .join('&');
+  return `${HADITH_API_BASE_URL}${path}?${query}`;
+};
+
+const fetchJson = async <T>(url: string): Promise<T> => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('FAILED');
+  }
+  return (await response.json()) as T;
+};
+
+const sanitizeText = (input?: string | null) => input?.trim() || undefined;
+
+const fetchHadeethCategories = async (
+  language: ApiLanguage,
+): Promise<HadeethCategory[]> =>
+  fetchJson<HadeethCategory[]>(
+    buildApiUrl('/categories/roots/', { language }),
+  );
+
+const fetchHadeethList = async (
+  language: ApiLanguage,
+  categoryId: string,
+  page = 1,
+): Promise<HadeethListResponse> =>
+  fetchJson<HadeethListResponse>(
+    buildApiUrl('/hadeeths/list/', {
+      language,
+      category_id: categoryId,
+      page,
+      per_page: HADEETH_LIST_PER_PAGE,
+    }),
+  );
+
+const extractRandomHadeethId = (
+  language: ApiLanguage,
+  response: HadeethListResponse | null | undefined,
+): string | null => {
+  if (!response?.data?.length) {
     return null;
   }
-  if (payload.hadith) {
-    return payload.hadith;
+  const validItems = response.data.filter(item =>
+    !item.translations?.length
+      ? true
+      : item.translations.includes(language),
+  );
+  if (!validItems.length) {
+    return null;
   }
-  if (payload.hadiths?.data) {
-    return Array.isArray(payload.hadiths.data)
-      ? payload.hadiths.data[0]
-      : payload.hadiths.data;
+  return pickRandomItem(validItems).id;
+};
+
+const pickRandomHadeethIdFromCategory = async (
+  language: ApiLanguage,
+  categoryId: string,
+): Promise<string | null> => {
+  const firstPage = await fetchHadeethList(language, categoryId, 1);
+  const firstSelection = extractRandomHadeethId(language, firstPage);
+  if (firstSelection) {
+    return firstSelection;
   }
-  if (Array.isArray(payload.hadiths)) {
-    return payload.hadiths[0];
+
+  const totalPages = Number(firstPage.meta?.last_page || 1);
+  if (Number.isNaN(totalPages) || totalPages <= 1) {
+    return null;
   }
-  if (Array.isArray(payload.data)) {
-    return payload.data[0];
+
+  for (let attempt = 0; attempt < HADEETH_LIST_ATTEMPTS; attempt += 1) {
+    const randomPage = Math.floor(Math.random() * totalPages) + 1;
+    if (randomPage === Number(firstPage.meta?.current_page || 1)) {
+      continue;
+    }
+    const pageResponse = await fetchHadeethList(
+      language,
+      categoryId,
+      randomPage,
+    );
+    const selection = extractRandomHadeethId(language, pageResponse);
+    if (selection) {
+      return selection;
+    }
   }
-  if (payload.data) {
-    return payload.data;
-  }
+
   return null;
+};
+
+const pickRandomHadeethId = async (
+  language: ApiLanguage,
+): Promise<string> => {
+  const categories = await fetchHadeethCategories(language);
+  if (!categories?.length) {
+    throw new Error('NO_CATEGORIES');
+  }
+  const available = [...categories];
+  const attempts = Math.min(
+    HADEETH_CATEGORY_ATTEMPTS,
+    available.length,
+  );
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const category = pickRandomItem(available);
+    const categoryIndex = available.indexOf(category);
+    if (categoryIndex >= 0) {
+      available.splice(categoryIndex, 1);
+    }
+    const hadeethId = await pickRandomHadeethIdFromCategory(
+      language,
+      category.id,
+    );
+    if (hadeethId) {
+      return hadeethId;
+    }
+  }
+
+  throw new Error('NO_HADEETH');
+};
+
+const fetchHadeethContent = async (
+  language: HadeethLanguage,
+  id: string,
+): Promise<HadeethEncOneResponse> =>
+  fetchJson<HadeethEncOneResponse>(
+    buildApiUrl('/hadeeths/one/', { language, id }),
+  );
+
+const buildHadithData = (
+  arabicPayload?: HadeethEncOneResponse,
+  localizedPayload?: HadeethEncOneResponse,
+): HadithData | null => {
+  const arabicText =
+    sanitizeText(arabicPayload?.hadeeth) ||
+    sanitizeText(localizedPayload?.hadeeth);
+  const translationText =
+    sanitizeText(localizedPayload?.translation) ||
+    sanitizeText(localizedPayload?.hadeeth) ||
+    sanitizeText(localizedPayload?.title);
+
+  if (!arabicText || !translationText) {
+    return null;
+  }
+
+  const bookName =
+    sanitizeText(localizedPayload?.reference) ||
+    sanitizeText(arabicPayload?.reference) ||
+    sanitizeText(localizedPayload?.attribution) ||
+    sanitizeText(arabicPayload?.attribution) ||
+    HADEETH_SOURCE_LABEL;
+
+  const number = localizedPayload?.id || arabicPayload?.id;
+
+  return {
+    arabic: arabicText,
+    translation: translationText,
+    bookName,
+    number,
+  };
+};
+
+const fetchRandomHadithForLanguage = async (
+  language: ApiLanguage,
+): Promise<HadithData> => {
+  const hadeethId = await pickRandomHadeethId(language);
+  const [localizedPayload, arabicPayload] = await Promise.all([
+    fetchHadeethContent(language, hadeethId),
+    fetchHadeethContent('ar', hadeethId),
+  ]);
+  const mapped = buildHadithData(arabicPayload, localizedPayload);
+  if (!mapped) {
+    throw new Error('EMPTY');
+  }
+  return mapped;
+};
+
+const fetchRandomHadith = async (
+  language: ApiLanguage,
+): Promise<HadithData> => {
+  const languageOrder: ApiLanguage[] =
+    language === 'en' ? ['en'] : [language, 'en'];
+  let lastError: unknown = null;
+
+  for (const lang of languageOrder) {
+    try {
+      return await fetchRandomHadithForLanguage(lang);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError ?? new Error('FAILED');
 };
 
 const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
@@ -160,63 +377,17 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
   );
 
   const fetchHadith = useCallback(async () => {
-    if (!HADITH_API_KEY) {
-      setState({
-        loading: false,
-        error: t('prayerTime.inspiration.apiKeyError'),
-        data: null,
-      });
-      return;
-    }
-
     setState(prev => ({
       ...prev,
       loading: true,
       error: null,
     }));
     try {
-      const url = `${HADITH_API_BASE_URL}/hadiths/?apiKey=${HADITH_API_KEY}&book=${HADITH_DEFAULT_BOOK}&language=${apiLanguage}`;
-      console.log(url);
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('FAILED');
-      }
-      const json = await response.json();
-      const candidate = extractHadithCandidate(json);
-      if (!candidate) {
-        throw new Error('EMPTY');
-      }
-      const arabic =
-        candidate.hadithArabic ||
-        candidate.arabic ||
-        candidate.text ||
-        candidate.hadithText ||
-        '';
-      const translation =
-        candidate.hadithEnglish ||
-        candidate.translation ||
-        candidate.hadithText ||
-        '';
-      const bookName =
-        candidate.book?.bookName ||
-        candidate.book?.name ||
-        candidate.bookName ||
-        candidate.collection ||
-        candidate.book;
-      const number =
-        candidate.hadithNumberInBook ||
-        candidate.hadithNumber ||
-        candidate.number ||
-        candidate.id;
+      const hadith = await fetchRandomHadith(apiLanguage);
       setState({
         loading: false,
         error: null,
-        data: {
-          arabic,
-          translation,
-          bookName,
-          number,
-        },
+        data: hadith,
       });
     } catch {
       setState({

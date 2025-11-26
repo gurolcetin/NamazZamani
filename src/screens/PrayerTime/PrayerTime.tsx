@@ -381,10 +381,7 @@ export default function PrayerTime() {
   const shouldShowRamadanCountdown =
     showRamadanCountdownPreference || isRamadanWindow;
 
-  const currentDateKey = useMemo(
-    () => getCurrentDateKey(nowTick),
-    [nowTick],
-  );
+  const currentDateKey = useMemo(() => getCurrentDateKey(nowTick), [nowTick]);
 
   const prayerLabels = useMemo(() => {
     return PRAYER_ORDER.reduce((acc, key) => {
@@ -671,50 +668,55 @@ export default function PrayerTime() {
     <SafeAreaWithStatusBar>
       <ScreenViewContainer>
         <View style={styles.screenInner}>
-          {/* Konum + 3 buton */}
-          <ActionCardGroup
-            label={locationLabel}
-            utc={utcLabel}
-            loading={(loading || isResyncing) && !timings}
-            isDark={systemDark}
-            theme={{
-              primary: currentTheme.primary,
-              textColor: currentTheme.textColor,
-              cardViewBackgroundColor: currentTheme.cardViewBackgroundColor,
-            }}
-            onOpenLocationSelector={() =>
-              navigation.navigate(PrayerTimeScreens.LocationSelector as never)
-            }
-            onPickDate={() => {
-              if (!coords) return;
-              navigation.navigate(PrayerTimeScreens.MontlyCalendar as never);
-            }}
-            onOpenImsakiye={() => {
-              if (!coords) return;
-              navigation.navigate(PrayerTimeScreens.Imsakiye as never);
-            }}
-            onOpenQibla={() => {
-              if (!coords) return;
-              navigation.navigate(PrayerTimeScreens.Qibla as never);
-            }}
-          />
-
           <FlatList
             data={smallCards}
             numColumns={2}
             keyExtractor={i => i.key}
             renderItem={renderSmallCard}
             ListHeaderComponent={
-              <PrayerTimeHeader
-                cardBg={cardBg}
-                iconType={currentIcon.type}
-                iconName={currentIcon.name as any}
-                countdownTitle={countdownTitle}
-                leftClock={leftClock}
-                isResyncing={isResyncing}
-                seqDateLabel={seqDateLabel}
-                syncingText={syncingText}
-              />
+              <>
+                <ActionCardGroup
+                  label={locationLabel}
+                  utc={utcLabel}
+                  loading={(loading || isResyncing) && !timings}
+                  isDark={systemDark}
+                  theme={{
+                    primary: currentTheme.primary,
+                    textColor: currentTheme.textColor,
+                    cardViewBackgroundColor:
+                      currentTheme.cardViewBackgroundColor,
+                  }}
+                  onOpenLocationSelector={() =>
+                    navigation.navigate(
+                      PrayerTimeScreens.LocationSelector as never,
+                    )
+                  }
+                  onPickDate={() => {
+                    if (!coords) return;
+                    navigation.navigate(
+                      PrayerTimeScreens.MontlyCalendar as never,
+                    );
+                  }}
+                  onOpenImsakiye={() => {
+                    if (!coords) return;
+                    navigation.navigate(PrayerTimeScreens.Imsakiye as never);
+                  }}
+                  onOpenQibla={() => {
+                    if (!coords) return;
+                    navigation.navigate(PrayerTimeScreens.Qibla as never);
+                  }}
+                />
+                <PrayerTimeHeader
+                  cardBg={cardBg}
+                  iconType={currentIcon.type}
+                  iconName={currentIcon.name as any}
+                  countdownTitle={countdownTitle}
+                  leftClock={leftClock}
+                  isResyncing={isResyncing}
+                  seqDateLabel={seqDateLabel}
+                  syncingText={syncingText}
+                />
+              </>
             }
             ListFooterComponent={listFooter}
             contentContainerStyle={styles.listContent}
