@@ -85,7 +85,7 @@ type SettingsProps = {
 const Settings = ({}: SettingsProps) => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
-  const { currentTheme, toggleTheme, accent, setAccent, gradient } = useTheme();
+  const { currentTheme, toggleTheme, accent, setAccent } = useTheme();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const calculateSettings = useSelector(
     (state: any) => state.calculateSettings,
@@ -444,8 +444,8 @@ const Settings = ({}: SettingsProps) => {
                   style={[
                     styles.inlineSaveButton,
                     {
-                      backgroundColor: gradient?.[0] ?? currentTheme.primary,
-                      shadowColor: gradient?.[0] ?? currentTheme.primary,
+                      backgroundColor: currentTheme.primary,
+                      shadowColor: currentTheme.primary,
                     },
                   ]}
                   onPress={handleSave}
