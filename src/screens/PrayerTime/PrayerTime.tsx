@@ -238,12 +238,11 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
 // ---------------------------------------------------------------------------
 type RamadanCountdownProps = {
   timings: PrayerTimings | null;
-  primaryColor: string;
   systemRed?: string;
 };
 
 const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
-  ({ timings, primaryColor, systemRed }) => {
+  ({ timings, systemRed }) => {
     const { t } = useTranslation();
     const [now, setNow] = useState(new Date());
 
@@ -265,7 +264,6 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
     const activeLabel = isNightPhase
       ? t('prayerTime.ramadanSahurCountdown')
       : t('prayerTime.ramadanIftarCountdown');
-    const targetPrayerTime = isNightPhase ? timings.Fajr : timings.Maghrib;
 
     const secondsLeft = Math.max(
       0,
@@ -668,7 +666,6 @@ export default function PrayerTime() {
             ListFooterComponent={
               <RamadanCountdownCard
                 timings={timings}
-                primaryColor={currentTheme.primary}
                 systemRed={currentTheme.systemRed}
               />
             }
@@ -861,7 +858,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   ramadanIconBadge: {
-    borderRadius: 26,
+    borderRadius: 30,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(255,255,255,0.5)',
     backgroundColor: 'rgba(255,255,255,0.18)',
@@ -871,6 +868,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
+    padding: 5,
   },
   ramadanTextWrap: {
     flex: 1,
