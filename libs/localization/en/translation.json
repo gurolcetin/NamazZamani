@@ -102,7 +102,7 @@
       "quranTitle": "Verse of the Day",
       "asmaTitle": "Asma-ul-Husna",
       "hadithTitle": "Hadith Reflection",
-      "loading": "Fetching inspiration…",
+      "loading": "Loading",
       "error": "Something went wrong. Tap to retry.",
       "apiKeyError": "Set the Islamic API & Hadith API keys to load this content.",
       "refresh": "Refresh",

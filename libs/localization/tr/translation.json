@@ -103,7 +103,7 @@
       "quranTitle": "Günün Ayeti",
       "asmaTitle": "Esmaül Hüsna",
       "hadithTitle": "Hadis Köşesi",
-      "loading": "İlham yükleniyor…",
+      "loading": "Yükleniyor…",
       "error": "Bir sorun oluştu. Yeniden denemek için dokunun.",
       "apiKeyError": "İçeriğin yüklenmesi için API anahtarlarını tanımlayın.",
       "refresh": "Yenile",
