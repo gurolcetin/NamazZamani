@@ -58,26 +58,17 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
     `q=${encodeURIComponent(q)}&` +
     `format=json&normalizeaddress=1&limit=12&addressdetails=1&accept-language=tr,en`;
 
-  console.log('🔍 [LocationIQ] Search URL:', url);
-
   try {
     const res = await fetch(url);
 
-    console.log('📡 [LocationIQ] Search Status:', res.status);
-
     if (!res.ok) {
-      const errBody = await res.text().catch(() => '');
-      console.log('❌ [LocationIQ] Search failed:', errBody);
       return [];
     }
 
     const data = (await res.json()) as LocationIQItem[];
 
-    console.log('📦 [LocationIQ] Search Data:', data);
-
     return data.map(mapLocationIQToPlace);
-  } catch (err) {
-    console.log('🔥 [LocationIQ] Search Catch:', err);
+  } catch {
     return [];
   }
 }

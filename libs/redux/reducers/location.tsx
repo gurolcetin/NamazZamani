@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export type SavedPlace = {
   id: string; // "nom:123" gibi
@@ -72,19 +72,18 @@ export const selectActivePlace = (s: any) =>
  *   { type: 'device' }  veya
  *   { type: 'saved', ...SavedPlace }
  */
-export const selectActiveResolved = (s: any): ActiveResolved => {
-  const active = selectActivePlace(s);
-  const saved = selectSavedPlaces(s);
+export const selectActiveResolved = createSelector(
+  [selectActivePlace, selectSavedPlaces],
+  (active, saved): ActiveResolved => {
+    if (active.type === 'device') {
+      return { type: 'device' };
+    }
 
-  if (active.type === 'device') {
+    const found = saved.find(x => x.id === active.id);
+    if (found) {
+      const { id, label, latitude, longitude } = found;
+      return { type: 'saved', id, label, latitude, longitude };
+    }
     return { type: 'device' };
-  }
-
-  // active.type === 'saved'
-  const found = saved.find(x => x.id === active.id);
-  if (found) {
-    const { id, label, latitude, longitude } = found;
-    return { type: 'saved', id, label, latitude, longitude };
-  }
-  return { type: 'device' };
-};
+  },
+);
