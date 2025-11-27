@@ -161,13 +161,13 @@ const buildApiUrl = (
   return `${HADITH_API_BASE_URL}${path}?${query}`;
 };
 
-const fetchJson = async <T>(url: string): Promise<T> => {
+async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('FAILED');
   }
   return (await response.json()) as T;
-};
+}
 
 const sanitizeText = (input?: string | null) => input?.trim() || undefined;
 
