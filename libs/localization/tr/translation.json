@@ -29,7 +29,10 @@
     "AccentColor": "Vurgu Rengi",
     "CalculationHelper": "Kaza namaz hesaplamasında kullanılır",
     "RamadanCountdownToggleLabel": "İftar Sahur Sayacı Göster/Gizle",
-    "RamadanCountdownToggleHint": "Ramazan ayında her zaman gösterilir."
+    "RamadanCountdownToggleHint": "Ramazan ayında her zaman gösterilir.",
+    "AdvancedTitle": "Gelişmiş",
+    "AdvancedDescription": "Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara döner.",
+    "AdvancedClearButton": "Tüm verileri temizle"
   },
   "menu": {
     "PrayerTime": "Namaz Vakitleri",

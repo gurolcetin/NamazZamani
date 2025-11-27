@@ -28,7 +28,10 @@
     "AccentColor": "Accent Color",
     "CalculationHelper": "Used while calculating missed prayers.",
     "RamadanCountdownToggleLabel": "Show/Hide Iftar & Suhoor Counter",
-    "RamadanCountdownToggleHint": "Always visible during Ramadan."
+    "RamadanCountdownToggleHint": "Always visible during Ramadan.",
+    "AdvancedTitle": "Advanced",
+    "AdvancedDescription": "Clears all local app data (language, theme, calculation settings, etc.). Some areas will revert to default settings.",
+    "AdvancedClearButton": "Clear all data"
   },
   "menu": {
     "PrayerTime": "Prayer Time",

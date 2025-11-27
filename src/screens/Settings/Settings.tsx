@@ -398,16 +398,16 @@ const Settings = ({}: SettingsProps) => {
 
             {/* Gelişmiş */}
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Gelişmiş</Text>
+              <Text style={styles.cardTitle}>
+                {t(SettingsScreenLanguageConstants.AdvancedTitle.key)}
+              </Text>
               <Text
                 style={[
                   styles.helperText,
                   { color: currentTheme.gray, marginBottom: 12 },
                 ]}
               >
-                Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları
-                vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara
-                döner.
+                {t(SettingsScreenLanguageConstants.AdvancedDescription.key)}
               </Text>
               <Pressable
                 style={[
@@ -423,7 +423,9 @@ const Settings = ({}: SettingsProps) => {
                   borderless: false,
                 }}
               >
-                <Text style={styles.saveButtonLabel}>Tüm verileri temizle</Text>
+                <Text style={styles.saveButtonLabel}>
+                  {t(SettingsScreenLanguageConstants.AdvancedClearButton.key)}
+                </Text>
               </Pressable>
             </View>
           </ScrollView>

@@ -44,6 +44,19 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.RamadanCountdownToggleHint',
     defaultValue: 'Ramazan ayında her zaman gösterilir.',
   };
+  static AdvancedTitle: LanguageModel = {
+    key: 'settings.AdvancedTitle',
+    defaultValue: 'Gelişmiş',
+  };
+  static AdvancedDescription: LanguageModel = {
+    key: 'settings.AdvancedDescription',
+    defaultValue:
+      'Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara döner.',
+  };
+  static AdvancedClearButton: LanguageModel = {
+    key: 'settings.AdvancedClearButton',
+    defaultValue: 'Tüm verileri temizle',
+  };
 }
 
 export class LanguageSettingsConstants {
