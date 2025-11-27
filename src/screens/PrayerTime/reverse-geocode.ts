@@ -20,34 +20,23 @@ export async function reverseGeocode(
   latitude: number,
   longitude: number,
 ): Promise<string> {
-  console.log('📍 [LocationIQ] reverseGeocode() CALLED');
-  console.log('➡️ Gelen koordinatlar:', { latitude, longitude });
-
   if (!LOCATIONIQ_API_KEY) {
-    console.log('❌ [LocationIQ] API key tanımlı değil');
     return 'Bilinmeyen konum';
   }
 
   // LocationIQ endpoint
   const url = `https://us1.locationiq.com/v1/reverse?key=${LOCATIONIQ_API_KEY}&lat=${latitude}&lon=${longitude}&format=json&normalizeaddress=1&addressdetails=1&accept-language=tr,en`;
 
-  console.log('🌍 [LocationIQ] Fetch URL:', url);
-
   try {
     const res = await fetch(url);
 
-    console.log('📡 [LocationIQ] HTTP Status:', res.status);
-
     if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      console.log('❌ [LocationIQ] Response OK değil, body:', text);
       throw new Error(
         `LocationIQ reverse geocode failed. Status: ${res.status}`,
       );
     }
 
     const json = await res.json();
-    console.log('✅ [LocationIQ] JSON response:', json);
 
     const a = json?.address || {};
 
@@ -87,15 +76,8 @@ export async function reverseGeocode(
     const parts = [city, admin].filter(Boolean);
     const result = parts.length ? parts.join(', ') : 'Bilinmeyen konum';
 
-    console.log('📌 [LocationIQ] Sonuç (city, admin):', {
-      city,
-      admin,
-      result,
-    });
-
     return result;
-  } catch (err) {
-    console.log('🔥 [LocationIQ] reverseGeocode CATCH → Hata:', err);
+  } catch {
     return 'Bilinmeyen konum';
   }
 }
