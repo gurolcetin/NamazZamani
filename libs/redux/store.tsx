@@ -9,7 +9,6 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import ApplicationTheme from './reducers/ApplicationTheme';
 import MissedPrayer from './reducers/MissedPrayer';
 import MissedFasting from './reducers/MissedFasting';
-import CalculateSettings from './reducers/CalculateSettings';
 import Dhikr from './reducers/Dhikr';
 import Location from './reducers/location';
 import ApplicationSettings from './reducers/ApplicationSettings';
@@ -20,7 +19,6 @@ const rootReducer = combineReducers({
   applicationTheme: ApplicationTheme,
   missedPrayer: MissedPrayer,
   missedFasting: MissedFasting,
-  calculateSettings: CalculateSettings,
   dhikr: Dhikr,
   location: Location,
   applicationSettings: ApplicationSettings,

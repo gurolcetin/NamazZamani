@@ -40,12 +40,6 @@ export const createStyles = (theme: ThemeType) =>
       color: theme.textColor,
       marginBottom: 16,
     },
-    label: {
-      fontSize: 14,
-      fontWeight: '500',
-      color: theme.textColor,
-      marginBottom: 12,
-    },
     languageButton: {
       borderRadius: 26,
       paddingVertical: 12,
@@ -129,21 +123,6 @@ export const createStyles = (theme: ThemeType) =>
       justifyContent: 'center',
       alignItems: 'center',
     },
-    input: {
-      borderRadius: 22,
-      paddingHorizontal: 18,
-      paddingVertical: 14,
-      fontSize: 16,
-    },
-    menstrualRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: 4,
-    },
-    menstrualInput: {
-      flex: 1,
-      marginRight: 12,
-    },
     helperText: {
       marginTop: 10,
       fontSize: 13,
@@ -172,13 +151,6 @@ export const createStyles = (theme: ThemeType) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 8,
-    },
-    inlineSaveButton: {
-      borderRadius: 22,
-      paddingHorizontal: 18,
-      paddingVertical: 14,
-      justifyContent: 'center',
-      alignItems: 'center',
     },
     saveButtonLabel: {
       fontSize: 16,

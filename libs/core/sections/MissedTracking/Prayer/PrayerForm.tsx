@@ -13,13 +13,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ErrorView, FormSegmentedControl } from '../../../../components';
-import {
-  isNullOrEmptyString,
-  isNullOrUndefined,
-  isNumber,
-} from 'typescript-util-functions';
+import { isNullOrEmptyString, isNumber } from 'typescript-util-functions';
 import { useTheme } from '../../../providers';
 import {
+  CalculateSettingsLanguageConstants,
   Gender,
   GeneralLanguageConstants,
   LanguageLocaleKeys,
@@ -39,14 +36,12 @@ type PrayerFormValues = {
   date: Date;
   entryIntoPubertyAge?: any;
   prayersPerformedCount?: any;
+  menstrualCycle?: any;
 };
 
 const PrayerForm: React.FC = () => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
-  const calculateSettings = useSelector(
-    (state: any) => state.calculateSettings,
-  );
   const { currentTheme } = useTheme();
   const { t, i18n } = useTranslation();
 
@@ -71,6 +66,9 @@ const PrayerForm: React.FC = () => {
   );
   const daysOfPrayerLabel = t(
     MissedPrayerFormLanguageConstants.NumberofDaysofPrayer.key,
+  );
+  const menstrualCycleLabel = t(
+    CalculateSettingsLanguageConstants.NumberOfMenstrualDays.key,
   );
 
   const birthDateError = t(MissedTrackingLanguageConstants.BirthDateError.key);
@@ -106,6 +104,7 @@ const PrayerForm: React.FC = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<PrayerFormValues>({
     defaultValues: {
@@ -113,8 +112,11 @@ const PrayerForm: React.FC = () => {
       date: new Date(),
       entryIntoPubertyAge: undefined,
       prayersPerformedCount: undefined,
+      menstrualCycle: undefined,
     },
   });
+
+  const selectedGender = watch('gender');
 
   const toggleDatePicker = () => setShowDatePicker(prev => !prev);
 
@@ -161,9 +163,9 @@ const PrayerForm: React.FC = () => {
         prayerCalculatorDate,
         new Date(),
       );
-      let menstrualCycle = !isNullOrUndefined(calculateSettings?.menstrualCycle)
-        ? calculateSettings.menstrualCycle
-        : 7;
+      const menstrualCycle = isNullOrEmptyString(data.menstrualCycle)
+        ? 7
+        : Math.min(Math.max(Number(data.menstrualCycle), 0), 10);
       missedPrayerCount -= Math.abs(totalMonths) * menstrualCycle;
     }
     if (missedPrayerCount < 0) {
@@ -214,6 +216,52 @@ const PrayerForm: React.FC = () => {
                 )}
               />
             </FieldGroup>
+
+            {selectedGender === Gender.Female && (
+              <FieldGroup
+                label={menstrualCycleLabel}
+                textColor={currentTheme.textColor}
+                errorColor={currentTheme.formErrorColor}
+              >
+                <Controller
+                  control={control}
+                  name="menstrualCycle"
+                  rules={{ required: false }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <View
+                      style={[
+                        styles.inputWrapper,
+                        { backgroundColor: currentTheme.inputBackgroundColor },
+                      ]}
+                    >
+                      <TextInput
+                        style={[styles.input, { color: currentTheme.textColor }]}
+                        onBlur={onBlur}
+                        keyboardType="numeric"
+                        placeholder="7"
+                        placeholderTextColor={currentTheme.gray}
+                        value={
+                          (value ?? StringConstants.EMPTY_STRING).toString()
+                        }
+                        onChangeText={val => {
+                          if (isNullOrEmptyString(val)) {
+                            return onChange(StringConstants.EMPTY_STRING);
+                          }
+                          if (!isNumber(val)) {
+                            return;
+                          }
+                          const numeric = Math.min(
+                            Math.max(Number(val), 0),
+                            10,
+                          );
+                          onChange(numeric.toString());
+                        }}
+                      />
+                    </View>
+                  )}
+                />
+              </FieldGroup>
+            )}
 
             {/* Birth Date */}
             <FieldGroup

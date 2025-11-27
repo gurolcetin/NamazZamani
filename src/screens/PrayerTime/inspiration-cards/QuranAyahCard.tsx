@@ -91,7 +91,7 @@ const createStyles = (colors: {
       fontSize: 22,
       fontWeight: '700',
       textAlign: 'right',
-      color: colors.primary,
+      color: colors.textColor,
       lineHeight: 30,
       marginBottom: 12,
     },

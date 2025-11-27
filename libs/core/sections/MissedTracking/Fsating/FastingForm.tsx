@@ -16,6 +16,7 @@ import { ErrorView, FormSegmentedControl } from '../../../../components';
 import { isNullOrEmptyString, isNumber } from 'typescript-util-functions';
 import { useTheme } from '../../../providers';
 import {
+  CalculateSettingsLanguageConstants,
   CalculatedMissedFastingLanguageConstants,
   FastingFormLanguageConstants,
   Gender,
@@ -34,14 +35,12 @@ type FastingFormValues = {
   date: Date;
   entryIntoPubertyAge?: any;
   fastingPerformedCount?: any;
+  menstrualCycle?: any;
 };
 
 const FastingForm: React.FC = () => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
-  const calculateSettings = useSelector(
-    (state: any) => state.calculateSettings,
-  );
   const { currentTheme } = useTheme();
   const { t, i18n } = useTranslation();
 
@@ -66,6 +65,9 @@ const FastingForm: React.FC = () => {
   );
   const fastingPerformedLabel = t(
     CalculatedMissedFastingLanguageConstants.NumberofFastsKept.key,
+  );
+  const menstrualCycleLabel = t(
+    CalculateSettingsLanguageConstants.NumberOfMenstrualDays.key,
   );
 
   const birthDateError = t(MissedTrackingLanguageConstants.BirthDateError.key);
@@ -93,6 +95,7 @@ const FastingForm: React.FC = () => {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FastingFormValues>({
     defaultValues: {
@@ -100,8 +103,11 @@ const FastingForm: React.FC = () => {
       date: new Date(),
       entryIntoPubertyAge: undefined,
       fastingPerformedCount: undefined,
+      menstrualCycle: undefined,
     },
   });
+
+  const selectedGender = watch('gender');
 
   const toggleDatePicker = () => setShowDatePicker(prev => !prev);
 
@@ -139,8 +145,11 @@ const FastingForm: React.FC = () => {
         data.date,
         fastingCalculatorDate,
       );
+      const menstrualCycle = isNullOrEmptyString(data.menstrualCycle)
+        ? 7
+        : Math.min(Math.max(Number(data.menstrualCycle), 0), 10);
       missedFastingCount +=
-        Math.abs(ramadanCount) * calculateSettings.numberOfMenstrualCycle;
+        Math.abs(ramadanCount) * menstrualCycle;
     }
 
     if (
@@ -198,6 +207,52 @@ const FastingForm: React.FC = () => {
                 )}
               />
             </FieldGroup>
+
+            {selectedGender === Gender.Female && (
+              <FieldGroup
+                label={menstrualCycleLabel}
+                textColor={currentTheme.textColor}
+                errorColor={currentTheme.formErrorColor}
+              >
+                <Controller
+                  control={control}
+                  name="menstrualCycle"
+                  rules={{ required: false }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <View
+                      style={[
+                        styles.inputWrapper,
+                        { backgroundColor: currentTheme.inputBackgroundColor },
+                      ]}
+                    >
+                      <TextInput
+                        style={[styles.input, { color: currentTheme.textColor }]}
+                        onBlur={onBlur}
+                        keyboardType="numeric"
+                        placeholder="7"
+                        placeholderTextColor={currentTheme.gray}
+                        value={
+                          (value ?? StringConstants.EMPTY_STRING).toString()
+                        }
+                        onChangeText={val => {
+                          if (isNullOrEmptyString(val)) {
+                            return onChange(StringConstants.EMPTY_STRING);
+                          }
+                          if (!isNumber(val)) {
+                            return;
+                          }
+                          const numeric = Math.min(
+                            Math.max(Number(val), 0),
+                            10,
+                          );
+                          onChange(numeric.toString());
+                        }}
+                      />
+                    </View>
+                  )}
+                />
+              </FieldGroup>
+            )}
 
             {/* Birth Date */}
             <FieldGroup

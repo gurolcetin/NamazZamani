@@ -80,9 +80,9 @@ const createStyles = (colors: {
       backgroundColor: 'rgba(15,23,42,0.08)',
     },
     arabicText: {
-      fontSize: 24,
-      fontWeight: '800',
-      color: colors.primary,
+      fontSize: 44,
+      fontWeight: '600',
+      color: colors.textColor,
       textAlign: 'right',
       marginBottom: 8,
     },

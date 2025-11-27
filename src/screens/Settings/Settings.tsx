@@ -10,7 +10,6 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   View,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -28,8 +27,6 @@ import {
 } from '../../../libs/components';
 import {
   AsyncStorageConstants,
-  CalculateSettingsLanguageConstants,
-  GeneralLanguageConstants,
   LanguagePrefix,
   LanguageSettingsConstants,
   SettingsConstants,
@@ -39,9 +36,7 @@ import {
 import { Accent, Theme } from '../../../libs/common/enums';
 import { useTheme } from '../../../libs/core/providers';
 import { updateApplicationTheme } from '../../../libs/redux/reducers/ApplicationTheme';
-import { updateMenstrualCycle } from '../../../libs/redux/reducers/CalculateSettings';
 import { setShowRamadanCountdownCard } from '../../../libs/redux/reducers/ApplicationSettings';
-import { isNullOrEmptyString, isNumber } from 'typescript-util-functions';
 import { createStyles } from './style';
 import { DevSettings } from 'react-native';
 
@@ -87,9 +82,6 @@ const Settings = ({}: SettingsProps) => {
   const { t, i18n } = useTranslation();
   const { currentTheme, toggleTheme, accent, setAccent } = useTheme();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
-  const calculateSettings = useSelector(
-    (state: any) => state.calculateSettings,
-  );
   const applicationSettings = useSelector(
     (state: any) => state.applicationSettings,
   );
@@ -106,7 +98,6 @@ const Settings = ({}: SettingsProps) => {
   } | null>(null);
 
   const [themeSelection, setThemeSelection] = useState<Theme>(Theme.SYSTEM);
-  const [menstrualDays, setMenstrualDays] = useState<string>('');
   const showRamadanCountdownCard =
     applicationSettings?.showRamadanCountdownCard ?? true;
 
@@ -134,17 +125,6 @@ const Settings = ({}: SettingsProps) => {
   useEffect(() => {
     setThemeSelection(applicationTheme.theme ?? Theme.SYSTEM);
   }, [applicationTheme.theme]);
-
-  useEffect(() => {
-    if (
-      calculateSettings?.numberOfMenstrualCycle === undefined ||
-      calculateSettings?.numberOfMenstrualCycle === null
-    ) {
-      setMenstrualDays('');
-      return;
-    }
-    setMenstrualDays(String(calculateSettings?.numberOfMenstrualCycle ?? ''));
-  }, [calculateSettings?.numberOfMenstrualCycle]);
 
   const languageOptions = [
     {
@@ -211,38 +191,6 @@ const Settings = ({}: SettingsProps) => {
     },
     [setAccent],
   );
-
-  const handleMenstrualDaysChange = useCallback((value: string) => {
-    if (isNullOrEmptyString(value)) {
-      setMenstrualDays('');
-      return;
-    }
-    if (!isNumber(value)) {
-      return;
-    }
-    const numeric = Math.min(Math.max(Number(value), 0), 10);
-    setMenstrualDays(numeric.toString());
-  }, []);
-
-  const handleSave = useCallback(() => {
-    if (isNullOrEmptyString(menstrualDays)) {
-      dispatch(
-        updateMenstrualCycle({
-          numberOfMenstrualCycle: undefined,
-        }),
-      );
-      return;
-    }
-    if (!isNumber(menstrualDays)) {
-      return;
-    }
-    const numeric = Math.min(Math.max(Number(menstrualDays), 0), 10);
-    dispatch(
-      updateMenstrualCycle({
-        numberOfMenstrualCycle: numeric,
-      }),
-    );
-  }, [dispatch, menstrualDays]);
 
   const handleRamadanCountdownToggle = useCallback(
     (value: boolean) => {
@@ -417,57 +365,6 @@ const Settings = ({}: SettingsProps) => {
             <View style={styles.card}>
               <Text style={styles.cardTitle}>
                 {t(SettingsConstants.CalculateSettings.key)}
-              </Text>
-              <Text style={styles.label}>
-                {t(
-                  CalculateSettingsLanguageConstants.NumberOfMenstrualDays.key,
-                )}
-              </Text>
-              <View style={styles.menstrualRow}>
-                <TextInput
-                  style={[
-                    styles.input,
-                    styles.menstrualInput,
-                    {
-                      backgroundColor: currentTheme.inputBackgroundColor,
-                      color: currentTheme.textColor,
-                    },
-                  ]}
-                  value={menstrualDays}
-                  onChangeText={handleMenstrualDaysChange}
-                  keyboardType="numeric"
-                  placeholder="7"
-                  placeholderTextColor={currentTheme.placeholderTextColor}
-                  maxLength={2}
-                />
-                <Pressable
-                  style={[
-                    styles.inlineSaveButton,
-                    {
-                      backgroundColor: currentTheme.primary,
-                      shadowColor: currentTheme.primary,
-                    },
-                  ]}
-                  onPress={handleSave}
-                  android_ripple={{
-                    color: currentTheme.gray,
-                    borderless: false,
-                  }}
-                >
-                  <Text style={styles.saveButtonLabel}>
-                    {t(GeneralLanguageConstants.Save.key)}
-                  </Text>
-                </Pressable>
-              </View>
-              <Text
-                style={[
-                  styles.helperText,
-                  {
-                    color: currentTheme.gray,
-                  },
-                ]}
-              >
-                {t(SettingsScreenLanguageConstants.CalculationHelper.key)}
               </Text>
               <View style={styles.toggleRow}>
                 <Text style={styles.toggleLabel}>
