@@ -6,7 +6,9 @@ import React, {
   useRef,
 } from 'react';
 import {
+  Alert,
   Image,
+  Linking,
   Pressable,
   ScrollView,
   Text,
@@ -207,6 +209,17 @@ const Settings = ({}: SettingsProps) => {
       console.warn('AsyncStorage clear error:', error);
     }
   }, []);
+
+  const handleSendFeedback = useCallback(() => {
+    const subjectText = t(SettingsScreenLanguageConstants.FeedbackEmailSubject.key);
+    const bodyLine = t(SettingsScreenLanguageConstants.FeedbackEmailBody.key);
+    const subject = encodeURIComponent(subjectText);
+    const body = encodeURIComponent(`${bodyLine}\n\n`);
+    const url = `mailto:gurolmehmetcetin@gmail.com?subject=${subject}&body=${body}`;
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Hata', 'Mail uygulaması açılamadı.');
+    });
+  }, [t]);
 
   const closeDropdown = useCallback(() => {
     setIsLangOpen(false);
@@ -426,6 +439,49 @@ const Settings = ({}: SettingsProps) => {
                 <Text style={styles.saveButtonLabel}>
                   {t(SettingsScreenLanguageConstants.AdvancedClearButton.key)}
                 </Text>
+              </Pressable>
+            </View>
+
+            {/* Geri Bildirim */}
+            <View style={styles.card}>
+              <Pressable
+                onPress={handleSendFeedback}
+                android_ripple={{ color: currentTheme.gray, borderless: false }}
+                style={{
+                  backgroundColor: currentTheme.inputBackgroundColor,
+                  borderRadius: 24,
+                  paddingHorizontal: 20,
+                  paddingVertical: 18,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{
+                      color: currentTheme.textColor,
+                      fontSize: 16,
+                      fontWeight: '600',
+                    }}
+                  >
+                    {t(SettingsScreenLanguageConstants.FeedbackTitle.key)}
+                  </Text>
+                  <Text
+                    style={{
+                      color: currentTheme.gray,
+                      fontSize: 13,
+                      marginTop: 6,
+                    }}
+                  >
+                    {t(SettingsScreenLanguageConstants.FeedbackSubtitle.key)}
+                  </Text>
+                </View>
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name="chevron-right"
+                  size={22}
+                  color={currentTheme.gray}
+                />
               </Pressable>
             </View>
           </ScrollView>

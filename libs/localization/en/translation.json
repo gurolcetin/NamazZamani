@@ -31,7 +31,11 @@
     "RamadanCountdownToggleHint": "Always visible during Ramadan.",
     "AdvancedTitle": "Advanced",
     "AdvancedDescription": "Clears all local app data (language, theme, calculation settings, etc.). Some areas will revert to default settings.",
-    "AdvancedClearButton": "Clear All Data"
+    "AdvancedClearButton": "Clear All Data",
+    "FeedbackTitle": "Send Feedback",
+    "FeedbackSubtitle": "Share your suggestions, complaints or comments with us",
+    "FeedbackEmailSubject": "Namaz Zamanı App Feedback",
+    "FeedbackEmailBody": "Hello, I have some feedback about the Namaz Zamanı app:"
   },
   "menu": {
     "PrayerTime": "Prayer Time",

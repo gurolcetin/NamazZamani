@@ -57,6 +57,22 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.AdvancedClearButton',
     defaultValue: 'Tüm Verileri Temizle',
   };
+  static FeedbackTitle: LanguageModel = {
+    key: 'settings.FeedbackTitle',
+    defaultValue: 'Geri Bildirim Gönder',
+  };
+  static FeedbackSubtitle: LanguageModel = {
+    key: 'settings.FeedbackSubtitle',
+    defaultValue: 'Öneri, şikayet veya yorumlarınızı bizimle paylaşın',
+  };
+  static FeedbackEmailSubject: LanguageModel = {
+    key: 'settings.FeedbackEmailSubject',
+    defaultValue: 'Namaz Zamanı Uygulama Geri Bildirimi',
+  };
+  static FeedbackEmailBody: LanguageModel = {
+    key: 'settings.FeedbackEmailBody',
+    defaultValue: 'Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:',
+  };
 }
 
 export class LanguageSettingsConstants {

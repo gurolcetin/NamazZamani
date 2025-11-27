@@ -32,7 +32,11 @@
     "RamadanCountdownToggleHint": "Ramazan ayında her zaman gösterilir.",
     "AdvancedTitle": "Gelişmiş",
     "AdvancedDescription": "Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara döner.",
-    "AdvancedClearButton": "Tüm Verileri Temizle"
+    "AdvancedClearButton": "Tüm Verileri Temizle",
+    "FeedbackTitle": "Geri Bildirim Gönder",
+    "FeedbackSubtitle": "Öneri, şikayet veya yorumlarınızı bizimle paylaşın",
+    "FeedbackEmailSubject": "Namaz Zamanı Uygulama Geri Bildirimi",
+    "FeedbackEmailBody": "Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:"
   },
   "menu": {
     "PrayerTime": "Namaz Vakitleri",
