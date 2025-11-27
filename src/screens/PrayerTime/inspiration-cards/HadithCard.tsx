@@ -27,12 +27,19 @@ type HadithData = {
 type HadeethEncOneResponse = {
   id?: string | number;
   title?: string;
+  title_ar?: string;
   hadeeth?: string;
+  hadeeth_ar?: string;
   translation?: string;
+  translation_ar?: string;
   explanation?: string;
+  explanation_ar?: string;
   grade?: string;
+  grade_ar?: string;
   reference?: string;
+  reference_ar?: string;
   attribution?: string;
+  attribution_ar?: string;
   categories?: string[];
   translations?: string[];
 };
@@ -145,8 +152,6 @@ const HADEETH_CATEGORY_ATTEMPTS = 6;
 const HADEETH_LIST_ATTEMPTS = 4;
 const HADEETH_SOURCE_LABEL = 'HadeethEnc.com';
 
-type HadeethLanguage = ApiLanguage | 'ar';
-
 const buildApiUrl = (
   path: string,
   params: Record<string, string | number | undefined>,
@@ -174,9 +179,7 @@ const sanitizeText = (input?: string | null) => input?.trim() || undefined;
 const fetchHadeethCategories = async (
   language: ApiLanguage,
 ): Promise<HadeethCategory[]> =>
-  fetchJson<HadeethCategory[]>(
-    buildApiUrl('/categories/roots/', { language }),
-  );
+  fetchJson<HadeethCategory[]>(buildApiUrl('/categories/roots/', { language }));
 
 const fetchHadeethList = async (
   language: ApiLanguage,
@@ -200,9 +203,7 @@ const extractRandomHadeethId = (
     return null;
   }
   const validItems = response.data.filter(item =>
-    !item.translations?.length
-      ? true
-      : item.translations.includes(language),
+    !item.translations?.length ? true : item.translations.includes(language),
   );
   if (!validItems.length) {
     return null;
@@ -244,19 +245,13 @@ const pickRandomHadeethIdFromCategory = async (
   return null;
 };
 
-const pickRandomHadeethId = async (
-  language: ApiLanguage,
-): Promise<string> => {
+const pickRandomHadeethId = async (language: ApiLanguage): Promise<string> => {
   const categories = await fetchHadeethCategories(language);
   if (!categories?.length) {
     throw new Error('NO_CATEGORIES');
   }
   const available = [...categories];
-  const attempts = Math.min(
-    HADEETH_CATEGORY_ATTEMPTS,
-    available.length,
-  );
-
+  const attempts = Math.min(HADEETH_CATEGORY_ATTEMPTS, available.length);
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     const category = pickRandomItem(available);
     const categoryIndex = available.indexOf(category);
@@ -276,7 +271,7 @@ const pickRandomHadeethId = async (
 };
 
 const fetchHadeethContent = async (
-  language: HadeethLanguage,
+  language: ApiLanguage,
   id: string,
 ): Promise<HadeethEncOneResponse> =>
   fetchJson<HadeethEncOneResponse>(
@@ -284,29 +279,30 @@ const fetchHadeethContent = async (
   );
 
 const buildHadithData = (
-  arabicPayload?: HadeethEncOneResponse,
-  localizedPayload?: HadeethEncOneResponse,
+  payload?: HadeethEncOneResponse,
 ): HadithData | null => {
+  if (!payload) {
+    return null;
+  }
   const arabicText =
-    sanitizeText(arabicPayload?.hadeeth) ||
-    sanitizeText(localizedPayload?.hadeeth);
+    sanitizeText(payload?.hadeeth_ar) || sanitizeText(payload?.hadeeth);
   const translationText =
-    sanitizeText(localizedPayload?.translation) ||
-    sanitizeText(localizedPayload?.hadeeth) ||
-    sanitizeText(localizedPayload?.title);
+    sanitizeText(payload?.translation) ||
+    sanitizeText(payload?.hadeeth) ||
+    sanitizeText(payload?.title);
 
   if (!arabicText || !translationText) {
     return null;
   }
 
   const bookName =
-    sanitizeText(localizedPayload?.reference) ||
-    sanitizeText(arabicPayload?.reference) ||
-    sanitizeText(localizedPayload?.attribution) ||
-    sanitizeText(arabicPayload?.attribution) ||
+    sanitizeText(payload?.attribution) ||
+    sanitizeText(payload?.reference) ||
+    sanitizeText(payload?.attribution_ar) ||
+    sanitizeText(payload?.reference_ar) ||
     HADEETH_SOURCE_LABEL;
 
-  const number = localizedPayload?.id || arabicPayload?.id;
+  const number = payload?.id;
 
   return {
     arabic: arabicText,
@@ -320,11 +316,8 @@ const fetchRandomHadithForLanguage = async (
   language: ApiLanguage,
 ): Promise<HadithData> => {
   const hadeethId = await pickRandomHadeethId(language);
-  const [localizedPayload, arabicPayload] = await Promise.all([
-    fetchHadeethContent(language, hadeethId),
-    fetchHadeethContent('ar', hadeethId),
-  ]);
-  const mapped = buildHadithData(arabicPayload, localizedPayload);
+  const payload = await fetchHadeethContent(language, hadeethId);
+  const mapped = buildHadithData(payload);
   if (!mapped) {
     throw new Error('EMPTY');
   }
@@ -427,7 +420,6 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     if (!state.data) {
       return null;
     }
-
     const sourceLabel =
       state.data.bookName && state.data.number
         ? t('prayerTime.inspiration.hadithSource', {

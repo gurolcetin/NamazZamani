@@ -58,7 +58,7 @@ export const baseDarkTheme: ThemeType = {
   infoIconColor: '#0A84FF',
   calculateIconColor: '#FF9500',
   systemBlue: '#0A84FF',
-  shadowColor: '#fff',
+  shadowColor: '#000',
   placeholderTextColor: '#9E9EA6',
   bottomTabBorderTopColor: '#242424',
 };
