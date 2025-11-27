@@ -55,7 +55,7 @@ export class SettingsScreenLanguageConstants {
   };
   static AdvancedClearButton: LanguageModel = {
     key: 'settings.AdvancedClearButton',
-    defaultValue: 'Tüm verileri temizle',
+    defaultValue: 'Tüm Verileri Temizle',
   };
 }
 

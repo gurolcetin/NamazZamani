@@ -31,7 +31,7 @@
     "RamadanCountdownToggleHint": "Always visible during Ramadan.",
     "AdvancedTitle": "Advanced",
     "AdvancedDescription": "Clears all local app data (language, theme, calculation settings, etc.). Some areas will revert to default settings.",
-    "AdvancedClearButton": "Clear all data"
+    "AdvancedClearButton": "Clear All Data"
   },
   "menu": {
     "PrayerTime": "Prayer Time",
