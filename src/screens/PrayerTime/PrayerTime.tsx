@@ -247,13 +247,13 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
 // ---------------------------------------------------------------------------
 type RamadanCountdownProps = {
   timings: PrayerTimings | null;
-  systemRed?: string;
   currentNow: Date;
 };
 
 const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
-  ({ timings, systemRed, currentNow }) => {
+  ({ timings, currentNow }) => {
     const { t } = useTranslation();
+    const { currentTheme } = useTheme();
     if (!timings) return null;
 
     const { iftarTarget, sahurTarget, maghribToday, fajrToday } =
@@ -282,26 +282,45 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
     // const ramadanBase = '#0F766E'; // turkuaz-yeşil ton (Ramazan için çok kullanılır)
     // const ramadanBase = '#4C1D95'; // mor gece tonu
     // const ramadanBase = '#166534'; // koyu yeşil, cami / hilal çağrışımı
-    const ramadanBase = '#F4D03F';
+    const ramadanBase = currentTheme.ramadanCountdown.base;
 
-    const safeSystemRed = systemRed || '#B91C1C';
+    const safeSystemRed = currentTheme.systemRed || '#B91C1C';
     const cardBg = isCritical ? `${safeSystemRed}E6` : `${ramadanBase}F0`;
+    const ramadanColors = currentTheme.ramadanCountdown;
 
     return (
       <View style={styles.ramadanSingleRoot}>
         <View style={[styles.ramadanSingleCard, { backgroundColor: cardBg }]}>
-          <View style={styles.ramadanIconBadge}>
+          <View
+            style={[
+              styles.ramadanIconBadge,
+              {
+                borderColor: ramadanColors.badgeBorder,
+                backgroundColor: ramadanColors.badgeBackground,
+              },
+            ]}
+          >
             <RamadanIcon size={50} color="#fff" opacity={1} />
           </View>
           <View style={styles.ramadanTextWrap}>
-            <Text style={styles.ramadanActiveText}>{activeLabel}</Text>
+            <Text
+              style={[styles.ramadanActiveText, { color: ramadanColors.labelColor }]}
+            >
+              {activeLabel}
+            </Text>
           </View>
 
-          <View style={styles.ramadanCountdownWrap}>
+          <View
+            style={[
+              styles.ramadanCountdownWrap,
+              { backgroundColor: ramadanColors.timerBackground },
+            ]}
+          >
             <Text
               style={[
                 styles.ramadanCountdownText,
-                isCritical && styles.ramadanCountdownCritical,
+                { color: ramadanColors.timerText },
+                isCritical && { color: ramadanColors.timerCriticalText },
               ]}
             >
               {countdownClock}
@@ -624,7 +643,6 @@ export default function PrayerTime() {
         {shouldShowRamadanCountdown ? (
           <RamadanCountdownCard
             timings={timings}
-            systemRed={currentTheme.systemRed}
             currentNow={nowTick}
           />
         ) : null}
@@ -636,9 +654,9 @@ export default function PrayerTime() {
     [
       shouldShowRamadanCountdown,
       timings,
-      currentTheme.systemRed,
       nowTick,
       currentDateKey,
+      currentTheme,
     ],
   );
 
@@ -914,8 +932,6 @@ const styles = StyleSheet.create({
   ramadanIconBadge: {
     borderRadius: 30,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.5)',
-    backgroundColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -931,21 +947,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 15,
     fontWeight: '700',
-    color: '#FEF9C3',
   },
   ramadanCountdownWrap: {
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 18,
-    backgroundColor: 'rgba(15,23,42,0.2)',
   },
   ramadanCountdownText: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#FFFFFF',
     letterSpacing: 1,
-  },
-  ramadanCountdownCritical: {
-    color: '#FFE4E6',
   },
 });

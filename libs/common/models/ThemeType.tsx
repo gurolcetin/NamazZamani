@@ -27,4 +27,13 @@ export type ThemeType = {
   shadowColor: string;
   placeholderTextColor: string;
   bottomTabBorderTopColor: string;
+  ramadanCountdown: {
+    base: string;
+    badgeBorder: string;
+    badgeBackground: string;
+    labelColor: string;
+    timerBackground: string;
+    timerText: string;
+    timerCriticalText: string;
+  };
 };

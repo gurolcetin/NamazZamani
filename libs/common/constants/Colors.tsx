@@ -30,6 +30,15 @@ export const baseLightTheme: ThemeType = {
   shadowColor: '#000',
   placeholderTextColor: '#85858A',
   bottomTabBorderTopColor: '#EBEBEB',
+  ramadanCountdown: {
+    base: '#F4D03F',
+    badgeBorder: 'rgba(255,255,255,0.5)',
+    badgeBackground: 'rgba(255,255,255,0.18)',
+    labelColor: '#FEF9C3',
+    timerBackground: 'rgba(15,23,42,0.2)',
+    timerText: '#FFFFFF',
+    timerCriticalText: '#FFE4E6',
+  },
 };
 
 export const baseDarkTheme: ThemeType = {
@@ -61,6 +70,15 @@ export const baseDarkTheme: ThemeType = {
   shadowColor: '#000',
   placeholderTextColor: '#9E9EA6',
   bottomTabBorderTopColor: '#242424',
+  ramadanCountdown: {
+    base: '#D4AC0D', // Light #F4D03F'ün daha koyu, kontrastı yüksek versiyonu
+    badgeBorder: 'rgba(255,255,255,0.25)',
+    badgeBackground: 'rgba(255,255,255,0.08)',
+    labelColor: '#FFF7A3', // Light’taki FE F9 C3'ün daha soluk/dim bir karşılığı
+    timerBackground: 'rgba(255,255,255,0.08)', // Light'taki slate arka planın dark eşleniği
+    timerText: '#FDFDFD',
+    timerCriticalText: '#FFB3C0', // Light’taki #FFE4E6’in daha koyu kontrastlı versiyonu
+  },
 };
 
 export const accentPalettes: Record<
