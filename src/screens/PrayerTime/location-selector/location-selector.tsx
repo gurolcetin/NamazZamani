@@ -20,6 +20,11 @@ import { useTranslation } from 'react-i18next';
 import { SearchBarCommands } from 'react-native-screens';
 import { useNavigationSearch } from '../../../../libs/core/hooks';
 import {
+  getCurrentPosition,
+  requestLocationPermission,
+} from '../permission';
+import { reverseGeocode } from '../reverse-geocode';
+import {
   upsertSavedPlace,
   removeSavedPlace as removeSavedRedux,
   setActiveById,
@@ -101,6 +106,10 @@ export default function LocationSelector() {
 
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SavedPlace[]>([]);
+  const [deviceLocationLabel, setDeviceLocationLabel] = useState<string | null>(
+    null,
+  );
+  const [deviceLocationLoading, setDeviceLocationLoading] = useState(true);
   const query = search.trim();
   const hasQuery = query.length > 0;
   const swipeableRefs = useRef<Record<string, Swipeable | null>>({});
@@ -112,6 +121,47 @@ export default function LocationSelector() {
     useRef<ReturnType<typeof setTimeout> | null>(null);
   const swipeDemoActiveIdRef = useRef<string | null>(null);
   const swipeDemoHandledRef = useRef(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+
+      const resolveDeviceLocation = async () => {
+        setDeviceLocationLoading(true);
+        try {
+          const hasPermission = await requestLocationPermission();
+
+          if (!hasPermission) {
+            if (!cancelled) {
+              setDeviceLocationLabel(null);
+            }
+            return;
+          }
+
+          const pos = await getCurrentPosition();
+          const label = await reverseGeocode(pos.latitude, pos.longitude);
+
+          if (!cancelled) {
+            setDeviceLocationLabel(label);
+          }
+        } catch {
+          if (!cancelled) {
+            setDeviceLocationLabel(null);
+          }
+        } finally {
+          if (!cancelled) {
+            setDeviceLocationLoading(false);
+          }
+        }
+      };
+
+      resolveDeviceLocation();
+
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
 
   /** Debounced Search */
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -467,6 +517,10 @@ export default function LocationSelector() {
     );
   };
 
+  const deviceLocationSubtitle = deviceLocationLoading
+    ? t('locationChip.loading')
+    : deviceLocationLabel ?? t('prayerTime.locationNotFound');
+
   /** ---------- Render ---------- */
   return (
     <ScreenViewContainer>
@@ -500,7 +554,7 @@ export default function LocationSelector() {
                     {t('locationSelector.deviceTitle')}
                   </Text>
                   <Text style={styles.nextHint}>
-                    {t('locationSelector.deviceSubtitle')}
+                    {deviceLocationSubtitle}
                   </Text>
                 </View>
               </View>
