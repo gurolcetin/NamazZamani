@@ -304,7 +304,10 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
           </View>
           <View style={styles.ramadanTextWrap}>
             <Text
-              style={[styles.ramadanActiveText, { color: ramadanColors.labelColor }]}
+              style={[
+                styles.ramadanActiveText,
+                { color: ramadanColors.labelColor },
+              ]}
             >
               {activeLabel}
             </Text>
@@ -641,23 +644,14 @@ export default function PrayerTime() {
     () => (
       <View style={styles.footerStack}>
         {shouldShowRamadanCountdown ? (
-          <RamadanCountdownCard
-            timings={timings}
-            currentNow={nowTick}
-          />
+          <RamadanCountdownCard timings={timings} currentNow={nowTick} />
         ) : null}
         <QuranAyahCard currentDateKey={currentDateKey} />
         <AsmaulHusnaCard currentDateKey={currentDateKey} />
         <HadithCard currentDateKey={currentDateKey} />
       </View>
     ),
-    [
-      shouldShowRamadanCountdown,
-      timings,
-      nowTick,
-      currentDateKey,
-      currentTheme,
-    ],
+    [shouldShowRamadanCountdown, timings, nowTick, currentDateKey],
   );
 
   // ------- render -----------------------------------------------------------

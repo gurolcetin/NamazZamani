@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -9,8 +9,10 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import type { GestureResponderEvent } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useHeaderHeight } from '@react-navigation/elements';
+import { Swipeable } from 'react-native-gesture-handler';
 import { useTheme } from '../../../../libs/core/providers';
 import { Icon, Icons, ScreenViewContainer } from '../../../../libs/components';
 import { useDispatch, useSelector } from 'react-redux';
@@ -101,6 +103,15 @@ export default function LocationSelector() {
   const [results, setResults] = useState<SavedPlace[]>([]);
   const query = search.trim();
   const hasQuery = query.length > 0;
+  const swipeableRefs = useRef<Record<string, Swipeable | null>>({});
+  const openSwipeIdRef = useRef<string | null>(null);
+  const [swipeDemoRequestId, setSwipeDemoRequestId] = useState(0);
+  const swipeDemoOpenTimeoutRef =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
+  const swipeDemoCloseTimeoutRef =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
+  const swipeDemoActiveIdRef = useRef<string | null>(null);
+  const swipeDemoHandledRef = useRef(0);
 
   /** Debounced Search */
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -155,6 +166,156 @@ export default function LocationSelector() {
   const isActiveDevice = 'type' in active && active.type === 'device';
   const isActiveId = (id: string) => 'id' in active && active.id === id;
 
+  const attachSwipeableRef = (id: string) => (ref: Swipeable | null) => {
+    if (ref) {
+      swipeableRefs.current[id] = ref;
+    } else {
+      delete swipeableRefs.current[id];
+    }
+  };
+
+  const closeSwipeable = (id: string) => {
+    swipeableRefs.current[id]?.close();
+  };
+
+  const clearSwipeDemoTimers = () => {
+    if (swipeDemoOpenTimeoutRef.current) {
+      clearTimeout(swipeDemoOpenTimeoutRef.current);
+      swipeDemoOpenTimeoutRef.current = null;
+    }
+    if (swipeDemoCloseTimeoutRef.current) {
+      clearTimeout(swipeDemoCloseTimeoutRef.current);
+      swipeDemoCloseTimeoutRef.current = null;
+    }
+  };
+
+  const resetSwipeDemo = () => {
+    clearSwipeDemoTimers();
+    if (swipeDemoActiveIdRef.current) {
+      closeSwipeable(swipeDemoActiveIdRef.current);
+      if (openSwipeIdRef.current === swipeDemoActiveIdRef.current) {
+        openSwipeIdRef.current = null;
+      }
+      swipeDemoActiveIdRef.current = null;
+    }
+  };
+
+  const closeAnyOpenSwipe = () => {
+    if (openSwipeIdRef.current) {
+      closeSwipeable(openSwipeIdRef.current);
+      openSwipeIdRef.current = null;
+    }
+    resetSwipeDemo();
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      setSwipeDemoRequestId(id => id + 1);
+      return () => {
+        resetSwipeDemo();
+      };
+    }, []),
+  );
+
+  const handleContentTouchStart = () => {
+    if (openSwipeIdRef.current) {
+      closeAnyOpenSwipe();
+    }
+  };
+
+  useEffect(() => {
+    if (swipeDemoRequestId === 0) {
+      return;
+    }
+
+    if (swipeDemoHandledRef.current === swipeDemoRequestId) {
+      return;
+    }
+
+    if (hasQuery) {
+      return;
+    }
+
+    const deletableItem = saved.find(
+      item => !('id' in active && active.id === item.id),
+    );
+    if (!deletableItem) {
+      return;
+    }
+
+    swipeDemoHandledRef.current = swipeDemoRequestId;
+    clearSwipeDemoTimers();
+
+    swipeDemoOpenTimeoutRef.current = setTimeout(() => {
+      const swipeable = swipeableRefs.current[deletableItem.id];
+      if (!swipeable) {
+        return;
+      }
+
+      if (typeof swipeable.openRight === 'function') {
+        swipeable.openRight();
+      }
+      swipeDemoActiveIdRef.current = deletableItem.id;
+      openSwipeIdRef.current = deletableItem.id;
+
+      swipeDemoCloseTimeoutRef.current = setTimeout(() => {
+        swipeable.close();
+        swipeDemoActiveIdRef.current = null;
+        if (openSwipeIdRef.current === deletableItem.id) {
+          openSwipeIdRef.current = null;
+        }
+      }, 800);
+    }, 500);
+  }, [active, hasQuery, saved, swipeDemoRequestId]);
+
+  const confirmRemoveSaved = (item: SavedPlace) => {
+    Alert.alert(
+      t('locationSelector.deleteTitle'),
+      t('locationSelector.deleteMessageWithName', {
+        name: item.label,
+      }),
+      [
+        {
+          text: t('locationSelector.cancel'),
+          onPress: () => closeSwipeable(item.id),
+        },
+        {
+          text: t('locationSelector.delete'),
+          style: 'destructive',
+          onPress: () => {
+            dispatch(removeSavedRedux(item.id));
+            closeSwipeable(item.id);
+          },
+        },
+      ],
+    );
+  };
+
+  const renderDeleteAction = (item: SavedPlace) => (
+    <View style={styles.deleteActionWrapper}>
+      <Pressable
+        style={[
+          styles.deleteAction,
+          {
+            backgroundColor: currentTheme.systemRed,
+          },
+        ]}
+        onPress={() => confirmRemoveSaved(item)}
+        onTouchStart={(event: GestureResponderEvent) => event.stopPropagation()}
+      >
+        <Icon
+          type={Icons.MaterialDesignIcons}
+          name="trash-can-outline"
+          size={20}
+          color={currentTheme.white}
+        />
+        <Text style={styles.deleteActionText}>
+          {t('locationSelector.delete')}
+        </Text>
+      </Pressable>
+    </View>
+  );
+
   /** Small UI Bits */
   const SelectedBadge = () => (
     <View style={[styles.badge, { backgroundColor: currentTheme.primary }]}>
@@ -172,218 +333,237 @@ export default function LocationSelector() {
   const renderSaved = ({ item }: { item: SavedPlace }) => {
     const selected = isActiveId(item.id);
     return (
-      <Pressable
-        style={[
-          styles.rowCard,
-          {
-            backgroundColor: currentTheme.cardViewBackgroundColor,
-          },
-        ]}
-        onPress={() => goWith(item)}
-      >
-        <View style={styles.rowLeft}>
-          <View
-            style={[
-              styles.avatarCircle,
-              selected && { backgroundColor: currentTheme.primary },
-            ]}
-          >
-            <Icon
-              type={Icons.FontAwesome6}
-              name="location-dot"
-              size={18}
-              color={currentTheme.white}
-              solid
-            />
-          </View>
-          <Text
-            style={[
-              styles.rowTitle,
-              selected && styles.rowTitleSelected,
-              { color: currentTheme.textColor },
-            ]}
-            numberOfLines={2}
-          >
-            {item.label}
-          </Text>
-        </View>
-        <View style={styles.rowRight}>
-          {selected ? (
-            <SelectedBadge />
-          ) : (
-            <Pressable
-              hitSlop={10}
-              onPress={() =>
-                Alert.alert(
-                  t('locationSelector.deleteTitle'),
-                  t('locationSelector.deleteMessageWithName', {
-                    name: item.label,
-                  }),
-                  [
-                    { text: t('locationSelector.cancel') },
-                    {
-                      text: t('locationSelector.delete'),
-                      style: 'destructive',
-                      onPress: () => {
-                        dispatch(removeSavedRedux(item.id));
-                      },
-                    },
-                  ],
-                )
+      <View style={styles.rowWrapper}>
+        <Swipeable
+          ref={attachSwipeableRef(item.id)}
+          enabled={!selected}
+          friction={2}
+          overshootRight={false}
+          onSwipeableWillOpen={() => {
+            if (
+              openSwipeIdRef.current &&
+              openSwipeIdRef.current !== item.id
+            ) {
+              const prevId = openSwipeIdRef.current;
+              closeSwipeable(prevId);
+              openSwipeIdRef.current = null;
+              if (swipeDemoActiveIdRef.current === prevId) {
+                clearSwipeDemoTimers();
+                swipeDemoActiveIdRef.current = null;
               }
-            >
-              <Icon
-                type={Icons.MaterialDesignIcons}
-                name="trash-can-outline"
-                size={20}
-                color={currentTheme.systemRed}
-              />
-            </Pressable>
-          )}
-        </View>
-      </Pressable>
+            }
+          }}
+          onSwipeableOpen={() => {
+            openSwipeIdRef.current = item.id;
+          }}
+          onSwipeableClose={() => {
+            if (openSwipeIdRef.current === item.id) {
+              openSwipeIdRef.current = null;
+            }
+          }}
+          renderRightActions={() =>
+            selected ? null : renderDeleteAction(item)
+          }
+        >
+          <Pressable
+            style={[
+              styles.rowCard,
+              {
+                backgroundColor: currentTheme.cardViewBackgroundColor,
+              },
+            ]}
+            onPress={() => goWith(item)}
+          >
+            <View style={styles.rowLeft}>
+              <View
+                style={[
+                  styles.avatarCircle,
+                  selected && { backgroundColor: currentTheme.primary },
+                ]}
+              >
+                <Icon
+                  type={Icons.FontAwesome6}
+                  name="location-dot"
+                  size={18}
+                  color={currentTheme.white}
+                  solid
+                />
+              </View>
+              <Text
+                style={[
+                  styles.rowTitle,
+                  selected && styles.rowTitleSelected,
+                  { color: currentTheme.textColor },
+                ]}
+                numberOfLines={2}
+              >
+                {item.label}
+              </Text>
+            </View>
+            <View style={styles.rowRight}>
+              {selected ? (
+                <SelectedBadge />
+              ) : (
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name="chevron-left"
+                  size={16}
+                  color={currentTheme.textColor}
+                />
+              )}
+            </View>
+          </Pressable>
+        </Swipeable>
+      </View>
     );
   };
 
   const renderResult = ({ item }: { item: SavedPlace }) => {
     const selected = isActiveId(item.id);
     return (
-      <Pressable
-        style={[
-          styles.rowCard,
-          { backgroundColor: currentTheme.cardViewBackgroundColor },
-        ]}
-        onPress={() => goWith(item)}
-      >
-        <View style={styles.rowLeft}>
-          <View
-            style={[
-              styles.avatarCircle,
-              { backgroundColor: currentTheme.primary },
-            ]}
-          >
+      <View style={styles.rowWrapper}>
+        <Pressable
+          style={[
+            styles.rowCard,
+            { backgroundColor: currentTheme.cardViewBackgroundColor },
+          ]}
+          onPress={() => goWith(item)}
+        >
+          <View style={styles.rowLeft}>
+            <View
+              style={[
+                styles.avatarCircle,
+                { backgroundColor: currentTheme.primary },
+              ]}
+            >
+              <Icon
+                type={Icons.FontAwesome6}
+                name="magnifying-glass"
+                size={18}
+                color={currentTheme.white}
+                solid
+              />
+            </View>
+            <Text
+              style={[styles.rowTitle, { color: currentTheme.textColor }]}
+              numberOfLines={2}
+            >
+              {item.label}
+            </Text>
+          </View>
+          {selected ? (
+            <SelectedBadge />
+          ) : (
             <Icon
               type={Icons.FontAwesome6}
-              name="magnifying-glass"
+              name="chevron-right"
               size={18}
-              color={currentTheme.white}
+              color={currentTheme.textColor}
               solid
             />
-          </View>
-          <Text
-            style={[styles.rowTitle, { color: currentTheme.textColor }]}
-            numberOfLines={2}
-          >
-            {item.label}
-          </Text>
-        </View>
-        {selected ? (
-          <SelectedBadge />
-        ) : (
-          <Icon
-            type={Icons.FontAwesome6}
-            name="chevron-right"
-            size={18}
-            color={currentTheme.textColor}
-            solid
-          />
-        )}
-      </Pressable>
+          )}
+        </Pressable>
+      </View>
     );
   };
 
   /** ---------- Render ---------- */
   return (
     <ScreenViewContainer>
-      <View style={[styles.content, { paddingTop: headerOffset + 12 }]}>
+      <View
+        style={[styles.content, { paddingTop: headerOffset + 12 }]}
+        onTouchStart={handleContentTouchStart}
+      >
         {/* ---- hasQuery: false → Mevcut + Kaydedilenler ---- */}
         {!hasQuery && (
           <>
             {/* Mevcut Konum */}
             <Pressable
-            style={[
-              styles.nextCard,
-              { backgroundColor: `${currentTheme.primary}CC` },
-            ]}
-            onPress={goDevice}
-          >
-            <View style={styles.nextCardLeft}>
-              <View style={styles.nextIconWrap}>
+              style={[
+                styles.nextCard,
+                { backgroundColor: `${currentTheme.primary}CC` },
+              ]}
+              onPress={goDevice}
+            >
+              <View style={styles.nextCardLeft}>
+                <View style={styles.nextIconWrap}>
+                  <Icon
+                    type={Icons.FontAwesome6}
+                    name="location-crosshairs"
+                    size={22}
+                    color={currentTheme.white}
+                    solid
+                  />
+                </View>
+                <View style={styles.flex1}>
+                  <Text style={styles.nextLabel}>
+                    {t('locationSelector.deviceTitle')}
+                  </Text>
+                  <Text style={styles.nextHint}>
+                    {t('locationSelector.deviceSubtitle')}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.nextCardRight}>
+                {isActiveDevice && <SelectedBadge />}
                 <Icon
                   type={Icons.FontAwesome6}
-                  name="location-crosshairs"
-                  size={22}
+                  name="arrow-right"
+                  size={16}
                   color={currentTheme.white}
                   solid
                 />
               </View>
-              <View style={styles.flex1}>
-                <Text style={styles.nextLabel}>
-                  {t('locationSelector.deviceTitle')}
-                </Text>
-                <Text style={styles.nextHint}>
-                  {t('locationSelector.deviceSubtitle')}
-                </Text>
-              </View>
-            </View>
+            </Pressable>
 
-            <View style={styles.nextCardRight}>
-              {isActiveDevice && <SelectedBadge />}
-              <Icon
-                type={Icons.FontAwesome6}
-                name="arrow-right"
-                size={16}
-                color={currentTheme.white}
-                solid
+            {/* Kaydedilen Konumlar */}
+            {saved.length === 0 ? (
+              <Text style={styles.emptyText}>
+                {t('locationSelector.emptySaved')}
+              </Text>
+            ) : (
+              <FlatList
+                data={saved}
+                keyExtractor={i => i.id}
+                renderItem={renderSaved}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.savedListContent}
               />
-            </View>
-          </Pressable>
-
-          {/* Kaydedilen Konumlar */}
-          {saved.length === 0 ? (
-            <Text style={styles.emptyText}>
-              {t('locationSelector.emptySaved')}
-            </Text>
-          ) : (
-            <FlatList
-              data={saved}
-              keyExtractor={i => i.id}
-              renderItem={renderSaved}
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={styles.savedListContent}
-            />
-          )}
-        </>
-      )}
-
-      {/* ---- hasQuery: true → Sadece Arama Sonuçları ---- */}
-      {hasQuery && (
-        <>
-          <View style={styles.sectionHeader}>
-            <Text
-              style={[styles.sectionTitle, { color: currentTheme.textColor }]}
-            >
-              {t('locationSelector.searchResults')}
-            </Text>
-            {searching && (
-              <ActivityIndicator size="small" color={currentTheme.primary} />
             )}
-          </View>
-          {results.length === 0 ? (
-            <Text style={[styles.emptyText, { color: currentTheme.textColor }]}>
-              {t('locationSelector.noResults')}
-            </Text>
-          ) : (
-            <FlatList
-              data={results}
-              keyExtractor={i => i.id}
-              renderItem={renderResult}
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={styles.searchListContent}
-            />
-          )}
-        </>
-      )}
+          </>
+        )}
+
+        {/* ---- hasQuery: true → Sadece Arama Sonuçları ---- */}
+        {hasQuery && (
+          <>
+            <View style={styles.sectionHeader}>
+              <Text
+                style={[styles.sectionTitle, { color: currentTheme.textColor }]}
+              >
+                {t('locationSelector.searchResults')}
+              </Text>
+              {searching && (
+                <ActivityIndicator size="small" color={currentTheme.primary} />
+              )}
+            </View>
+            {results.length === 0 ? (
+              <Text
+                style={[styles.emptyText, { color: currentTheme.textColor }]}
+              >
+                {t('locationSelector.noResults')}
+              </Text>
+            ) : (
+              <FlatList
+                data={results}
+                keyExtractor={i => i.id}
+                renderItem={renderResult}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.searchListContent}
+              />
+            )}
+          </>
+        )}
       </View>
     </ScreenViewContainer>
   );
@@ -436,6 +616,9 @@ const styles = StyleSheet.create({
   nextLabel: { color: '#fff', fontSize: 16, fontWeight: '800' },
   nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 13, marginTop: 2 },
 
+  rowWrapper: {
+    marginTop: 10,
+  },
   rowCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -443,7 +626,6 @@ const styles = StyleSheet.create({
     gap: 12,
     borderRadius: 16,
     padding: 14,
-    marginTop: 10,
   },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -477,4 +659,25 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   badgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  deleteActionWrapper: {
+    marginLeft: 6,
+    borderRadius: 16,
+    height: '100%',
+    alignSelf: 'stretch',
+    overflow: 'hidden',
+  },
+  deleteAction: {
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 6,
+    height: '100%',
+  },
+  deleteActionText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+  },
 });
