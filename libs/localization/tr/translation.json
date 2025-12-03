@@ -111,7 +111,10 @@
       "error": "Bir sorun oluştu. Yeniden denemek için dokunun.",
       "apiKeyError": "İçeriğin yüklenmesi için API anahtarlarını tanımlayın.",
       "refresh": "Yenile",
-      "hadithSource": "{{book}}, Hadis {{number}}"
+      "hadithSource": "{{book}}, Hadis {{number}}",
+      "showArabic": "Arapçayı Göster",
+      "showTranslation": "Çeviriyi Göster",
+      "share": "Paylaş"
     }
   },
   "actionCardGroup": {

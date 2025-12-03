@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -71,13 +72,21 @@ const createStyles = (colors: {
       fontWeight: '700',
       color: colors.textColor,
     },
-    refreshButton: {
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    actionButton: {
       width: 34,
       height: 34,
       borderRadius: 17,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: 'rgba(15,23,42,0.08)',
+    },
+    disabledButton: {
+      opacity: 0.4,
     },
     arabicText: {
       fontSize: 44,
@@ -208,6 +217,28 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     }
   }, [fetchAsma, state.loading]);
 
+  const handleShare = useCallback(async () => {
+    if (!state.data) {
+      return;
+    }
+    const shareText = [
+      state.data.arabicName,
+      state.data.transliteration,
+      state.data.meaning,
+    ]
+      .filter(Boolean)
+      .join('\n');
+    const trimmed = shareText.trim();
+    if (!trimmed) {
+      return;
+    }
+    try {
+      await Share.share({ message: trimmed });
+    } catch {
+      // no-op
+    }
+  }, [state.data]);
+
   const renderBody = () => {
     if (state.loading) {
       return (
@@ -256,20 +287,43 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
         <Text style={styles.title}>
           {t('prayerTime.inspiration.asmaTitle')}
         </Text>
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel={t('prayerTime.inspiration.refresh')}
-          style={styles.refreshButton}
-          onPress={handleManualRefresh}
-          disabled={state.loading}
-        >
-          <Icon
-            type={Icons.MaterialDesignIcons}
-            name="refresh"
-            size={20}
-            color={currentTheme.textColor}
-          />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={t('prayerTime.inspiration.share')}
+            style={[
+              styles.actionButton,
+              (state.loading || !state.data) && styles.disabledButton,
+            ]}
+            onPress={handleShare}
+            disabled={state.loading || !state.data}
+          >
+            <Icon
+              type={Icons.FontAwesome6}
+              name="arrow-up-from-bracket"
+              size={18}
+              color={currentTheme.textColor}
+              solid
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={t('prayerTime.inspiration.refresh')}
+            style={[
+              styles.actionButton,
+              state.loading && styles.disabledButton,
+            ]}
+            onPress={handleManualRefresh}
+            disabled={state.loading}
+          >
+            <Icon
+              type={Icons.MaterialDesignIcons}
+              name="refresh"
+              size={20}
+              color={currentTheme.textColor}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
       {renderBody()}
     </Container>

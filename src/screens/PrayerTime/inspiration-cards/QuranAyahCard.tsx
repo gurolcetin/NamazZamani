@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -79,13 +80,21 @@ const createStyles = (colors: {
       fontWeight: '700',
       color: colors.textColor,
     },
-    refreshButton: {
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    actionButton: {
       width: 34,
       height: 34,
       borderRadius: 17,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: 'rgba(15,23,42,0.08)',
+    },
+    disabledButton: {
+      opacity: 0.4,
     },
     arabicText: {
       fontSize: 22,
@@ -145,6 +154,8 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     error: null,
     data: null,
   });
+  const [displayMode, setDisplayMode] =
+    useState<'arabic' | 'translation'>('translation');
 
   const styles = useMemo(
     () =>
@@ -201,6 +212,7 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
           verseNumber: translation.numberInSurah || arabic.numberInSurah,
         },
       });
+      setDisplayMode('translation');
     } catch {
       setState({
         loading: false,
@@ -219,6 +231,33 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
       fetchAyah();
     }
   }, [fetchAyah, state.loading]);
+
+  const handleToggleLanguage = useCallback(() => {
+    if (state.loading || !state.data) {
+      return;
+    }
+    setDisplayMode(prev => (prev === 'arabic' ? 'translation' : 'arabic'));
+  }, [state.data, state.loading]);
+
+  const handleShare = useCallback(async () => {
+    if (!state.data) {
+      return;
+    }
+    const isArabicView = displayMode === 'arabic';
+    const surahLabel = buildSurahLabel(state.data);
+    const shareText = `${isArabicView ? state.data.arabicText : state.data.translation}${surahLabel ? `\n\n${surahLabel}` : ''}`;
+    const trimmedShareText = shareText.trim();
+    if (!trimmedShareText) {
+      return;
+    }
+    try {
+      await Share.share({
+        message: trimmedShareText,
+      });
+    } catch {
+      // no-op
+    }
+  }, [displayMode, state.data]);
 
   const innerBody = () => {
     if (state.loading) {
@@ -241,11 +280,15 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     }
 
     const surahLabel = buildSurahLabel(state.data);
+    const isArabicView = displayMode === 'arabic';
 
     return (
       <>
-        <Text style={styles.arabicText}>{state.data.arabicText}</Text>
-        <Text style={styles.translationText}>{state.data.translation}</Text>
+        <Text
+          style={isArabicView ? styles.arabicText : styles.translationText}
+        >
+          {isArabicView ? state.data.arabicText : state.data.translation}
+        </Text>
         {surahLabel ? <Text style={styles.metaText}>{surahLabel}</Text> : null}
       </>
     );
@@ -266,20 +309,64 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
         <Text style={styles.title}>
           {t('prayerTime.inspiration.quranTitle')}
         </Text>
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel={t('prayerTime.inspiration.refresh')}
-          style={styles.refreshButton}
-          onPress={handleManualRefresh}
-          disabled={state.loading}
-        >
-          <Icon
-            type={Icons.MaterialDesignIcons}
-            name="refresh"
-            size={20}
-            color={currentTheme.textColor}
-          />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={t('prayerTime.inspiration.share')}
+            style={[
+              styles.actionButton,
+              (state.loading || !state.data) && styles.disabledButton,
+            ]}
+            onPress={handleShare}
+            disabled={state.loading || !state.data}
+          >
+            <Icon
+              type={Icons.FontAwesome6}
+              name="arrow-up-from-bracket"
+              size={18}
+              color={currentTheme.textColor}
+              solid
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={
+              displayMode === 'arabic'
+                ? t('prayerTime.inspiration.showTranslation')
+                : t('prayerTime.inspiration.showArabic')
+            }
+            style={[
+              styles.actionButton,
+              (state.loading || !state.data) && styles.disabledButton,
+            ]}
+            onPress={handleToggleLanguage}
+            disabled={state.loading || !state.data}
+          >
+            <Icon
+              type={Icons.MaterialDesignIcons}
+              name="translate"
+              size={20}
+              color={currentTheme.textColor}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={t('prayerTime.inspiration.refresh')}
+            style={[
+              styles.actionButton,
+              state.loading && styles.disabledButton,
+            ]}
+            onPress={handleManualRefresh}
+            disabled={state.loading}
+          >
+            <Icon
+              type={Icons.MaterialDesignIcons}
+              name="refresh"
+              size={20}
+              color={currentTheme.textColor}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
       {innerBody()}
     </Container>

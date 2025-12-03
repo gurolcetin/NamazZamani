@@ -110,7 +110,10 @@
       "error": "Something went wrong. Tap to retry.",
       "apiKeyError": "Set the Islamic API & Hadith API keys to load this content.",
       "refresh": "Refresh",
-      "hadithSource": "{{book}}, Hadith {{number}}"
+      "hadithSource": "{{book}}, Hadith {{number}}",
+      "showArabic": "Show Arabic Text",
+      "showTranslation": "Show Translation",
+      "share": "Share"
     }
   },
   "actionCardGroup": {
