@@ -111,7 +111,6 @@ const BottomTabNavigator = () => {
       tabBar={props => <CustomTabBar {...props} />}
       screenOptions={{
         tabBarStyle: { position: 'absolute', height: 50, borderTopWidth: 0 },
-        animation: 'shift',
       }}
     >
       {bottomTabMenuItems(currentTheme).map(item => (
