@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -12,7 +13,13 @@
 
     <!-- Sürekli/uzun süreli takipte foreground service kullanıyorsanız -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"
+        tools:targetApi="tiramisu" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        tools:targetApi="s" />
 
     <application
       android:name=".MainApplication"
@@ -39,5 +46,27 @@
         android:name=".LocationService"
         android:foregroundServiceType="location"
         android:exported="false" />
+      <receiver
+        android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver"
+        android:exported="false">
+        <intent-filter>
+          <action android:name="android.intent.action.BOOT_COMPLETED" />
+          <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+          <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+        </intent-filter>
+      </receiver>
+      <receiver
+        android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher"
+        android:exported="false" />
+      <receiver
+        android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions"
+        android:exported="false" />
+      <service
+        android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
+        android:exported="false">
+        <intent-filter>
+          <action android:name="com.google.firebase.MESSAGING_EVENT" />
+        </intent-filter>
+      </service>
     </application>
 </manifest>

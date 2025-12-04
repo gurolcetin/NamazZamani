@@ -9,14 +9,16 @@ import React, {
 } from 'react';
 import {
   ActivityIndicator,
+  Alert,
+  AppState,
   FlatList,
   ListRenderItemInfo,
+  RefreshControl,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
   useColorScheme,
-  AppState,
-  RefreshControl,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 
@@ -53,6 +55,7 @@ import { useTranslation } from 'react-i18next';
 import RamadanIcon from '../../../libs/components/svg/icons/ramadan-icon';
 import { convertMiladiDateToHicriDate } from '../../../libs/core/helpers/hicriDate.helper';
 import type { RootState } from '../../../libs/redux/store';
+import { prayerNotificationManager } from '../../../libs/core/helpers/prayer-notification';
 
 // ----- Types & Maps ---------------------------------------------------------
 
@@ -344,6 +347,10 @@ export default function PrayerTime() {
     (state: RootState) =>
       state.applicationSettings?.showRamadanCountdownCard ?? true,
   );
+  const prayerNotificationPreferences = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.prayerNotificationPreferences,
+  );
 
   const { t, i18n } = useTranslation();
   const [timings, setTimings] = useState<PrayerTimings | null>(null);
@@ -411,6 +418,15 @@ export default function PrayerTime() {
       return acc;
     }, {} as Record<PrayerTimeKey, string>);
   }, [t]);
+
+  const enabledNotificationKeys = useMemo<PrayerTimeKey[]>(() => {
+    if (!prayerNotificationPreferences) {
+      return PRAYER_ORDER;
+    }
+    return PRAYER_ORDER.filter(
+      key => prayerNotificationPreferences[key] !== false,
+    );
+  }, [prayerNotificationPreferences]);
 
   // --- Date formatter'ı memoize et (ESLint uyarısı çözümü) ------------------
   const dtf = useMemo(
@@ -511,6 +527,23 @@ export default function PrayerTime() {
       seqBaseDayRef.current = ymd(now);
     }
   }, [timings, prayerLabels]);
+
+  useEffect(() => {
+    if (!seqRef.current || !timings) {
+      return;
+    }
+
+    prayerNotificationManager.syncDailyNotifications({
+      sequence: seqRef.current,
+      buildContent: entry => ({
+        title: t('notifications.prayerReminderTitle'),
+        message: t('notifications.prayerReminderBody', {
+          label: entry.label,
+        }),
+      }),
+      enabledKeys: enabledNotificationKeys,
+    });
+  }, [timings, currentDateKey, t, enabledNotificationKeys]);
 
   // ilk yükleme
   useEffect(() => {
@@ -627,6 +660,37 @@ export default function PrayerTime() {
     [],
   );
 
+  const handleTestNotificationPress = useCallback(async () => {
+    const success = await prayerNotificationManager.sendTestNotification({
+      title: t('notifications.testTitle'),
+      message: t('notifications.testBody'),
+    });
+
+    if (success) {
+      Alert.alert(
+        t('notifications.testScheduledTitle'),
+        t('notifications.testScheduledMessage'),
+      );
+      if (seqRef.current && timings) {
+        prayerNotificationManager.syncDailyNotifications({
+          sequence: seqRef.current,
+          buildContent: entry => ({
+            title: t('notifications.prayerReminderTitle'),
+            message: t('notifications.prayerReminderBody', {
+              label: entry.label,
+            }),
+          }),
+          enabledKeys: enabledNotificationKeys,
+        });
+      }
+    } else {
+      Alert.alert(
+        t('notifications.permissionDeniedTitle'),
+        t('notifications.permissionDeniedMessage'),
+      );
+    }
+  }, [t, enabledNotificationKeys, timings]);
+
   const smallCards: SmallCard[] = useMemo(() => {
     if (!timings || !seqRef.current) return [];
     const cur = currentKeyRef.current;
@@ -728,6 +792,26 @@ export default function PrayerTime() {
                   seqDateLabel={seqDateLabel}
                   syncingText={syncingText}
                 />
+                <TouchableOpacity
+                  onPress={handleTestNotificationPress}
+                  style={[
+                    styles.testNotificationButton,
+                    {
+                      borderColor: `${currentTheme.primary}22`,
+                      backgroundColor: currentTheme.cardViewBackgroundColor,
+                    },
+                  ]}
+                  accessibilityRole="button"
+                >
+                  <Text
+                    style={[
+                      styles.testNotificationText,
+                      { color: currentTheme.primary },
+                    ]}
+                  >
+                    {t('prayerTime.sendTestNotification')}
+                  </Text>
+                </TouchableOpacity>
               </>
             }
             ListFooterComponent={listFooter}
@@ -834,6 +918,18 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
     elevation: 2,
+  },
+  testNotificationButton: {
+    marginTop: 12,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  testNotificationText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   nextCardWrapper: {
     borderRadius: 28,

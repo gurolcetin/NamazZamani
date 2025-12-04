@@ -40,6 +40,48 @@ export const createStyles = (theme: ThemeType) =>
       color: theme.textColor,
       marginBottom: 16,
     },
+    collapsibleTitle: {
+      marginBottom: 6,
+    },
+    collapsibleHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    notificationSubtitle: {
+      fontSize: 13,
+      color: theme.gray,
+      marginTop: 2,
+    },
+    notificationGrid: {
+      marginTop: 18,
+      gap: 12,
+    },
+    notificationRow: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    notificationCell: {
+      flex: 1,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      borderRadius: 20,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: `${theme.gray}44`,
+      backgroundColor: theme.inputBackgroundColor,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    notificationCellPlaceholder: {
+      backgroundColor: 'transparent',
+      borderColor: 'transparent',
+    },
+    notificationLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: theme.textColor,
+    },
     languageButton: {
       borderRadius: 26,
       paddingVertical: 12,

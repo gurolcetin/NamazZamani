@@ -27,6 +27,8 @@
     "ThemeAndAccent": "Tema & Vurgu",
     "ThemeMode": "Tema Modu",
     "AccentColor": "Vurgu Rengi",
+    "NotificationSettingsTitle": "Bildirim Ayarları",
+    "NotificationSettingsSubtitle": "Her vakit için ezan bildirimini açıp kapat.",
     "CalculationHelper": "Kaza namaz hesaplamasında kullanılır",
     "RamadanCountdownToggleLabel": "İftar Sahur Sayacı Göster/Gizle",
     "RamadanCountdownToggleHint": "Ramazan ayında her zaman gösterilir.",
@@ -101,6 +103,7 @@
     "loadingTimes": "Vakitler yükleniyor…",
     "nextPrayerCountdown": "{{label}} vaktinin çıkmasına kalan",
     "syncing": "Senkronize ediliyor…",
+    "sendTestNotification": "Test ezan bildirimi gönder",
     "ramadanIftarCountdown": "İftara kalan süre",
     "ramadanSahurCountdown": "Sahura kalan süre",
     "inspiration": {
@@ -169,5 +172,15 @@
     "alertClose": "Kapat",
     "accept": "Kabul Et",
     "decline": "Reddet"
+  },
+  "notifications": {
+    "prayerReminderTitle": "Namaz Vakti Hatırlatıcısı",
+    "prayerReminderBody": "{{label}} vakti girdi.",
+    "permissionDeniedTitle": "İzin gerekli",
+    "permissionDeniedMessage": "Ezan bildirimlerini duyabilmek için bildirim iznini açmalısın.",
+    "testTitle": "Test Namaz Bildirimi",
+    "testBody": "Sesli ezan bildirimi bu şekilde görünecek.",
+    "testScheduledTitle": "Test planlandı",
+    "testScheduledMessage": "Birkaç saniye içinde deneme bildirimi çalacak."
   }
 }

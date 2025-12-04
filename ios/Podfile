@@ -16,7 +16,7 @@ platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
 # ⬇️ Kullandığın izin handler’larını seç (sadece gerekenleri ekle)
-setup_permissions(['LocationWhenInUse', 'LocationAlways'])
+setup_permissions(['LocationWhenInUse', 'LocationAlways', 'Notifications'])
 # Arka plan takibi de gerekiyorsa alttakini aç (ve Info.plist + Background Modes eklemeyi unutma):
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -27,6 +27,8 @@ end
 
 target 'NamazZamani' do
   config = use_native_modules!
+
+  pod 'RNCPushNotificationIOS', :path => '../node_modules/@react-native-community/push-notification-ios'
 
   use_react_native!(
     :path => config[:reactNativePath],

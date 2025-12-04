@@ -26,6 +26,7 @@
 		8570105E61F1076CE235A8AF /* Pods-NamazZamani.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani.release.xcconfig"; path = "Target Support Files/Pods-NamazZamani/Pods-NamazZamani.release.xcconfig"; sourceTree = "<group>"; };
 		B57165458741A0D6D4A20CCD /* Pods-NamazZamani.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazZamani.debug.xcconfig"; path = "Target Support Files/Pods-NamazZamani/Pods-NamazZamani.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F6E2AB8E2F056F2C00D24E91 /* NamazZamani-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NamazZamani-Bridging-Header.h"; path = "NamazZamani/NamazZamani-Bridging-Header.h"; sourceTree = "<group>"; };
 		F26D57DCFCF3F0D672647A5D /* libPods-NamazZamani.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NamazZamani.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -47,6 +48,7 @@
 				4360D2FC2EADB61600F09BB5 /* BootSplash.storyboard */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				F6E2AB8E2F056F2C00D24E91 /* NamazZamani-Bridging-Header.h */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
@@ -281,6 +283,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = NamazZamani;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OBJC_BRIDGING_HEADER = NamazZamani/NamazZamani-Bridging-Header.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -309,6 +312,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = NamazZamani;
+				SWIFT_OBJC_BRIDGING_HEADER = NamazZamani/NamazZamani-Bridging-Header.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";

@@ -26,6 +26,8 @@
     "ThemeAndAccent": "Theme & Accent",
     "ThemeMode": "Theme Mode",
     "AccentColor": "Accent Color",
+    "NotificationSettingsTitle": "Prayer Notification Settings",
+    "NotificationSettingsSubtitle": "Toggle adhan alerts for each prayer time.",
     "CalculationHelper": "Used while calculating missed prayers.",
     "RamadanCountdownToggleLabel": "Show/Hide Iftar & Suhoor Counter",
     "RamadanCountdownToggleHint": "Always visible during Ramadan.",
@@ -100,6 +102,7 @@
     "loadingTimes": "Loading prayer times…",
     "nextPrayerCountdown": "Time left until {{label}} ends",
     "syncing": "Synchronizing…",
+    "sendTestNotification": "Send test adhan notification",
     "ramadanIftarCountdown": "Counting down to Iftar",
     "ramadanSahurCountdown": "Counting down to Suhoor",
     "inspiration": {
@@ -169,5 +172,15 @@
     "alertClose": "Close",
     "accept": "Accept",
     "decline": "Decline"
+  },
+  "notifications": {
+    "prayerReminderTitle": "Prayer Reminder",
+    "prayerReminderBody": "{{label}} prayer time has started.",
+    "permissionDeniedTitle": "Permission Needed",
+    "permissionDeniedMessage": "Allow notifications to hear the adhan reminders.",
+    "testTitle": "Test Prayer Reminder",
+    "testBody": "This is how the audible adhan notification will look.",
+    "testScheduledTitle": "Scheduled",
+    "testScheduledMessage": "You will hear a test alert in a few seconds."
   }
 }

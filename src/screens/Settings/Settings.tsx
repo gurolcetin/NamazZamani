@@ -38,9 +38,13 @@ import {
 import { Accent, Theme } from '../../../libs/common/enums';
 import { useTheme } from '../../../libs/core/providers';
 import { updateApplicationTheme } from '../../../libs/redux/reducers/ApplicationTheme';
-import { setShowRamadanCountdownCard } from '../../../libs/redux/reducers/ApplicationSettings';
+import {
+  setPrayerNotificationPreference,
+  setShowRamadanCountdownCard,
+} from '../../../libs/redux/reducers/ApplicationSettings';
 import { createStyles } from './style';
 import { DevSettings } from 'react-native';
+import { PrayerTimeKey } from '../../../libs/common/types';
 
 const accentOptions: Accent[] = [
   Accent.TEAL,
@@ -67,6 +71,21 @@ const themeModeIcons: Record<Theme, MaterialDesignIconsThemeName> = {
   [Theme.LIGHT]: 'weather-sunny',
   [Theme.DARK]: 'moon-waning-crescent',
   [Theme.SYSTEM]: 'cellphone-cog',
+};
+
+const PRAYER_NOTIFICATION_ORDER: PrayerTimeKey[] = [
+  'Fajr',
+  'Sunrise',
+  'Dhuhr',
+  'Asr',
+  'Maghrib',
+  'Isha',
+];
+
+type NotificationToggleItem = {
+  key: PrayerTimeKey;
+  label: string;
+  enabled: boolean;
 };
 
 const normalizeLanguageKey = (value?: string | null) =>
@@ -102,6 +121,10 @@ const Settings = ({}: SettingsProps) => {
   const [themeSelection, setThemeSelection] = useState<Theme>(Theme.SYSTEM);
   const showRamadanCountdownCard =
     applicationSettings?.showRamadanCountdownCard ?? true;
+  const prayerNotificationPreferences =
+    applicationSettings?.prayerNotificationPreferences;
+  const [isNotificationCardOpen, setIsNotificationCardOpen] =
+    useState<boolean>(false);
 
   const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
@@ -144,6 +167,33 @@ const Settings = ({}: SettingsProps) => {
   const selectedLanguageOption =
     languageOptions.find(option => option.key === selectedLanguage) ||
     languageOptions[0];
+
+  const notificationItems = useMemo<NotificationToggleItem[]>(
+    () =>
+      PRAYER_NOTIFICATION_ORDER.map(key => ({
+        key,
+        label: t(`prayerNames.${key}`),
+        enabled: prayerNotificationPreferences?.[key] !== false,
+      })),
+    [prayerNotificationPreferences, t],
+  );
+
+  const notificationRows = useMemo(
+    () =>
+      notificationItems.reduce<Array<{ left: NotificationToggleItem; right?: NotificationToggleItem }>>(
+        (rows, _, index) => {
+          if (index % 2 === 0) {
+            rows.push({
+              left: notificationItems[index],
+              right: notificationItems[index + 1],
+            });
+          }
+          return rows;
+        },
+        [],
+      ),
+    [notificationItems],
+  );
 
   const handleLanguageChange = useCallback(
     (lang: string) => {
@@ -197,6 +247,13 @@ const Settings = ({}: SettingsProps) => {
   const handleRamadanCountdownToggle = useCallback(
     (value: boolean) => {
       dispatch(setShowRamadanCountdownCard(value));
+    },
+    [dispatch],
+  );
+
+  const handleNotificationToggle = useCallback(
+    (key: PrayerTimeKey, enabled: boolean) => {
+      dispatch(setPrayerNotificationPreference({ key, enabled }));
     },
     [dispatch],
   );
@@ -273,6 +330,80 @@ const Settings = ({}: SettingsProps) => {
                   color={currentTheme.textColor}
                 />
               </Pressable>
+            </View>
+
+            {/* Bildirim kartı */}
+            <View style={styles.card}>
+              <Pressable
+                onPress={() => setIsNotificationCardOpen(prev => !prev)}
+                style={styles.collapsibleHeader}
+                android_ripple={{ color: currentTheme.gray, borderless: false }}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.cardTitle, styles.collapsibleTitle]}>
+                    {t(
+                      SettingsScreenLanguageConstants.NotificationSettingsTitle
+                        .key,
+                    )}
+                  </Text>
+                  <Text style={styles.notificationSubtitle}>
+                    {t(
+                      SettingsScreenLanguageConstants
+                        .NotificationSettingsSubtitle.key,
+                    )}
+                  </Text>
+                </View>
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name={isNotificationCardOpen ? 'chevron-up' : 'chevron-down'}
+                  size={20}
+                  color={currentTheme.textColor}
+                />
+              </Pressable>
+              {isNotificationCardOpen && (
+                <View style={styles.notificationGrid}>
+                  {notificationRows.map(row => (
+                    <View style={styles.notificationRow} key={row.left.key}>
+                      {[row.left, row.right].map((item, idx) =>
+                        item ? (
+                          <View
+                            key={item.key}
+                            style={styles.notificationCell}
+                          >
+                            <Text style={styles.notificationLabel}>
+                              {item.label}
+                            </Text>
+                            <Switch
+                              value={item.enabled}
+                              onValueChange={value =>
+                                handleNotificationToggle(item.key, value)
+                              }
+                              trackColor={{
+                                false: `${currentTheme.gray}55`,
+                                true: currentTheme.primary,
+                              }}
+                              thumbColor={
+                                item.enabled
+                                  ? currentTheme.white
+                                  : currentTheme.cardViewBackgroundColor
+                              }
+                              ios_backgroundColor={`${currentTheme.gray}33`}
+                            />
+                          </View>
+                        ) : (
+                          <View
+                            key={`placeholder-${row.left.key}-${idx}`}
+                            style={[
+                              styles.notificationCell,
+                              styles.notificationCellPlaceholder,
+                            ]}
+                          />
+                        ),
+                      )}
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
 
             {/* Tema + Accent */}

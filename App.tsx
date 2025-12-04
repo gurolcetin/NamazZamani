@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { checkForceUpdate } from './libs/core/helpers/update-checker';
+import { prayerNotificationManager } from './libs/core/helpers/prayer-notification';
 import { enableScreens } from 'react-native-screens';
 
 LogBox.ignoreLogs(['Sending...']);
@@ -32,6 +33,10 @@ const App = () => {
     };
 
     runCheck();
+  }, []);
+
+  useEffect(() => {
+    prayerNotificationManager.initialize();
   }, []);
   if (isChecking) {
     return (

@@ -32,6 +32,14 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.AccentColor',
     defaultValue: 'Vurgu Rengi',
   };
+  static NotificationSettingsTitle: LanguageModel = {
+    key: 'settings.NotificationSettingsTitle',
+    defaultValue: 'Bildirim Ayarları',
+  };
+  static NotificationSettingsSubtitle: LanguageModel = {
+    key: 'settings.NotificationSettingsSubtitle',
+    defaultValue: 'Her vakit için ezan bildirimini açıp kapat.',
+  };
   static CalculationHelper: LanguageModel = {
     key: 'settings.CalculationHelper',
     defaultValue: 'Kaza namaz hesaplamasında kullanılır',
