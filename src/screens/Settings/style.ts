@@ -107,7 +107,7 @@ export const createStyles = (theme: ThemeType) =>
       borderRadius: 18,
       borderWidth: 1,
       borderColor: `${theme.gray}22`,
-      backgroundColor: theme.inputBackgroundColor,
+      backgroundColor: `${theme.primary}08`,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -136,9 +136,10 @@ export const createStyles = (theme: ThemeType) =>
     },
     flag: {
       width: 28,
-      height: 20,
+      height: 28,
       borderRadius: 4,
       marginRight: 12,
+      resizeMode: 'contain'
     },
     languageText: {
       fontSize: 15,

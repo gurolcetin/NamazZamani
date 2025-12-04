@@ -180,18 +180,17 @@ const Settings = ({}: SettingsProps) => {
 
   const notificationRows = useMemo(
     () =>
-      notificationItems.reduce<Array<{ left: NotificationToggleItem; right?: NotificationToggleItem }>>(
-        (rows, _, index) => {
-          if (index % 2 === 0) {
-            rows.push({
-              left: notificationItems[index],
-              right: notificationItems[index + 1],
-            });
-          }
-          return rows;
-        },
-        [],
-      ),
+      notificationItems.reduce<
+        Array<{ left: NotificationToggleItem; right?: NotificationToggleItem }>
+      >((rows, _, index) => {
+        if (index % 2 === 0) {
+          rows.push({
+            left: notificationItems[index],
+            right: notificationItems[index + 1],
+          });
+        }
+        return rows;
+      }, []),
     [notificationItems],
   );
 
@@ -280,7 +279,9 @@ const Settings = ({}: SettingsProps) => {
   }, []);
 
   const handleSendFeedback = useCallback(() => {
-    const subjectText = t(SettingsScreenLanguageConstants.FeedbackEmailSubject.key);
+    const subjectText = t(
+      SettingsScreenLanguageConstants.FeedbackEmailSubject.key,
+    );
     const bodyLine = t(SettingsScreenLanguageConstants.FeedbackEmailBody.key);
     const subject = encodeURIComponent(subjectText);
     const body = encodeURIComponent(`${bodyLine}\n\n`);
@@ -313,9 +314,9 @@ const Settings = ({}: SettingsProps) => {
                 style={[
                   styles.languageButton,
                   {
-                    backgroundColor: currentTheme.inputBackgroundColor,
+                    backgroundColor: `${currentTheme.primary}15`,
                     borderWidth: 1,
-                    borderColor: currentTheme.gray,
+                    borderColor: `${currentTheme.gray}22`,
                   },
                 ]}
                 onPress={handleLanguageButtonPress}
@@ -363,8 +364,8 @@ const Settings = ({}: SettingsProps) => {
                   <View style={styles.notificationHeaderTexts}>
                     <Text style={styles.notificationHeaderTitle}>
                       {t(
-                        SettingsScreenLanguageConstants.NotificationSettingsTitle
-                          .key,
+                        SettingsScreenLanguageConstants
+                          .NotificationSettingsTitle.key,
                       )}
                     </Text>
                     <Text style={styles.notificationSubtitle}>
@@ -397,7 +398,9 @@ const Settings = ({}: SettingsProps) => {
                   </Pressable>
                   <Icon
                     type={Icons.MaterialDesignIcons}
-                    name={isNotificationCardOpen ? 'chevron-up' : 'chevron-down'}
+                    name={
+                      isNotificationCardOpen ? 'chevron-up' : 'chevron-down'
+                    }
                     size={20}
                     color={currentTheme.textColor}
                   />
@@ -409,10 +412,7 @@ const Settings = ({}: SettingsProps) => {
                     <View style={styles.notificationRow} key={row.left.key}>
                       {[row.left, row.right].map((item, idx) =>
                         item ? (
-                          <View
-                            key={item.key}
-                            style={styles.notificationCell}
-                          >
+                          <View key={item.key} style={styles.notificationCell}>
                             <Text style={styles.notificationLabel}>
                               {item.label}
                             </Text>
