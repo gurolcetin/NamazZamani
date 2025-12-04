@@ -35,23 +35,62 @@ export const createStyles = (theme: ThemeType) =>
       elevation: 2,
     },
     cardTitle: {
-      fontSize: 16,
+      fontSize: 17,
       fontWeight: '600',
       color: theme.textColor,
       marginBottom: 16,
     },
-    collapsibleTitle: {
-      marginBottom: 6,
-    },
-    collapsibleHeader: {
+    notificationHeader: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 16,
+    },
+    notificationHeaderLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
       gap: 12,
+    },
+    notificationIconWrap: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: `${theme.gray}11`,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    notificationHeaderTexts: {
+      flex: 1,
+    },
+    notificationHeaderTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.textColor,
+      marginBottom: 2,
     },
     notificationSubtitle: {
       fontSize: 13,
+      lineHeight: 18,
       color: theme.gray,
-      marginTop: 2,
+    },
+    notificationHeaderRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    notificationChip: {
+      borderRadius: 999,
+      paddingVertical: 6,
+      paddingHorizontal: 14,
+      backgroundColor: `${theme.primary}15`,
+      borderWidth: 1,
+      borderColor: `${theme.primary}33`,
+    },
+    notificationChipText: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: theme.primary,
     },
     notificationGrid: {
       marginTop: 18,
@@ -63,11 +102,11 @@ export const createStyles = (theme: ThemeType) =>
     },
     notificationCell: {
       flex: 1,
-      paddingVertical: 12,
-      paddingHorizontal: 14,
-      borderRadius: 20,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: `${theme.gray}44`,
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: `${theme.gray}22`,
       backgroundColor: theme.inputBackgroundColor,
       flexDirection: 'row',
       alignItems: 'center',
@@ -78,8 +117,8 @@ export const createStyles = (theme: ThemeType) =>
       borderColor: 'transparent',
     },
     notificationLabel: {
-      fontSize: 14,
-      fontWeight: '600',
+      fontSize: 15,
+      fontWeight: '500',
       color: theme.textColor,
     },
     languageButton: {

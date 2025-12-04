@@ -1,4 +1,8 @@
 {
+  "common": {
+    "turnOnAll": "Tümünü aç",
+    "turnOffAll": "Tümünü kapat"
+  },
   "General": {
     "Male": "Erkek",
     "Female": "Kadın",

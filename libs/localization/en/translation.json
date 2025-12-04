@@ -1,4 +1,8 @@
 {
+  "common": {
+    "turnOnAll": "Turn all on",
+    "turnOffAll": "Turn all off"
+  },
   "General": {
     "Male": "Male",
     "Female": "Female",

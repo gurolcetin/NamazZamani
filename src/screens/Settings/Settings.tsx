@@ -195,6 +195,11 @@ const Settings = ({}: SettingsProps) => {
     [notificationItems],
   );
 
+  const areAllNotificationsEnabled = useMemo(
+    () => notificationItems.every(item => item.enabled),
+    [notificationItems],
+  );
+
   const handleLanguageChange = useCallback(
     (lang: string) => {
       setIsLangOpen(false);
@@ -257,6 +262,13 @@ const Settings = ({}: SettingsProps) => {
     },
     [dispatch],
   );
+
+  const handleToggleAllNotifications = useCallback(() => {
+    const nextValue = !areAllNotificationsEnabled;
+    PRAYER_NOTIFICATION_ORDER.forEach(prayerKey => {
+      handleNotificationToggle(prayerKey, nextValue);
+    });
+  }, [areAllNotificationsEnabled, handleNotificationToggle]);
 
   const handleClearStorage = useCallback(async () => {
     try {
@@ -336,29 +348,60 @@ const Settings = ({}: SettingsProps) => {
             <View style={styles.card}>
               <Pressable
                 onPress={() => setIsNotificationCardOpen(prev => !prev)}
-                style={styles.collapsibleHeader}
+                style={styles.notificationHeader}
                 android_ripple={{ color: currentTheme.gray, borderless: false }}
               >
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.cardTitle, styles.collapsibleTitle]}>
-                    {t(
-                      SettingsScreenLanguageConstants.NotificationSettingsTitle
-                        .key,
-                    )}
-                  </Text>
-                  <Text style={styles.notificationSubtitle}>
-                    {t(
-                      SettingsScreenLanguageConstants
-                        .NotificationSettingsSubtitle.key,
-                    )}
-                  </Text>
+                <View style={styles.notificationHeaderLeft}>
+                  <View style={styles.notificationIconWrap}>
+                    <Icon
+                      type={Icons.MaterialDesignIcons}
+                      name="bell-outline"
+                      size={20}
+                      color={currentTheme.textColor}
+                    />
+                  </View>
+                  <View style={styles.notificationHeaderTexts}>
+                    <Text style={styles.notificationHeaderTitle}>
+                      {t(
+                        SettingsScreenLanguageConstants.NotificationSettingsTitle
+                          .key,
+                      )}
+                    </Text>
+                    <Text style={styles.notificationSubtitle}>
+                      {t(
+                        SettingsScreenLanguageConstants
+                          .NotificationSettingsSubtitle.key,
+                      )}
+                    </Text>
+                  </View>
                 </View>
-                <Icon
-                  type={Icons.MaterialDesignIcons}
-                  name={isNotificationCardOpen ? 'chevron-up' : 'chevron-down'}
-                  size={20}
-                  color={currentTheme.textColor}
-                />
+                <View style={styles.notificationHeaderRight}>
+                  <Pressable
+                    onPress={event => {
+                      event.stopPropagation();
+                      handleToggleAllNotifications();
+                    }}
+                    style={styles.notificationChip}
+                    android_ripple={{
+                      color: `${currentTheme.primary}22`,
+                      borderless: false,
+                    }}
+                  >
+                    <Text style={styles.notificationChipText}>
+                      {t(
+                        areAllNotificationsEnabled
+                          ? 'common.turnOffAll'
+                          : 'common.turnOnAll',
+                      )}
+                    </Text>
+                  </Pressable>
+                  <Icon
+                    type={Icons.MaterialDesignIcons}
+                    name={isNotificationCardOpen ? 'chevron-up' : 'chevron-down'}
+                    size={20}
+                    color={currentTheme.textColor}
+                  />
+                </View>
               </Pressable>
               {isNotificationCardOpen && (
                 <View style={styles.notificationGrid}>
@@ -379,7 +422,7 @@ const Settings = ({}: SettingsProps) => {
                                 handleNotificationToggle(item.key, value)
                               }
                               trackColor={{
-                                false: `${currentTheme.gray}55`,
+                                false: `${currentTheme.gray}33`,
                                 true: currentTheme.primary,
                               }}
                               thumbColor={
