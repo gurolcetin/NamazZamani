@@ -65,9 +65,18 @@ const isVersionedRules = (
 
 const normalizeVersionRules = (
   value: string | VersionedUpdateRules,
+  defaultType: UpdateType,
 ): VersionedUpdateRules => {
   if (isVersionedRules(value)) {
     return value;
+  }
+
+  if (defaultType === 'optional') {
+    return { optional: value };
+  }
+
+  if (defaultType === 'none') {
+    return { none: value };
   }
 
   return { force: value };
@@ -189,6 +198,20 @@ const toForceUpdateMessage = (
 /**
  * Evaluates which update prompt (if any) should be shown to the user.
  */
+const parseUpdateType = (value?: string): UpdateType => {
+  if (!value) {
+    return 'none';
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === 'optional' || normalized === 'force') {
+    return normalized;
+  }
+
+  return 'none';
+};
+
 export const evaluateUpdate = (
   appVersion: string,
   languageCode: string,
@@ -205,8 +228,15 @@ export const evaluateUpdate = (
     const messageGroups = config.messages || { optional: {}, force: {} };
     const optionalMessages = messageGroups.optional || {};
     const forceMessages = messageGroups.force || {};
+    const updateTypeRaw = config.updateType;
+    const updateType = parseUpdateType(updateTypeRaw);
+    const thresholdBehavior =
+      typeof updateTypeRaw === 'undefined' ? 'force' : updateType;
 
-    const versionRules = normalizeVersionRules(config.minSupportedVersion);
+    const versionRules = normalizeVersionRules(
+      config.minSupportedVersion,
+      thresholdBehavior,
+    );
     const { force: forceThreshold, optional: optionalThreshold, none: noneThreshold } =
       versionRules;
 
@@ -236,6 +266,14 @@ export const evaluateUpdate = (
 
     if (noneThreshold && compareVersions(appVersion, noneThreshold) < 0) {
       return { type: 'none' };
+    }
+
+    if (updateType === 'optional') {
+      return buildOptionalDecision();
+    }
+
+    if (updateType === 'force') {
+      return buildForceDecision('force');
     }
 
     return { type: 'none' };
