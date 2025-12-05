@@ -1,72 +1,154 @@
-// src/utils/updateChecker.ts
-import { Alert, Linking, Platform } from 'react-native';
+import {Alert, Linking, Platform} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+
+import {
+  evaluateUpdate,
+  UpdateMessage,
+  UpdateDecision,
+  RemoteConfig,
+} from './app-update-evaluator';
+import {GetDeviceLang} from '../utils/i18next.languageDetector';
 
 const VERSION_CONFIG_URL =
   'https://gurolcetin.github.io/namaz-zamani-public-files/mobile-version.json';
 
-type VersionConfig = {
-  minSupportedVersion: string;
-  latestVersion?: string;
-  forceUpdate?: boolean;
-  storeUrlAndroid?: string;
-  storeUrliOS?: string;
+const buildCacheBustedUrl = () => {
+  const timestamp = Date.now();
+  const separator = VERSION_CONFIG_URL.includes('?') ? '&' : '?';
+  return `${VERSION_CONFIG_URL}${separator}t=${timestamp}`;
 };
 
-const compareVersions = (v1: string, v2: string) => {
-  const a = v1.split('.').map(Number);
-  const b = v2.split('.').map(Number);
-  const maxLen = Math.max(a.length, b.length);
+const FALLBACK_OPTIONAL_MESSAGE: UpdateMessage = {
+  title: 'Yeni sürüm mevcut',
+  body: 'En iyi deneyim için uygulamayı güncellemenizi öneriyoruz.',
+  confirm: 'Güncelle',
+  cancel: 'Sonra',
+};
 
-  for (let i = 0; i < maxLen; i++) {
-    const av = a[i] || 0;
-    const bv = b[i] || 0;
+const FALLBACK_FORCE_MESSAGE: UpdateMessage = {
+  title: 'Güncelleme gerekli',
+  body: 'Bu sürüm artık desteklenmiyor. Lütfen mağazadan güncelleyin.',
+  confirm: 'Güncelle',
+};
 
-    if (av > bv) return 1;
-    if (av < bv) return -1;
+const getLanguageCode = () => {
+  try {
+    return GetDeviceLang() || 'en';
+  } catch {
+    return 'en';
   }
-  return 0;
 };
+
+const openStoreLink = (storeUrl?: string) => {
+  if (!storeUrl) {
+    return;
+  }
+
+  Linking.openURL(storeUrl).catch(error => {
+    console.warn('Store bağlantısı açılamadı:', error);
+  });
+};
+
+const mergeMessage = (
+  message: UpdateMessage | undefined,
+  fallback: UpdateMessage,
+  includeCancel = true,
+): UpdateMessage => {
+  const merged: UpdateMessage = {
+    title: message?.title || fallback.title,
+    body: message?.body || fallback.body,
+    confirm: message?.confirm || fallback.confirm,
+  };
+
+  if (includeCancel) {
+    const cancelText = message?.cancel || fallback.cancel;
+    if (cancelText) {
+      merged.cancel = cancelText;
+    }
+  }
+
+  return merged;
+};
+
+const showOptionalAlert = (decision: UpdateDecision) => {
+  const message = mergeMessage(decision.message, FALLBACK_OPTIONAL_MESSAGE);
+
+  Alert.alert(
+    message.title,
+    message.body,
+    [
+      {
+        text: message.cancel || 'Sonra',
+        style: 'cancel',
+      },
+      {
+        text: message.confirm,
+        onPress: () => openStoreLink(decision.storeUrl),
+      },
+    ],
+    {cancelable: true},
+  );
+};
+
+const showForceAlert = (decision: UpdateDecision) => {
+  const message = mergeMessage(decision.message, FALLBACK_FORCE_MESSAGE, false);
+
+  Alert.alert(
+    message.title,
+    message.body,
+    [
+      {
+        text: message.confirm,
+        onPress: () => openStoreLink(decision.storeUrl),
+      },
+    ],
+    {cancelable: false},
+  );
+};
+
+const stripJsonComments = (content: string) =>
+  content
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '');
 
 export const checkForceUpdate = async (): Promise<boolean> => {
   try {
-    const currentVersion = DeviceInfo.getVersion(); // Örn: "1.0.2"
+    const currentVersion = DeviceInfo.getVersion();
+    const languageCode = getLanguageCode();
 
-    const res = await fetch(VERSION_CONFIG_URL);
-    const config: VersionConfig = await res.json();
-
-    const { minSupportedVersion, forceUpdate, storeUrlAndroid, storeUrliOS } =
-      config;
-
-    const compareResult = compareVersions(currentVersion, minSupportedVersion);
-
-    if (forceUpdate && compareResult < 0) {
-      const storeUrl =
-        Platform.OS === 'android' ? storeUrlAndroid : storeUrliOS;
-
-      Alert.alert(
-        'Güncelleme gerekli',
-        'Uygulamayı kullanmaya devam etmek için lütfen son sürüme güncelleyin.',
-        [
-          {
-            text: 'Güncelle',
-            onPress: () => {
-              if (storeUrl) {
-                Linking.openURL(storeUrl);
-              }
-            },
-          },
-        ],
-        { cancelable: false },
-      );
-
-      return false; // uygulama devam etmesin
+    const response = await fetch(buildCacheBustedUrl(), {
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Remote config fetch failed: ${response.status}`);
     }
 
-    return true; // güncel, devam edebilir
-  } catch (e) {
-    console.log('Force update kontrolü başarısız:', e);
-    // İstersen burada da "devam et" diyebilirsin
+    const configText = await response.text();
+    const sanitizedConfig = stripJsonComments(configText);
+    const remoteConfig: RemoteConfig = JSON.parse(sanitizedConfig);
+
+    const decision = evaluateUpdate(
+      currentVersion,
+      languageCode,
+      Platform.OS === 'ios' ? 'ios' : 'android',
+      remoteConfig,
+    );
+
+    if (decision.type === 'none') {
+      return true;
+    }
+
+    if (decision.type === 'optional') {
+      showOptionalAlert(decision);
+      return true;
+    }
+
+    showForceAlert(decision);
+    return false;
+  } catch (error) {
+    console.log('Force update kontrolü başarısız:', error);
     return true;
   }
 };
