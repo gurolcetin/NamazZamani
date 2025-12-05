@@ -239,4 +239,19 @@ export const createStyles = (theme: ThemeType) =>
       fontWeight: '600',
       color: '#fff',
     },
+    versionInfoContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 12,
+    },
+    versionInfoLabel: {
+      fontSize: 13,
+      color: theme.gray,
+      marginBottom: 4,
+    },
+    versionInfoValue: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.textColor,
+    },
   });

@@ -17,8 +17,10 @@ import {
   TouchableWithoutFeedback,
   Modal,
   Switch,
+  DevSettings,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DeviceInfo from 'react-native-device-info';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -43,7 +45,6 @@ import {
   setShowRamadanCountdownCard,
 } from '../../../libs/redux/reducers/ApplicationSettings';
 import { createStyles } from './style';
-import { DevSettings } from 'react-native';
 import { PrayerTimeKey } from '../../../libs/common/types';
 
 const accentOptions: Accent[] = [
@@ -198,6 +199,11 @@ const Settings = ({}: SettingsProps) => {
     () => notificationItems.every(item => item.enabled),
     [notificationItems],
   );
+
+  const versionLabel = useMemo(() => {
+    const version = DeviceInfo.getVersion();
+    return version;
+  }, []);
 
   const handleLanguageChange = useCallback(
     (lang: string) => {
@@ -657,6 +663,13 @@ const Settings = ({}: SettingsProps) => {
                   color={currentTheme.gray}
                 />
               </Pressable>
+            </View>
+
+            <View style={styles.versionInfoContainer}>
+              <Text style={styles.versionInfoLabel}>
+                {t(SettingsScreenLanguageConstants.AppVersionLabel.key)}
+              </Text>
+              <Text style={styles.versionInfoValue}>{versionLabel}</Text>
             </View>
           </ScrollView>
         </View>

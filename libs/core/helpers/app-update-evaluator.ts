@@ -218,7 +218,6 @@ export const evaluateUpdate = (
   platform: Platform,
   config: RemoteConfig,
 ): UpdateDecision => {
-  console.log(config);
   try {
     if (!config || !appVersion) {
       return { type: 'none' };

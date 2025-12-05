@@ -147,8 +147,7 @@ export const checkForceUpdate = async (): Promise<boolean> => {
 
     showForceAlert(decision);
     return false;
-  } catch (error) {
-    console.log('Force update kontrolü başarısız:', error);
+  } catch {
     return true;
   }
 };

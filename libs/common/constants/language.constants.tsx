@@ -81,6 +81,10 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.FeedbackEmailBody',
     defaultValue: 'Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:',
   };
+  static AppVersionLabel: LanguageModel = {
+    key: 'settings.AppVersion',
+    defaultValue: 'Uygulama Sürümü',
+  };
 }
 
 export class LanguageSettingsConstants {

@@ -42,7 +42,8 @@
     "FeedbackTitle": "Geri Bildirim Gönder",
     "FeedbackSubtitle": "Öneri, şikayet veya yorumlarınızı bizimle paylaşın",
     "FeedbackEmailSubject": "Namaz Zamanı Uygulama Geri Bildirimi",
-    "FeedbackEmailBody": "Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:"
+    "FeedbackEmailBody": "Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:",
+    "AppVersion": "Uygulama Sürümü"
   },
   "menu": {
     "PrayerTime": "Namaz Vakitleri",

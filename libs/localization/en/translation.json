@@ -41,7 +41,8 @@
     "FeedbackTitle": "Send Feedback",
     "FeedbackSubtitle": "Share your suggestions, complaints or comments with us",
     "FeedbackEmailSubject": "Namaz Zamanı App Feedback",
-    "FeedbackEmailBody": "Hello, I have some feedback about the Namaz Zamanı app:"
+    "FeedbackEmailBody": "Hello, I have some feedback about the Namaz Zamanı app:",
+    "AppVersion": "App Version"
   },
   "menu": {
     "PrayerTime": "Prayer Time",
