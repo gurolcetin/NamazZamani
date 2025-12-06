@@ -29,6 +29,12 @@ export async function fetchPrayerTimesByCoords(
   const url = `https://api.aladhan.com/v1/timings/${ts}?latitude=${latitude}&longitude=${longitude}&method=13&timezonestring=${encodeURIComponent(
     tzString,
   )}`;
+  const makeNetworkError = (cause?: unknown) => {
+    const err: any = new Error('PRAYER_TIMES_NETWORK_ERROR');
+    err.prayerTimesCode = 'NETWORK_OR_DEVICE_DATE';
+    err.cause = cause;
+    return err;
+  };
   let res: Response;
   try {
     res = await fetch(url);
@@ -43,13 +49,10 @@ export async function fetchPrayerTimesByCoords(
         res = await fetch(insecureUrl);
       } catch (err2) {
         console.warn('[prayer-times] HTTP fallback also failed.', err2);
-        const networkErr: any = new Error('PRAYER_TIMES_NETWORK_ERROR');
-        networkErr.prayerTimesCode = 'NETWORK_OR_DEVICE_DATE';
-        networkErr.cause = err2;
-        throw networkErr;
+        throw makeNetworkError(err2);
       }
     } else {
-      throw err;
+      throw makeNetworkError(err);
     }
   }
   const json = await res.json();
