@@ -177,7 +177,7 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
       error: null,
     }));
     try {
-      const ayahNumber = getRandomAyahNumber();
+      const ayahNumber = await getRandomAyahNumber();
       const translationEdition = getQuranTranslationEdition(apiLanguage);
       const url = `https://api.alquran.cloud/v1/ayah/${ayahNumber}/editions/quran-uthmani,${translationEdition}`;
       const response = await fetch(url);
