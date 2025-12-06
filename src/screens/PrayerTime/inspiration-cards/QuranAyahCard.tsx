@@ -17,12 +17,17 @@ import { useTranslation } from 'react-i18next';
 
 import { Icon, Icons } from '../../../../libs/components';
 import { useTheme } from '../../../../libs/core/providers';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   ApiLanguage,
   getApiLanguage,
   getQuranTranslationEdition,
   getRandomAyahNumber,
 } from './helpers';
+import {
+  saveQuranAyah,
+  selectCachedQuranAyah,
+} from '../../../../libs/redux/reducers/prayerTimesCache';
 
 type QuranEditionResponse = {
   text: string;
@@ -148,11 +153,13 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     () => getApiLanguage(i18n.language),
     [i18n.language],
   );
+  const dispatch = useDispatch();
+  const cachedAyah = useSelector(selectCachedQuranAyah);
 
   const [state, setState] = useState<LoadState<QuranAyah>>({
-    loading: true,
+    loading: !cachedAyah.data,
     error: null,
-    data: null,
+    data: cachedAyah.data,
   });
   const [displayMode, setDisplayMode] =
     useState<'arabic' | 'translation'>('translation');
@@ -169,6 +176,17 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
       }),
     [currentTheme],
   );
+
+  const cachedAyahData = cachedAyah.data;
+  const currentAyahData = state.data;
+  useEffect(() => {
+    if (cachedAyahData && cachedAyahData !== currentAyahData) {
+      setState(prev => ({
+        ...prev,
+        data: cachedAyahData,
+      }));
+    }
+  }, [cachedAyahData, currentAyahData]);
 
   const fetchAyah = useCallback(async () => {
     setState(prev => ({
@@ -197,30 +215,32 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
       if (!arabic || !translation) {
         throw new Error('MISSING');
       }
+      const mapped: QuranAyah = {
+        arabicText: arabic.text,
+        translation: translation.text,
+        surahName:
+          translation.surah?.englishName ||
+          translation.surah?.name ||
+          arabic.surah?.englishName ||
+          arabic.surah?.name,
+        surahNumber: translation.surah?.number || arabic.surah?.number,
+        verseNumber: translation.numberInSurah || arabic.numberInSurah,
+      };
       setState({
         loading: false,
         error: null,
-        data: {
-          arabicText: arabic.text,
-          translation: translation.text,
-          surahName:
-            translation.surah?.englishName ||
-            translation.surah?.name ||
-            arabic.surah?.englishName ||
-            arabic.surah?.name,
-          surahNumber: translation.surah?.number || arabic.surah?.number,
-          verseNumber: translation.numberInSurah || arabic.numberInSurah,
-        },
+        data: mapped,
       });
       setDisplayMode('translation');
+      dispatch(saveQuranAyah(mapped));
     } catch {
-      setState({
+      setState(prev => ({
+        ...prev,
         loading: false,
         error: t('prayerTime.inspiration.error'),
-        data: null,
-      });
+      }));
     }
-  }, [apiLanguage, t]);
+  }, [apiLanguage, dispatch, t]);
 
   useEffect(() => {
     fetchAyah();
@@ -260,7 +280,7 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
   }, [displayMode, state.data]);
 
   const innerBody = () => {
-    if (state.loading) {
+    if (state.loading && !state.data) {
       return (
         <View style={styles.loadingRow}>
           <ActivityIndicator color={currentTheme.primary} />
@@ -271,7 +291,7 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
       );
     }
 
-    if (state.error) {
+    if (state.error && !state.data) {
       return <Text style={styles.errorText}>{state.error}</Text>;
     }
 
@@ -294,14 +314,14 @@ const QuranAyahCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     );
   };
 
-  const Container = state.error ? TouchableOpacity : View;
-  const containerProps =
-    state.error && !state.loading
-      ? {
-          activeOpacity: 0.8,
-          onPress: handleManualRefresh,
-        }
-      : {};
+  const showTapToRetry = state.error && !state.loading && !state.data;
+  const Container = showTapToRetry ? TouchableOpacity : View;
+  const containerProps = showTapToRetry
+    ? {
+        activeOpacity: 0.8,
+        onPress: handleManualRefresh,
+      }
+    : {};
 
   return (
     <Container style={styles.card} {...containerProps}>

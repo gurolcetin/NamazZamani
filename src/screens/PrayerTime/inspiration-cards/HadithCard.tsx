@@ -13,6 +13,11 @@ import { Icon, Icons } from '../../../../libs/components';
 import { useTheme } from '../../../../libs/core/providers';
 import { HADITH_API_BASE_URL } from '../../../../libs/common/constants/externalApis';
 import { ApiLanguage, getApiLanguage, pickRandomItem } from './helpers';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  saveHadith,
+  selectCachedHadith,
+} from '../../../../libs/redux/reducers/prayerTimesCache';
 
 type Props = {
   currentDateKey: string;
@@ -358,11 +363,13 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     () => getApiLanguage(i18n.language),
     [i18n.language],
   );
+  const dispatch = useDispatch();
+  const cachedHadith = useSelector(selectCachedHadith);
 
   const [state, setState] = useState<LoadState<HadithData>>({
-    loading: true,
+    loading: !cachedHadith.data,
     error: null,
-    data: null,
+    data: cachedHadith.data,
   });
   const [displayMode, setDisplayMode] =
     useState<'arabic' | 'translation'>('translation');
@@ -396,6 +403,17 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     [t],
   );
 
+  const cachedHadithData = cachedHadith.data;
+  const currentHadithData = state.data;
+  useEffect(() => {
+    if (cachedHadithData && cachedHadithData !== currentHadithData) {
+      setState(prev => ({
+        ...prev,
+        data: cachedHadithData,
+      }));
+    }
+  }, [cachedHadithData, currentHadithData]);
+
   const fetchHadith = useCallback(async () => {
     setState(prev => ({
       ...prev,
@@ -410,14 +428,15 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
         data: hadith,
       });
       setDisplayMode('translation');
+      dispatch(saveHadith(hadith));
     } catch {
-      setState({
+      setState(prev => ({
+        ...prev,
         loading: false,
         error: t('prayerTime.inspiration.error'),
-        data: null,
-      });
+      }));
     }
-  }, [apiLanguage, t]);
+  }, [apiLanguage, dispatch, t]);
 
   useEffect(() => {
     fetchHadith();
@@ -457,7 +476,7 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
   }, [displayMode, getSourceLabel, state.data]);
 
   const renderBody = () => {
-    if (state.loading) {
+    if (state.loading && !state.data) {
       return (
         <View style={styles.loadingRow}>
           <ActivityIndicator color={currentTheme.primary} />
@@ -468,7 +487,7 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
       );
     }
 
-    if (state.error) {
+    if (state.error && !state.data) {
       return <Text style={styles.errorText}>{state.error}</Text>;
     }
 
@@ -495,14 +514,14 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     );
   };
 
-  const Container = state.error ? TouchableOpacity : View;
-  const containerProps =
-    state.error && !state.loading
-      ? {
-          activeOpacity: 0.8,
-          onPress: handleManualRefresh,
-        }
-      : {};
+  const showTapToRetry = state.error && !state.loading && !state.data;
+  const Container = showTapToRetry ? TouchableOpacity : View;
+  const containerProps = showTapToRetry
+    ? {
+        activeOpacity: 0.8,
+        onPress: handleManualRefresh,
+      }
+    : {};
 
   return (
     <Container style={styles.card} {...containerProps}>

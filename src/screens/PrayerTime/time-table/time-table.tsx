@@ -13,8 +13,13 @@ import { ScreenViewContainer } from '../../../../libs/components';
 import { PrayerTimings } from '../api';
 import { fetchMonthlyPrayerTimesByCoords } from '../MontlyCalendar/api';
 import { useTheme } from '../../../../libs/core/providers';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
+import {
+  CachedTimeTableSection,
+  saveTimeTableSnapshot,
+  selectCachedTimeTable,
+} from '../../../../libs/redux/reducers/prayerTimesCache';
 import { getCurrentPosition, requestLocationPermission } from '../permission';
 import TimeTableSkeleton from './time-table-skeleton';
 
@@ -104,6 +109,36 @@ async function buildRange(
   return Array.from(map.entries()).map(([title, data]) => ({ title, data }));
 }
 
+const reviveCachedSections = (
+  cached: CachedTimeTableSection[] | null,
+): Section[] | null => {
+  if (!cached) return null;
+  return cached.map(section => ({
+    title: section.title,
+    data: section.data.map(row => ({
+      date: new Date(row.dateISO),
+      weekday: row.weekday,
+      monthName: row.monthName,
+      dayNum: row.dayNum,
+      times: row.times,
+      isToday: row.isToday,
+    })),
+  }));
+};
+
+const serializeSectionsForCache = (sections: Section[]): CachedTimeTableSection[] =>
+  sections.map(section => ({
+    title: section.title,
+    data: section.data.map(row => ({
+      dateISO: row.date.toISOString(),
+      weekday: row.weekday,
+      monthName: row.monthName,
+      dayNum: row.dayNum,
+      times: row.times,
+      isToday: row.isToday,
+    })),
+  }));
+
 // ---------- küçük parça: 6 sütunlu grid ----------
 function SixColGrid({
   labels,
@@ -148,13 +183,22 @@ function SixColGrid({
 
 // ---------- screen ----------
 export default function TimeTable() {
+  const dispatch = useDispatch();
   const activeResolved = useSelector(selectActiveResolved);
+  const cachedTimeTable = useSelector(selectCachedTimeTable);
   const navigation = useNavigation();
   const { t, i18n } = useTranslation();
   const { currentTheme } = useTheme();
 
-  const [sections, setSections] = useState<Section[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const revivedCachedSections = useMemo(
+    () => reviveCachedSections(cachedTimeTable.sections),
+    [cachedTimeTable.sections],
+  );
+
+  const [sections, setSections] = useState<Section[] | null>(
+    revivedCachedSections,
+  );
+  const [loading, setLoading] = useState(!revivedCachedSections);
   const [refreshing, setRefreshing] = useState(false);
 
   const startDate = useMemo(() => {
@@ -178,6 +222,13 @@ export default function TimeTable() {
     [t],
   );
 
+  useEffect(() => {
+    if (!sections && revivedCachedSections) {
+      setSections(revivedCachedSections);
+      setLoading(false);
+    }
+  }, [revivedCachedSections, sections]);
+
   const load = useCallback(async () => {
     try {
       setLoading(true);
@@ -194,6 +245,7 @@ export default function TimeTable() {
         longitude = activeResolved.longitude;
       }
       if (latitude != null && longitude != null) {
+        const coordsPayload = { lat: latitude, lon: longitude };
         const items = await buildRange(
           startDate,
           30,
@@ -203,11 +255,26 @@ export default function TimeTable() {
           getMonthLabel,
         );
         setSections(items);
+        dispatch(
+          saveTimeTableSnapshot({
+            sections: serializeSectionsForCache(items),
+            startDate: startDate.toISOString(),
+            coords: coordsPayload,
+          }),
+        );
       }
+    } catch (error) {
+      console.warn('[time-table] load failed', error);
     } finally {
       setLoading(false);
     }
-  }, [activeResolved, getMonthLabel, getWeekdayLabel, startDate]);
+  }, [
+    activeResolved,
+    dispatch,
+    getMonthLabel,
+    getWeekdayLabel,
+    startDate,
+  ]);
 
   useEffect(() => {
     load();
@@ -226,7 +293,7 @@ export default function TimeTable() {
     navigation.setOptions?.({ title: t('timeTable.title') });
   }, [i18n.language, navigation, t]);
 
-  const shouldShowSkeleton = loading;
+  const shouldShowSkeleton = loading && !sections;
 
   return (
     <ScreenViewContainer

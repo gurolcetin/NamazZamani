@@ -19,7 +19,7 @@ import {
   View,
   useColorScheme,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
 import { requestLocationPermission, getCurrentPosition } from './permission';
@@ -56,6 +56,12 @@ import RamadanIcon from '../../../libs/components/svg/icons/ramadan-icon';
 import { convertMiladiDateToHicriDate } from '../../../libs/core/helpers/hicriDate.helper';
 import type { RootState } from '../../../libs/redux/store';
 import { prayerNotificationManager } from '../../../libs/core/helpers/prayer-notification';
+import {
+  savePrayerSnapshot,
+  saveRamadanSnapshot,
+  selectPrayerSnapshot,
+  selectRamadanSnapshot,
+} from '../../../libs/redux/reducers/prayerTimesCache';
 
 // ----- Types & Maps ---------------------------------------------------------
 
@@ -261,19 +267,25 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
 // ---------------------------------------------------------------------------
 // RAMAZAN COUNTDOWN CARD (FlatList footer'ı)
 // ---------------------------------------------------------------------------
+type RamadanCountdownInfo = {
+  iftarTarget: Date;
+  sahurTarget: Date;
+  maghribToday: Date;
+  fajrToday: Date;
+};
+
 type RamadanCountdownProps = {
-  timings: PrayerTimings | null;
+  ramadanInfo: RamadanCountdownInfo | null;
   currentNow: Date;
 };
 
 const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
-  ({ timings, currentNow }) => {
+  ({ ramadanInfo, currentNow }) => {
     const { t } = useTranslation();
     const { currentTheme } = useTheme();
-    if (!timings) return null;
+    if (!ramadanInfo) return null;
 
-    const { iftarTarget, sahurTarget, maghribToday, fajrToday } =
-      getIftarAndSahurTargets(timings, currentNow);
+    const { iftarTarget, sahurTarget, maghribToday, fajrToday } = ramadanInfo;
 
     const FIFTEEN_MIN = 15 * 60;
 
@@ -366,7 +378,16 @@ export default function PrayerTime() {
   );
 
   const { t, i18n } = useTranslation();
-  const [timings, setTimings] = useState<PrayerTimings | null>(null);
+  const dispatch = useDispatch();
+  const cachedPrayerSnapshot = useSelector(selectPrayerSnapshot);
+  const cachedRamadanSnapshot = useSelector(selectRamadanSnapshot);
+  const cachedSeqBaseDate = cachedPrayerSnapshot.sequenceBaseDate
+    ? new Date(cachedPrayerSnapshot.sequenceBaseDate)
+    : null;
+
+  const [timings, setTimings] = useState<PrayerTimings | null>(
+    cachedPrayerSnapshot.timings,
+  );
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -375,10 +396,14 @@ export default function PrayerTime() {
   const nextKeyRef = useRef<PrayerTimeKey>('Fajr');
   const currentKeyRef = useRef<PrayerTimeKey>('Fajr');
 
-  const [locationLabel, setLocationLabel] = useState<string>('');
-  const [utcLabel, setUtcLabel] = useState<string>(getUTCLabel());
+  const [locationLabel, setLocationLabel] = useState<string>(
+    cachedPrayerSnapshot.locationLabel ?? '',
+  );
+  const [utcLabel, setUtcLabel] = useState<string>(
+    cachedPrayerSnapshot.utcLabel ?? getUTCLabel(),
+  );
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
-    null,
+    cachedPrayerSnapshot.coords,
   );
   const [nowTick, setNowTick] = useState(new Date());
 
@@ -387,11 +412,13 @@ export default function PrayerTime() {
   const [isResyncing, setIsResyncing] = useState(false);
 
   // Artık string yerine baz alınan tarih state’i
-  const [seqBaseDate, setSeqBaseDate] = useState<Date>(new Date());
+  const [seqBaseDate, setSeqBaseDate] = useState<Date>(
+    cachedSeqBaseDate ?? new Date(),
+  );
 
   // Jump/day/TZ izleme
   const seqRef = useRef<ReturnType<typeof buildSequence> | null>(null);
-  const seqBaseDayRef = useRef<string>(ymd(new Date())); // seq hangi güne ait
+  const seqBaseDayRef = useRef<string>(ymd(cachedSeqBaseDate ?? new Date())); // seq hangi güne ait
   const lastNowRef = useRef<Date>(new Date());
   const lastOffsetRef = useRef<number>(new Date().getTimezoneOffset());
   const lastDayRef = useRef<number>(new Date().getDate());
@@ -428,6 +455,47 @@ export default function PrayerTime() {
     showRamadanCountdownPreference || isRamadanWindow;
 
   const currentDateKey = useMemo(() => getCurrentDateKey(nowTick), [nowTick]);
+
+  useEffect(() => {
+    if (
+      cachedPrayerSnapshot.timings &&
+      cachedPrayerSnapshot.timings !== timings
+    ) {
+      setTimings(cachedPrayerSnapshot.timings);
+    }
+    if (
+      cachedPrayerSnapshot.locationLabel &&
+      cachedPrayerSnapshot.locationLabel !== locationLabel
+    ) {
+      setLocationLabel(cachedPrayerSnapshot.locationLabel);
+    }
+    if (
+      cachedPrayerSnapshot.utcLabel &&
+      cachedPrayerSnapshot.utcLabel !== utcLabel
+    ) {
+      setUtcLabel(cachedPrayerSnapshot.utcLabel);
+    }
+    if (cachedPrayerSnapshot.coords) {
+      const { lat, lon } = cachedPrayerSnapshot.coords;
+      if (!coords || coords.lat !== lat || coords.lon !== lon) {
+        setCoords(cachedPrayerSnapshot.coords);
+      }
+    }
+    if (cachedPrayerSnapshot.sequenceBaseDate) {
+      const cachedDate = new Date(cachedPrayerSnapshot.sequenceBaseDate);
+      if (cachedDate.getTime() !== seqBaseDate.getTime()) {
+        setSeqBaseDate(cachedDate);
+        seqBaseDayRef.current = ymd(cachedDate);
+      }
+    }
+  }, [
+    cachedPrayerSnapshot,
+    coords,
+    locationLabel,
+    seqBaseDate,
+    timings,
+    utcLabel,
+  ]);
 
   const prayerLabels = useMemo(() => {
     return PRAYER_ORDER.reduce((acc, key) => {
@@ -509,7 +577,8 @@ export default function PrayerTime() {
         }
 
         if (latitude != null && longitude != null) {
-          setCoords({ lat: latitude, lon: longitude });
+          const coordsPayload = { lat: latitude, lon: longitude };
+          setCoords(coordsPayload);
 
           // Cihazın O ANKİ tarihine göre vakitler
           const data = await fetchPrayerTimesByCoords(
@@ -527,12 +596,32 @@ export default function PrayerTime() {
           // seq'in gününü not et ve baz tarihi yaz
           seqBaseDayRef.current = ymd(baseDate);
           setSeqBaseDate(baseDate);
+          const sequenceBaseDate = baseDate.toISOString();
 
           if ('type' in activeResolved && activeResolved.type === 'device') {
             lastDeviceCoordsRef.current = { lat: latitude, lon: longitude };
           } else {
             lastDeviceCoordsRef.current = null;
           }
+
+          const ramadanTimes = getIftarAndSahurTargets(data, baseDate);
+          dispatch(
+            savePrayerSnapshot({
+              timings: data,
+              locationLabel: label ?? null,
+              utcLabel: label2 ?? null,
+              coords: coordsPayload,
+              sequenceBaseDate,
+            }),
+          );
+          dispatch(
+            saveRamadanSnapshot({
+              iftarTarget: ramadanTimes.iftarTarget.toISOString(),
+              sahurTarget: ramadanTimes.sahurTarget.toISOString(),
+              maghribToday: ramadanTimes.maghribToday.toISOString(),
+              fajrToday: ramadanTimes.fajrToday.toISOString(),
+            }),
+          );
         }
         if (label) setLocationLabel(label);
         deviceDateAlertShownRef.current = false;
@@ -579,7 +668,7 @@ export default function PrayerTime() {
         setIsResyncing(false);
       }
     },
-    [activeResolved, t],
+    [activeResolved, dispatch, t],
   );
 
   // timings geldiğinde sequence ve ilk hesap
@@ -825,18 +914,53 @@ export default function PrayerTime() {
     }));
   }, [timings, leftClock]);
 
+  const ramadanCountdownInfo = useMemo(() => {
+    if (timings) {
+      const { iftarTarget, sahurTarget, maghribToday, fajrToday } =
+        getIftarAndSahurTargets(timings, nowTick);
+      return {
+        iftarTarget,
+        sahurTarget,
+        maghribToday,
+        fajrToday,
+      };
+    }
+    if (
+      cachedRamadanSnapshot.iftarTarget &&
+      cachedRamadanSnapshot.sahurTarget &&
+      cachedRamadanSnapshot.maghribToday &&
+      cachedRamadanSnapshot.fajrToday
+    ) {
+      return {
+        iftarTarget: new Date(cachedRamadanSnapshot.iftarTarget),
+        sahurTarget: new Date(cachedRamadanSnapshot.sahurTarget),
+        maghribToday: new Date(cachedRamadanSnapshot.maghribToday),
+        fajrToday: new Date(cachedRamadanSnapshot.fajrToday),
+      };
+    }
+    return null;
+  }, [cachedRamadanSnapshot, nowTick, timings]);
+
   const listFooter = useMemo(
     () => (
       <View style={styles.footerStack}>
         {shouldShowRamadanCountdown ? (
-          <RamadanCountdownCard timings={timings} currentNow={nowTick} />
+          <RamadanCountdownCard
+            ramadanInfo={ramadanCountdownInfo}
+            currentNow={nowTick}
+          />
         ) : null}
         <QuranAyahCard currentDateKey={currentDateKey} />
         <AsmaulHusnaCard currentDateKey={currentDateKey} />
         <HadithCard currentDateKey={currentDateKey} />
       </View>
     ),
-    [shouldShowRamadanCountdown, timings, nowTick, currentDateKey],
+    [
+      shouldShowRamadanCountdown,
+      ramadanCountdownInfo,
+      nowTick,
+      currentDateKey,
+    ],
   );
 
   // ------- render -----------------------------------------------------------

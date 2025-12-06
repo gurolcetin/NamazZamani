@@ -16,6 +16,11 @@ import {
   ISLAMIC_API_KEY,
 } from '../../../../libs/common/constants/externalApis';
 import { getApiLanguage, pickRandomItem } from './helpers';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  saveAsmaulHusna,
+  selectCachedAsma,
+} from '../../../../libs/redux/reducers/prayerTimesCache';
 
 type Props = {
   currentDateKey: string;
@@ -129,11 +134,13 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     () => getApiLanguage(i18n.language),
     [i18n.language],
   );
+  const dispatch = useDispatch();
+  const cachedAsma = useSelector(selectCachedAsma);
 
   const [state, setState] = useState<LoadState<AsmaData>>({
-    loading: true,
+    loading: !cachedAsma.data,
     error: null,
-    data: null,
+    data: cachedAsma.data,
   });
 
   const styles = useMemo(
@@ -149,13 +156,24 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     [currentTheme],
   );
 
+  const cachedAsmaData = cachedAsma.data;
+  const currentAsmaData = state.data;
+  useEffect(() => {
+    if (cachedAsmaData && cachedAsmaData !== currentAsmaData) {
+      setState(prev => ({
+        ...prev,
+        data: cachedAsmaData,
+      }));
+    }
+  }, [cachedAsmaData, currentAsmaData]);
+
   const fetchAsma = useCallback(async () => {
     if (!ISLAMIC_API_KEY) {
-      setState({
+      setState(prev => ({
+        ...prev,
         loading: false,
         error: t('prayerTime.inspiration.apiKeyError'),
-        data: null,
-      });
+      }));
       return;
     }
 
@@ -189,23 +207,25 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
         randomEntry.transliteration ||
         randomEntry.name ||
         '';
+      const mapped: AsmaData = {
+        arabicName: randomEntry.name || '',
+        transliteration: randomEntry.transliteration,
+        meaning: meaning.trim(),
+      };
       setState({
         loading: false,
         error: null,
-        data: {
-          arabicName: randomEntry.name || '',
-          transliteration: randomEntry.transliteration,
-          meaning: meaning.trim(),
-        },
+        data: mapped,
       });
+      dispatch(saveAsmaulHusna(mapped));
     } catch {
-      setState({
+      setState(prev => ({
+        ...prev,
         loading: false,
         error: t('prayerTime.inspiration.error'),
-        data: null,
-      });
+      }));
     }
-  }, [apiLanguage, t]);
+  }, [apiLanguage, dispatch, t]);
 
   useEffect(() => {
     fetchAsma();
@@ -240,7 +260,7 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
   }, [state.data]);
 
   const renderBody = () => {
-    if (state.loading) {
+    if (state.loading && !state.data) {
       return (
         <View style={styles.loadingRow}>
           <ActivityIndicator color={currentTheme.primary} />
@@ -251,7 +271,7 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
       );
     }
 
-    if (state.error) {
+    if (state.error && !state.data) {
       return <Text style={styles.errorText}>{state.error}</Text>;
     }
 
@@ -272,14 +292,14 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
     );
   };
 
-  const Container = state.error ? TouchableOpacity : View;
-  const containerProps =
-    state.error && !state.loading
-      ? {
-          activeOpacity: 0.8,
-          onPress: handleManualRefresh,
-        }
-      : {};
+  const showTapToRetry = state.error && !state.loading && !state.data;
+  const Container = showTapToRetry ? TouchableOpacity : View;
+  const containerProps = showTapToRetry
+    ? {
+        activeOpacity: 0.8,
+        onPress: handleManualRefresh,
+      }
+    : {};
 
   return (
     <Container style={styles.card} {...containerProps}>
