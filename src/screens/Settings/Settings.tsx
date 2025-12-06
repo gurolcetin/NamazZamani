@@ -40,7 +40,6 @@ import {
 } from '../../../libs/common/constants';
 import { Accent, Theme } from '../../../libs/common/enums';
 import { useTheme } from '../../../libs/core/providers';
-import { updateApplicationTheme } from '../../../libs/redux/reducers/ApplicationTheme';
 import {
   setPrayerNotificationPreference,
   setShowRamadanCountdownCard,
@@ -155,8 +154,8 @@ const Settings = ({}: SettingsProps) => {
   }, [i18n.language]);
 
   useEffect(() => {
-    setThemeSelection(applicationTheme.theme ?? Theme.SYSTEM);
-  }, [applicationTheme.theme]);
+    setThemeSelection(applicationTheme?.preference ?? Theme.SYSTEM);
+  }, [applicationTheme?.preference]);
 
   const languageOptions = [
     {
@@ -290,9 +289,8 @@ const Settings = ({}: SettingsProps) => {
     (mode: Theme) => {
       setThemeSelection(mode);
       toggleTheme(mode);
-      dispatch(updateApplicationTheme(mode));
     },
-    [dispatch, toggleTheme],
+    [toggleTheme],
   );
 
   const handleAccentPress = useCallback(

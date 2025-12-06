@@ -2,7 +2,8 @@ import {createSlice} from '@reduxjs/toolkit';
 import {Theme} from '../../common/enums';
 
 const initialState = {
-  theme: Theme.LIGHT,
+  theme: Theme.LIGHT, // resolved runtime theme (light/dark)
+  preference: Theme.SYSTEM, // user selection (light/dark/system)
 };
 
 const ApplicationTheme = createSlice({
@@ -13,7 +14,8 @@ const ApplicationTheme = createSlice({
       return initialState;
     },
     updateApplicationTheme: (state, action) => {
-      state.theme = action.payload;
+      state.theme = action.payload?.theme ?? state.theme;
+      state.preference = action.payload?.preference ?? state.preference;
     },
   },
 });

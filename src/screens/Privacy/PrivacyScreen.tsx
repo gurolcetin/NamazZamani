@@ -22,6 +22,7 @@ import {
   SafeAreaWithStatusBar,
   ScreenViewContainer,
 } from '../../../libs/components';
+import { GetDeviceLang } from '../../../libs/core/utils/i18next.languageDetector';
 
 const PRIVACY_KEY = 'privacyAccepted';
 
@@ -287,8 +288,11 @@ const PrivacyScreen: React.FC<Props> = ({
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  const initialBaseLang = (i18n.language || 'tr').split('-')[0];
-  const [selectedLang, setSelectedLang] = useState<string>(initialBaseLang);
+  const deviceBaseLang = (GetDeviceLang() || 'tr').split('-')[0];
+  const [selectedLang, setSelectedLang] = useState<string>(() => {
+    const lang = i18n.language || deviceBaseLang || 'tr';
+    return lang.split('-')[0];
+  });
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [langButtonLayout, setLangButtonLayout] = useState<{
     x: number;
@@ -298,9 +302,9 @@ const PrivacyScreen: React.FC<Props> = ({
   } | null>(null);
 
   useEffect(() => {
-    const baseLang = (i18n.language || 'tr').split('-')[0];
+    const baseLang = (i18n.language || deviceBaseLang || 'tr').split('-')[0];
     setSelectedLang(baseLang);
-  }, [i18n.language]);
+  }, [deviceBaseLang, i18n.language]);
 
   type LangOption = {
     key: string;
