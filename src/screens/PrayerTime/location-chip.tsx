@@ -64,16 +64,24 @@ export function LocationChip({
         </Text>
       </View>
 
-      {/* Sağ taraf: sade UTC text (pill yok, Figma’ya daha yakın) */}
-      <Text
-        style={[
-          styles.utcTextRight,
-          { color: currentTheme.placeholderTextColor },
-        ]}
-        numberOfLines={1}
-      >
-        {utc}
-      </Text>
+      {/* Sağ taraf: UTC + değiştirilebilirlik ikonu */}
+      <View style={styles.utcRight}>
+        <Text
+          style={[
+            styles.utcTextRight,
+            { color: currentTheme.placeholderTextColor },
+          ]}
+          numberOfLines={1}
+        >
+          {utc}
+        </Text>
+        <Icon
+          type={Icons.MaterialDesignIcons}
+          name="chevron-down"
+          size={18}
+          color={currentTheme.placeholderTextColor}
+        />
+      </View>
     </Pressable>
   );
 }
@@ -117,6 +125,11 @@ const styles = StyleSheet.create({
     flexWrap: 'nowrap',
     lineHeight: 20,
     maxWidth: '100%',
+  },
+  utcRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   utcTextRight: {
     fontSize: 13,

@@ -184,7 +184,6 @@ type HeaderProps = {
   leftClock: string;
   isResyncing: boolean;
   seqDateLabel: string;
-  syncingText: string;
 };
 
 const PrayerTimeHeader: React.FC<HeaderProps> = memo(
@@ -196,7 +195,6 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
     leftClock,
     isResyncing,
     seqDateLabel,
-    syncingText,
   }) => {
     return (
       <View style={styles.listHeaderRoot}>
@@ -227,15 +225,14 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
 
             {/* Sağ altta tarih / sync */}
             <View style={styles.nextMeta}>
-              {!isResyncing && !!seqDateLabel && (
-                <Text style={styles.metaText} numberOfLines={1}>
-                  {seqDateLabel}
-                </Text>
-              )}
-              {isResyncing && (
-                <View style={styles.metaSyncRow}>
-                  <ActivityIndicator size="small" color="#fff" />
-                  <Text style={styles.metaText}>{syncingText}</Text>
+              {!!seqDateLabel && (
+                <View style={styles.metaRow}>
+                  {isResyncing && (
+                    <ActivityIndicator size="small" color="#fff" />
+                  )}
+                  <Text style={styles.metaText} numberOfLines={1}>
+                    {seqDateLabel}
+                  </Text>
                 </View>
               )}
             </View>
@@ -571,11 +568,7 @@ export default function PrayerTime() {
 
     const softRecalc = (now = new Date()) => {
       // Reload sırasında veya seq günü eşleşmiyorsa dokunma
-      if (
-        isResyncingRef.current ||
-        !seqRef.current ||
-        seqBaseDayRef.current !== ymd(now)
-      ) {
+      if (!seqRef.current || seqBaseDayRef.current !== ymd(now)) {
         return;
       }
       const info = computeNext(seqRef.current, now);
@@ -599,20 +592,21 @@ export default function PrayerTime() {
       const dayChanged = now.getDate() !== lastDayRef.current;
       const tzChanged = now.getTimezoneOffset() !== lastOffsetRef.current;
 
-      if (dayChanged || tzChanged || jumped) {
-        // UI’yı sabit tut (flicker yok), yeni güne göre veriyi getir
+      if (dayChanged || tzChanged) {
+        // Güne veya timezone'a göre gerçekten yeniden senkronize et
         setUtcLabel(getUTCLabel());
         load(now);
         lastDayRef.current = now.getDate();
         lastOffsetRef.current = now.getTimezoneOffset();
-
-        // Büyük jump’ta interval’ı tazele
-        if (jumped) {
-          if (intervalRef.current) clearInterval(intervalRef.current);
-          intervalRef.current = setInterval(tick, 1000);
-        }
       } else {
+        // Diğer tüm durumlarda (örn. uygulamadan geri dönme) sadece yerel hesaplamayı tazele
         softRecalc(now);
+      }
+
+      if (jumped) {
+        // Uzun beklemelerden sonra interval drift edebiliyor, sadece timer'ı sıfırla
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(tick, 1000);
       }
 
       lastNowRef.current = now;
@@ -742,8 +736,6 @@ export default function PrayerTime() {
   const countdownTitle = t('prayerTime.nextPrayerCountdown', {
     label: currentLabel,
   });
-  const syncingText = t('prayerTime.syncing');
-
   return (
     <SafeAreaWithStatusBar>
       <ScreenViewContainer>
@@ -794,7 +786,6 @@ export default function PrayerTime() {
                   leftClock={leftClock}
                   isResyncing={isResyncing}
                   seqDateLabel={seqDateLabel}
-                  syncingText={syncingText}
                 />
               </>
             }
@@ -978,7 +969,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  metaSyncRow: {
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
