@@ -156,6 +156,9 @@
     "nextPrayerCountdown": "{{label}} vaktinin çıkmasına kalan",
     "syncing": "Senkronize ediliyor…",
     "sendTestNotification": "Test ezan bildirimi gönder",
+    "permissionCardTitle": "Konum gerekli",
+    "permissionCardDescription": "Namaz vakitlerini görebilmek için konum izni vermeli veya kayıtlı bir konum seçmelisiniz.",
+    "permissionCardButton": "Konum Seç",
     "ramadanIftarCountdown": "İftara kalan süre",
     "ramadanSahurCountdown": "Sahura kalan süre",
     "inspiration": {
@@ -216,6 +219,8 @@
     "delete": "Sil",
     "deviceTitle": "Bulunduğunuz Yer",
     "deviceSubtitle": "Cihaz konumu",
+    "permissionWarningTitle": "Konum izni gerekli",
+    "permissionWarningMessage": "Bulunduğunuz konumun namaz vakitlerini listelemek için konum izni vermelisiniz.",
     "emptySaved": "Henüz kayıtlı konum yok. Yeni konum eklemek için konum arayınız.",
     "searchPlaceholder": "Şehir / ilçe / mahalle ara",
     "searchResults": "Arama Sonuçları",

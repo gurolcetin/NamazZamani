@@ -19,10 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { SearchBarCommands } from 'react-native-screens';
 import { useNavigationSearch } from '../../../../libs/core/hooks';
-import {
-  getCurrentPosition,
-  requestLocationPermission,
-} from '../permission';
+import { getCurrentPosition, hasLocationPermission } from '../permission';
 import { reverseGeocode } from '../reverse-geocode';
 import {
   upsertSavedPlace,
@@ -110,6 +107,9 @@ export default function LocationSelector() {
     null,
   );
   const [deviceLocationLoading, setDeviceLocationLoading] = useState(true);
+  const [locationPermissionGranted, setLocationPermissionGranted] = useState<
+    boolean | null
+  >(null);
   const query = search.trim();
   const hasQuery = query.length > 0;
   const swipeableRefs = useRef<Record<string, Swipeable | null>>({});
@@ -129,12 +129,14 @@ export default function LocationSelector() {
       const resolveDeviceLocation = async () => {
         setDeviceLocationLoading(true);
         try {
-          const hasPermission = await requestLocationPermission();
+          const granted = await hasLocationPermission();
+          if (cancelled) {
+            return;
+          }
+          setLocationPermissionGranted(granted);
 
-          if (!hasPermission) {
-            if (!cancelled) {
-              setDeviceLocationLabel(null);
-            }
+          if (!granted) {
+            setDeviceLocationLabel(null);
             return;
           }
 
@@ -520,6 +522,7 @@ export default function LocationSelector() {
   const deviceLocationSubtitle = deviceLocationLoading
     ? t('locationChip.loading')
     : deviceLocationLabel ?? t('prayerTime.locationNotFound');
+  const showPermissionWarning = locationPermissionGranted === false;
 
   /** ---------- Render ---------- */
   return (
@@ -532,44 +535,88 @@ export default function LocationSelector() {
         {!hasQuery && (
           <>
             {/* Mevcut Konum */}
-            <Pressable
-              style={[
-                styles.nextCard,
-                { backgroundColor: `${currentTheme.primary}CC` },
-              ]}
-              onPress={goDevice}
-            >
-              <View style={styles.nextCardLeft}>
-                <View style={styles.nextIconWrap}>
+            {showPermissionWarning ? (
+              <View
+                style={[
+                  styles.permissionNotice,
+                  {
+                    borderColor: `${currentTheme.systemRed}33`,
+                    backgroundColor: `${currentTheme.systemRed}12`,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.permissionNoticeIcon,
+                    { backgroundColor: `${currentTheme.systemRed}1F` },
+                  ]}
+                >
+                  <Icon
+                    type={Icons.MaterialDesignIcons}
+                    name="map-marker-off"
+                    size={22}
+                    color={currentTheme.systemRed}
+                  />
+                </View>
+                <View style={styles.permissionNoticeTexts}>
+                  <Text
+                    style={[
+                      styles.permissionNoticeTitle,
+                      { color: currentTheme.textColor },
+                    ]}
+                  >
+                    {t('locationSelector.permissionWarningTitle')}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.permissionNoticeDescription,
+                      { color: currentTheme.textColor },
+                    ]}
+                  >
+                    {t('locationSelector.permissionWarningMessage')}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <Pressable
+                style={[
+                  styles.nextCard,
+                  { backgroundColor: `${currentTheme.primary}CC` },
+                ]}
+                onPress={goDevice}
+              >
+                <View style={styles.nextCardLeft}>
+                  <View style={styles.nextIconWrap}>
+                    <Icon
+                      type={Icons.FontAwesome6}
+                      name="location-crosshairs"
+                      size={22}
+                      color={currentTheme.white}
+                      solid
+                    />
+                  </View>
+                  <View style={styles.flex1}>
+                    <Text style={styles.nextLabel}>
+                      {t('locationSelector.deviceTitle')}
+                    </Text>
+                    <Text style={styles.nextHint}>
+                      {deviceLocationSubtitle}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.nextCardRight}>
+                  {isActiveDevice && <SelectedBadge />}
                   <Icon
                     type={Icons.FontAwesome6}
-                    name="location-crosshairs"
-                    size={22}
+                    name="arrow-right"
+                    size={16}
                     color={currentTheme.white}
                     solid
                   />
                 </View>
-                <View style={styles.flex1}>
-                  <Text style={styles.nextLabel}>
-                    {t('locationSelector.deviceTitle')}
-                  </Text>
-                  <Text style={styles.nextHint}>
-                    {deviceLocationSubtitle}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.nextCardRight}>
-                {isActiveDevice && <SelectedBadge />}
-                <Icon
-                  type={Icons.FontAwesome6}
-                  name="arrow-right"
-                  size={16}
-                  color={currentTheme.white}
-                  solid
-                />
-              </View>
-            </Pressable>
+              </Pressable>
+            )}
 
             {/* Kaydedilen Konumlar */}
             {saved.length === 0 ? (
@@ -669,6 +716,35 @@ const styles = StyleSheet.create({
   },
   nextLabel: { color: '#fff', fontSize: 16, fontWeight: '800' },
   nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 13, marginTop: 2 },
+  permissionNotice: {
+    marginHorizontal: 16,
+    borderRadius: 18,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  permissionNoticeIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  permissionNoticeTexts: {
+    flex: 1,
+  },
+  permissionNoticeTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  permissionNoticeDescription: {
+    fontSize: 13,
+    lineHeight: 18,
+    opacity: 0.8,
+  },
 
   rowWrapper: {
     marginTop: 10,

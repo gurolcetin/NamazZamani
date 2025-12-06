@@ -13,6 +13,7 @@ import {
   AppState,
   FlatList,
   ListRenderItemInfo,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -22,9 +23,14 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 
 import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
-import { requestLocationPermission, getCurrentPosition } from './permission';
+import {
+  requestLocationPermission,
+  getCurrentPosition,
+  hasLocationPermission,
+} from './permission';
 import {
   Icon,
+  Icons,
   PRAYER_TIME_ICONS,
   PrayerTimeSmallCard,
   SafeAreaWithStatusBar,
@@ -34,7 +40,11 @@ import { useTheme } from '../../../libs/core/providers';
 import { reverseGeocode, getUTCLabel } from './reverse-geocode';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { PrayerTimeScreens } from '../../navigation/Routes';
-import { selectActiveResolved } from '../../../libs/redux/reducers/location';
+import {
+  selectActiveResolved,
+  selectSavedPlaces,
+  setActiveById,
+} from '../../../libs/redux/reducers/location';
 import {
   getTimeZoneByCoords,
   getUtcLabelFromTimeZone,
@@ -368,6 +378,7 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
 export default function PrayerTime() {
   const { currentTheme } = useTheme();
   const activeResolved = useSelector(selectActiveResolved);
+  const savedLocations = useSelector(selectSavedPlaces);
   const showRamadanCountdownPreference = useSelector(
     (state: RootState) =>
       state.applicationSettings?.showRamadanCountdownCard ?? true,
@@ -406,6 +417,9 @@ export default function PrayerTime() {
     cachedPrayerSnapshot.coords,
   );
   const [nowTick, setNowTick] = useState(new Date());
+  const [locationPermissionGranted, setLocationPermissionGranted] = useState<
+    boolean | null
+  >(null);
 
   // Senkron durumu: hem ref (timer closure güvenliği) hem state (UI)
   const isResyncingRef = useRef<boolean>(false);
@@ -455,6 +469,36 @@ export default function PrayerTime() {
     showRamadanCountdownPreference || isRamadanWindow;
 
   const currentDateKey = useMemo(() => getCurrentDateKey(nowTick), [nowTick]);
+
+  const refreshLocationPermissionStatus = useCallback(async () => {
+    try {
+      const granted = await hasLocationPermission();
+      setLocationPermissionGranted(granted);
+    } catch (error) {
+      console.warn('Location permission check failed', error);
+      setLocationPermissionGranted(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshLocationPermissionStatus();
+  }, [refreshLocationPermissionStatus]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshLocationPermissionStatus();
+    }, [refreshLocationPermissionStatus]),
+  );
+
+  useEffect(() => {
+    if (
+      locationPermissionGranted === false &&
+      savedLocations.length > 0 &&
+      activeResolved.type === 'device'
+    ) {
+      dispatch(setActiveById(savedLocations[0].id));
+    }
+  }, [activeResolved, dispatch, locationPermissionGranted, savedLocations]);
 
   useEffect(() => {
     if (
@@ -557,6 +601,7 @@ export default function PrayerTime() {
             label = resolvedDeviceCoords.label ?? null;
           } else {
             const ok = await requestLocationPermission();
+            setLocationPermissionGranted(ok);
             if (!ok) return;
             const pos = await getCurrentPosition();
             latitude = pos.latitude;
@@ -832,6 +877,7 @@ export default function PrayerTime() {
     useCallback(() => {
       // timings henüz gelmediyse bile timer başlatılır, softRecalc sıfır çalışır;
       // timings gelince effect tekrar çalışıp timer'ı tazeler.
+      refreshLocationPermissionStatus();
       startTimer();
 
       const appSub = AppState.addEventListener('change', s => {
@@ -840,6 +886,7 @@ export default function PrayerTime() {
         if (s === 'active') {
           // Uygulama yeniden aktive olduğunda, eğer bu ekran odaktaysa timer'ı tazele
           startTimer();
+          refreshLocationPermissionStatus();
           if (prevState === 'background' || prevState === 'inactive') {
             checkDeviceLocationChange();
           }
@@ -859,7 +906,11 @@ export default function PrayerTime() {
         }
         appSub.remove();
       };
-    }, [startTimer, checkDeviceLocationChange]),
+    }, [
+      checkDeviceLocationChange,
+      refreshLocationPermissionStatus,
+      startTimer,
+    ]),
   );
 
   // küçük kart listesi
@@ -963,7 +1014,76 @@ export default function PrayerTime() {
     ],
   );
 
+  const shouldShowLocationPermissionCard =
+    locationPermissionGranted === false && savedLocations.length === 0;
+
   // ------- render -----------------------------------------------------------
+  if (shouldShowLocationPermissionCard) {
+    return (
+      <SafeAreaWithStatusBar>
+        <ScreenViewContainer>
+          <View style={styles.permissionCardScreen}>
+            <View
+              style={[
+                styles.permissionCard,
+                { backgroundColor: currentTheme.cardViewBackgroundColor },
+              ]}
+            >
+              <View
+                style={[
+                  styles.permissionIconCircle,
+                  { backgroundColor: `${currentTheme.primary}1A` },
+                ]}
+              >
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name="map-marker-off"
+                  size={28}
+                  color={currentTheme.primary}
+                />
+              </View>
+              <Text
+                style={[
+                  styles.permissionTitle,
+                  { color: currentTheme.textColor },
+                ]}
+              >
+                {t('prayerTime.permissionCardTitle')}
+              </Text>
+              <Text
+                style={[
+                  styles.permissionDescription,
+                  {
+                    color:
+                      currentTheme.secondaryTextColor ||
+                      'rgba(15,23,42,0.7)',
+                  },
+                ]}
+              >
+                {t('prayerTime.permissionCardDescription')}
+              </Text>
+              <Pressable
+                style={[
+                  styles.permissionButton,
+                  { backgroundColor: currentTheme.primary },
+                ]}
+                onPress={() =>
+                  navigation.navigate(
+                    PrayerTimeScreens.LocationSelector as never,
+                  )
+                }
+              >
+                <Text style={styles.permissionButtonText}>
+                  {t('prayerTime.permissionCardButton')}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScreenViewContainer>
+      </SafeAreaWithStatusBar>
+    );
+  }
+
   if (loading && !timings) {
     return (
       <SafeAreaWithStatusBar>
@@ -1134,6 +1254,49 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   columnWrapper: { justifyContent: 'space-between' },
+  permissionCardScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+  },
+  permissionCard: {
+    borderRadius: 28,
+    padding: 24,
+    alignItems: 'flex-start',
+    gap: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  permissionIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  permissionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  permissionDescription: {
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  permissionButton: {
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+  },
+  permissionButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
   listHeaderRoot: {
     marginTop: 16,
     marginBottom: 12,

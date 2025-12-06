@@ -155,6 +155,9 @@
     "nextPrayerCountdown": "Time left until {{label}} ends",
     "syncing": "Synchronizing…",
     "sendTestNotification": "Send test adhan notification",
+    "permissionCardTitle": "Location required",
+    "permissionCardDescription": "Grant location access or pick a saved place to view prayer times.",
+    "permissionCardButton": "Choose location",
     "ramadanIftarCountdown": "Counting down to Iftar",
     "ramadanSahurCountdown": "Counting down to Suhoor",
     "inspiration": {
@@ -215,6 +218,8 @@
     "delete": "Delete",
     "deviceTitle": "Your Location",
     "deviceSubtitle": "Device location",
+    "permissionWarningTitle": "Grant location permission",
+    "permissionWarningMessage": "Allow location access to view prayer times for your current location.",
     "emptySaved": "No saved locations yet. Search to add a new location.",
     "searchPlaceholder": "Search city / district / neighborhood",
     "searchResults": "Search Results",
