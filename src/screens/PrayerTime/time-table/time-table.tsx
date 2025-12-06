@@ -1,6 +1,7 @@
 // screens/ImsakiyeScreen.tsx
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  Alert,
   RefreshControl,
   SectionList,
   StyleSheet,
@@ -263,8 +264,25 @@ export default function TimeTable() {
           }),
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.warn('[time-table] load failed', error);
+      const isDeviceDateError =
+        error?.prayerTimesCode === 'NETWORK_OR_DEVICE_DATE' ||
+        error?.message === 'PRAYER_TIMES_NETWORK_ERROR' ||
+        error?.message === 'Network request failed';
+      if (isDeviceDateError) {
+        Alert.alert(
+          t('prayerTimeApi.deviceDateInvalidTitle'),
+          t('prayerTimeApi.deviceDateInvalidMessage'),
+        );
+      } else {
+        Alert.alert(
+          t('prayerTimeApi.fetchErrorTitle', {
+            defaultValue: 'Vakit bilgisi alınamadı',
+          }),
+          t('errors.prayerTimesFetchFailed'),
+        );
+      }
     } finally {
       setLoading(false);
     }
