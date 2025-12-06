@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../libs/core/providers';
 import { Icon, Icons } from '../../../libs/components';
@@ -59,9 +65,18 @@ export function LocationChip({
           style={styles.icon}
           solid
         />
-        <Text style={[styles.locText, { color: txt }]} numberOfLines={1}>
-          {loading ? t('locationChip.loading') : label}
-        </Text>
+        <View style={styles.locTextWrap}>
+          <Text style={[styles.locText, { color: txt }]} numberOfLines={1}>
+            {label}
+          </Text>
+          {loading ? (
+            <ActivityIndicator
+              size="small"
+              color={themeColors.primary}
+              style={styles.loadingIndicator}
+            />
+          ) : null}
+        </View>
       </View>
 
       {/* Sağ taraf: UTC + değiştirilebilirlik ikonu */}
@@ -125,6 +140,15 @@ const styles = StyleSheet.create({
     flexWrap: 'nowrap',
     lineHeight: 20,
     maxWidth: '100%',
+  },
+  locTextWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 6,
+  },
+  loadingIndicator: {
+    marginLeft: 2,
   },
   utcRight: {
     flexDirection: 'row',

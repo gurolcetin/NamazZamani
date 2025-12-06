@@ -16,7 +16,6 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   useColorScheme,
 } from 'react-native';
@@ -69,6 +68,9 @@ const PRAYER_ORDER: PrayerTimeKey[] = [
   'Isha',
 ];
 
+type LatLng = { lat: number; lon: number };
+
+const LOCATION_CHANGE_THRESHOLD_KM = 3; // şehir değişimi için yaklaşık eşik
 const PRAYER_NAME_KEYS: Record<PrayerTimeKey, string> = {
   Fajr: 'prayerNames.Fajr',
   Sunrise: 'prayerNames.Sunrise',
@@ -172,6 +174,19 @@ function ymd(d: Date) {
 
 const getCurrentDateKey = (d: Date) => ymd(d);
 const MAX_SPAN_SEC = 26 * 3600; // güvenli üst sınır (clamp)
+
+function haversineDistanceKm(a: LatLng, b: LatLng) {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const R = 6371; // Dünya yarıçapı
+  const dLat = toRad(b.lat - a.lat);
+  const dLon = toRad(b.lon - a.lon);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const sinLat = Math.sin(dLat / 2);
+  const sinLon = Math.sin(dLon / 2);
+  const h = sinLat * sinLat + Math.cos(lat1) * Math.cos(lat2) * sinLon * sinLon;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
 
 // ---------------------------------------------------------------------------
 // HOISTED HEADER COMPONENT (FlatList ListHeader dışarı alındı)
@@ -381,6 +396,9 @@ export default function PrayerTime() {
   const lastOffsetRef = useRef<number>(new Date().getTimezoneOffset());
   const lastDayRef = useRef<number>(new Date().getDate());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastDeviceCoordsRef = useRef<LatLng | null>(null);
+  const appStateRef = useRef<string>(AppState.currentState);
+  const comparingLocationRef = useRef(false);
 
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
@@ -446,7 +464,14 @@ export default function PrayerTime() {
 
   // --- LOAD (timestamp'li) --------------------------------------------------
   const load = useCallback(
-    async (baseDate: Date = new Date()) => {
+    async (
+      baseDate: Date = new Date(),
+      resolvedDeviceCoords?: {
+        latitude: number;
+        longitude: number;
+        label?: string;
+      },
+    ) => {
       try {
         setLoading(true);
         isResyncingRef.current = true;
@@ -457,20 +482,29 @@ export default function PrayerTime() {
         let label: string | null = null;
 
         if ('type' in activeResolved && activeResolved.type === 'device') {
-          const ok = await requestLocationPermission();
-          if (!ok) return;
-          const pos = await getCurrentPosition();
-          latitude = pos.latitude;
-          longitude = pos.longitude;
-          try {
-            label = await reverseGeocode(latitude, longitude);
-          } catch {
-            label = t('prayerTime.locationNotFound');
+          if (resolvedDeviceCoords) {
+            latitude = resolvedDeviceCoords.latitude;
+            longitude = resolvedDeviceCoords.longitude;
+            label = resolvedDeviceCoords.label ?? null;
+          } else {
+            const ok = await requestLocationPermission();
+            if (!ok) return;
+            const pos = await getCurrentPosition();
+            latitude = pos.latitude;
+            longitude = pos.longitude;
           }
         } else {
           latitude = activeResolved.latitude;
           longitude = activeResolved.longitude;
           label = activeResolved.label;
+        }
+
+        if (!label && latitude != null && longitude != null) {
+          try {
+            label = await reverseGeocode(latitude, longitude);
+          } catch {
+            label = t('prayerTime.locationNotFound');
+          }
         }
 
         if (latitude != null && longitude != null) {
@@ -492,6 +526,12 @@ export default function PrayerTime() {
           // seq'in gününü not et ve baz tarihi yaz
           seqBaseDayRef.current = ymd(baseDate);
           setSeqBaseDate(baseDate);
+
+          if ('type' in activeResolved && activeResolved.type === 'device') {
+            lastDeviceCoordsRef.current = { lat: latitude, lon: longitude };
+          } else {
+            lastDeviceCoordsRef.current = null;
+          }
         }
         if (label) setLocationLabel(label);
       } finally {
@@ -547,6 +587,47 @@ export default function PrayerTime() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const checkDeviceLocationChange = useCallback(async () => {
+    if (
+      comparingLocationRef.current ||
+      !('type' in activeResolved && activeResolved.type === 'device')
+    ) {
+      return;
+    }
+
+    comparingLocationRef.current = true;
+    try {
+      const ok = await requestLocationPermission();
+      if (!ok) return;
+      const pos = await getCurrentPosition();
+
+      const currentCoords: LatLng = {
+        lat: pos.latitude,
+        lon: pos.longitude,
+      };
+      const previous = lastDeviceCoordsRef.current;
+      if (!previous) {
+        lastDeviceCoordsRef.current = currentCoords;
+        return;
+      }
+
+      const movedKm = haversineDistanceKm(previous, currentCoords);
+      console.log('movedKm', movedKm);
+      if (movedKm > LOCATION_CHANGE_THRESHOLD_KM) {
+        await load(new Date(), {
+          latitude: currentCoords.lat,
+          longitude: currentCoords.lon,
+        });
+      } else {
+        lastDeviceCoordsRef.current = currentCoords;
+      }
+    } catch (err) {
+      console.warn('Device location check failed', err);
+    } finally {
+      comparingLocationRef.current = false;
+    }
+  }, [activeResolved, load]);
 
   // Pull-to-refresh için handler
   const handleRefresh = useCallback(async () => {
@@ -625,9 +706,14 @@ export default function PrayerTime() {
       startTimer();
 
       const appSub = AppState.addEventListener('change', s => {
+        const prevState = appStateRef.current;
+        appStateRef.current = s;
         if (s === 'active') {
           // Uygulama yeniden aktive olduğunda, eğer bu ekran odaktaysa timer'ı tazele
           startTimer();
+          if (prevState === 'background' || prevState === 'inactive') {
+            checkDeviceLocationChange();
+          }
         } else if (s === 'background') {
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -644,7 +730,7 @@ export default function PrayerTime() {
         }
         appSub.remove();
       };
-    }, [startTimer]),
+    }, [startTimer, checkDeviceLocationChange]),
   );
 
   // küçük kart listesi
@@ -750,7 +836,7 @@ export default function PrayerTime() {
                 <ActionCardGroup
                   label={locationLabel}
                   utc={utcLabel}
-                  loading={(loading || isResyncing) && !timings}
+                  loading={loading || isResyncing}
                   isDark={systemDark}
                   theme={{
                     primary: currentTheme.primary,
