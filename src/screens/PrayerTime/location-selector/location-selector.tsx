@@ -13,13 +13,19 @@ import type { GestureResponderEvent } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { Swipeable } from 'react-native-gesture-handler';
+import { openSettings } from 'react-native-permissions';
 import { useTheme } from '../../../../libs/core/providers';
 import { Icon, Icons, ScreenViewContainer } from '../../../../libs/components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { SearchBarCommands } from 'react-native-screens';
 import { useNavigationSearch } from '../../../../libs/core/hooks';
-import { getCurrentPosition, hasLocationPermission } from '../permission';
+import {
+  getCurrentPosition,
+  hasLocationPermission,
+  requestLocationPermission,
+  type LocationPermissionResult,
+} from '../permission';
 import { reverseGeocode } from '../reverse-geocode';
 import {
   upsertSavedPlace,
@@ -122,47 +128,65 @@ export default function LocationSelector() {
   const swipeDemoActiveIdRef = useRef<string | null>(null);
   const swipeDemoHandledRef = useRef(0);
 
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const refreshDeviceLocation = useCallback(
+    async (
+      requestPermission = false,
+    ): Promise<LocationPermissionResult> => {
+      setDeviceLocationLoading(true);
+      try {
+        let permissionResult: LocationPermissionResult;
+        if (requestPermission) {
+          permissionResult = await requestLocationPermission();
+        } else {
+          const granted = await hasLocationPermission();
+          permissionResult = granted ? 'granted' : 'denied';
+        }
+
+        if (!isMountedRef.current) {
+          return permissionResult;
+        }
+
+        setLocationPermissionGranted(permissionResult === 'granted');
+
+        if (permissionResult !== 'granted') {
+          setDeviceLocationLabel(null);
+          return permissionResult;
+        }
+
+        const pos = await getCurrentPosition();
+        const label = await reverseGeocode(pos.latitude, pos.longitude);
+
+        if (isMountedRef.current) {
+          setDeviceLocationLabel(label);
+        }
+
+        return 'granted';
+      } catch {
+        if (isMountedRef.current) {
+          setDeviceLocationLabel(null);
+        }
+        return 'denied';
+      } finally {
+        if (isMountedRef.current) {
+          setDeviceLocationLoading(false);
+        }
+      }
+    },
+    [],
+  );
+
   useFocusEffect(
     useCallback(() => {
-      let cancelled = false;
-
-      const resolveDeviceLocation = async () => {
-        setDeviceLocationLoading(true);
-        try {
-          const granted = await hasLocationPermission();
-          if (cancelled) {
-            return;
-          }
-          setLocationPermissionGranted(granted);
-
-          if (!granted) {
-            setDeviceLocationLabel(null);
-            return;
-          }
-
-          const pos = await getCurrentPosition();
-          const label = await reverseGeocode(pos.latitude, pos.longitude);
-
-          if (!cancelled) {
-            setDeviceLocationLabel(label);
-          }
-        } catch {
-          if (!cancelled) {
-            setDeviceLocationLabel(null);
-          }
-        } finally {
-          if (!cancelled) {
-            setDeviceLocationLoading(false);
-          }
-        }
-      };
-
-      resolveDeviceLocation();
-
-      return () => {
-        cancelled = true;
-      };
-    }, []),
+      refreshDeviceLocation();
+    }, [refreshDeviceLocation]),
   );
 
   /** Debounced Search */
@@ -523,6 +547,24 @@ export default function LocationSelector() {
     ? t('locationChip.loading')
     : deviceLocationLabel ?? t('prayerTime.locationNotFound');
   const showPermissionWarning = locationPermissionGranted === false;
+  const handlePermissionNoticePress = useCallback(async () => {
+    const result = await refreshDeviceLocation(true);
+    if (result === 'blocked') {
+      Alert.alert(
+        t('locationSelector.permissionBlockedTitle'),
+        t('locationSelector.permissionBlockedMessage'),
+        [
+          { text: t('locationSelector.cancel'), style: 'cancel' },
+          {
+            text: t('locationSelector.openSettings'),
+            onPress: () => {
+              openSettings().catch(() => undefined);
+            },
+          },
+        ],
+      );
+    }
+  }, [refreshDeviceLocation, t]);
 
   /** ---------- Render ---------- */
   return (
@@ -536,7 +578,7 @@ export default function LocationSelector() {
           <>
             {/* Mevcut Konum */}
             {showPermissionWarning ? (
-              <View
+              <Pressable
                 style={[
                   styles.permissionNotice,
                   {
@@ -544,6 +586,7 @@ export default function LocationSelector() {
                     backgroundColor: `${currentTheme.systemRed}12`,
                   },
                 ]}
+                onPress={handlePermissionNoticePress}
               >
                 <View
                   style={[
@@ -576,7 +619,7 @@ export default function LocationSelector() {
                     {t('locationSelector.permissionWarningMessage')}
                   </Text>
                 </View>
-              </View>
+              </Pressable>
             ) : (
               <Pressable
                 style={[

@@ -600,9 +600,10 @@ export default function PrayerTime() {
             longitude = resolvedDeviceCoords.longitude;
             label = resolvedDeviceCoords.label ?? null;
           } else {
-            const ok = await requestLocationPermission();
-            setLocationPermissionGranted(ok);
-            if (!ok) return;
+            const permissionResult = await requestLocationPermission();
+            const granted = permissionResult === 'granted';
+            setLocationPermissionGranted(granted);
+            if (!granted) return;
             const pos = await getCurrentPosition();
             latitude = pos.latitude;
             longitude = pos.longitude;
@@ -771,8 +772,8 @@ export default function PrayerTime() {
 
     comparingLocationRef.current = true;
     try {
-      const ok = await requestLocationPermission();
-      if (!ok) return;
+      const permissionResult = await requestLocationPermission();
+      if (permissionResult !== 'granted') return;
       const pos = await getCurrentPosition();
 
       const currentCoords: LatLng = {

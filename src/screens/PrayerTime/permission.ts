@@ -8,6 +8,8 @@ import {
   RESULTS,
 } from 'react-native-permissions';
 
+export type LocationPermissionResult = 'granted' | 'denied' | 'blocked';
+
 const getPermissionType = () =>
   Platform.OS === 'ios'
     ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
@@ -21,20 +23,25 @@ export async function hasLocationPermission(): Promise<boolean> {
   return isGranted(status);
 }
 
-export async function requestLocationPermission(): Promise<boolean> {
+export async function requestLocationPermission(): Promise<LocationPermissionResult> {
   const perm = getPermissionType();
 
   const status = await check(perm);
-  if (isGranted(status)) return true;
+  if (status === RESULTS.BLOCKED) {
+    return 'blocked';
+  }
+  if (isGranted(status)) {
+    return 'granted';
+  }
 
   const next = await request(perm);
-  if (isGranted(next)) return true;
-
-  if (next === RESULTS.BLOCKED) {
-    // kullanıcı kalıcı reddettiyse ayarlara yönlendirebilirsin
-    // await openSettings();
+  if (isGranted(next)) {
+    return 'granted';
   }
-  return false;
+  if (next === RESULTS.BLOCKED) {
+    return 'blocked';
+  }
+  return 'denied';
 }
 
 export function getCurrentPosition(): Promise<{

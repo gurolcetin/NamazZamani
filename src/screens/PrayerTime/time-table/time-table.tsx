@@ -236,8 +236,8 @@ export default function TimeTable() {
       let latitude: number | null = null;
       let longitude: number | null = null;
       if ('type' in activeResolved && activeResolved.type === 'device') {
-        const ok = await requestLocationPermission();
-        if (!ok) return;
+        const permissionResult = await requestLocationPermission();
+        if (permissionResult !== 'granted') return;
         const pos = await getCurrentPosition();
         latitude = pos.latitude;
         longitude = pos.longitude;
