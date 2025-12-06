@@ -47,6 +47,12 @@
   "errors": {
     "prayerTimesFetchFailed": "Failed to load prayer times."
   },
+  "prayerTimeApi": {
+    "deviceDateInvalidTitle": "Date/Time Error",
+    "deviceDateInvalidMessage": "Please set your device's date & time to Automatic and try again.",
+    "deviceDateInvalidButton": "OK",
+    "fetchErrorTitle": "Prayer times unavailable"
+  },
   "settings": {
     "SystemDefault": "System",
     "Light": "Light",

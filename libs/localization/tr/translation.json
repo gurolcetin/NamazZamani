@@ -48,6 +48,12 @@
   "errors": {
     "prayerTimesFetchFailed": "Vakitler yüklenirken bir hata oluştu."
   },
+  "prayerTimeApi": {
+    "deviceDateInvalidTitle": "Saat / Tarih Hatası",
+    "deviceDateInvalidMessage": "Lütfen cihazınızın tarih ve saat ayarlarını otomatik moda alıp tekrar deneyin.",
+    "deviceDateInvalidButton": "Tamam",
+    "fetchErrorTitle": "Vakit bilgisi alınamadı"
+  },
   "settings": {
     "SystemDefault": "Sistem",
     "Light": "Açık",

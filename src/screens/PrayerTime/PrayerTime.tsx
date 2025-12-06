@@ -399,6 +399,7 @@ export default function PrayerTime() {
   const lastDeviceCoordsRef = useRef<LatLng | null>(null);
   const appStateRef = useRef<string>(AppState.currentState);
   const comparingLocationRef = useRef(false);
+  const deviceDateAlertShownRef = useRef(false);
 
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
@@ -534,6 +535,44 @@ export default function PrayerTime() {
           }
         }
         if (label) setLocationLabel(label);
+        deviceDateAlertShownRef.current = false;
+      } catch (error: any) {
+        console.warn('[prayer-time] load failed', error);
+        const isDeviceDateError =
+          error?.prayerTimesCode === 'NETWORK_OR_DEVICE_DATE' ||
+          error?.message === 'PRAYER_TIMES_NETWORK_ERROR' ||
+          error?.message === 'Network request failed';
+        if (isDeviceDateError) {
+          if (!deviceDateAlertShownRef.current) {
+            deviceDateAlertShownRef.current = true;
+            Alert.alert(
+              t('prayerTimeApi.deviceDateInvalidTitle'),
+              t('prayerTimeApi.deviceDateInvalidMessage'),
+              [
+                {
+                  text: t('prayerTimeApi.deviceDateInvalidButton'),
+                  onPress: () => {
+                    deviceDateAlertShownRef.current = false;
+                  },
+                },
+              ],
+              {
+                cancelable: true,
+                onDismiss: () => {
+                  deviceDateAlertShownRef.current = false;
+                },
+              },
+            );
+          }
+        } else {
+          Alert.alert(
+            t('prayerTimeApi.fetchErrorTitle', {
+              defaultValue: 'Vakit bilgisi alınamadı',
+            }),
+            t('errors.prayerTimesFetchFailed'),
+          );
+        }
+        return;
       } finally {
         setLoading(false);
         isResyncingRef.current = false;
@@ -635,6 +674,7 @@ export default function PrayerTime() {
       // Zaten reload çalışıyorsa ikinci isteğe gerek yok
       return;
     }
+    deviceDateAlertShownRef.current = false;
     setRefreshing(true);
     try {
       await load(new Date());
