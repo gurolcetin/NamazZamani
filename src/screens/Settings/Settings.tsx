@@ -128,6 +128,8 @@ const Settings = ({}: SettingsProps) => {
     useState<boolean>(false);
 
   const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
+  const mailErrorTitle = t('settings.mailErrorTitle');
+  const mailErrorMessage = t('settings.mailErrorMessage');
 
   // Dil butonuna ref
   const langButtonRef = useRef<any>(null);
@@ -293,9 +295,9 @@ const Settings = ({}: SettingsProps) => {
     const body = encodeURIComponent(`${bodyLine}\n\n`);
     const url = `mailto:gurolmehmetcetin@gmail.com?subject=${subject}&body=${body}`;
     Linking.openURL(url).catch(() => {
-      Alert.alert('Hata', 'Mail uygulaması açılamadı.');
+      Alert.alert(mailErrorTitle, mailErrorMessage);
     });
-  }, [t]);
+  }, [mailErrorMessage, mailErrorTitle, t]);
 
   const closeDropdown = useCallback(() => {
     setIsLangOpen(false);

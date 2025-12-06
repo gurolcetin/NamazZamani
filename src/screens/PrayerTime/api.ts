@@ -1,4 +1,5 @@
 import { getTimeZoneByCoords } from '../../../libs/core/helpers';
+import i18next from 'i18next';
 
 export type PrayerTimings = {
   Fajr: string;
@@ -33,7 +34,9 @@ export async function fetchPrayerTimesByCoords(
   const res = await fetch(url);
   const json = await res.json();
   if (json?.code !== 200) {
-    throw new Error(json?.data || 'API hatası');
+    throw new Error(
+      json?.data || i18next.t('errors.prayerTimesFetchFailed'),
+    );
   }
   return json.data.timings as PrayerTimings;
 }

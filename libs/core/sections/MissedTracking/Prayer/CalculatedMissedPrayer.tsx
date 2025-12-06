@@ -52,13 +52,16 @@ const CalculatedMissedPrayer = () => {
   return (
     <>
       {missedPrayer.missedPrayers.map((prayer: any, index: any) => {
+        const translatedPrayerName = GetPrayerNameByLanguage(prayer.name, t);
         let cardViewProps: CardViewProps = {
           paddingLeft: 0,
-          bottomDescription:
-            'Kılınan Toplam ' +
-            GetPrayerNameByLanguage(prayer.name, t) +
-            ' Namazı Sayısı: ' +
-            prayer.performedPrayerCount,
+          bottomDescription: t(
+            'MissedPrayerForm.PerformedPrayerCountLabel',
+            {
+              name: translatedPrayerName,
+              count: prayer.performedPrayerCount,
+            },
+          ),
           bottomDescriptionStyle: [
             styles.bottomDescription,
             {color: currentTheme.textColor},
@@ -69,7 +72,7 @@ const CalculatedMissedPrayer = () => {
               <View style={styles.container}>
                 <View style={styles.inputContainer}>
                   <Text style={[styles.label, {color: currentTheme.textColor}]}>
-                    {GetPrayerNameByLanguage(prayer.name, t)}
+                    {translatedPrayerName}
                   </Text>
                   <View style={styles.calculatedMissedPrayerRightContainer}>
                     <InputSpinner

@@ -1,5 +1,6 @@
 import {Alert, Linking, Platform} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import i18next from 'i18next';
 
 import {
   evaluateUpdate,
@@ -18,18 +19,18 @@ const buildCacheBustedUrl = () => {
   return `${VERSION_CONFIG_URL}${separator}t=${timestamp}`;
 };
 
-const FALLBACK_OPTIONAL_MESSAGE: UpdateMessage = {
-  title: 'Yeni sürüm mevcut',
-  body: 'En iyi deneyim için uygulamayı güncellemenizi öneriyoruz.',
-  confirm: 'Güncelle',
-  cancel: 'Sonra',
-};
+const getFallbackOptionalMessage = (): UpdateMessage => ({
+  title: i18next.t('updates.optional.title'),
+  body: i18next.t('updates.optional.body'),
+  confirm: i18next.t('updates.optional.confirm'),
+  cancel: i18next.t('updates.optional.cancel'),
+});
 
-const FALLBACK_FORCE_MESSAGE: UpdateMessage = {
-  title: 'Güncelleme gerekli',
-  body: 'Bu sürüm artık desteklenmiyor. Lütfen mağazadan güncelleyin.',
-  confirm: 'Güncelle',
-};
+const getFallbackForceMessage = (): UpdateMessage => ({
+  title: i18next.t('updates.force.title'),
+  body: i18next.t('updates.force.body'),
+  confirm: i18next.t('updates.force.confirm'),
+});
 
 const getLanguageCode = () => {
   try {
@@ -45,7 +46,7 @@ const openStoreLink = (storeUrl?: string) => {
   }
 
   Linking.openURL(storeUrl).catch(error => {
-    console.warn('Store bağlantısı açılamadı:', error);
+    console.warn(i18next.t('updates.storeOpenError'), error);
   });
 };
 
@@ -71,14 +72,17 @@ const mergeMessage = (
 };
 
 const showOptionalAlert = (decision: UpdateDecision) => {
-  const message = mergeMessage(decision.message, FALLBACK_OPTIONAL_MESSAGE);
+  const message = mergeMessage(
+    decision.message,
+    getFallbackOptionalMessage(),
+  );
 
   Alert.alert(
     message.title,
     message.body,
     [
       {
-        text: message.cancel || 'Sonra',
+        text: message.cancel || i18next.t('updates.optional.cancel'),
         style: 'cancel',
       },
       {
@@ -91,7 +95,11 @@ const showOptionalAlert = (decision: UpdateDecision) => {
 };
 
 const showForceAlert = (decision: UpdateDecision) => {
-  const message = mergeMessage(decision.message, FALLBACK_FORCE_MESSAGE, false);
+  const message = mergeMessage(
+    decision.message,
+    getFallbackForceMessage(),
+    false,
+  );
 
   Alert.alert(
     message.title,

@@ -17,6 +17,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { checkForceUpdate } from './libs/core/helpers/update-checker';
 import { prayerNotificationManager } from './libs/core/helpers/prayer-notification';
 import { enableScreens } from 'react-native-screens';
+import { useTranslation } from 'react-i18next';
 
 LogBox.ignoreLogs(['Sending...']);
 enableScreens();
@@ -24,6 +25,7 @@ enableScreens();
 const App = () => {
   const [isChecking, setIsChecking] = useState(true);
   const [canContinue, setCanContinue] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const runCheck = async () => {
@@ -42,7 +44,7 @@ const App = () => {
     return (
       <View style={styles.center}>
         <ActivityIndicator />
-        <Text>Versiyon kontrol ediliyor...</Text>
+        <Text>{t('app.checkingVersion')}</Text>
       </View>
     );
   }
@@ -53,8 +55,8 @@ const App = () => {
     // ana içeriği göstermeyebilirsin
     return (
       <View style={styles.center}>
-        <Text>Bu sürüm artık desteklenmiyor.</Text>
-        <Text>Lütfen uygulamayı güncelleyin.</Text>
+        <Text>{t('app.unsupportedVersionTitle')}</Text>
+        <Text>{t('app.unsupportedVersionMessage')}</Text>
       </View>
     );
   }

@@ -74,7 +74,18 @@ const AllDhikr = () => {
   const no = t(GeneralLanguageConstants.No.key);
   const yes = t(GeneralLanguageConstants.Yes.key);
   const resetText = t(GeneralLanguageConstants.Reset.key);
+  const saveText = t(GeneralLanguageConstants.Save.key);
   const requiredMessage = t(GeneralLanguageConstants.RequiredMessage.key);
+  const emptyStateTitle = t('Dhikr.emptyStateTitle');
+  const emptyStateDescription = t('Dhikr.emptyStateDescription');
+  const addDhikrButtonLabel = t('Dhikr.addDhikrButton');
+  const newDhikrTitle = t('Dhikr.newDhikrTitle');
+  const closeLabel = t('common.close');
+  const dhikrNamePlaceholder = t('Dhikr.namePlaceholder');
+  const dhikrCountPlaceholder = t('Dhikr.countPlaceholder');
+  const dhikrCountValidation = t('Dhikr.countValidation');
+  const deleteConfirmation = t('Dhikr.deleteConfirmation');
+  const deleteLabel = t('locationSelector.delete').toUpperCase();
 
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const isCompactHeight = height < 740;
@@ -262,7 +273,7 @@ const AllDhikr = () => {
                         ]}
                         onPress={() => {
                           Alert.alert(
-                            'Zikri silmek istediğinize emin misiniz?',
+                            deleteConfirmation,
                             '',
                             [
                               {
@@ -295,7 +306,7 @@ const AllDhikr = () => {
                             { color: currentTheme.textColor },
                           ]}
                         >
-                          SİL
+                          {deleteLabel}
                         </Text>
                       </Pressable>
 
@@ -347,7 +358,7 @@ const AllDhikr = () => {
                 { color: currentTheme.textColor },
               ]}
             >
-              Henüz özel bir zikriniz bulunmuyor.
+              {emptyStateTitle}
             </Text>
 
             <Text
@@ -356,9 +367,7 @@ const AllDhikr = () => {
                 { color: currentTheme.gray },
               ]}
             >
-              Sık tekrar ettiğiniz zikirleri buraya ekleyerek kolayca takip
-              edebilirsiniz. Başlamak için aşağıdaki butona dokunarak ilk
-              zikrinizi oluşturun.
+              {emptyStateDescription}
             </Text>
 
             <Pressable
@@ -368,7 +377,9 @@ const AllDhikr = () => {
               ]}
               onPress={showAddDhikrModal}
             >
-              <Text style={styles.emptyStateButtonText}>Zikir Ekle</Text>
+              <Text style={styles.emptyStateButtonText}>
+                {addDhikrButtonLabel}
+              </Text>
             </Pressable>
           </CardView>
         </View>
@@ -376,7 +387,7 @@ const AllDhikr = () => {
 
       <CustomModal
         visible={visible}
-        title={'Yeni Zikir Kaydı'}
+        title={newDhikrTitle}
         onClose={() => {
           setVisible(false);
           reset({
@@ -386,7 +397,7 @@ const AllDhikr = () => {
         }}
         buttons={[
           {
-            title: 'Kapat',
+            title: closeLabel,
             onPress: () => {
               setVisible(false);
               reset({
@@ -397,7 +408,7 @@ const AllDhikr = () => {
             type: 'cancel',
           },
           {
-            title: 'Kaydet',
+            title: saveText,
             onPress: handleSubmit(onSubmit),
           },
         ]}
@@ -427,7 +438,7 @@ const AllDhikr = () => {
                   }}
                   value={(value ?? StringConstants.EMPTY_STRING).toString()}
                   keyboardType="default"
-                  placeholder="Çekilecek zikir adı"
+                  placeholder={dhikrNamePlaceholder}
                   placeholderTextColor={currentTheme.gray}
                   autoComplete="off"
                 />
@@ -445,7 +456,7 @@ const AllDhikr = () => {
                 return true;
               },
             }}
-            validateMessage="Zikir döngü sayısı 0 ile 99999 arasında olmalıdır."
+            validateMessage={dhikrCountValidation}
             requiredMessage={requiredMessage}
             control={control}
             name="dhikrCount"
@@ -473,7 +484,7 @@ const AllDhikr = () => {
                   }}
                   value={(value ?? StringConstants.EMPTY_STRING).toString()}
                   keyboardType="numeric"
-                  placeholder="Zikir döngü sayısı"
+                  placeholder={dhikrCountPlaceholder}
                   placeholderTextColor={currentTheme.gray}
                   autoComplete="off"
                 />

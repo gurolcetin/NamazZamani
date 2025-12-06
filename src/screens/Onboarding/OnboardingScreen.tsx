@@ -21,6 +21,7 @@ import {
   ScreenViewContainer,
 } from '../../../libs/components';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 type OnboardingSlide = {
   key: string;
@@ -37,28 +38,6 @@ type Props = {
 const ONBOARDING_KEY = 'onboarded';
 const useLottieAnimations = false; // Lottie animasyonları için istenirse true yapılabilir.
 
-const slides: OnboardingSlide[] = [
-  {
-    key: 'welcome',
-    title: 'Hoş geldin!',
-    description:
-      'Namaz vakitlerini takip etmek için hızlı ve modern bir deneyim.',
-    illustrationColor: '#90caf9',
-  },
-  {
-    key: 'location',
-    title: 'Konumunu seç',
-    description: 'Doğru vakitler için konumunu belirle veya hızlıca değiştir.',
-    illustrationColor: '#a5d6a7',
-  },
-  {
-    key: 'reminders',
-    title: 'Bildirimler',
-    description: 'Hatırlatıcıları açarak hiçbir vakti kaçırma.',
-    illustrationColor: '#ffcc80',
-  },
-];
-
 const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
   const { currentTheme } = useTheme();
   const navigation = useNavigation<any>();
@@ -67,6 +46,32 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef<FlatList<OnboardingSlide>>(null);
   const insets = useSafeAreaInsets();
+  const { t, i18n } = useTranslation();
+
+  const slides = useMemo<OnboardingSlide[]>(
+    () => [
+      {
+        key: 'welcome',
+        title: t('onboarding.slides.welcome.title'),
+        description: t('onboarding.slides.welcome.description'),
+        illustrationColor: '#90caf9',
+      },
+      {
+        key: 'location',
+        title: t('onboarding.slides.location.title'),
+        description: t('onboarding.slides.location.description'),
+        illustrationColor: '#a5d6a7',
+      },
+      {
+        key: 'reminders',
+        title: t('onboarding.slides.reminders.title'),
+        description: t('onboarding.slides.reminders.description'),
+        illustrationColor: '#ffcc80',
+      },
+    ],
+    [t],
+  );
+  const slidesCount = slides.length;
 
   const renderItem: ListRenderItem<OnboardingSlide> = useCallback(
     ({ item }) => (
@@ -95,10 +100,10 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (currentIndex < slides.length - 1) {
+    if (currentIndex < slidesCount - 1) {
       scrollToIndex(currentIndex + 1);
     }
-  }, [currentIndex, scrollToIndex]);
+  }, [currentIndex, scrollToIndex, slidesCount]);
 
   const completeOnboarding = useCallback(async () => {
     await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
@@ -110,7 +115,10 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
     completeOnboarding();
   }, [completeOnboarding]);
 
-  const isLastSlide = currentIndex === slides.length - 1;
+  const isLastSlide = currentIndex === slidesCount - 1;
+  const skipLabel = t('onboarding.actions.skip');
+  const nextLabel = t('onboarding.actions.next');
+  const getStartedLabel = t('onboarding.actions.getStarted');
 
   return (
     <SafeAreaWithStatusBar>
@@ -166,7 +174,7 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
                   { color: currentTheme.textColor },
                 ]}
               >
-                Skip
+                {skipLabel}
               </Text>
             </TouchableOpacity>
 
@@ -183,7 +191,7 @@ const OnboardingScreen: React.FC<Props> = ({ onFinish }) => {
                   { color: currentTheme.backgroundColor },
                 ]}
               >
-                {isLastSlide ? 'Get Started' : 'Next'}
+                {isLastSlide ? getStartedLabel : nextLabel}
               </Text>
             </TouchableOpacity>
           </View>

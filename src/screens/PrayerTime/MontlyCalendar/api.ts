@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+
 export type PrayerTimings = {
   Fajr: string;
   Sunrise: string;
@@ -40,7 +42,8 @@ export async function fetchMonthlyPrayerTimesByCoords(
   const url = `https://api.aladhan.com/v1/calendar?latitude=${latitude}&longitude=${longitude}&method=13&month=${month1to12}&year=${year}&timezonestring=${tz}`;
   const res = await fetch(url);
   const json = await res.json();
-  if (json?.code !== 200) throw new Error(json?.data || 'API hatası');
+  if (json?.code !== 200)
+    throw new Error(json?.data || i18next.t('errors.prayerTimesFetchFailed'));
 
   // Günlük kayıtlardan sadece ihtiyacımız olan 6 vaktin HH:mm kısmını çek.
   const strip = (s: string) => {

@@ -1,7 +1,34 @@
 {
   "common": {
     "turnOnAll": "Tümünü aç",
-    "turnOffAll": "Tümünü kapat"
+    "turnOffAll": "Tümünü kapat",
+    "close": "Kapat"
+  },
+  "app": {
+    "checkingVersion": "Versiyon kontrol ediliyor...",
+    "unsupportedVersionTitle": "Bu sürüm artık desteklenmiyor.",
+    "unsupportedVersionMessage": "Lütfen uygulamayı güncelleyin."
+  },
+  "onboarding": {
+    "slides": {
+      "welcome": {
+        "title": "Hoş geldin!",
+        "description": "Namaz vakitlerini takip etmek için hızlı ve modern bir deneyim."
+      },
+      "location": {
+        "title": "Konumunu seç",
+        "description": "Doğru vakitler için konumunu belirle veya hızlıca değiştir."
+      },
+      "reminders": {
+        "title": "Bildirimler",
+        "description": "Hatırlatıcıları açarak hiçbir vakti kaçırma."
+      }
+    },
+    "actions": {
+      "skip": "Atla",
+      "next": "İleri",
+      "getStarted": "Başla"
+    }
   },
   "General": {
     "Male": "Erkek",
@@ -17,6 +44,9 @@
     "SearchPlaceHolder": "Ara",
     "SearchCancelText": "İptal",
     "SearchNewLocation": "Yeni Konum Ara"
+  },
+  "errors": {
+    "prayerTimesFetchFailed": "Vakitler yüklenirken bir hata oluştu."
   },
   "settings": {
     "SystemDefault": "Sistem",
@@ -43,7 +73,9 @@
     "FeedbackSubtitle": "Öneri, şikayet veya yorumlarınızı bizimle paylaşın",
     "FeedbackEmailSubject": "Namaz Zamanı Uygulama Geri Bildirimi",
     "FeedbackEmailBody": "Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:",
-    "AppVersion": "Uygulama Sürümü"
+    "AppVersion": "Uygulama Sürümü",
+    "mailErrorTitle": "Hata",
+    "mailErrorMessage": "Mail uygulaması açılamadı."
   },
   "menu": {
     "PrayerTime": "Namaz Vakitleri",
@@ -66,7 +98,8 @@
     "NumberofDaysofPrayer": "Namaz Kılınan Gün Sayısı",
     "NumberofMissedPrayerBirthDatePubertyError": "Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünün tarihinden büyük olamaz!",
     "MissedPrayerNotCalculatedError": "Kılınan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.",
-    "NoMissedPrayer": "Tebrikler! Kılınmamış namazınız bulunmamaktadır."
+    "NoMissedPrayer": "Tebrikler! Kılınmamış namazınız bulunmamaktadır.",
+    "PerformedPrayerCountLabel": "Kılınan Toplam {{name}} Namazı Sayısı: {{count}}"
   },
   "FastingForm": {
     "FastsNotCalculatedError": "Tutulan oruç sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.",
@@ -92,7 +125,15 @@
   "Dhikr": {
     "Dhikr": "Zikir",
     "AllDhikr": "Zikirlerim",
-    "PrayerDhikr": "Namaz Zikirleri"
+    "PrayerDhikr": "Namaz Zikirleri",
+    "emptyStateTitle": "Henüz özel bir zikriniz bulunmuyor.",
+    "emptyStateDescription": "Sık tekrar ettiğiniz zikirleri buraya ekleyerek kolayca takip edebilirsiniz. Başlamak için butona dokunarak ilk zikrinizi oluşturun.",
+    "addDhikrButton": "Zikir Ekle",
+    "newDhikrTitle": "Yeni Zikir Kaydı",
+    "namePlaceholder": "Çekilecek zikir adı",
+    "countPlaceholder": "Zikir döngü sayısı",
+    "countValidation": "Zikir döngü sayısı 0 ile 99999 arasında olmalıdır.",
+    "deleteConfirmation": "Zikri silmek istediğinize emin misiniz?"
   },
   "prayerNames": {
     "Fajr": "İmsak",
@@ -129,6 +170,33 @@
     "pickDate": "Tarih Seç",
     "imsakiye": "İmsakiye",
     "qibla": "Kıble"
+  },
+  "timeTable": {
+    "title": "İmsakiye",
+    "noRecords": "Gösterilecek kayıt yok.",
+    "weekdays": {
+      "0": "Pazar",
+      "1": "Pazartesi",
+      "2": "Salı",
+      "3": "Çarşamba",
+      "4": "Perşembe",
+      "5": "Cuma",
+      "6": "Cumartesi"
+    },
+    "months": {
+      "0": "Ocak",
+      "1": "Şubat",
+      "2": "Mart",
+      "3": "Nisan",
+      "4": "Mayıs",
+      "5": "Haziran",
+      "6": "Temmuz",
+      "7": "Ağustos",
+      "8": "Eylül",
+      "9": "Ekim",
+      "10": "Kasım",
+      "11": "Aralık"
+    }
   },
   "locationChip": {
     "accessibilityLabel": "Konum: {{label}}, saat dilimi: {{utc}}",
@@ -176,7 +244,21 @@
     "alertMessage": "Gizlilik politikasını kabul etmeden uygulamayı kullanamazsınız.",
     "alertClose": "Kapat",
     "accept": "Kabul Et",
-    "decline": "Reddet"
+    "decline": "Reddet",
+    "languageNames": {
+      "tr": "Türkçe",
+      "en": "English",
+      "ar": "العربية",
+      "es": "Español",
+      "de": "Deutsch",
+      "fr": "Français",
+      "it": "Italiano",
+      "id": "Bahasa Indonesia",
+      "pt": "Português",
+      "zh": "中文",
+      "ja": "日本語",
+      "ko": "한국어"
+    }
   },
   "notifications": {
     "prayerReminderTitle": "Namaz Vakti Hatırlatıcısı",
@@ -187,5 +269,44 @@
     "testBody": "Sesli ezan bildirimi bu şekilde görünecek.",
     "testScheduledTitle": "Test planlandı",
     "testScheduledMessage": "Birkaç saniye içinde deneme bildirimi çalacak."
+  },
+  "updates": {
+    "optional": {
+      "title": "Yeni sürüm mevcut",
+      "body": "En iyi deneyim için uygulamayı güncellemenizi öneriyoruz.",
+      "confirm": "Güncelle",
+      "cancel": "Sonra"
+    },
+    "force": {
+      "title": "Güncelleme gerekli",
+      "body": "Bu sürüm artık desteklenmiyor. Lütfen mağazadan güncelleyin.",
+      "confirm": "Güncelle"
+    },
+    "storeOpenError": "Mağaza bağlantısı açılamadı:"
+  },
+  "hicri": {
+    "weekdays": {
+      "0": "Pazar",
+      "1": "Pazartesi",
+      "2": "Salı",
+      "3": "Çarşamba",
+      "4": "Perşembe",
+      "5": "Cuma",
+      "6": "Cumartesi"
+    },
+    "months": {
+      "0": "Muharrem",
+      "1": "Safer",
+      "2": "Rebiülevvel",
+      "3": "Rebiülahir",
+      "4": "Cemaziyelevvel",
+      "5": "Cemaziyelahir",
+      "6": "Recep",
+      "7": "Şaban",
+      "8": "Ramazan",
+      "9": "Şevval",
+      "10": "Zilkade",
+      "11": "Zilhicce"
+    }
   }
 }

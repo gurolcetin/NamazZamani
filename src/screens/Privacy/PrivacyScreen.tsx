@@ -312,56 +312,56 @@ const PrivacyScreen: React.FC<Props> = ({
     () => [
       {
         key: 'tr',
-        label: 'Türkçe',
+        label: t('privacyScreen.languageNames.tr'),
         flag: require('../../../assets/images/flags/turkey.png'),
       },
       {
         key: 'en',
-        label: 'English',
+        label: t('privacyScreen.languageNames.en'),
         flag: require('../../../assets/images/flags/united-kingdom.png'),
       },
       {
         key: 'ar',
-        label: 'العربية',
+        label: t('privacyScreen.languageNames.ar'),
       },
       {
         key: 'es',
-        label: 'Español',
+        label: t('privacyScreen.languageNames.es'),
       },
       {
         key: 'de',
-        label: 'Deutsch',
+        label: t('privacyScreen.languageNames.de'),
       },
       {
         key: 'fr',
-        label: 'Français',
+        label: t('privacyScreen.languageNames.fr'),
       },
       {
         key: 'it',
-        label: 'Italiano',
+        label: t('privacyScreen.languageNames.it'),
       },
       {
         key: 'id',
-        label: 'Bahasa Indonesia',
+        label: t('privacyScreen.languageNames.id'),
       },
       {
         key: 'pt',
-        label: 'Português',
+        label: t('privacyScreen.languageNames.pt'),
       },
       {
         key: 'zh',
-        label: '中文',
+        label: t('privacyScreen.languageNames.zh'),
       },
       {
         key: 'ja',
-        label: '日本語',
+        label: t('privacyScreen.languageNames.ja'),
       },
       {
         key: 'ko',
-        label: '한국어',
+        label: t('privacyScreen.languageNames.ko'),
       },
     ],
-    [],
+    [i18n.language, t],
   );
 
   const currentLangOption =

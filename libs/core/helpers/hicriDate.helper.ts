@@ -1,3 +1,5 @@
+import i18next from 'i18next';
+
 function basecal(date: Date, adjust = 0) {
   var today = date;
   if (adjust) {
@@ -96,28 +98,11 @@ export const convertMiladiDateToHicriDate = (
   date: Date,
   adjustment = 0,
 ): HicriDate => {
-  var wdNames = new Array<string>(
-    'Pazar',
-    'Pazartesi',
-    'Salı',
-    'Çarşamba',
-    'Perşembe',
-    'Cuma',
-    'Cumartesi',
+  const wdNames = Array.from({length: 7}, (_, idx) =>
+    i18next.t(`hicri.weekdays.${idx}`),
   );
-  var iMonthNames = new Array<string>(
-    'Muharrem',
-    'Safar',
-    'Rebiülevvel',
-    'Rebiülahir',
-    'Cemaziyelevvel',
-    'Cemaziyelahir',
-    'Recep',
-    'Şaban',
-    'Ramazan',
-    'Şevval',
-    'Zilkade',
-    'Zilhicce',
+  const iMonthNames = Array.from({length: 12}, (_, idx) =>
+    i18next.t(`hicri.months.${idx}`),
   );
   var iDate = basecal(date, adjustment);
   //var outputIslamicDate = wdNames[iDate[4]] + ', '

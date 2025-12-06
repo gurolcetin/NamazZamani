@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { ScreenViewContainer } from '../../../../libs/components';
 import { PrayerTimings } from '../api';
 import { fetchMonthlyPrayerTimesByCoords } from '../MontlyCalendar/api';
@@ -21,6 +22,7 @@ import TimeTableSkeleton from './time-table-skeleton';
 type RowItem = {
   date: Date; // gerçek tarih
   weekday: string; // "Pazartesi"
+  monthName: string; // "Ekim"
   dayNum: string; // "31"
   times: PrayerTimings; // {Fajr,Sunrise,...}
   isToday: boolean;
@@ -32,38 +34,6 @@ type Section = {
 };
 
 // ---------- helpers ----------
-const TR_MONTHS = [
-  'Ocak',
-  'Şubat',
-  'Mart',
-  'Nisan',
-  'Mayıs',
-  'Haziran',
-  'Temmuz',
-  'Ağustos',
-  'Eylül',
-  'Ekim',
-  'Kasım',
-  'Aralık',
-];
-const TR_WEEKDAYS = [
-  'Pazar',
-  'Pazartesi',
-  'Salı',
-  'Çarşamba',
-  'Perşembe',
-  'Cuma',
-  'Cumartesi',
-];
-
-const LABELS_ROW = [
-  'İmsak',
-  'Güneş',
-  'Öğle',
-  'İkindi',
-  'Akşam',
-  'Yatsı',
-] as const;
 type LabelKey = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 const ORDER: LabelKey[] = [
   'Fajr',
@@ -87,6 +57,8 @@ async function buildRange(
   totalDays: number,
   lat: number,
   lon: number,
+  getWeekdayLabel: (dayIndex: number) => string,
+  getMonthLabel: (monthIndex: number) => string,
 ): Promise<Section[]> {
   const { y: y1, m: m1 } = ymd(start);
   const end = new Date(start);
@@ -113,7 +85,8 @@ async function buildRange(
 
     items.push({
       date: d,
-      weekday: TR_WEEKDAYS[d.getDay()],
+      weekday: getWeekdayLabel(d.getDay()),
+      monthName: getMonthLabel(d.getMonth()),
       dayNum: String(day).padStart(2, '0'),
       times,
       isToday: d.toDateString() === todayKey,
@@ -123,7 +96,7 @@ async function buildRange(
   // Aylara böl, SectionList için hazırla
   const map = new Map<string, RowItem[]>();
   items.forEach(it => {
-    const key = `${TR_MONTHS[it.date.getMonth()]} ${it.date.getFullYear()}`;
+    const key = `${it.monthName} ${it.date.getFullYear()}`;
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(it);
   });
@@ -177,6 +150,7 @@ function SixColGrid({
 export default function TimeTable() {
   const activeResolved = useSelector(selectActiveResolved);
   const navigation = useNavigation();
+  const { t, i18n } = useTranslation();
   const { currentTheme } = useTheme();
 
   const [sections, setSections] = useState<Section[] | null>(null);
@@ -188,6 +162,21 @@ export default function TimeTable() {
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
+
+  const prayerLabels = useMemo(
+    () => ORDER.map(key => t(`prayerNames.${key}`)),
+    [t],
+  );
+
+  const getWeekdayLabel = useCallback(
+    (dayIndex: number) => t(`timeTable.weekdays.${dayIndex}`),
+    [t],
+  );
+
+  const getMonthLabel = useCallback(
+    (monthIndex: number) => t(`timeTable.months.${monthIndex}`),
+    [t],
+  );
 
   const load = useCallback(async () => {
     try {
@@ -205,13 +194,20 @@ export default function TimeTable() {
         longitude = activeResolved.longitude;
       }
       if (latitude != null && longitude != null) {
-        const items = await buildRange(startDate, 30, latitude, longitude);
+        const items = await buildRange(
+          startDate,
+          30,
+          latitude,
+          longitude,
+          getWeekdayLabel,
+          getMonthLabel,
+        );
         setSections(items);
       }
     } finally {
       setLoading(false);
     }
-  }, [activeResolved, startDate]);
+  }, [activeResolved, getMonthLabel, getWeekdayLabel, startDate]);
 
   useEffect(() => {
     load();
@@ -227,9 +223,8 @@ export default function TimeTable() {
   }, [load]);
 
   useEffect(() => {
-    navigation.setOptions?.({ title: 'İmsakiye' });
-    load();
-  }, [load, navigation]);
+    navigation.setOptions?.({ title: t('timeTable.title') });
+  }, [i18n.language, navigation, t]);
 
   const shouldShowSkeleton = loading;
 
@@ -262,9 +257,7 @@ export default function TimeTable() {
         )}
         renderItem={({ item }) => {
           const isToday = item.isToday;
-          const dateText = `${item.weekday}, ${item.dayNum} ${
-            TR_MONTHS[item.date.getMonth()]
-          }`;
+          const dateText = `${item.weekday}, ${item.dayNum} ${item.monthName}`;
 
           const valuesRow = ORDER.map(k => item.times[k]);
 
@@ -302,7 +295,7 @@ export default function TimeTable() {
 
               {/* 6 sütunlu kompakt grid: üstte etiketler, altta saatler */}
               <SixColGrid
-                labels={LABELS_ROW}
+                labels={prayerLabels}
                 values={valuesRow}
                 textColor={gridTextColor}
               />
@@ -311,7 +304,7 @@ export default function TimeTable() {
         }}
         ListEmptyComponent={
           <View style={[styles.center, { padding: 24 }]}>
-            <Text>Gösterilecek kayıt yok.</Text>
+            <Text>{t('timeTable.noRecords')}</Text>
           </View>
         }
       />
