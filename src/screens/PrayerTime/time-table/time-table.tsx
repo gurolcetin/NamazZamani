@@ -241,7 +241,7 @@ export default function TimeTable() {
       <SectionList
         sections={sections || []}
         keyExtractor={item => item.date.toISOString()}
-        stickySectionHeadersEnabled
+        stickySectionHeadersEnabled={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
