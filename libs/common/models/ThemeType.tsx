@@ -36,4 +36,6 @@ export type ThemeType = {
     timerText: string;
     timerCriticalText: string;
   };
+  skeletonBackgroundColor: string;
+  skeletonHighlightColor: string;
 };

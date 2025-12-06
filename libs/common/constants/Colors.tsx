@@ -39,6 +39,8 @@ export const baseLightTheme: ThemeType = {
     timerText: '#FFFFFF',
     timerCriticalText: '#FFE4E6',
   },
+  skeletonBackgroundColor: '#E1E9EE',
+  skeletonHighlightColor: '#F2F8FC',
 };
 
 export const baseDarkTheme: ThemeType = {
@@ -79,6 +81,8 @@ export const baseDarkTheme: ThemeType = {
     timerText: '#FDFDFD',
     timerCriticalText: '#FFB3C0', // Light’taki #FFE4E6’in daha koyu kontrastlı versiyonu
   },
+  skeletonBackgroundColor: '#282C31',
+  skeletonHighlightColor: '#343940',
 };
 
 export const accentPalettes: Record<
