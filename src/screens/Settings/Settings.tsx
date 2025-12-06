@@ -19,6 +19,7 @@ import {
   Switch,
   DevSettings,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +47,7 @@ import {
 } from '../../../libs/redux/reducers/ApplicationSettings';
 import { createStyles } from './style';
 import { PrayerTimeKey } from '../../../libs/common/types';
+import { prayerNotificationManager } from '../../../libs/core/helpers/prayer-notification';
 
 const accentOptions: Accent[] = [
   Accent.TEAL,
@@ -126,6 +128,8 @@ const Settings = ({}: SettingsProps) => {
     applicationSettings?.prayerNotificationPreferences;
   const [isNotificationCardOpen, setIsNotificationCardOpen] =
     useState<boolean>(false);
+  const [notificationPermissionGranted, setNotificationPermissionGranted] =
+    useState<boolean>(true);
 
   const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
   const mailErrorTitle = t('settings.mailErrorTitle');
@@ -198,14 +202,43 @@ const Settings = ({}: SettingsProps) => {
   );
 
   const areAllNotificationsEnabled = useMemo(
-    () => notificationItems.every(item => item.enabled),
-    [notificationItems],
+    () =>
+      notificationPermissionGranted &&
+      notificationItems.every(item => item.enabled),
+    [notificationItems, notificationPermissionGranted],
   );
 
   const versionLabel = useMemo(() => {
     const version = DeviceInfo.getVersion();
     return version;
   }, []);
+
+  const refreshNotificationPermissionStatus = useCallback(async () => {
+    const granted = await prayerNotificationManager.hasPermission();
+    setNotificationPermissionGranted(granted);
+  }, []);
+
+  useEffect(() => {
+    refreshNotificationPermissionStatus();
+  }, [refreshNotificationPermissionStatus]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshNotificationPermissionStatus();
+    }, [refreshNotificationPermissionStatus]),
+  );
+
+  const requestNotificationPermission = useCallback(async () => {
+    const granted = await prayerNotificationManager.requestPermission();
+    setNotificationPermissionGranted(granted);
+    if (!granted) {
+      Alert.alert(
+        t('notifications.permissionDeniedTitle'),
+        t('notifications.permissionDeniedMessage'),
+      );
+    }
+    return granted;
+  }, [t]);
 
   const handleLanguageChange = useCallback(
     (lang: string) => {
@@ -263,19 +296,47 @@ const Settings = ({}: SettingsProps) => {
     [dispatch],
   );
 
-  const handleNotificationToggle = useCallback(
+  const applyNotificationPreference = useCallback(
     (key: PrayerTimeKey, enabled: boolean) => {
       dispatch(setPrayerNotificationPreference({ key, enabled }));
     },
     [dispatch],
   );
 
-  const handleToggleAllNotifications = useCallback(() => {
+  const handleNotificationToggle = useCallback(
+    async (key: PrayerTimeKey, enabled: boolean) => {
+      if (enabled && !notificationPermissionGranted) {
+        const granted = await requestNotificationPermission();
+        if (!granted) {
+          return;
+        }
+      }
+      applyNotificationPreference(key, enabled);
+    },
+    [
+      notificationPermissionGranted,
+      requestNotificationPermission,
+      applyNotificationPreference,
+    ],
+  );
+
+  const handleToggleAllNotifications = useCallback(async () => {
     const nextValue = !areAllNotificationsEnabled;
+    if (nextValue && !notificationPermissionGranted) {
+      const granted = await requestNotificationPermission();
+      if (!granted) {
+        return;
+      }
+    }
     PRAYER_NOTIFICATION_ORDER.forEach(prayerKey => {
-      handleNotificationToggle(prayerKey, nextValue);
+      applyNotificationPreference(prayerKey, nextValue);
     });
-  }, [areAllNotificationsEnabled, handleNotificationToggle]);
+  }, [
+    areAllNotificationsEnabled,
+    notificationPermissionGranted,
+    requestNotificationPermission,
+    applyNotificationPreference,
+  ]);
 
   const handleClearStorage = useCallback(async () => {
     try {
@@ -425,7 +486,11 @@ const Settings = ({}: SettingsProps) => {
                               {item.label}
                             </Text>
                             <Switch
-                              value={item.enabled}
+                              value={
+                                notificationPermissionGranted
+                                  ? item.enabled
+                                  : false
+                              }
                               onValueChange={value =>
                                 handleNotificationToggle(item.key, value)
                               }

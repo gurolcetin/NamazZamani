@@ -99,6 +99,11 @@ class PrayerNotificationManager {
     return true;
   }
 
+  async hasPermission(): Promise<boolean> {
+    this.initialize();
+    return this.isPermissionGranted();
+  }
+
   async requestPermission(): Promise<boolean> {
     this.initialize();
     if (await this.isPermissionGranted()) {
@@ -137,7 +142,7 @@ class PrayerNotificationManager {
       return false;
     }
 
-    const granted = await this.isPermissionGranted();
+    const granted = await this.requestPermission();
     if (!granted) {
       return false;
     }
