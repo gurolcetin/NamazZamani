@@ -46,6 +46,7 @@ import {
   HadithCard,
   QuranAyahCard,
 } from './inspiration-cards';
+import PrayerTimeSkeleton from './prayer-time-skeleton';
 import { PrayerTimeKey, SmallCard } from '../../../libs/common/types';
 import {
   LanguageLocaleKeys,
@@ -721,10 +722,13 @@ export default function PrayerTime() {
   // ------- render -----------------------------------------------------------
   if (loading && !timings) {
     return (
-      <View style={[styles.center, { flex: 1 }]}>
-        <ActivityIndicator />
-        <Text style={styles.loadingText}>{t('prayerTime.loadingTimes')}</Text>
-      </View>
+      <SafeAreaWithStatusBar>
+        <ScreenViewContainer
+          showSkeleton
+          skeletonContent={<PrayerTimeSkeleton />}
+          children={undefined}
+        />
+      </SafeAreaWithStatusBar>
     );
   }
 
@@ -792,26 +796,6 @@ export default function PrayerTime() {
                   seqDateLabel={seqDateLabel}
                   syncingText={syncingText}
                 />
-                <TouchableOpacity
-                  onPress={handleTestNotificationPress}
-                  style={[
-                    styles.testNotificationButton,
-                    {
-                      borderColor: `${currentTheme.primary}22`,
-                      backgroundColor: currentTheme.cardViewBackgroundColor,
-                    },
-                  ]}
-                  accessibilityRole="button"
-                >
-                  <Text
-                    style={[
-                      styles.testNotificationText,
-                      { color: currentTheme.primary },
-                    ]}
-                  >
-                    {t('prayerTime.sendTestNotification')}
-                  </Text>
-                </TouchableOpacity>
               </>
             }
             ListFooterComponent={listFooter}
@@ -845,7 +829,6 @@ export default function PrayerTime() {
 // ----- styles ---------------------------------------------------------------
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
-  loadingText: { marginTop: 8 },
   headerTop: {
     paddingHorizontal: 16,
     paddingTop: 4,

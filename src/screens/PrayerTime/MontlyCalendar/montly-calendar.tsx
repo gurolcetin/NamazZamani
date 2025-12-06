@@ -28,6 +28,7 @@ import {
 } from '../../../../libs/common/constants';
 import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
 import type { PrayerTimeKey, SmallCard } from '../../../../libs/common/types';
+import MonthlyCalendarSkeleton from './montly-calendar-skeleton';
 
 type Key = PrayerTimeKey; // aynı tip
 const PRAYER_ORDER: PrayerTimeKey[] = [
@@ -214,6 +215,8 @@ export default function MonthlyCalendar() {
     }));
   }, [monthTimings, year, month, selectedDay, selectedDate, prayerLabels]);
 
+  const shouldShowSkeleton = isMonthLoading;
+
   if (loading && !coords) {
     return (
       <View style={[styles.center, { flex: 1 }]}>
@@ -245,7 +248,10 @@ export default function MonthlyCalendar() {
   };
 
   return (
-    <ScreenViewContainer>
+    <ScreenViewContainer
+      showSkeleton={shouldShowSkeleton}
+      skeletonContent={<MonthlyCalendarSkeleton />}
+    >
       {/* Beyaz Card içinde Takvim başlık + gövde */}
       <View style={styles.cardWrap}>
         <View
@@ -332,7 +338,7 @@ export default function MonthlyCalendar() {
           )}
 
           {/* Ay verisi yüklenirken overlay */}
-          {isMonthLoading && (
+          {isMonthLoading && monthTimings && (
             <View style={styles.pickerOverlay}>
               <ActivityIndicator color={currentTheme.primary} />
               <Text style={styles.overlayText}>
@@ -351,12 +357,14 @@ export default function MonthlyCalendar() {
       </View>
 
       {smallCards.length === 0 ? (
-        <View style={[styles.center, { paddingVertical: 12 }]}>
-          <ActivityIndicator color={currentTheme.primary} />
-          <Text style={styles.timesLoadingText}>
-            {t('monthlyCalendar.timesLoading')}
-          </Text>
-        </View>
+        shouldShowSkeleton ? null : (
+          <View style={[styles.center, { paddingVertical: 12 }]}>
+            <ActivityIndicator color={currentTheme.primary} />
+            <Text style={styles.timesLoadingText}>
+              {t('monthlyCalendar.timesLoading')}
+            </Text>
+          </View>
+        )
       ) : (
         <FlatList
           data={smallCards}

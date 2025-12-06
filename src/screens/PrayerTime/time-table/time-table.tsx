@@ -1,7 +1,6 @@
 // screens/ImsakiyeScreen.tsx
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   RefreshControl,
   SectionList,
   StyleSheet,
@@ -16,6 +15,7 @@ import { useTheme } from '../../../../libs/core/providers';
 import { useSelector } from 'react-redux';
 import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
 import { getCurrentPosition, requestLocationPermission } from '../permission';
+import TimeTableSkeleton from './time-table-skeleton';
 
 // ---------- types ----------
 type RowItem = {
@@ -231,19 +231,13 @@ export default function TimeTable() {
     load();
   }, [load, navigation]);
 
-  if (loading && !sections) {
-    return (
-      <ScreenViewContainer>
-        <View style={styles.center}>
-          <ActivityIndicator color={currentTheme.primary} />
-          <Text style={styles.loadingText}>İmsakiye yükleniyor…</Text>
-        </View>
-      </ScreenViewContainer>
-    );
-  }
+  const shouldShowSkeleton = loading;
 
   return (
-    <ScreenViewContainer>
+    <ScreenViewContainer
+      showSkeleton={shouldShowSkeleton}
+      skeletonContent={<TimeTableSkeleton />}
+    >
       <SectionList
         sections={sections || []}
         keyExtractor={item => item.date.toISOString()}
@@ -330,7 +324,6 @@ const CELL_GAP = 8;
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center', paddingTop: 24 },
-  loadingText: { marginTop: 8 },
 
   sectionHeader: {
     marginTop: 14,

@@ -3,6 +3,7 @@ import CardView from './CardView/CardView';
 import { CardViewProps } from './CardView/CardView';
 import { Icons, IconProps, Icon } from './Icons/Icons';
 import ScreenViewContainer from './ScreenViewContainer/ScreenViewContainer';
+import SkeletonPlaceholder from './skeleton/skeleton';
 import SegmentedControl from './SegmentedControl/SegmentedControl';
 import { FormControl } from './FormControl/FormControl';
 import SubmitButton from './SubmitButton/SubmitButton';
@@ -35,5 +36,6 @@ export {
   BackButton,
   FormSegmentedControl,
   PRAYER_TIME_ICONS,
+  SkeletonPlaceholder,
 };
 export type { IconProps, CardViewProps };
