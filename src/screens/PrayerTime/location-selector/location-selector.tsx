@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   FlatList,
   Platform,
   Pressable,
@@ -188,6 +189,17 @@ export default function LocationSelector() {
       refreshDeviceLocation();
     }, [refreshDeviceLocation]),
   );
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', state => {
+      if (state === 'active') {
+        refreshDeviceLocation();
+      }
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, [refreshDeviceLocation]);
 
   /** Debounced Search */
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -547,24 +559,9 @@ export default function LocationSelector() {
     ? t('locationChip.loading')
     : deviceLocationLabel ?? t('prayerTime.locationNotFound');
   const showPermissionWarning = locationPermissionGranted === false;
-  const handlePermissionNoticePress = useCallback(async () => {
-    const result = await refreshDeviceLocation(true);
-    if (result === 'blocked') {
-      Alert.alert(
-        t('locationSelector.permissionBlockedTitle'),
-        t('locationSelector.permissionBlockedMessage'),
-        [
-          { text: t('locationSelector.cancel'), style: 'cancel' },
-          {
-            text: t('locationSelector.openSettings'),
-            onPress: () => {
-              openSettings().catch(() => undefined);
-            },
-          },
-        ],
-      );
-    }
-  }, [refreshDeviceLocation, t]);
+  const handlePermissionNoticePress = useCallback(() => {
+    openSettings().catch(() => undefined);
+  }, []);
 
   /** ---------- Render ---------- */
   return (
@@ -578,48 +575,68 @@ export default function LocationSelector() {
           <>
             {/* Mevcut Konum */}
             {showPermissionWarning ? (
-              <Pressable
+              <View
                 style={[
                   styles.permissionNotice,
                   {
                     borderColor: `${currentTheme.systemRed}33`,
-                    backgroundColor: `${currentTheme.systemRed}12`,
+                    backgroundColor: `${currentTheme.systemRed}0F`,
                   },
                 ]}
-                onPress={handlePermissionNoticePress}
               >
-                <View
+                <View style={styles.permissionNoticeHeader}>
+                  <View
+                    style={[
+                      styles.permissionNoticeIcon,
+                      { backgroundColor: `${currentTheme.systemRed}1F` },
+                    ]}
+                  >
+                    <Icon
+                      type={Icons.MaterialDesignIcons}
+                      name="map-marker-off"
+                      size={24}
+                      color={currentTheme.systemRed}
+                    />
+                  </View>
+                  <View style={styles.permissionNoticeTextBlock}>
+                    <Text
+                      style={[
+                        styles.permissionNoticeTitle,
+                        { color: currentTheme.textColor },
+                      ]}
+                    >
+                      {t('locationSelector.permissionWarningTitle')}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.permissionNoticeDescription,
+                        { color: currentTheme.textColor },
+                      ]}
+                    >
+                      {t('locationSelector.permissionWarningMessage')}
+                    </Text>
+                  </View>
+                </View>
+                <Pressable
                   style={[
-                    styles.permissionNoticeIcon,
-                    { backgroundColor: `${currentTheme.systemRed}1F` },
+                    styles.permissionNoticeButton,
+                    {
+                      borderColor: currentTheme.systemRed,
+                      backgroundColor: 'transparent',
+                    },
                   ]}
+                  onPress={handlePermissionNoticePress}
                 >
-                  <Icon
-                    type={Icons.MaterialDesignIcons}
-                    name="map-marker-off"
-                    size={22}
-                    color={currentTheme.systemRed}
-                  />
-                </View>
-                <View style={styles.permissionNoticeTexts}>
                   <Text
                     style={[
-                      styles.permissionNoticeTitle,
-                      { color: currentTheme.textColor },
+                      styles.permissionNoticeButtonText,
+                      { color: currentTheme.systemRed },
                     ]}
                   >
-                    {t('locationSelector.permissionWarningTitle')}
+                    {t('locationSelector.openSettings')}
                   </Text>
-                  <Text
-                    style={[
-                      styles.permissionNoticeDescription,
-                      { color: currentTheme.textColor },
-                    ]}
-                  >
-                    {t('locationSelector.permissionWarningMessage')}
-                  </Text>
-                </View>
-              </Pressable>
+                </Pressable>
+              </View>
             ) : (
               <Pressable
                 style={[
@@ -761,12 +778,15 @@ const styles = StyleSheet.create({
   nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 13, marginTop: 2 },
   permissionNotice: {
     marginHorizontal: 16,
-    borderRadius: 18,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
+    borderRadius: 20,
+    padding: 18,
     borderWidth: StyleSheet.hairlineWidth,
+    gap: 16,
+  },
+  permissionNoticeHeader: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'flex-start',
   },
   permissionNoticeIcon: {
     width: 40,
@@ -775,7 +795,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  permissionNoticeTexts: {
+  permissionNoticeTextBlock: {
     flex: 1,
   },
   permissionNoticeTitle: {
@@ -787,6 +807,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     opacity: 0.8,
+  },
+  permissionNoticeButton: {
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1.5,
+  },
+  permissionNoticeButtonText: {
+    color: '#D92F2F',
+    fontSize: 14,
+    fontWeight: '700',
   },
 
   rowWrapper: {

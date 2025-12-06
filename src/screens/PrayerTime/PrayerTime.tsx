@@ -420,6 +420,7 @@ export default function PrayerTime() {
   const [locationPermissionGranted, setLocationPermissionGranted] = useState<
     boolean | null
   >(null);
+  const prevLocationPermissionRef = useRef<boolean | null>(null);
 
   // Senkron durumu: hem ref (timer closure güvenliği) hem state (UI)
   const isResyncingRef = useRef<boolean>(false);
@@ -716,6 +717,18 @@ export default function PrayerTime() {
     },
     [activeResolved, dispatch, t],
   );
+
+  useEffect(() => {
+    const prev = prevLocationPermissionRef.current;
+    prevLocationPermissionRef.current = locationPermissionGranted;
+    if (
+      prev === false &&
+      locationPermissionGranted === true &&
+      activeResolved.type === 'device'
+    ) {
+      load(new Date());
+    }
+  }, [activeResolved, locationPermissionGranted, load]);
 
   // timings geldiğinde sequence ve ilk hesap
   useEffect(() => {
