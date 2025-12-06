@@ -271,6 +271,8 @@
     "prayerReminderBody": "{{label}} prayer time has started.",
     "permissionDeniedTitle": "Permission Needed",
     "permissionDeniedMessage": "Allow notifications to hear the adhan reminders.",
+    "goToSettingsButton": "Open Settings",
+    "cancelButton": "Cancel",
     "testTitle": "Test Prayer Reminder",
     "testBody": "This is how the audible adhan notification will look.",
     "testScheduledTitle": "Scheduled",

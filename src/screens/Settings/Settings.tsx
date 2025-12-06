@@ -216,6 +216,7 @@ const Settings = ({}: SettingsProps) => {
   const refreshNotificationPermissionStatus = useCallback(async () => {
     const granted = await prayerNotificationManager.hasPermission();
     setNotificationPermissionGranted(granted);
+    return granted;
   }, []);
 
   useEffect(() => {
@@ -235,6 +236,18 @@ const Settings = ({}: SettingsProps) => {
       Alert.alert(
         t('notifications.permissionDeniedTitle'),
         t('notifications.permissionDeniedMessage'),
+        [
+          {
+            text: t('notifications.goToSettingsButton'),
+            onPress: () => {
+              Linking.openSettings().catch(() => {});
+            },
+          },
+          {
+            text: t('notifications.cancelButton'),
+            style: 'cancel',
+          },
+        ],
       );
     }
     return granted;
@@ -305,8 +318,14 @@ const Settings = ({}: SettingsProps) => {
 
   const handleNotificationToggle = useCallback(
     async (key: PrayerTimeKey, enabled: boolean) => {
-      if (enabled && !notificationPermissionGranted) {
-        const granted = await requestNotificationPermission();
+      if (enabled) {
+        let granted = notificationPermissionGranted;
+        if (granted) {
+          granted = await refreshNotificationPermissionStatus();
+        }
+        if (!granted) {
+          granted = await requestNotificationPermission();
+        }
         if (!granted) {
           return;
         }
@@ -315,6 +334,7 @@ const Settings = ({}: SettingsProps) => {
     },
     [
       notificationPermissionGranted,
+      refreshNotificationPermissionStatus,
       requestNotificationPermission,
       applyNotificationPreference,
     ],
@@ -322,8 +342,14 @@ const Settings = ({}: SettingsProps) => {
 
   const handleToggleAllNotifications = useCallback(async () => {
     const nextValue = !areAllNotificationsEnabled;
-    if (nextValue && !notificationPermissionGranted) {
-      const granted = await requestNotificationPermission();
+    if (nextValue) {
+      let granted = notificationPermissionGranted;
+      if (granted) {
+        granted = await refreshNotificationPermissionStatus();
+      }
+      if (!granted) {
+        granted = await requestNotificationPermission();
+      }
       if (!granted) {
         return;
       }
@@ -334,6 +360,7 @@ const Settings = ({}: SettingsProps) => {
   }, [
     areAllNotificationsEnabled,
     notificationPermissionGranted,
+    refreshNotificationPermissionStatus,
     requestNotificationPermission,
     applyNotificationPreference,
   ]);

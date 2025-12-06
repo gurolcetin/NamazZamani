@@ -271,6 +271,8 @@
     "prayerReminderBody": "{{label}} vakti girdi.",
     "permissionDeniedTitle": "İzin gerekli",
     "permissionDeniedMessage": "Ezan bildirimlerini duyabilmek için bildirim iznini açmalısın.",
+    "goToSettingsButton": "Ayarlara Git",
+    "cancelButton": "Vazgeç",
     "testTitle": "Test Namaz Bildirimi",
     "testBody": "Sesli ezan bildirimi bu şekilde görünecek.",
     "testScheduledTitle": "Test planlandı",
