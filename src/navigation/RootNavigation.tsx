@@ -16,7 +16,7 @@ import PrivacyScreen, { PRIVACY_KEY } from '../screens/Privacy/PrivacyScreen';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const RootStack = createNativeStackNavigator();
-const ONBOARDING_KEY = 'onboarded';
+// const ONBOARDING_KEY = 'onboarded';
 
 const RootNavigation = () => {
   const { theme, currentTheme } = useTheme();
@@ -29,10 +29,11 @@ const RootNavigation = () => {
   useEffect(() => {
     (async () => {
       try {
-        const [[, storedPrivacy], [, storedOnboarding]] =
-          await AsyncStorage.multiGet([PRIVACY_KEY, ONBOARDING_KEY]);
+        const [[, storedPrivacy]] = await AsyncStorage.multiGet([PRIVACY_KEY]);
+        // const [[, storedOnboarding]] =
+        //   await AsyncStorage.multiGet([ONBOARDING_KEY]);
         setHasAcceptedPrivacy(storedPrivacy === 'true');
-        setHasOnboarded(storedOnboarding === 'true');
+        setHasOnboarded(true);
       } catch {
         setHasAcceptedPrivacy(false);
         setHasOnboarded(false);
