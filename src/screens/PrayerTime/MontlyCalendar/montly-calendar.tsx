@@ -251,6 +251,7 @@ export default function MonthlyCalendar() {
     <ScreenViewContainer
       showSkeleton={shouldShowSkeleton}
       skeletonContent={<MonthlyCalendarSkeleton />}
+      disableBottomPadding
     >
       {/* Beyaz Card içinde Takvim başlık + gövde */}
       <View style={styles.cardWrap}>

@@ -317,6 +317,7 @@ export default function TimeTable() {
     <ScreenViewContainer
       showSkeleton={shouldShowSkeleton}
       skeletonContent={<TimeTableSkeleton />}
+      disableBottomPadding
     >
       <SectionList
         sections={sections || []}

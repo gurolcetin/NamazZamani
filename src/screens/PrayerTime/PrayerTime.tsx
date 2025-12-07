@@ -29,12 +29,12 @@ import {
   hasLocationPermission,
 } from './permission';
 import {
+  BottomTabScreenViewContainer,
   Icon,
   Icons,
   PRAYER_TIME_ICONS,
   PrayerTimeSmallCard,
   SafeAreaWithStatusBar,
-  ScreenViewContainer,
 } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
 import { reverseGeocode, getUTCLabel } from './reverse-geocode';
@@ -1020,12 +1020,7 @@ export default function PrayerTime() {
         <HadithCard currentDateKey={currentDateKey} />
       </View>
     ),
-    [
-      shouldShowRamadanCountdown,
-      ramadanCountdownInfo,
-      nowTick,
-      currentDateKey,
-    ],
+    [shouldShowRamadanCountdown, ramadanCountdownInfo, nowTick, currentDateKey],
   );
 
   const shouldShowLocationPermissionCard =
@@ -1035,7 +1030,7 @@ export default function PrayerTime() {
   if (shouldShowLocationPermissionCard) {
     return (
       <SafeAreaWithStatusBar>
-        <ScreenViewContainer>
+        <BottomTabScreenViewContainer>
           <View style={styles.permissionCardScreen}>
             <View
               style={[
@@ -1069,8 +1064,7 @@ export default function PrayerTime() {
                   styles.permissionDescription,
                   {
                     color:
-                      currentTheme.secondaryTextColor ||
-                      'rgba(15,23,42,0.7)',
+                      currentTheme.secondaryTextColor || 'rgba(15,23,42,0.7)',
                   },
                 ]}
               >
@@ -1093,7 +1087,7 @@ export default function PrayerTime() {
               </Pressable>
             </View>
           </View>
-        </ScreenViewContainer>
+        </BottomTabScreenViewContainer>
       </SafeAreaWithStatusBar>
     );
   }
@@ -1101,7 +1095,7 @@ export default function PrayerTime() {
   if (loading && !timings) {
     return (
       <SafeAreaWithStatusBar>
-        <ScreenViewContainer
+        <BottomTabScreenViewContainer
           showSkeleton
           skeletonContent={<PrayerTimeSkeleton />}
           children={undefined}
@@ -1122,7 +1116,7 @@ export default function PrayerTime() {
   });
   return (
     <SafeAreaWithStatusBar>
-      <ScreenViewContainer>
+      <BottomTabScreenViewContainer>
         <View style={styles.screenInner}>
           <FlatList
             data={smallCards}
@@ -1196,7 +1190,7 @@ export default function PrayerTime() {
             }
           />
         </View>
-      </ScreenViewContainer>
+      </BottomTabScreenViewContainer>
     </SafeAreaWithStatusBar>
   );
 }

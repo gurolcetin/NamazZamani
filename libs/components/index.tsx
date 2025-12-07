@@ -18,6 +18,7 @@ import {
 } from './display/prayer-time-small-card';
 import BackButton from './back-button/back-button';
 import FormSegmentedControl from './SegmentedControl/form-segmented-control';
+import BottomTabScreenViewContainer from './ScreenViewContainer/bottom-tab-screen-view-container';
 export {
   SafeAreaWithStatusBar,
   CardView,
@@ -37,5 +38,6 @@ export {
   FormSegmentedControl,
   PRAYER_TIME_ICONS,
   SkeletonPlaceholder,
+  BottomTabScreenViewContainer,
 };
 export type { IconProps, CardViewProps };

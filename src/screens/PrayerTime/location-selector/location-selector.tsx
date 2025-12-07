@@ -565,7 +565,7 @@ export default function LocationSelector() {
 
   /** ---------- Render ---------- */
   return (
-    <ScreenViewContainer>
+    <ScreenViewContainer disableBottomPadding>
       <View
         style={[styles.content, { paddingTop: headerOffset + 12 }]}
         onTouchStart={handleContentTouchStart}

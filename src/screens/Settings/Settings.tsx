@@ -25,6 +25,7 @@ import DeviceInfo from 'react-native-device-info';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  BottomTabScreenViewContainer,
   FormSegmentedControl,
   Icon,
   Icons,
@@ -391,7 +392,7 @@ const Settings = ({}: SettingsProps) => {
 
   return (
     <>
-      <ScreenViewContainer>
+      <BottomTabScreenViewContainer>
         <View style={{ flex: 1 }}>
           <ScrollView
             contentContainerStyle={styles.contentContainer}
@@ -765,7 +766,7 @@ const Settings = ({}: SettingsProps) => {
             </View>
           </ScrollView>
         </View>
-      </ScreenViewContainer>
+      </BottomTabScreenViewContainer>
 
       {/* Dropdown'u tüm ekranın üstünde gösteren Modal */}
       {isLangOpen && langButtonLayout && (

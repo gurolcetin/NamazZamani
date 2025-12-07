@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  BottomTabScreenViewContainer,
   ScreenViewContainer,
   SegmentedControl,
 } from '../../../libs/components';
@@ -30,7 +31,7 @@ const Dhikr = () => {
   };
 
   return (
-    <ScreenViewContainer>
+    <BottomTabScreenViewContainer>
       <SegmentedControl
         tabs={tabs}
         onTabChange={onTabChange}
@@ -41,7 +42,7 @@ const Dhikr = () => {
         {selectedTab === DhikrTabKeys.All && <AllDhikr />}
         {selectedTab === DhikrTabKeys.Prayer && <PrayerDhikr />}
       </ScrollView>
-    </ScreenViewContainer>
+    </BottomTabScreenViewContainer>
   );
 };
 

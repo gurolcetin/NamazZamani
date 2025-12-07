@@ -200,7 +200,7 @@ export default function QiblaScreen() {
   const isCorrect = directionHint === QiblaLanguageConstants.OnCourse.key;
 
   return (
-    <ScreenViewContainer>
+    <ScreenViewContainer disableBottomPadding>
       <ScrollView style={styles.root}>
         <View style={styles.screenInner}>
           {/* Başlık + sabit Kâbe + pusula */}

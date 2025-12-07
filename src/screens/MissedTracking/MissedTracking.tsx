@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  BottomTabScreenViewContainer,
   ScreenViewContainer,
   SegmentedControl,
 } from '../../../libs/components';
@@ -56,7 +57,7 @@ const MissedTracking = () => {
   };
 
   return (
-    <ScreenViewContainer>
+    <BottomTabScreenViewContainer>
       <SegmentedControl
         tabs={tabs}
         onTabChange={onTabChange}
@@ -80,7 +81,7 @@ const MissedTracking = () => {
             <CalculatedMissedFasting />
           ))}
       </ScrollView>
-    </ScreenViewContainer>
+    </BottomTabScreenViewContainer>
   );
 };
 
