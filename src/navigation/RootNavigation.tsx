@@ -6,7 +6,7 @@ import {
   NavigationContainer,
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTheme } from '../../libs/core/providers';
+import { BannerProvider, useTheme } from '../../libs/core/providers';
 import { Theme } from '../../libs/common/enums';
 import BootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -78,38 +78,42 @@ const RootNavigation = () => {
     : RootRoutes.Main;
 
   return (
-    <NavigationContainer
-      theme={navigationTheme}
-      onReady={() => {
-        BootSplash.hide();
-      }}
-    >
-      <RootStack.Navigator
-        screenOptions={{ headerShown: false }}
-        initialRouteName={initialRouteName}
+    <BannerProvider>
+      <NavigationContainer
+        theme={navigationTheme}
+        onReady={() => {
+          BootSplash.hide();
+        }}
       >
-        <RootStack.Screen name={RootRoutes.Privacy}>
-          {props => (
-            <PrivacyScreen
-              {...props}
-              onAccept={() => setHasAcceptedPrivacy(true)}
-              nextRoute={hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding}
-            />
-          )}
-        </RootStack.Screen>
+        <RootStack.Navigator
+          screenOptions={{ headerShown: false }}
+          initialRouteName={initialRouteName}
+        >
+          <RootStack.Screen name={RootRoutes.Privacy}>
+            {props => (
+              <PrivacyScreen
+                {...props}
+                onAccept={() => setHasAcceptedPrivacy(true)}
+                nextRoute={
+                  hasOnboarded ? RootRoutes.Main : RootRoutes.Onboarding
+                }
+              />
+            )}
+          </RootStack.Screen>
 
-        <RootStack.Screen name={RootRoutes.Onboarding}>
-          {props => (
-            <OnboardingScreen
-              {...props}
-              onFinish={() => setHasOnboarded(true)}
-            />
-          )}
-        </RootStack.Screen>
+          <RootStack.Screen name={RootRoutes.Onboarding}>
+            {props => (
+              <OnboardingScreen
+                {...props}
+                onFinish={() => setHasOnboarded(true)}
+              />
+            )}
+          </RootStack.Screen>
 
-        <RootStack.Screen name={RootRoutes.Main} component={Authenticated} />
-      </RootStack.Navigator>
-    </NavigationContainer>
+          <RootStack.Screen name={RootRoutes.Main} component={Authenticated} />
+        </RootStack.Navigator>
+      </NavigationContainer>
+    </BannerProvider>
   );
 };
 

@@ -16,7 +16,12 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { Swipeable } from 'react-native-gesture-handler';
 import { openSettings } from 'react-native-permissions';
 import { useTheme } from '../../../../libs/core/providers';
-import { Icon, Icons, ScreenViewContainer } from '../../../../libs/components';
+import {
+  Icon,
+  Icons,
+  ScreenViewContainer,
+  BottomBannerAd,
+} from '../../../../libs/components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { SearchBarCommands } from 'react-native-screens';
@@ -566,10 +571,11 @@ export default function LocationSelector() {
   /** ---------- Render ---------- */
   return (
     <ScreenViewContainer disableBottomPadding>
-      <View
-        style={[styles.content, { paddingTop: headerOffset + 12 }]}
-        onTouchStart={handleContentTouchStart}
-      >
+      <View style={styles.contentWrapper}>
+        <View
+          style={[styles.content, { paddingTop: headerOffset + 12 }]}
+          onTouchStart={handleContentTouchStart}
+        >
         {/* ---- hasQuery: false → Mevcut + Kaydedilenler ---- */}
         {!hasQuery && (
           <>
@@ -725,13 +731,18 @@ export default function LocationSelector() {
             )}
           </>
         )}
+        </View>
       </View>
+      <BottomBannerAd />
     </ScreenViewContainer>
   );
 }
 
 /** ---------- Styles ---------- */
 const styles = StyleSheet.create({
+  contentWrapper: {
+    flex: 1,
+  },
   content: {
     flex: 1,
   },

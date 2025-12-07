@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { ScreenViewContainer } from '../../../../libs/components';
+import { ScreenViewContainer, BottomBannerAd } from '../../../../libs/components';
 import { PrayerTimings } from '../api';
 import { fetchMonthlyPrayerTimesByCoords } from '../MontlyCalendar/api';
 import { useTheme } from '../../../../libs/core/providers';
@@ -319,81 +319,84 @@ export default function TimeTable() {
       skeletonContent={<TimeTableSkeleton />}
       disableBottomPadding
     >
-      <SectionList
-        sections={sections || []}
-        keyExtractor={item => item.date.toISOString()}
-        stickySectionHeadersEnabled={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        contentContainerStyle={{ paddingBottom: 24 }}
-        renderSectionHeader={({ section }) => (
-          <View
-            style={[
-              styles.sectionHeader,
-              { backgroundColor: currentTheme.cardViewBackgroundColor },
-            ]}
-          >
-            <Text
-              style={[styles.sectionTitle, { color: currentTheme.primary }]}
-            >
-              {section.title}
-            </Text>
-          </View>
-        )}
-        renderItem={({ item }) => {
-          const isToday = item.isToday;
-          const dateText = `${item.weekday}, ${item.dayNum} ${item.monthName}`;
-
-          const valuesRow = ORDER.map(k => item.times[k]);
-
-          const cardStyle = isToday
-            ? [styles.rowCard, { backgroundColor: currentTheme.primary }]
-            : [
-                styles.rowCard,
+      <View style={styles.contentWrapper}>
+        <SectionList
+          sections={sections || []}
+          keyExtractor={item => item.date.toISOString()}
+          stickySectionHeadersEnabled={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={{ paddingBottom: 24 }}
+          renderSectionHeader={({ section }) => (
+            <View
+              style={[
+                styles.sectionHeader,
                 { backgroundColor: currentTheme.cardViewBackgroundColor },
-              ];
-
-          const titleColor = isToday
-            ? currentTheme.white
-            : currentTheme.textColor;
-          const dividerColor = isToday
-            ? currentTheme.white
-            : currentTheme.textColor;
-          const gridTextColor = isToday
-            ? currentTheme.white
-            : currentTheme.textColor;
-
-          return (
-            <View style={cardStyle}>
-              {/* Sol üst: günün tarihi */}
+              ]}
+            >
               <Text
-                style={[styles.rowDateText, { color: titleColor }]}
-                numberOfLines={1}
+                style={[styles.sectionTitle, { color: currentTheme.primary }]}
               >
-                {dateText}
+                {section.title}
               </Text>
-
-              {/* Divider */}
-              <View
-                style={[styles.divider, { backgroundColor: dividerColor }]}
-              />
-
-              {/* 6 sütunlu kompakt grid: üstte etiketler, altta saatler */}
-              <SixColGrid
-                labels={prayerLabels}
-                values={valuesRow}
-                textColor={gridTextColor}
-              />
             </View>
-          );
-        }}
-        ListEmptyComponent={
-          <View style={[styles.center, { padding: 24 }]}>
-            <Text>{t('timeTable.noRecords')}</Text>
-          </View>
-        }
-      />
+          )}
+          renderItem={({ item }) => {
+            const isToday = item.isToday;
+            const dateText = `${item.weekday}, ${item.dayNum} ${item.monthName}`;
+
+            const valuesRow = ORDER.map(k => item.times[k]);
+
+            const cardStyle = isToday
+              ? [styles.rowCard, { backgroundColor: currentTheme.primary }]
+              : [
+                  styles.rowCard,
+                  { backgroundColor: currentTheme.cardViewBackgroundColor },
+                ];
+
+            const titleColor = isToday
+              ? currentTheme.white
+              : currentTheme.textColor;
+            const dividerColor = isToday
+              ? currentTheme.white
+              : currentTheme.textColor;
+            const gridTextColor = isToday
+              ? currentTheme.white
+              : currentTheme.textColor;
+
+            return (
+              <View style={cardStyle}>
+                {/* Sol üst: günün tarihi */}
+                <Text
+                  style={[styles.rowDateText, { color: titleColor }]}
+                  numberOfLines={1}
+                >
+                  {dateText}
+                </Text>
+
+                {/* Divider */}
+                <View
+                  style={[styles.divider, { backgroundColor: dividerColor }]}
+                />
+
+                {/* 6 sütunlu kompakt grid: üstte etiketler, altta saatler */}
+                <SixColGrid
+                  labels={prayerLabels}
+                  values={valuesRow}
+                  textColor={gridTextColor}
+                />
+              </View>
+            );
+          }}
+          ListEmptyComponent={
+            <View style={[styles.center, { padding: 24 }]}>
+              <Text>{t('timeTable.noRecords')}</Text>
+            </View>
+          }
+        />
+      </View>
+      <BottomBannerAd />
     </ScreenViewContainer>
   );
 }
@@ -402,6 +405,9 @@ export default function TimeTable() {
 const CELL_GAP = 8;
 
 const styles = StyleSheet.create({
+  contentWrapper: {
+    flex: 1,
+  },
   center: { alignItems: 'center', justifyContent: 'center', paddingTop: 24 },
 
   sectionHeader: {

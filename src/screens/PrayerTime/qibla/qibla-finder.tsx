@@ -15,7 +15,12 @@ import Geolocation, {
 } from 'react-native-geolocation-service';
 import CompassHeading from 'react-native-compass-heading';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { Icon, Icons, ScreenViewContainer } from '../../../../libs/components';
+import {
+  Icon,
+  Icons,
+  ScreenViewContainer,
+  BottomBannerAd,
+} from '../../../../libs/components';
 import { QiblaLanguageConstants } from '../../../../libs/common/constants/language.constants';
 import { useTheme } from '../../../../libs/core/providers';
 import { useTranslation } from 'react-i18next';
@@ -201,8 +206,9 @@ export default function QiblaScreen() {
 
   return (
     <ScreenViewContainer disableBottomPadding>
-      <ScrollView style={styles.root}>
-        <View style={styles.screenInner}>
+      <View style={styles.contentWrapper}>
+        <ScrollView style={styles.root}>
+          <View style={styles.screenInner}>
           {/* Başlık + sabit Kâbe + pusula */}
           <View style={styles.compassContainer}>
             {/* SABİT KÂBE İKONU (başlık ile pusula arası) */}
@@ -460,15 +466,20 @@ export default function QiblaScreen() {
             {error ? <Text style={styles.error}>{error}</Text> : null}
           </View>
 
-          <View style={styles.bottomSpacer} />
-        </View>
-      </ScrollView>
+            <View style={styles.bottomSpacer} />
+          </View>
+        </ScrollView>
+      </View>
+      <BottomBannerAd />
     </ScreenViewContainer>
   );
 }
 
 /** --- Styles --- */
 const styles = StyleSheet.create({
+  contentWrapper: {
+    flex: 1,
+  },
   root: {
     flex: 1,
   },

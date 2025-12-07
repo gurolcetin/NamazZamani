@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../../../libs/core/providers';
+import { useBanner, useTheme } from '../../../libs/core/providers';
 import { Icon } from '../../../libs/components';
 import {
   bottomTabMenuItems,
@@ -26,6 +26,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(1)).current;
+  const { setBannerLoaded } = useBanner();
 
   return (
     <View
@@ -105,8 +106,14 @@ const CustomTabBar = ({ state, navigation }: any) => {
         <BannerAd
           unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{
-            requestNonPersonalizedAdsOnly: true,
+          requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+          onAdLoaded={() => {
+            console.log('Banner loaded');
+            setBannerLoaded(true);
+          }}
+          onAdFailedToLoad={() => {
+            console.log('Banner failed');
+            setBannerLoaded(false);
           }}
         />
       </View>

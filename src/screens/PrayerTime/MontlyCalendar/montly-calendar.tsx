@@ -17,6 +17,7 @@ import {
   PrayerTimeSmallCard,
   Icons,
   Icon,
+  BottomBannerAd,
 } from '../../../../libs/components';
 import { fetchMonthlyPrayerTimesByCoords, type PrayerTimings } from './api';
 import { getCurrentPosition, requestLocationPermission } from '../permission';
@@ -25,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import {
   LanguageLocaleKeys,
   LanguagePrefix,
+  BOTTOM_TAB_BANNER_AD_UNIT_ID,
 } from '../../../../libs/common/constants';
 import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
 import type { PrayerTimeKey, SmallCard } from '../../../../libs/common/types';
@@ -253,158 +255,166 @@ export default function MonthlyCalendar() {
       skeletonContent={<MonthlyCalendarSkeleton />}
       disableBottomPadding
     >
-      {/* Beyaz Card içinde Takvim başlık + gövde */}
-      <View style={styles.cardWrap}>
-        <View
-          style={[
-            styles.cardHeader,
-            { backgroundColor: currentTheme.cardViewBackgroundColor },
-          ]}
-        >
-          {/* Sol: Android'te Tarih Değiştir butonu, iOS'ta boş tutucu */}
-          {Platform.OS === 'android' ? (
+      <View style={styles.contentWrapper}>
+        {/* Beyaz Card içinde Takvim başlık + gövde */}
+        <View style={styles.cardWrap}>
+          <View
+            style={[
+              styles.cardHeader,
+              { backgroundColor: currentTheme.cardViewBackgroundColor },
+            ]}
+          >
+            {/* Sol: Android'te Tarih Değiştir butonu, iOS'ta boş tutucu */}
+            {Platform.OS === 'android' ? (
+              <Pressable
+                onPress={() => setShowPicker(true)}
+                style={styles.dateBtn}
+                disabled={isMonthLoading}
+              >
+                <Icon
+                  name="calendar-multiselect-outline"
+                  type={Icons.MaterialDesignIcons}
+                  size={14}
+                  color={currentTheme.primary}
+                />
+                <Text style={styles.dateBtnText}>
+                  {t('monthlyCalendar.changeDate')}
+                </Text>
+              </Pressable>
+            ) : (
+              <View style={styles.headerSpacer} />
+            )}
+
+            {/* Orta: seçili gün bilgisi */}
+            <View style={styles.headerTitleWrap}>
+              <Text
+                style={[styles.cardTitle, { color: currentTheme.textColor }]}
+              >
+                {selectedDate.toLocaleDateString(dateLocale, {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </Text>
+            </View>
+
+            {/* Sağ: Bugün */}
             <Pressable
-              onPress={() => setShowPicker(true)}
-              style={styles.dateBtn}
+              onPress={handleToday}
+              style={styles.todayBtn}
               disabled={isMonthLoading}
             >
               <Icon
-                name="calendar-multiselect-outline"
                 type={Icons.MaterialDesignIcons}
+                name="refresh"
                 size={14}
-                color={currentTheme.primary}
+                color={currentTheme.textColor}
               />
-              <Text style={styles.dateBtnText}>
-                {t('monthlyCalendar.changeDate')}
+              <Text style={styles.todayBtnText}>
+                {t('monthlyCalendar.today')}
               </Text>
             </Pressable>
-          ) : (
-            <View style={styles.headerSpacer} />
-          )}
-
-          {/* Orta: seçili gün bilgisi */}
-          <View style={styles.headerTitleWrap}>
-            <Text style={[styles.cardTitle, { color: currentTheme.textColor }]}>
-              {selectedDate.toLocaleDateString(dateLocale, {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </Text>
           </View>
 
-          {/* Sağ: Bugün */}
-          <Pressable
-            onPress={handleToday}
-            style={styles.todayBtn}
-            disabled={isMonthLoading}
+          <View
+            style={[
+              styles.cardBody,
+              {
+                paddingHorizontal: Platform.OS === 'android' ? 0 : 6,
+                paddingVertical: Platform.OS === 'android' ? 0 : 6,
+                backgroundColor: currentTheme.cardViewBackgroundColor,
+              },
+            ]}
           >
-            <Icon
-              type={Icons.MaterialDesignIcons}
-              name="refresh"
-              size={14}
-              color={currentTheme.textColor}
-            />
-            <Text style={styles.todayBtnText}>
-              {t('monthlyCalendar.today')}
-            </Text>
-          </Pressable>
+            {/* iOS: inline picker */}
+            {Platform.OS === 'ios' && (
+              <DateTimePicker
+                display="inline"
+                mode="date"
+                value={selectedDate}
+                themeVariant={applicationTheme.theme}
+                locale={dateLocale}
+                minimumDate={new Date(1900, 0, 1)}
+                accentColor={currentTheme.primary}
+                onChange={(_, picked) => {
+                  applyPickedDate(picked);
+                }}
+              />
+            )}
+
+            {/* Ay verisi yüklenirken overlay */}
+            {isMonthLoading && monthTimings && (
+              <View style={styles.pickerOverlay}>
+                <ActivityIndicator color={currentTheme.primary} />
+                <Text style={styles.overlayText}>
+                  {t('monthlyCalendar.dataLoading')}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        <View
-          style={[
-            styles.cardBody,
-            {
-              paddingHorizontal: Platform.OS === 'android' ? 0 : 6,
-              paddingVertical: Platform.OS === 'android' ? 0 : 6,
-              backgroundColor: currentTheme.cardViewBackgroundColor,
-            },
-          ]}
-        >
-          {/* iOS: inline picker */}
-          {Platform.OS === 'ios' && (
-            <DateTimePicker
-              display="inline"
-              mode="date"
-              value={selectedDate}
-              themeVariant={applicationTheme.theme}
-              locale={dateLocale}
-              minimumDate={new Date(1900, 0, 1)}
-              accentColor={currentTheme.primary}
-              onChange={(_, picked) => {
-                applyPickedDate(picked);
-              }}
-            />
-          )}
+        {/* Günün Vakitleri – PrayerTimeSmallCard ile 2 sütun */}
+        <View style={styles.dailyTimesHeader}>
+          <Text style={[styles.sectionTitle, { color: '#000' }]}>
+            {t('monthlyCalendar.dailyTimes')}
+          </Text>
+        </View>
 
-          {/* Ay verisi yüklenirken overlay */}
-          {isMonthLoading && monthTimings && (
-            <View style={styles.pickerOverlay}>
+        {smallCards.length === 0 ? (
+          shouldShowSkeleton ? null : (
+            <View style={[styles.center, { paddingVertical: 12 }]}>
               <ActivityIndicator color={currentTheme.primary} />
-              <Text style={styles.overlayText}>
-                {t('monthlyCalendar.dataLoading')}
+              <Text style={styles.timesLoadingText}>
+                {t('monthlyCalendar.timesLoading')}
               </Text>
             </View>
-          )}
-        </View>
-      </View>
+          )
+        ) : (
+          <FlatList
+            data={smallCards}
+            numColumns={2}
+            keyExtractor={i => i.key}
+            renderItem={renderSmallCard}
+            contentContainerStyle={styles.listContent}
+            columnWrapperStyle={styles.listColumnWrapper}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews
+            initialNumToRender={6}
+            windowSize={7}
+          />
+        )}
 
-      {/* Günün Vakitleri – PrayerTimeSmallCard ile 2 sütun */}
-      <View style={styles.dailyTimesHeader}>
-        <Text style={[styles.sectionTitle, { color: '#000' }]}>
-          {t('monthlyCalendar.dailyTimes')}
-        </Text>
-      </View>
-
-      {smallCards.length === 0 ? (
-        shouldShowSkeleton ? null : (
-          <View style={[styles.center, { paddingVertical: 12 }]}>
-            <ActivityIndicator color={currentTheme.primary} />
-            <Text style={styles.timesLoadingText}>
-              {t('monthlyCalendar.timesLoading')}
-            </Text>
-          </View>
-        )
-      ) : (
-        <FlatList
-          data={smallCards}
-          numColumns={2}
-          keyExtractor={i => i.key}
-          renderItem={renderSmallCard}
-          contentContainerStyle={styles.listContent}
-          columnWrapperStyle={styles.listColumnWrapper}
-          showsVerticalScrollIndicator={false}
-          removeClippedSubviews
-          initialNumToRender={6}
-          windowSize={7}
-        />
-      )}
-
-      {/* ANDROID: dialog tipi DatePicker tetikleyici */}
-      {Platform.OS === 'android' && showPicker && (
-        <DateTimePicker
-          display="default"
-          mode="date"
-          value={selectedDate}
-          accentColor={currentTheme.primary}
-          locale={dateLocale}
-          minimumDate={new Date(1900, 0, 1)}
-          onChange={(event: any, picked?: Date) => {
-            if (event?.type === 'dismissed') {
+        {/* ANDROID: dialog tipi DatePicker tetikleyici */}
+        {Platform.OS === 'android' && showPicker && (
+          <DateTimePicker
+            display="default"
+            mode="date"
+            value={selectedDate}
+            accentColor={currentTheme.primary}
+            locale={dateLocale}
+            minimumDate={new Date(1900, 0, 1)}
+            onChange={(event: any, picked?: Date) => {
+              if (event?.type === 'dismissed') {
+                setShowPicker(false);
+                return;
+              }
+              applyPickedDate(picked);
               setShowPicker(false);
-              return;
-            }
-            applyPickedDate(picked);
-            setShowPicker(false);
-          }}
-        />
-      )}
+            }}
+          />
+        )}
+      </View>
+      <BottomBannerAd />
     </ScreenViewContainer>
   );
 }
 
 const styles = StyleSheet.create({
+  contentWrapper: {
+    flex: 1,
+  },
   center: { alignItems: 'center', justifyContent: 'center' },
   loadingText: { marginTop: 8 },
 

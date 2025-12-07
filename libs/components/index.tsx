@@ -12,6 +12,7 @@ import ProgressBar from './ProgressBar/ProgressBar';
 import ErrorView from './ErrorView/ErrorView';
 import CircleProgressBar from './CircleProgressBar/CircleProgressBar';
 import CustomModal from './CustomModal/CustomModal';
+import BottomBannerAd from './Ads/BottomBannerAd';
 import {
   PrayerTimeSmallCard,
   PRAYER_TIME_ICONS,
@@ -39,5 +40,6 @@ export {
   PRAYER_TIME_ICONS,
   SkeletonPlaceholder,
   BottomTabScreenViewContainer,
+  BottomBannerAd,
 };
 export type { IconProps, CardViewProps };
