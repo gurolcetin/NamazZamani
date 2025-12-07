@@ -18,6 +18,7 @@ import { checkForceUpdate } from './libs/core/helpers/update-checker';
 import { prayerNotificationManager } from './libs/core/helpers/prayer-notification';
 import { enableScreens } from 'react-native-screens';
 import { useTranslation } from 'react-i18next';
+import mobileAds from 'react-native-google-mobile-ads';
 
 LogBox.ignoreLogs(['Sending...']);
 enableScreens();
@@ -40,6 +41,11 @@ const App = () => {
   useEffect(() => {
     prayerNotificationManager.initialize();
   }, []);
+
+  useEffect(() => {
+    mobileAds().initialize();
+  }, []);
+
   if (isChecking) {
     return (
       <View style={styles.center}>

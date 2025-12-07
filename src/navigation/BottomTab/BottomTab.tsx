@@ -14,8 +14,10 @@ import { Icon } from '../../../libs/components';
 import {
   bottomTabMenuItems,
   defaultNativeStackNavOptions,
+  BOTTOM_TAB_BANNER_AD_UNIT_ID,
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
+import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 
 const Tab = createBottomTabNavigator();
 
@@ -30,9 +32,9 @@ const CustomTabBar = ({ state, navigation }: any) => {
       style={[
         styles.tabBarContainer,
         {
-          height:
-            Platform.OS === 'ios' ? insets.bottom + 40 : insets.bottom + 50,
+          paddingBottom: Math.max(insets.bottom, 6),
           borderTopColor: currentTheme.bottomTabBorderTopColor,
+          paddingTop: Platform.OS === 'ios' ? 2 : 4,
         },
       ]}
     >
@@ -98,6 +100,16 @@ const CustomTabBar = ({ state, navigation }: any) => {
           },
         )}
       </View>
+
+      <View style={styles.bannerContainer}>
+        <BannerAd
+          unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
+      </View>
     </View>
   );
 };
@@ -134,36 +146,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderTopWidth: 1,
+    paddingHorizontal: 16,
   },
   tabBar: {
     flexDirection: 'row',
     width: '100%',
-    height: '100%',
     justifyContent: 'space-around',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'flex-start',
-    marginTop: 5,
     flex: 1,
-    position: 'relative',
   },
   iconText: {
     fontSize: 10,
-    marginTop: 5,
-    position: 'absolute',
-    top: 22,
-    width: '100%',
-    flexShrink: 1,
+    marginTop: 2,
     textAlign: 'center',
-    zIndex: 1,
   },
   tabItemTouchable: {
-    flex: 1,
+    paddingVertical: 2,
+    alignItems: 'center',
+  },
+  bannerContainer: {
     width: '100%',
     alignItems: 'center',
-    zIndex: 2,
+    justifyContent: 'center',
+    marginTop: 4,
   },
 });
 

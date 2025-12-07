@@ -19,7 +19,7 @@ const ScreenViewContainer = ({
 }: ScreenViewContainerProps) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const defaultExtraBottomSpace = Platform.OS === 'ios' ? 40 : 50;
+  const defaultExtraBottomSpace = Platform.OS === 'ios' ? 70 : 80;
   const bottomPadding = disableBottomPadding
     ? 0
     : insets.bottom + defaultExtraBottomSpace;
