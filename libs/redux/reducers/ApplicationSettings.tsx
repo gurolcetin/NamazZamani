@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PrayerTimeKey } from '../../common/types';
+import { FontScaleOption } from '../../common/enums';
 
 const PRAYER_KEYS: PrayerTimeKey[] = [
   'Fajr',
@@ -15,6 +16,7 @@ type PrayerNotificationPreferences = Record<PrayerTimeKey, boolean>;
 type ApplicationSettingsState = {
   showRamadanCountdownCard: boolean;
   prayerNotificationPreferences: PrayerNotificationPreferences;
+  fontScale: FontScaleOption;
 };
 
 const buildDefaultNotificationPreferences = (): PrayerNotificationPreferences =>
@@ -26,6 +28,7 @@ const buildDefaultNotificationPreferences = (): PrayerNotificationPreferences =>
 const initialState: ApplicationSettingsState = {
   showRamadanCountdownCard: true,
   prayerNotificationPreferences: buildDefaultNotificationPreferences(),
+  fontScale: FontScaleOption.MEDIUM,
 };
 
 const ensureNotificationPreferences = (
@@ -55,12 +58,16 @@ const ApplicationSettings = createSlice({
       const prefs = ensureNotificationPreferences(state);
       prefs[key] = enabled;
     },
+    setFontScalePreference: (state, action: PayloadAction<FontScaleOption>) => {
+      state.fontScale = action.payload;
+    },
   },
 });
 
 export const {
   setShowRamadanCountdownCard,
   setPrayerNotificationPreference,
+  setFontScalePreference,
 } = ApplicationSettings.actions;
 
 export default ApplicationSettings.reducer;

@@ -1,9 +1,13 @@
 // PrayerTimeSmallCard.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useTheme } from '../../core/providers';
 import { Icon, Icons } from '../Icons/Icons';
 import { PrayerTimeKey, SmallCard } from '../../common/types';
+import { RootState } from '../../redux/store';
+import { FontScaleOption } from '../../common/enums';
+import { getFontScaleMultiplier } from '../../core/helpers';
 
 export const PRAYER_TIME_ICONS: Record<
   PrayerTimeKey,
@@ -22,6 +26,11 @@ export const PrayerTimeSmallCard: React.FC<{
   index: number;
 }> = ({ item, index }) => {
   const { currentTheme } = useTheme();
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
   const active = item.isCurrent;
   const withOpacity = (hex: string, alpha = 0.12) => {
     const m = hex?.replace('#', '');
@@ -72,17 +81,27 @@ export const PrayerTimeSmallCard: React.FC<{
             type={PRAYER_TIME_ICONS[item.key].type}
             name={PRAYER_TIME_ICONS[item.key].name as any}
             color={active ? '#FFFFFF' : currentTheme.primary}
-            size={20}
+            size={20 * fontScaleMultiplier}
             solid
           />
         </View>
-        <Text style={[styles.smallTitle, { color: textColor }]}>
+        <Text
+          style={[
+            styles.smallTitle,
+            { color: textColor, fontSize: 14 * fontScaleMultiplier },
+          ]}
+        >
           {item.label}
         </Text>
       </View>
 
       <View style={styles.right}>
-        <Text style={[styles.smallTime, { color: textColor }]}>
+        <Text
+          style={[
+            styles.smallTime,
+            { color: textColor, fontSize: 16 * fontScaleMultiplier },
+          ]}
+        >
           {item.time}
         </Text>
       </View>
@@ -117,9 +136,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  smallTitle: { fontSize: 14, fontWeight: '600' },
+  smallTitle: { fontWeight: '600' },
   right: {
     alignItems: 'flex-end',
   },
-  smallTime: { fontSize: 16, fontWeight: '700' },
+  smallTime: { fontWeight: '700' },
 });

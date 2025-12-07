@@ -11,3 +11,10 @@ export enum Accent {
   BLUE = 'blue',
   ORANGE = 'orange',
 }
+
+export enum FontScaleOption {
+  SMALL = 'small',
+  MEDIUM = 'medium',
+  LARGE = 'large',
+  EXTRA_LARGE = 'extraLarge',
+}

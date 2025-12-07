@@ -29,7 +29,6 @@ import {
   FormSegmentedControl,
   Icon,
   Icons,
-  ScreenViewContainer,
 } from '../../../libs/components';
 import {
   AsyncStorageConstants,
@@ -38,12 +37,14 @@ import {
   SettingsConstants,
   SettingsScreenLanguageConstants,
   ThemeSettingsConstants,
+  FontSizeSettingsConstants,
 } from '../../../libs/common/constants';
-import { Accent, Theme } from '../../../libs/common/enums';
+import { Accent, Theme, FontScaleOption } from '../../../libs/common/enums';
 import { useTheme } from '../../../libs/core/providers';
 import {
   setPrayerNotificationPreference,
   setShowRamadanCountdownCard,
+  setFontScalePreference,
 } from '../../../libs/redux/reducers/ApplicationSettings';
 import { createStyles } from './style';
 import { PrayerTimeKey } from '../../../libs/common/types';
@@ -122,6 +123,8 @@ const Settings = ({}: SettingsProps) => {
   } | null>(null);
 
   const [themeSelection, setThemeSelection] = useState<Theme>(Theme.SYSTEM);
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
   const showRamadanCountdownCard =
     applicationSettings?.showRamadanCountdownCard ?? true;
   const prayerNotificationPreferences =
@@ -199,6 +202,28 @@ const Settings = ({}: SettingsProps) => {
         return rows;
       }, []),
     [notificationItems],
+  );
+
+  const fontSizeOptions = useMemo(
+    () => [
+      {
+        label: t(FontSizeSettingsConstants.Small.key),
+        value: FontScaleOption.SMALL,
+      },
+      {
+        label: t(FontSizeSettingsConstants.Medium.key),
+        value: FontScaleOption.MEDIUM,
+      },
+      {
+        label: t(FontSizeSettingsConstants.Large.key),
+        value: FontScaleOption.LARGE,
+      },
+      {
+        label: t(FontSizeSettingsConstants.ExtraLarge.key),
+        value: FontScaleOption.EXTRA_LARGE,
+      },
+    ],
+    [t],
   );
 
   const areAllNotificationsEnabled = useMemo(
@@ -299,6 +324,13 @@ const Settings = ({}: SettingsProps) => {
       setAccent(value);
     },
     [setAccent],
+  );
+
+  const handleFontScaleChange = useCallback(
+    (scale: FontScaleOption) => {
+      dispatch(setFontScalePreference(scale));
+    },
+    [dispatch],
   );
 
   const handleRamadanCountdownToggle = useCallback(
@@ -652,6 +684,18 @@ const Settings = ({}: SettingsProps) => {
               <Text style={styles.cardTitle}>
                 {t(SettingsConstants.CalculateSettings.key)}
               </Text>
+              <Text style={styles.themeSectionLabel}>
+                {t(SettingsScreenLanguageConstants.FontSize.key)}
+              </Text>
+              <View style={{ marginBottom: 16 }}>
+                <FormSegmentedControl
+                  options={fontSizeOptions}
+                  value={fontScalePreference}
+                  onChange={(value: string) =>
+                    handleFontScaleChange(value as FontScaleOption)
+                  }
+                />
+              </View>
               <View style={styles.toggleRow}>
                 <Text style={styles.toggleLabel}>
                   {t(

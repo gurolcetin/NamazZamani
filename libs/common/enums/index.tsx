@@ -1,4 +1,4 @@
-import { Theme, Accent } from './Theme';
+import { Theme, Accent, FontScaleOption } from './Theme';
 import { StatusBarBarStyle } from './StatusBar';
 
-export { Theme, StatusBarBarStyle, Accent };
+export { Theme, StatusBarBarStyle, Accent, FontScaleOption };

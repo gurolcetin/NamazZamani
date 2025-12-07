@@ -48,6 +48,7 @@ import {
 import {
   getTimeZoneByCoords,
   getUtcLabelFromTimeZone,
+  getFontScaleMultiplier,
 } from '../../../libs/core/helpers';
 import { ActionCardGroup } from './action-cards/action-card-group';
 import {
@@ -66,6 +67,7 @@ import RamadanIcon from '../../../libs/components/svg/icons/ramadan-icon';
 import { convertMiladiDateToHicriDate } from '../../../libs/core/helpers/hicriDate.helper';
 import type { RootState } from '../../../libs/redux/store';
 import { prayerNotificationManager } from '../../../libs/core/helpers/prayer-notification';
+import { FontScaleOption } from '../../../libs/common/enums';
 import {
   savePrayerSnapshot,
   saveRamadanSnapshot,
@@ -227,6 +229,13 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
     isResyncing,
     seqDateLabel,
   }) => {
+    const fontScalePreference = useSelector(
+      (state: RootState) =>
+        state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+    );
+    const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
+    const baseIconSize = 26 * fontScaleMultiplier;
+
     return (
       <View style={styles.listHeaderRoot}>
         <View style={[styles.nextCardWrapper, { backgroundColor: cardBg }]}>
@@ -242,15 +251,29 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
                   type={iconType}
                   name={iconName as any}
                   color={'#FFFFFF'}
-                  size={26}
+                  size={baseIconSize}
                   solid
                 />
               </View>
 
               {/* Metinler */}
               <View style={styles.nextTextWrap}>
-                <Text style={styles.nextLabelText}>{countdownTitle}</Text>
-                <Text style={styles.nextBigTime}>{leftClock}</Text>
+                <Text
+                  style={[
+                    styles.nextLabelText,
+                    { fontSize: 14 * fontScaleMultiplier },
+                  ]}
+                >
+                  {countdownTitle}
+                </Text>
+                <Text
+                  style={[
+                    styles.nextBigTime,
+                    { fontSize: 32 * fontScaleMultiplier },
+                  ]}
+                >
+                  {leftClock}
+                </Text>
               </View>
             </View>
 
@@ -261,7 +284,13 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
                   {isResyncing && (
                     <ActivityIndicator size="small" color="#fff" />
                   )}
-                  <Text style={styles.metaText} numberOfLines={1}>
+                  <Text
+                    style={[
+                      styles.metaText,
+                      { fontSize: 13 * fontScaleMultiplier },
+                    ]}
+                    numberOfLines={1}
+                  >
                     {seqDateLabel}
                   </Text>
                 </View>
@@ -293,6 +322,11 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
   ({ ramadanInfo, currentNow }) => {
     const { t } = useTranslation();
     const { currentTheme } = useTheme();
+    const fontScalePreference = useSelector(
+      (state: RootState) =>
+        state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+    );
+    const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
     if (!ramadanInfo) return null;
 
     const { iftarTarget, sahurTarget, maghribToday, fajrToday } = ramadanInfo;
@@ -344,7 +378,10 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
             <Text
               style={[
                 styles.ramadanActiveText,
-                { color: ramadanColors.labelColor },
+                {
+                  color: ramadanColors.labelColor,
+                  fontSize: 16 * fontScaleMultiplier,
+                },
               ]}
             >
               {activeLabel}
@@ -362,6 +399,7 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
                 styles.ramadanCountdownText,
                 { color: ramadanColors.timerText },
                 isCritical && { color: ramadanColors.timerCriticalText },
+                { fontSize: 26 * fontScaleMultiplier },
               ]}
             >
               {countdownClock}
@@ -935,37 +973,6 @@ export default function PrayerTime() {
     [],
   );
 
-  const handleTestNotificationPress = useCallback(async () => {
-    const success = await prayerNotificationManager.sendTestNotification({
-      title: t('notifications.testTitle'),
-      message: t('notifications.testBody'),
-    });
-
-    if (success) {
-      Alert.alert(
-        t('notifications.testScheduledTitle'),
-        t('notifications.testScheduledMessage'),
-      );
-      if (seqRef.current && timings) {
-        prayerNotificationManager.syncDailyNotifications({
-          sequence: seqRef.current,
-          buildContent: entry => ({
-            title: t('notifications.prayerReminderTitle'),
-            message: t('notifications.prayerReminderBody', {
-              label: entry.label,
-            }),
-          }),
-          enabledKeys: enabledNotificationKeys,
-        });
-      }
-    } else {
-      Alert.alert(
-        t('notifications.permissionDeniedTitle'),
-        t('notifications.permissionDeniedMessage'),
-      );
-    }
-  }, [t, enabledNotificationKeys, timings]);
-
   const smallCards: SmallCard[] = useMemo(() => {
     if (!timings || !seqRef.current) return [];
     const cur = currentKeyRef.current;
@@ -1064,7 +1071,7 @@ export default function PrayerTime() {
                   styles.permissionDescription,
                   {
                     color:
-                      currentTheme.secondaryTextColor || 'rgba(15,23,42,0.7)',
+                      currentTheme.placeholderTextColor || 'rgba(15,23,42,0.7)',
                   },
                 ]}
               >

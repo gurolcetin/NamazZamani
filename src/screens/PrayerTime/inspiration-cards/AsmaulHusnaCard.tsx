@@ -21,6 +21,9 @@ import {
   saveAsmaulHusna,
   selectCachedAsma,
 } from '../../../../libs/redux/reducers/prayerTimesCache';
+import type { RootState } from '../../../../libs/redux/store';
+import { FontScaleOption } from '../../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 
 type Props = {
   currentDateKey: string;
@@ -46,14 +49,17 @@ type LoadState<T> = {
   data: T | null;
 };
 
-const createStyles = (colors: {
+const createStyles = (
+  colors: {
   cardBg: string;
   primary: string;
   textColor: string;
   muted: string;
   shadowColor: string;
   danger: string;
-}) =>
+  },
+  fontScale: number,
+) =>
   StyleSheet.create({
     card: {
       marginTop: 16,
@@ -73,7 +79,7 @@ const createStyles = (colors: {
       marginBottom: 12,
     },
     title: {
-      fontSize: 16,
+      fontSize: 16 * fontScale,
       fontWeight: '700',
       color: colors.textColor,
     },
@@ -94,21 +100,21 @@ const createStyles = (colors: {
       opacity: 0.4,
     },
     arabicText: {
-      fontSize: 44,
+      fontSize: 44 * fontScale,
       fontWeight: '600',
       color: colors.textColor,
       textAlign: 'right',
       marginBottom: 8,
     },
     transliteration: {
-      fontSize: 14,
+      fontSize: 14 * fontScale,
       color: colors.muted,
       textAlign: 'right',
       marginBottom: 12,
     },
     meaning: {
-      fontSize: 16,
-      lineHeight: 22,
+      fontSize: 16 * fontScale,
+      lineHeight: 22 * fontScale,
       color: colors.textColor,
     },
     loadingRow: {
@@ -118,11 +124,11 @@ const createStyles = (colors: {
       paddingVertical: 8,
     },
     loadingText: {
-      fontSize: 14,
+      fontSize: 14 * fontScale,
       color: colors.textColor,
     },
     errorText: {
-      fontSize: 14,
+      fontSize: 14 * fontScale,
       color: colors.danger,
     },
   });
@@ -136,6 +142,11 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
   );
   const dispatch = useDispatch();
   const cachedAsma = useSelector(selectCachedAsma);
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
 
   const [state, setState] = useState<LoadState<AsmaData>>({
     loading: !cachedAsma.data,
@@ -145,15 +156,18 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
 
   const styles = useMemo(
     () =>
-      createStyles({
-        cardBg: currentTheme.cardViewBackgroundColor,
-        primary: currentTheme.primary,
-        textColor: currentTheme.textColor,
-        muted: 'rgba(148,163,184,0.9)',
-        shadowColor: currentTheme.shadowColor || '#0F172A',
-        danger: currentTheme.systemRed || '#DC2626',
-      }),
-    [currentTheme],
+      createStyles(
+        {
+          cardBg: currentTheme.cardViewBackgroundColor,
+          primary: currentTheme.primary,
+          textColor: currentTheme.textColor,
+          muted: 'rgba(148,163,184,0.9)',
+          shadowColor: currentTheme.shadowColor || '#0F172A',
+          danger: currentTheme.systemRed || '#DC2626',
+        },
+        fontScaleMultiplier,
+      ),
+    [currentTheme, fontScaleMultiplier],
   );
 
   const cachedAsmaData = cachedAsma.data;
@@ -300,6 +314,8 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
         onPress: handleManualRefresh,
       }
     : {};
+  const shareIconSize = 18 * fontScaleMultiplier;
+  const refreshIconSize = 20 * fontScaleMultiplier;
 
   return (
     <Container style={styles.card} {...containerProps}>
@@ -321,7 +337,7 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
             <Icon
               type={Icons.FontAwesome6}
               name="arrow-up-from-bracket"
-              size={18}
+              size={shareIconSize}
               color={currentTheme.textColor}
               solid
             />
@@ -339,7 +355,7 @@ const AsmaulHusnaCardComponent: React.FC<Props> = ({ currentDateKey }) => {
             <Icon
               type={Icons.MaterialDesignIcons}
               name="refresh"
-              size={20}
+              size={refreshIconSize}
               color={currentTheme.textColor}
             />
           </TouchableOpacity>

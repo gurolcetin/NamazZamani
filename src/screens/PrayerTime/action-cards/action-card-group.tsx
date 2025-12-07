@@ -1,8 +1,12 @@
 import React, { memo } from 'react';
 import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { LocationChip } from '../location-chip';
 import { Icon, Icons } from '../../../../libs/components';
+import { RootState } from '../../../../libs/redux/store';
+import { FontScaleOption } from '../../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 
 type Props = {
   label: string;
@@ -38,6 +42,12 @@ export const ActionCardGroup = memo((props: Props) => {
     onOpenImsakiye,
     onOpenQibla,
   } = props;
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
+  const baseIconSize = 28 * fontScaleMultiplier;
 
   return (
     <View style={[stylesL.card]}>
@@ -72,10 +82,18 @@ export const ActionCardGroup = memo((props: Props) => {
             <Icon
               name="calendar-multiselect-outline"
               type={Icons.MaterialDesignIcons}
-              size={28}
+              size={baseIconSize}
               color={theme.primary}
             />
-            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
+            <Text
+              style={[
+                stylesL.actionTitle,
+                {
+                  color: theme.textColor,
+                  fontSize: 12 * fontScaleMultiplier,
+                },
+              ]}
+            >
               {t('actionCardGroup.pickDate')}
             </Text>
           </View>
@@ -95,10 +113,18 @@ export const ActionCardGroup = memo((props: Props) => {
             <Icon
               type={Icons.MaterialDesignIcons}
               name="format-list-bulleted"
-              size={28}
+              size={baseIconSize}
               color={theme.primary}
             />
-            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
+            <Text
+              style={[
+                stylesL.actionTitle,
+                {
+                  color: theme.textColor,
+                  fontSize: 12 * fontScaleMultiplier,
+                },
+              ]}
+            >
               {t('actionCardGroup.imsakiye')}
             </Text>
           </View>
@@ -118,10 +144,18 @@ export const ActionCardGroup = memo((props: Props) => {
             <Icon
               type={Icons.MaterialDesignIcons}
               name="compass-outline"
-              size={28}
+              size={baseIconSize}
               color={theme.primary}
             />
-            <Text style={[stylesL.actionTitle, { color: theme.textColor }]}>
+            <Text
+              style={[
+                stylesL.actionTitle,
+                {
+                  color: theme.textColor,
+                  fontSize: 12 * fontScaleMultiplier,
+                },
+              ]}
+            >
               {t('actionCardGroup.qibla')}
             </Text>
           </View>

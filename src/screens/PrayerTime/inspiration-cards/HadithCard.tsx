@@ -18,6 +18,9 @@ import {
   saveHadith,
   selectCachedHadith,
 } from '../../../../libs/redux/reducers/prayerTimesCache';
+import type { RootState } from '../../../../libs/redux/store';
+import { FontScaleOption } from '../../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 
 type Props = {
   currentDateKey: string;
@@ -79,14 +82,17 @@ type LoadState<T> = {
   data: T | null;
 };
 
-const createStyles = (colors: {
+const createStyles = (
+  colors: {
   cardBg: string;
   primary: string;
   textColor: string;
   muted: string;
   shadowColor: string;
   danger: string;
-}) =>
+  },
+  fontScale: number,
+) =>
   StyleSheet.create({
     card: {
       marginTop: 16,
@@ -106,7 +112,7 @@ const createStyles = (colors: {
       marginBottom: 12,
     },
     title: {
-      fontSize: 16,
+      fontSize: 16 * fontScale,
       fontWeight: '700',
       color: colors.textColor,
     },
@@ -127,21 +133,21 @@ const createStyles = (colors: {
       opacity: 0.4,
     },
     arabicText: {
-      fontSize: 19,
+      fontSize: 19 * fontScale,
       fontWeight: '700',
       textAlign: 'right',
       color: colors.textColor,
-      lineHeight: 28,
+      lineHeight: 28 * fontScale,
       marginBottom: 12,
     },
     translationText: {
-      fontSize: 15,
-      lineHeight: 22,
+      fontSize: 15 * fontScale,
+      lineHeight: 22 * fontScale,
       color: colors.textColor,
       marginBottom: 8,
     },
     sourceText: {
-      fontSize: 12,
+      fontSize: 12 * fontScale,
       color: colors.muted,
       textAlign: 'right',
     },
@@ -152,11 +158,11 @@ const createStyles = (colors: {
       paddingVertical: 8,
     },
     loadingText: {
-      fontSize: 14,
+      fontSize: 14 * fontScale,
       color: colors.textColor,
     },
     errorText: {
-      fontSize: 14,
+      fontSize: 14 * fontScale,
       color: colors.danger,
     },
   });
@@ -365,6 +371,11 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
   );
   const dispatch = useDispatch();
   const cachedHadith = useSelector(selectCachedHadith);
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
 
   const [state, setState] = useState<LoadState<HadithData>>({
     loading: !cachedHadith.data,
@@ -376,15 +387,18 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
 
   const styles = useMemo(
     () =>
-      createStyles({
-        cardBg: currentTheme.cardViewBackgroundColor,
-        primary: currentTheme.primary,
-        textColor: currentTheme.textColor,
-        muted: 'rgba(148,163,184,0.9)',
-        shadowColor: currentTheme.shadowColor || '#0F172A',
-        danger: currentTheme.systemRed || '#DC2626',
-      }),
-    [currentTheme],
+      createStyles(
+        {
+          cardBg: currentTheme.cardViewBackgroundColor,
+          primary: currentTheme.primary,
+          textColor: currentTheme.textColor,
+          muted: 'rgba(148,163,184,0.9)',
+          shadowColor: currentTheme.shadowColor || '#0F172A',
+          danger: currentTheme.systemRed || '#DC2626',
+        },
+        fontScaleMultiplier,
+      ),
+    [currentTheme, fontScaleMultiplier],
   );
 
   const getSourceLabel = useCallback(
@@ -522,6 +536,8 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
         onPress: handleManualRefresh,
       }
     : {};
+  const shareIconSize = 18 * fontScaleMultiplier;
+  const actionIconSize = 20 * fontScaleMultiplier;
 
   return (
     <Container style={styles.card} {...containerProps}>
@@ -543,7 +559,7 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
             <Icon
               type={Icons.FontAwesome6}
               name="arrow-up-from-bracket"
-              size={18}
+              size={shareIconSize}
               color={currentTheme.textColor}
               solid
             />
@@ -565,7 +581,7 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
             <Icon
               type={Icons.MaterialDesignIcons}
               name="translate"
-              size={20}
+              size={actionIconSize}
               color={currentTheme.textColor}
             />
           </TouchableOpacity>
@@ -582,7 +598,7 @@ const HadithCardComponent: React.FC<Props> = ({ currentDateKey }) => {
             <Icon
               type={Icons.MaterialDesignIcons}
               name="refresh"
-              size={20}
+              size={actionIconSize}
               color={currentTheme.textColor}
             />
           </TouchableOpacity>

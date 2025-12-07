@@ -7,8 +7,12 @@ import {
   View,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { useTheme } from '../../../libs/core/providers';
 import { Icon, Icons } from '../../../libs/components';
+import { RootState } from '../../../libs/redux/store';
+import { FontScaleOption } from '../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../libs/core/helpers';
 
 type LocationChipProps = {
   label: string;
@@ -32,6 +36,11 @@ export function LocationChip({
   const [pressed, setPressed] = useState(false);
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
 
   // Arka planı eskisi gibi primary’den türetiyoruz, ekranın genel dengesi bozulmasın
   const bg = currentTheme.cardViewBackgroundColor;
@@ -60,13 +69,23 @@ export function LocationChip({
         <Icon
           type={Icons.FontAwesome6}
           name="location-dot"
-          size={20}
+          size={20 * fontScaleMultiplier}
           color={themeColors.primary}
           style={styles.icon}
           solid
         />
         <View style={styles.locTextWrap}>
-          <Text style={[styles.locText, { color: txt }]} numberOfLines={1}>
+          <Text
+            style={[
+              styles.locText,
+              {
+                color: txt,
+                fontSize: 15 * fontScaleMultiplier,
+                lineHeight: 20 * fontScaleMultiplier,
+              },
+            ]}
+            numberOfLines={1}
+          >
             {label}
           </Text>
           {loading ? (
@@ -84,7 +103,11 @@ export function LocationChip({
         <Text
           style={[
             styles.utcTextRight,
-            { color: currentTheme.placeholderTextColor },
+            {
+              color: currentTheme.placeholderTextColor,
+              fontSize: 13 * fontScaleMultiplier,
+              lineHeight: 18 * fontScaleMultiplier,
+            },
           ]}
           numberOfLines={1}
         >
@@ -93,7 +116,7 @@ export function LocationChip({
         <Icon
           type={Icons.MaterialDesignIcons}
           name="chevron-down"
-          size={18}
+          size={18 * fontScaleMultiplier}
           color={currentTheme.placeholderTextColor}
         />
       </View>

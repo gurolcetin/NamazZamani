@@ -32,6 +32,10 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.AccentColor',
     defaultValue: 'Vurgu Rengi',
   };
+  static FontSize: LanguageModel = {
+    key: 'settings.FontSize',
+    defaultValue: 'Yazı Boyutu',
+  };
   static NotificationSettingsTitle: LanguageModel = {
     key: 'settings.NotificationSettingsTitle',
     defaultValue: 'Bildirim Ayarları',
@@ -110,6 +114,25 @@ export class ThemeSettingsConstants {
   static SystemDefault: LanguageModel = {
     key: 'settings.SystemDefault',
     defaultValue: 'Sistem',
+  };
+}
+
+export class FontSizeSettingsConstants {
+  static Small: LanguageModel = {
+    key: 'settings.FontSizeSmall',
+    defaultValue: 'Küçük',
+  };
+  static Medium: LanguageModel = {
+    key: 'settings.FontSizeMedium',
+    defaultValue: 'Orta',
+  };
+  static Large: LanguageModel = {
+    key: 'settings.FontSizeLarge',
+    defaultValue: 'Büyük',
+  };
+  static ExtraLarge: LanguageModel = {
+    key: 'settings.FontSizeExtraLarge',
+    defaultValue: 'Çok Büyük',
   };
 }
 
