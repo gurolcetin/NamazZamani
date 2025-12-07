@@ -24,6 +24,8 @@ import {
 import { QiblaLanguageConstants } from '../../../../libs/common/constants/language.constants';
 import { useTheme } from '../../../../libs/core/providers';
 import { useTranslation } from 'react-i18next';
+import { HapticFeedbackMethods } from '../../../../libs/common/constants';
+import { hapticFeedback } from '../../../../libs/core/helpers';
 
 /** --- Constants --- */
 const KAABA = { lat: 21.422487, lon: 39.826206 }; // Mescid-i Haram
@@ -203,268 +205,287 @@ export default function QiblaScreen() {
     ? qiblaLabels[directionHint] ?? loadingLabel
     : loadingLabel;
   const isCorrect = directionHint === QiblaLanguageConstants.OnCourse.key;
+  const prevCorrectRef = useRef(false);
+
+  useEffect(() => {
+    const wasCorrect = prevCorrectRef.current;
+
+    // sadece yanlış → doğru geçişinde titreştir
+    if (isCorrect && !wasCorrect) {
+      hapticFeedback(HapticFeedbackMethods.NotificationSuccess);
+    }
+
+    prevCorrectRef.current = isCorrect;
+  }, [isCorrect]);
 
   return (
     <ScreenViewContainer disableBottomPadding>
       <View style={styles.contentWrapper}>
         <ScrollView style={styles.root}>
           <View style={styles.screenInner}>
-          {/* Başlık + sabit Kâbe + pusula */}
-          <View style={styles.compassContainer}>
-            {/* SABİT KÂBE İKONU (başlık ile pusula arası) */}
-            <Icon
-              type={Icons.FontAwesome6}
-              name="kaaba"
-              solid
-              size={30}
-              color={currentTheme.textColor}
-            />
-            <View style={styles.compassWrapper}>
-              <Svg width={size} height={size}>
-                {/* dış halka */}
-                <Circle
-                  cx={cx}
-                  cy={cy}
-                  r={rOuter + 8}
-                  stroke={currentTheme.primary}
-                  strokeWidth={3}
-                  fill="transparent"
-                />
+            {/* Başlık + sabit Kâbe + pusula */}
+            <View style={styles.compassContainer}>
+              {/* SABİT KÂBE İKONU (başlık ile pusula arası) */}
+              <Icon
+                type={Icons.FontAwesome6}
+                name="kaaba"
+                solid
+                size={30}
+                color={currentTheme.textColor}
+              />
+              <View style={styles.compassWrapper}>
+                <Svg width={size} height={size}>
+                  {/* dış halka */}
+                  <Circle
+                    cx={cx}
+                    cy={cy}
+                    r={rOuter + 8}
+                    stroke={currentTheme.primary}
+                    strokeWidth={3}
+                    fill="transparent"
+                  />
 
-                {/* iç daire */}
-                <Circle
-                  cx={cx}
-                  cy={cy}
-                  r={rOuter}
-                  stroke="#e2e8f0"
-                  strokeWidth={2}
-                  fill={currentTheme.cardViewBackgroundColor}
-                />
+                  {/* iç daire */}
+                  <Circle
+                    cx={cx}
+                    cy={cy}
+                    r={rOuter}
+                    stroke="#e2e8f0"
+                    strokeWidth={2}
+                    fill={currentTheme.cardViewBackgroundColor}
+                  />
 
-                {/* dönen kadran */}
-                <G rotation={-heading} originX={cx} originY={cy}>
-                  {/* Tick çizgileri */}
-                  {Array.from({ length: 360 }).map((_, i) => {
-                    const isMajor = i % 30 === 0;
-                    const isMedium = i % 10 === 0;
-                    const len = isMajor ? 16 : isMedium ? 10 : 6;
-                    const a = i * D2R;
-                    const x1 = cx + (rOuter - len) * Math.sin(a);
-                    const y1 = cy - (rOuter - len) * Math.cos(a);
-                    const x2 = cx + rOuter * Math.sin(a);
-                    const y2 = cy - rOuter * Math.cos(a);
-                    return (
-                      <Line
-                        key={i}
-                        x1={x1}
-                        y1={y1}
-                        x2={x2}
-                        y2={y2}
-                        stroke={isMajor ? '#cbd5e1' : '#e2e8f0'}
-                        strokeWidth={isMajor ? 2 : 1}
-                      />
-                    );
-                  })}
+                  {/* dönen kadran */}
+                  <G rotation={-heading} originX={cx} originY={cy}>
+                    {/* Tick çizgileri */}
+                    {Array.from({ length: 360 }).map((_, i) => {
+                      const isMajor = i % 30 === 0;
+                      const isMedium = i % 10 === 0;
+                      const len = isMajor ? 16 : isMedium ? 10 : 6;
+                      const a = i * D2R;
+                      const x1 = cx + (rOuter - len) * Math.sin(a);
+                      const y1 = cy - (rOuter - len) * Math.cos(a);
+                      const x2 = cx + rOuter * Math.sin(a);
+                      const y2 = cy - rOuter * Math.cos(a);
+                      return (
+                        <Line
+                          key={i}
+                          x1={x1}
+                          y1={y1}
+                          x2={x2}
+                          y2={y2}
+                          stroke={isMajor ? '#cbd5e1' : '#e2e8f0'}
+                          strokeWidth={isMajor ? 2 : 1}
+                        />
+                      );
+                    })}
 
-                  {/* N/E/S/W */}
-                  {[
-                    { label: 'N', deg: 0, color: '#ef4444' },
-                    { label: 'E', deg: 90, color: '#64748b' },
-                    { label: 'S', deg: 180, color: '#64748b' },
-                    { label: 'W', deg: 270, color: '#64748b' },
-                  ].map(({ label, deg, color }) => {
-                    const a = deg * D2R;
-                    const rx = cx + (rOuter - 36) * Math.sin(a);
-                    const ry = cy - (rOuter - 36) * Math.cos(a);
-                    return (
-                      <SvgText
-                        key={label}
-                        x={rx}
-                        y={ry + 8}
-                        fontSize={18}
-                        fontWeight="700"
-                        textAnchor="middle"
-                        fill={color}
-                      >
-                        {label}
-                      </SvgText>
-                    );
-                  })}
+                    {/* N/E/S/W */}
+                    {[
+                      { label: 'N', deg: 0, color: '#ef4444' },
+                      { label: 'E', deg: 90, color: '#64748b' },
+                      { label: 'S', deg: 180, color: '#64748b' },
+                      { label: 'W', deg: 270, color: '#64748b' },
+                    ].map(({ label, deg, color }) => {
+                      const a = deg * D2R;
+                      const rx = cx + (rOuter - 36) * Math.sin(a);
+                      const ry = cy - (rOuter - 36) * Math.cos(a);
+                      return (
+                        <SvgText
+                          key={label}
+                          x={rx}
+                          y={ry + 8}
+                          fontSize={18}
+                          fontWeight="700"
+                          textAnchor="middle"
+                          fill={color}
+                        >
+                          {label}
+                        </SvgText>
+                      );
+                    })}
 
-                  {/* Derece yazıları (W, N, S, E HARİÇ her 30°) */}
-                  {Array.from({ length: 12 }).map((_, idx) => {
-                    const angle = idx * 30; // 0,30,60,...,330
-                    if ([0, 90, 180, 270].includes(angle)) return null; // NESW hariç
+                    {/* Derece yazıları (W, N, S, E HARİÇ her 30°) */}
+                    {Array.from({ length: 12 }).map((_, idx) => {
+                      const angle = idx * 30; // 0,30,60,...,330
+                      if ([0, 90, 180, 270].includes(angle)) return null; // NESW hariç
 
-                    const rad = angle * D2R;
-                    const rx = cx + (rOuter - 24) * Math.sin(rad);
-                    const ry = cy - (rOuter - 24) * Math.cos(rad);
+                      const rad = angle * D2R;
+                      const rx = cx + (rOuter - 24) * Math.sin(rad);
+                      const ry = cy - (rOuter - 24) * Math.cos(rad);
 
-                    return (
-                      <SvgText
-                        key={`deg-${angle}`}
-                        x={rx}
-                        y={ry + 4}
-                        fontSize={10}
-                        textAnchor="middle"
-                        fill="#94a3b8"
-                      >
-                        {angle}
-                      </SvgText>
-                    );
-                  })}
-                </G>
+                      return (
+                        <SvgText
+                          key={`deg-${angle}`}
+                          x={rx}
+                          y={ry + 4}
+                          fontSize={10}
+                          textAnchor="middle"
+                          fill="#94a3b8"
+                        >
+                          {angle}
+                        </SvgText>
+                      );
+                    })}
+                  </G>
 
-                {/* kıble iğnesi – sadece OK (Kâbe sabit yukarıda) */}
-                {qibla && (
-                  <G originX={cx} originY={cy} rotation={qibla.relative}>
-                    <Path
-                      d={`M ${cx} ${cy - rOuter}
+                  {/* kıble iğnesi – sadece OK (Kâbe sabit yukarıda) */}
+                  {qibla && (
+                    <G originX={cx} originY={cy} rotation={qibla.relative}>
+                      <Path
+                        d={`M ${cx} ${cy - rOuter}
                        L ${cx - 10} ${cy - rOuter + 20}
                        L ${cx + 10} ${cy - rOuter + 20} Z`}
-                      fill="#10b981"
-                    />
-                  </G>
-                )}
+                        fill="#10b981"
+                      />
+                    </G>
+                  )}
 
-                {/* <Circle
-                cx={cx}
-                cy={cy}
-                r={32}
-                fill="#ffffff"
-                stroke="#22c1c3"
-                strokeWidth={2}
-              />
-
-              {isRight && (
-                <Path
-                  d={`M ${cx - 8} ${cy - 10}
-                     L ${cx + 10} ${cy}
-                     L ${cx - 8} ${cy + 10} Z`}
-                  fill="#0f766e"
-                />
-              )}
-
-              {isLeft && (
-                <Path
-                  d={`M ${cx + 8} ${cy - 10}
-                     L ${cx - 10} ${cy}
-                     L ${cx + 8} ${cy + 10} Z`}
-                  fill="#b91c1c"
-                />
-              )} */}
-
-                {/* Doğru yöndesiniz → check */}
-                {isCorrect && (
-                  <Path
-                    d={`
+                  {/* Doğru yöndesiniz → check */}
+                  {isCorrect && (
+                    <Path
+                      d={`
                     M ${cx - 10} ${cy + 2}
                     L ${cx - 2} ${cy + 10}
                     L ${cx + 12} ${cy - 6}
                   `}
-                    fill="none"
-                    stroke={currentTheme.systemGreen}
-                    strokeWidth={3}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                )}
+                      fill="none"
+                      stroke={currentTheme.systemGreen}
+                      strokeWidth={3}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  )}
+                  {!isCorrect &&
+                    directionHint === QiblaLanguageConstants.TurnLeft.key && (
+                      <Path
+                        d={`
+                          M ${cx + 14} ${cy} 
+                          L ${cx - 14} ${cy}
+                          M ${cx - 14} ${cy} 
+                          L ${cx - 6} ${cy - 8}
+                          M ${cx - 14} ${cy} 
+                          L ${cx - 6} ${cy + 8}
+                        `}
+                        stroke={currentTheme.systemRed}
+                        strokeWidth={3}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                      />
+                    )}
 
-                {/* merkez nokta */}
-                <Circle cx={cx} cy={cy} r={4} fill="#ffffff" />
-              </Svg>
-            </View>
-          </View>
-
-          {/* Alt kart: Bilgi paneli */}
-          <View
-            style={[
-              styles.infoCard,
-              { backgroundColor: currentTheme.cardViewBackgroundColor },
-            ]}
-          >
-            <View style={styles.infoHeader}>
-              <Text
-                style={[
-                  styles.infoLabel,
-                  { color: currentTheme.placeholderTextColor },
-                ]}
-              >
-                {directionLabel}
-              </Text>
-              <Text
-                style={[
-                  styles.infoDirection,
-                  {
-                    color: isCorrect
-                      ? currentTheme.systemGreen
-                      : currentTheme.systemRed,
-                  },
-                ]}
-              >
-                {directionText}
-              </Text>
-            </View>
-
-            <View style={[styles.degreeBox]}>
-              <Text
-                style={[styles.bigDegree, { color: currentTheme.textColor }]}
-              >
-                {Math.round(heading)}°
-              </Text>
-            </View>
-
-            {qibla && (
-              <View style={styles.metaRow}>
-                <View style={styles.metaCol}>
-                  <Text
-                    style={[
-                      styles.metaLabel,
-                      { color: currentTheme.placeholderTextColor },
-                    ]}
-                  >
-                    {angleLabel}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.metaValue,
-                      { color: currentTheme.textColor },
-                    ]}
-                  >
-                    {Math.round(qibla.bearing)}°
-                  </Text>
-                </View>
-
-                <View
-                  style={[
-                    styles.metaDivider,
-                    { backgroundColor: currentTheme.placeholderTextColor },
-                  ]}
-                />
-
-                <View style={styles.metaCol}>
-                  <Text
-                    style={[
-                      styles.metaLabel,
-                      { color: currentTheme.placeholderTextColor },
-                    ]}
-                  >
-                    {distanceLabel}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.metaValue,
-                      { color: currentTheme.textColor },
-                    ]}
-                  >
-                    {qibla.distanceKm.toFixed(1)} km
-                  </Text>
-                </View>
+                  {!isCorrect &&
+                    directionHint === QiblaLanguageConstants.TurnRight.key && (
+                      <Path
+                        d={`
+                          M ${cx - 14} ${cy}
+                          L ${cx + 14} ${cy}
+                          M ${cx + 14} ${cy}
+                          L ${cx + 6} ${cy - 8}
+                          M ${cx + 14} ${cy}
+                          L ${cx + 6} ${cy + 8}
+                        `}
+                        stroke={currentTheme.systemRed}
+                        strokeWidth={3}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                      />
+                    )}
+                </Svg>
               </View>
-            )}
+            </View>
 
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-          </View>
+            {/* Alt kart: Bilgi paneli */}
+            <View
+              style={[
+                styles.infoCard,
+                { backgroundColor: currentTheme.cardViewBackgroundColor },
+              ]}
+            >
+              <View style={styles.infoHeader}>
+                <Text
+                  style={[
+                    styles.infoLabel,
+                    { color: currentTheme.placeholderTextColor },
+                  ]}
+                >
+                  {directionLabel}
+                </Text>
+                <Text
+                  style={[
+                    styles.infoDirection,
+                    {
+                      color: isCorrect
+                        ? currentTheme.systemGreen
+                        : currentTheme.systemRed,
+                    },
+                  ]}
+                >
+                  {directionText}
+                </Text>
+              </View>
+
+              <View style={[styles.degreeBox]}>
+                <Text
+                  style={[styles.bigDegree, { color: currentTheme.textColor }]}
+                >
+                  {Math.round(heading)}°
+                </Text>
+              </View>
+
+              {qibla && (
+                <View style={styles.metaRow}>
+                  <View style={styles.metaCol}>
+                    <Text
+                      style={[
+                        styles.metaLabel,
+                        { color: currentTheme.placeholderTextColor },
+                      ]}
+                    >
+                      {angleLabel}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.metaValue,
+                        { color: currentTheme.textColor },
+                      ]}
+                    >
+                      {Math.round(qibla.bearing)}°
+                    </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.metaDivider,
+                      { backgroundColor: currentTheme.placeholderTextColor },
+                    ]}
+                  />
+
+                  <View style={styles.metaCol}>
+                    <Text
+                      style={[
+                        styles.metaLabel,
+                        { color: currentTheme.placeholderTextColor },
+                      ]}
+                    >
+                      {distanceLabel}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.metaValue,
+                        { color: currentTheme.textColor },
+                      ]}
+                    >
+                      {qibla.distanceKm.toFixed(1)} km
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {error ? <Text style={styles.error}>{error}</Text> : null}
+            </View>
 
             <View style={styles.bottomSpacer} />
           </View>
