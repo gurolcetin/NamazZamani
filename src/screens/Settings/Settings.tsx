@@ -49,6 +49,7 @@ import {
 import { createStyles } from './style';
 import { PrayerTimeKey } from '../../../libs/common/types';
 import { prayerNotificationManager } from '../../../libs/core/helpers/prayer-notification';
+import { getFontScaleMultiplier } from '../../../libs/core/helpers';
 
 const accentOptions: Accent[] = [
   Accent.TEAL,
@@ -125,6 +126,10 @@ const Settings = ({}: SettingsProps) => {
   const [themeSelection, setThemeSelection] = useState<Theme>(Theme.SYSTEM);
   const fontScalePreference =
     applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
   const showRamadanCountdownCard =
     applicationSettings?.showRamadanCountdownCard ?? true;
   const prayerNotificationPreferences =
@@ -134,7 +139,10 @@ const Settings = ({}: SettingsProps) => {
   const [notificationPermissionGranted, setNotificationPermissionGranted] =
     useState<boolean>(true);
 
-  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
+  const styles = useMemo(
+    () => createStyles(currentTheme, fontScaleMultiplier),
+    [currentTheme, fontScaleMultiplier],
+  );
   const mailErrorTitle = t('settings.mailErrorTitle');
   const mailErrorMessage = t('settings.mailErrorMessage');
 
@@ -225,6 +233,10 @@ const Settings = ({}: SettingsProps) => {
     ],
     [t],
   );
+
+  const defaultIconSize = 20 * fontScaleMultiplier;
+  const smallIconSize = 18 * fontScaleMultiplier;
+  const largeIconSize = 22 * fontScaleMultiplier;
 
   const areAllNotificationsEnabled = useMemo(
     () =>
@@ -466,7 +478,7 @@ const Settings = ({}: SettingsProps) => {
                 <Icon
                   type={Icons.MaterialDesignIcons}
                   name={isLangOpen ? 'chevron-up' : 'chevron-down'}
-                  size={20}
+                  size={defaultIconSize}
                   color={currentTheme.textColor}
                 />
               </Pressable>
@@ -484,7 +496,7 @@ const Settings = ({}: SettingsProps) => {
                     <Icon
                       type={Icons.MaterialDesignIcons}
                       name="bell-outline"
-                      size={20}
+                      size={defaultIconSize}
                       color={currentTheme.textColor}
                     />
                   </View>
@@ -528,7 +540,7 @@ const Settings = ({}: SettingsProps) => {
                     name={
                       isNotificationCardOpen ? 'chevron-up' : 'chevron-down'
                     }
-                    size={20}
+                    size={defaultIconSize}
                     color={currentTheme.textColor}
                   />
                 </View>
@@ -596,7 +608,7 @@ const Settings = ({}: SettingsProps) => {
                     iconProps: {
                       name: themeModeIcons.light,
                       type: Icons.MaterialDesignIcons,
-                      size: 18,
+                      size: smallIconSize,
                     },
                   },
                   {
@@ -605,7 +617,7 @@ const Settings = ({}: SettingsProps) => {
                     iconProps: {
                       name: themeModeIcons.dark,
                       type: Icons.MaterialDesignIcons,
-                      size: 18,
+                      size: smallIconSize,
                     },
                   },
                   {
@@ -614,7 +626,7 @@ const Settings = ({}: SettingsProps) => {
                     iconProps: {
                       name: themeModeIcons.system,
                       type: Icons.MaterialDesignIcons,
-                      size: 18,
+                      size: smallIconSize,
                     },
                   },
                 ]}
@@ -668,7 +680,7 @@ const Settings = ({}: SettingsProps) => {
                           <Icon
                             type={Icons.MaterialDesignIcons}
                             name="check"
-                            size={18}
+                            size={smallIconSize}
                             color={currentTheme.white}
                           />
                         )}
@@ -691,6 +703,7 @@ const Settings = ({}: SettingsProps) => {
                 <FormSegmentedControl
                   options={fontSizeOptions}
                   value={fontScalePreference}
+                  fontScaleMultiplier={fontScaleMultiplier}
                   onChange={(value: string) =>
                     handleFontScaleChange(value as FontScaleOption)
                   }
@@ -777,7 +790,7 @@ const Settings = ({}: SettingsProps) => {
                   <Text
                     style={{
                       color: currentTheme.textColor,
-                      fontSize: 16,
+                      fontSize: 16 * fontScaleMultiplier,
                       fontWeight: '600',
                     }}
                   >
@@ -786,7 +799,7 @@ const Settings = ({}: SettingsProps) => {
                   <Text
                     style={{
                       color: currentTheme.gray,
-                      fontSize: 13,
+                      fontSize: 13 * fontScaleMultiplier,
                       marginTop: 6,
                     }}
                   >
@@ -796,7 +809,7 @@ const Settings = ({}: SettingsProps) => {
                 <Icon
                   type={Icons.MaterialDesignIcons}
                   name="chevron-right"
-                  size={22}
+                  size={largeIconSize}
                   color={currentTheme.gray}
                 />
               </Pressable>
@@ -862,7 +875,7 @@ const Settings = ({}: SettingsProps) => {
                             />
                             <Text
                               style={{
-                                fontSize: 14,
+                                fontSize: 14 * fontScaleMultiplier,
                                 color: currentTheme.textColor,
                               }}
                             >
@@ -873,7 +886,7 @@ const Settings = ({}: SettingsProps) => {
                             <Icon
                               type={Icons.MaterialDesignIcons}
                               name="check"
-                              size={18}
+                              size={smallIconSize}
                               color={currentTheme.primary}
                             />
                           )}

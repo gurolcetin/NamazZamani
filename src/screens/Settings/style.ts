@@ -1,8 +1,10 @@
 import { StyleSheet } from 'react-native';
 import { ThemeType } from '../../../libs/common/models';
 
-export const createStyles = (theme: ThemeType) =>
-  StyleSheet.create({
+export const createStyles = (theme: ThemeType, fontScale = 1) => {
+  const scaleFont = (value: number) => value * fontScale;
+
+  return StyleSheet.create({
     contentContainer: {
       paddingHorizontal: 20,
       paddingTop: 20,
@@ -19,7 +21,7 @@ export const createStyles = (theme: ThemeType) =>
     headerTitle: {
       flex: 1,
       textAlign: 'center',
-      fontSize: 20,
+      fontSize: scaleFont(20),
       fontWeight: '600',
       color: theme.textColor,
     },
@@ -35,7 +37,7 @@ export const createStyles = (theme: ThemeType) =>
       elevation: 2,
     },
     cardTitle: {
-      fontSize: 17,
+      fontSize: scaleFont(17),
       fontWeight: '600',
       color: theme.textColor,
       marginBottom: 16,
@@ -64,14 +66,14 @@ export const createStyles = (theme: ThemeType) =>
       flex: 1,
     },
     notificationHeaderTitle: {
-      fontSize: 16,
+      fontSize: scaleFont(16),
       fontWeight: '600',
       color: theme.textColor,
       marginBottom: 2,
     },
     notificationSubtitle: {
-      fontSize: 13,
-      lineHeight: 18,
+      fontSize: scaleFont(13),
+      lineHeight: scaleFont(18),
       color: theme.gray,
     },
     notificationHeaderRight: {
@@ -88,7 +90,7 @@ export const createStyles = (theme: ThemeType) =>
       borderColor: `${theme.primary}33`,
     },
     notificationChipText: {
-      fontSize: 13,
+      fontSize: scaleFont(13),
       fontWeight: '600',
       color: theme.primary,
     },
@@ -117,7 +119,7 @@ export const createStyles = (theme: ThemeType) =>
       borderColor: 'transparent',
     },
     notificationLabel: {
-      fontSize: 15,
+      fontSize: scaleFont(15),
       fontWeight: '500',
       color: theme.textColor,
     },
@@ -142,7 +144,7 @@ export const createStyles = (theme: ThemeType) =>
       resizeMode: 'contain'
     },
     languageText: {
-      fontSize: 15,
+      fontSize: scaleFont(15),
       fontWeight: '600',
     },
     dropdown: {
@@ -162,7 +164,7 @@ export const createStyles = (theme: ThemeType) =>
       marginLeft: 16,
     },
     themeSectionLabel: {
-      fontSize: 13,
+      fontSize: scaleFont(13),
       fontWeight: '600',
       color: theme.textColor,
       marginBottom: 10,
@@ -182,7 +184,7 @@ export const createStyles = (theme: ThemeType) =>
       justifyContent: 'center',
     },
     themeOptionText: {
-      fontSize: 14,
+      fontSize: scaleFont(14),
       fontWeight: '600',
       marginLeft: 8,
     },
@@ -207,7 +209,7 @@ export const createStyles = (theme: ThemeType) =>
     },
     helperText: {
       marginTop: 10,
-      fontSize: 13,
+      fontSize: scaleFont(13),
     },
     toggleRow: {
       flexDirection: 'row',
@@ -217,14 +219,14 @@ export const createStyles = (theme: ThemeType) =>
     },
     toggleLabel: {
       flex: 1,
-      fontSize: 14,
+      fontSize: scaleFont(14),
       fontWeight: '500',
       color: theme.textColor,
       marginRight: 12,
     },
     toggleHint: {
       marginTop: 6,
-      fontSize: 12,
+      fontSize: scaleFont(12),
       color: theme.gray,
     },
     saveButton: {
@@ -235,7 +237,7 @@ export const createStyles = (theme: ThemeType) =>
       marginTop: 8,
     },
     saveButtonLabel: {
-      fontSize: 16,
+      fontSize: scaleFont(16),
       fontWeight: '600',
       color: '#fff',
     },
@@ -245,13 +247,14 @@ export const createStyles = (theme: ThemeType) =>
       paddingVertical: 12,
     },
     versionInfoLabel: {
-      fontSize: 13,
+      fontSize: scaleFont(13),
       color: theme.gray,
       marginBottom: 4,
     },
     versionInfoValue: {
-      fontSize: 16,
+      fontSize: scaleFont(16),
       fontWeight: '600',
       color: theme.textColor,
     },
   });
+};

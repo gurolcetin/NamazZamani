@@ -20,12 +20,14 @@ interface GenderSegmentedControlProps {
   options: SegmentedOption[];
   value: string;
   onChange: (value: string) => void;
+  fontScaleMultiplier?: number;
 }
 
 const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
   options,
   value,
   onChange,
+  fontScaleMultiplier = 1,
 }) => {
   const { currentTheme } = useTheme();
   const [containerWidth, setContainerWidth] = useState(0);
@@ -104,7 +106,10 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
                 <Text
                   style={[
                     styles.genderChipText,
-                    { color: active ? primary : currentTheme.textColor },
+                    {
+                      color: active ? primary : currentTheme.textColor,
+                      fontSize: 14 * fontScaleMultiplier,
+                    },
                   ]}
                 >
                   {opt.label}

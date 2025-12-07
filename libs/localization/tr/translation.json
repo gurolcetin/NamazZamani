@@ -256,7 +256,7 @@
     "permissionDenied": "Konum izni verilmedi.",
     "unknownError": "Bilinmeyen hata",
     "unsupportedTitle": "Pusula Desteklenmiyor",
-    "unsupportedDescription": "Bu cihazın sensörleri Kıble Bulucu için gerekli pusulayı desteklemiyor. Lütfen daha yeni bir cihaz deneyin."
+    "unsupportedDescription": "Bu cihazın sensörleri Kıble Bulucu için gerekli pusulayı desteklemiyor."
   },
   "privacyScreen": {
     "title": "Gizlilik Politikası ve Kullanım Şartları",

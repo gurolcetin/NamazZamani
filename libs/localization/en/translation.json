@@ -256,7 +256,7 @@
     "permissionDenied": "Location permission denied.",
     "unknownError": "Unknown error",
     "unsupportedTitle": "Compass Not Supported",
-    "unsupportedDescription": "Your device's sensors do not support the compass required for the Qibla finder. Please try again on a newer device."
+    "unsupportedDescription": "Your device's sensors do not support the compass required for the Qibla finder."
   },
   "privacyScreen": {
     "title": "Privacy Policy & Terms of Use",
