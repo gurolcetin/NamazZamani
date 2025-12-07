@@ -43,7 +43,14 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    mobileAds().initialize();
+    mobileAds()
+      .setRequestConfiguration({
+        testDeviceIdentifiers: [
+          'EMULATOR', // Android/iOS simülatörler için
+          'a8ac00e6ebc87db82a1f53a559e17a2c', // iOS cihaz örneği
+        ],
+      })
+      .then(() => mobileAds().initialize());
   }, []);
 
   if (isChecking) {
