@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import {
   BottomTabScreenViewContainer,
-  ScreenViewContainer,
   SegmentedControl,
 } from '../../../libs/components';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import {
   DhikrLanguageConstants,
   DhikrTabKeys,
@@ -38,7 +37,10 @@ const Dhikr = () => {
         marginHorizontal={horizontalScale(20)}
         marginTop={horizontalScale(15)}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {selectedTab === DhikrTabKeys.All && <AllDhikr />}
         {selectedTab === DhikrTabKeys.Prayer && <PrayerDhikr />}
       </ScrollView>
@@ -47,3 +49,9 @@ const Dhikr = () => {
 };
 
 export default Dhikr;
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 70,
+  },
+});

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
   BottomTabScreenViewContainer,
-  ScreenViewContainer,
   SegmentedControl,
 } from '../../../libs/components';
 import {
@@ -15,8 +14,7 @@ import {
   CalculatedMissedFasting,
 } from '../../../libs/core/sections';
 import { horizontalScale } from '../../../libs/core/utils';
-import { ScrollView } from 'react-native';
-import { globalStyle } from '../../../libs/styles';
+import { ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -66,7 +64,7 @@ const MissedTracking = () => {
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={globalStyle.marginBottomScrollView}
+        contentContainerStyle={styles.scrollContent}
       >
         {selectedTab === MissedTrackingTabKeys.Prayer &&
           (!isMissedPrayerCalculated ? (
@@ -86,3 +84,9 @@ const MissedTracking = () => {
 };
 
 export default MissedTracking;
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 70,
+  },
+});

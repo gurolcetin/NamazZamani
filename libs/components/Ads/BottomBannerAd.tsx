@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { BOTTOM_TAB_BANNER_AD_UNIT_ID } from '../../common/constants';
@@ -10,11 +10,19 @@ type BottomBannerAdProps = {
 
 const BottomBannerAd: React.FC<BottomBannerAdProps> = ({ containerStyle }) => {
   const insets = useSafeAreaInsets();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const spacingStyle = isLoaded
+    ? {
+        paddingTop: 16,
+        paddingBottom: 16 + Math.max(insets.bottom, 8),
+      }
+    : styles.hidden;
+
   return (
     <View
       style={[
         styles.container,
-        { paddingBottom: Math.max(insets.bottom, 8) },
+        spacingStyle,
         containerStyle,
       ]}
     >
@@ -22,6 +30,8 @@ const BottomBannerAd: React.FC<BottomBannerAdProps> = ({ containerStyle }) => {
         unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
         size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
         requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+        onAdLoaded={() => setIsLoaded(true)}
+        onAdFailedToLoad={() => setIsLoaded(false)}
       />
     </View>
   );
@@ -29,9 +39,14 @@ const BottomBannerAd: React.FC<BottomBannerAdProps> = ({ containerStyle }) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  hidden: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    height: 0,
+    overflow: 'hidden',
   },
 });
 
