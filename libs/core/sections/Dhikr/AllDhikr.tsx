@@ -109,15 +109,30 @@ const AllDhikr = () => {
           name: string;
           count: number;
           maxCount: number;
-        }) => {
-          return {
-            value: item.dhikrId.toString(),
-            label: item.name,
-          };
-        },
+        }) => ({
+          value: item.dhikrId.toString(),
+          label: item.name,
+        }),
       );
+
       setRadioButtonList(mappedList);
-      setValue(mappedList[0].value);
+
+      // 🔥 Seçili olanı koru, gerekirse fallback yap
+      setValue(prevValue => {
+        if (!prevValue) {
+          // İlk açılışta veya tamamen boşken
+          return mappedList[0].value;
+        }
+
+        const stillExists = mappedList.some(x => x.value === prevValue);
+        if (stillExists) {
+          // Aynı zikir hâlâ listede → seçimi koru
+          return prevValue;
+        }
+
+        // Seçili zikir artık yoksa → ilk elemana geç
+        return mappedList[0].value;
+      });
     } else {
       setRadioButtonList([]);
       setValue('');
