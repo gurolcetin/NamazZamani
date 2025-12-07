@@ -1,8 +1,8 @@
 export const MenuIconConstants = {
-  PrayerTime: 'mosque',
-  MissedTracking: 'calendar-check',
-  Dhikr: 'ballot',
-  Settings: 'gear',
+  PrayerTime: 'clock-time-two',
+  MissedTracking: 'calculator',
+  Dhikr: 'counter',
+  Settings: 'cogs',
 };
 
 export const AsyncStorageConstants = {

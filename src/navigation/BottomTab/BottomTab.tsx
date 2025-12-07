@@ -78,7 +78,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
                         : item?.color
                     }
                     solid={item?.solid}
-                    size={20}
+                    size={item?.size}
                   />
                 </TouchableHighlight>
 
