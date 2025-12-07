@@ -41,6 +41,7 @@
     "No": "Hayır",
     "Reset": "Sıfırla",
     "Save": "Kaydet",
+    "Ok": "Tamam",
     "SearchPlaceHolder": "Ara",
     "SearchCancelText": "İptal",
     "SearchNewLocation": "Yeni Konum Ara"
@@ -248,7 +249,9 @@
     "turnRight": "Sağa Dön",
     "turnLeft": "Sola Dön",
     "permissionDenied": "Konum izni verilmedi.",
-    "unknownError": "Bilinmeyen hata"
+    "unknownError": "Bilinmeyen hata",
+    "unsupportedTitle": "Pusula Desteklenmiyor",
+    "unsupportedDescription": "Bu cihazın sensörleri Kıble Bulucu için gerekli pusulayı desteklemiyor. Lütfen daha yeni bir cihaz deneyin."
   },
   "privacyScreen": {
     "title": "Gizlilik Politikası ve Kullanım Şartları",

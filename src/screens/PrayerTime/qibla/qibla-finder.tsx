@@ -1,5 +1,5 @@
 // QiblaScreen.tsx
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Platform,
   PermissionsAndroid,
   ScrollView,
+  Alert,
 } from 'react-native';
 import Svg, { Circle, G, Line, Text as SvgText, Path } from 'react-native-svg';
 import Geolocation, {
@@ -14,6 +15,11 @@ import Geolocation, {
   GeoWatchOptions,
 } from 'react-native-geolocation-service';
 import CompassHeading from 'react-native-compass-heading';
+import {
+  NavigationProp,
+  ParamListBase,
+  useNavigation,
+} from '@react-navigation/native';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import {
   Icon,
@@ -21,7 +27,10 @@ import {
   ScreenViewContainer,
   BottomBannerAd,
 } from '../../../../libs/components';
-import { QiblaLanguageConstants } from '../../../../libs/common/constants/language.constants';
+import {
+  GeneralLanguageConstants,
+  QiblaLanguageConstants,
+} from '../../../../libs/common/constants/language.constants';
 import { useTheme } from '../../../../libs/core/providers';
 import { useTranslation } from 'react-i18next';
 import { HapticFeedbackMethods } from '../../../../libs/common/constants';
@@ -87,6 +96,7 @@ function turnHint(delta: number): string {
 /** --- Component --- */
 export default function QiblaScreen() {
   const { t } = useTranslation();
+  const navigation = useNavigation<NavigationProp<ParamListBase>>();
   const permissionDeniedMessage = t(
     QiblaLanguageConstants.PermissionDenied.key,
   );
@@ -98,6 +108,13 @@ export default function QiblaScreen() {
   const turnRightLabel = t(QiblaLanguageConstants.TurnRight.key);
   const turnLeftLabel = t(QiblaLanguageConstants.TurnLeft.key);
   const onCourseLabel = t(QiblaLanguageConstants.OnCourse.key);
+  const unsupportedTitle = t(
+    QiblaLanguageConstants.CompassUnsupportedTitle.key,
+  );
+  const unsupportedDescription = t(
+    QiblaLanguageConstants.CompassUnsupportedDescription.key,
+  );
+  const okLabel = t(GeneralLanguageConstants.Ok.key);
   const qiblaLabels: Record<string, string> = {
     [QiblaLanguageConstants.TurnRight.key]: turnRightLabel,
     [QiblaLanguageConstants.TurnLeft.key]: turnLeftLabel,
@@ -112,13 +129,58 @@ export default function QiblaScreen() {
   const [rawHeading, setRawHeading] = useState(0);
   const [heading, setHeading] = useState(0);
   const smoothRef = useRef(0);
+  const unsupportedAlertShownRef = useRef(false);
 
   const [error, setError] = useState<string | null>(null);
   const geoWatchId = useRef<number | null>(null);
 
+  const cleanupSensors = useCallback(() => {
+    CompassHeading.stop();
+    if (geoWatchId.current !== null) {
+      Geolocation.clearWatch(geoWatchId.current);
+      geoWatchId.current = null;
+    }
+  }, []);
+
+  const showUnsupportedAlert = useCallback(() => {
+    if (unsupportedAlertShownRef.current) return;
+    unsupportedAlertShownRef.current = true;
+    Alert.alert(
+      unsupportedTitle,
+      unsupportedDescription,
+      [
+        {
+          text: okLabel,
+          onPress: () => {
+            navigation.goBack();
+          },
+        },
+      ],
+      { cancelable: false },
+    );
+  }, [navigation, okLabel, unsupportedDescription, unsupportedTitle]);
+
   /** Permissions + sensors start */
   useEffect(() => {
     (async () => {
+      const compassModule = CompassHeading as typeof CompassHeading & {
+        hasCompass?: () => Promise<boolean>;
+      };
+
+      if (
+        Platform.OS === 'android' &&
+        typeof compassModule.hasCompass === 'function'
+      ) {
+        const supported = await compassModule
+          .hasCompass()
+          .catch(() => false);
+        if (!supported) {
+          cleanupSensors();
+          showUnsupportedAlert();
+          return;
+        }
+      }
+
       try {
         if (Platform.OS === 'ios') {
           const res = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
@@ -155,22 +217,29 @@ export default function QiblaScreen() {
           opts,
         );
 
-        CompassHeading.start(2, ({ heading }: { heading: number }) => {
-          setRawHeading(norm(heading));
-        });
+        try {
+          await CompassHeading.start(2, ({ heading }: { heading: number }) => {
+            setRawHeading(norm(heading));
+          });
+        } catch {
+          cleanupSensors();
+          showUnsupportedAlert();
+          return;
+        }
       } catch (e: any) {
         setError(e?.message ?? unknownErrorMessage);
       }
     })();
 
     return () => {
-      CompassHeading.stop();
-      if (geoWatchId.current !== null) {
-        Geolocation.clearWatch(geoWatchId.current);
-        geoWatchId.current = null;
-      }
+      cleanupSensors();
     };
-  }, [permissionDeniedMessage, unknownErrorMessage]);
+  }, [
+    cleanupSensors,
+    permissionDeniedMessage,
+    showUnsupportedAlert,
+    unknownErrorMessage,
+  ]);
 
   /** Smoothing loop (yaklaşık 60 FPS) */
   useEffect(() => {

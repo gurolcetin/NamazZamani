@@ -197,6 +197,10 @@ export class GeneralLanguageConstants {
     key: 'General.Save',
     defaultValue: 'Kaydet',
   };
+  static Ok: LanguageModel = {
+    key: 'General.Ok',
+    defaultValue: 'Tamam',
+  };
 }
 
 export class MissedPrayerFormLanguageConstants {
@@ -356,5 +360,14 @@ export class QiblaLanguageConstants {
   static UnknownError: LanguageModel = {
     key: 'qibla.unknownError',
     defaultValue: 'Bilinmeyen hata',
+  };
+  static CompassUnsupportedTitle: LanguageModel = {
+    key: 'qibla.unsupportedTitle',
+    defaultValue: 'Pusula Desteklenmiyor',
+  };
+  static CompassUnsupportedDescription: LanguageModel = {
+    key: 'qibla.unsupportedDescription',
+    defaultValue:
+      'Cihazınızın sensörleri Kıble Bulucu için gerekli pusulayı desteklemiyor.',
   };
 }

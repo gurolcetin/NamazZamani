@@ -41,6 +41,7 @@
     "No": "No",
     "Reset": "Reset",
     "Save": "Save",
+    "Ok": "OK",
     "SearchPlaceHolder": "Search",
     "SearchCancelText": "Cancel"
   },
@@ -248,7 +249,9 @@
     "turnRight": "Turn Right",
     "turnLeft": "Turn Left",
     "permissionDenied": "Location permission denied.",
-    "unknownError": "Unknown error"
+    "unknownError": "Unknown error",
+    "unsupportedTitle": "Compass Not Supported",
+    "unsupportedDescription": "Your device's sensors do not support the compass required for the Qibla finder. Please try again on a newer device."
   },
   "privacyScreen": {
     "title": "Privacy Policy & Terms of Use",
