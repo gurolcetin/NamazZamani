@@ -1,4 +1,7 @@
 {
   "name": "NamazZamani",
-  "displayName": "NamazZamani"
+  "displayName": "NamazZamani",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-1664398990145686~3000574564"
+  }
 }

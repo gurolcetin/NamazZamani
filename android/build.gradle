@@ -6,6 +6,8 @@ buildscript {
         targetSdkVersion = 36
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.1.20"
+        // Force AndroidX appcompat for libraries that still try to use the old support packages.
+        supportLibVersion = "1.7.0"
     }
     repositories {
         google()
