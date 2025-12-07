@@ -1,19 +1,18 @@
-import {StyleSheet} from 'react-native';
-import {verticalScale} from '../../core/utils';
+import { StyleSheet } from 'react-native';
 
 const style = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: verticalScale(20),
-    marginBottom: verticalScale(15),
+    marginTop: 20,
+    marginBottom: 15,
   },
   touchableOpacity: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: verticalScale(10),
+    paddingVertical: 10,
     borderRadius: 10,
   },
   label: {

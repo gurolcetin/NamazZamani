@@ -1,8 +1,7 @@
 import React from 'react';
-import {View, Text, StyleProp, ViewStyle} from 'react-native';
-import {useTheme} from '../../core/providers';
-import {style} from './style';
-import {horizontalScale} from '../../core/utils';
+import { View, Text, StyleProp, ViewStyle } from 'react-native';
+import { useTheme } from '../../core/providers';
+import { style } from './style';
 
 export interface CardViewProps {
   children: React.ReactNode;
@@ -15,12 +14,12 @@ export interface CardViewProps {
 }
 
 const CardView = (props: CardViewProps) => {
-  const {currentTheme} = useTheme();
+  const { currentTheme } = useTheme();
 
   return (
     <View style={style.container}>
       {props.title && (
-        <Text style={[style.title, {color: currentTheme.primary}]}>
+        <Text style={[style.title, { color: currentTheme.primary }]}>
           {props.title}
         </Text>
       )}
@@ -30,12 +29,13 @@ const CardView = (props: CardViewProps) => {
           {
             backgroundColor: currentTheme.cardViewBackgroundColor,
             borderBottomColor: currentTheme.cardViewBorderColor,
-            paddingLeft: props.paddingLeft ?? horizontalScale(20),
+            paddingLeft: props.paddingLeft ?? 20,
             shadowColor: currentTheme.shadowColor,
           },
           props.cardStyle,
           props.shadow && style.shadow,
-        ]}>
+        ]}
+      >
         {props.children}
       </View>
       {props.bottomDescription && (

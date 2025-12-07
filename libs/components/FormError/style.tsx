@@ -1,14 +1,13 @@
-import {StyleSheet} from 'react-native';
-import {horizontalScale, verticalScale} from '../../core/utils';
+import { StyleSheet } from 'react-native';
 
 const style = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    marginTop: verticalScale(5),
+    marginTop: 5,
     alignItems: 'center',
   },
   errorMessage: {
-    marginLeft: horizontalScale(5),
+    marginLeft: 5,
   },
 });
 

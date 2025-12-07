@@ -9,7 +9,6 @@ import {
   DhikrTabKeys,
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
-import { horizontalScale } from '../../../libs/core/utils';
 import { AllDhikr, PrayerDhikr } from '../../../libs/core/sections';
 
 const Dhikr = () => {
@@ -34,8 +33,8 @@ const Dhikr = () => {
       <SegmentedControl
         tabs={tabs}
         onTabChange={onTabChange}
-        marginHorizontal={horizontalScale(20)}
-        marginTop={horizontalScale(15)}
+        marginHorizontal={20}
+        marginTop={15}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

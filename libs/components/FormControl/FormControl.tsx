@@ -1,16 +1,15 @@
-import React, {ReactNode} from 'react';
+import React, { ReactNode } from 'react';
 import {
   Controller,
   ControllerProps,
   FieldPath,
   FieldValues,
 } from 'react-hook-form';
-import {StyleProp, Text, View} from 'react-native';
-import {ViewStyle} from 'react-native';
+import { StyleProp, Text, View } from 'react-native';
+import { ViewStyle } from 'react-native';
 import styles from './style';
 import FormError from '../FormError/FormError';
-import {scaleFontSize} from '../../core/utils';
-import {useTheme} from '../../core/providers';
+import { useTheme } from '../../core/providers';
 
 interface FormControlProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -37,7 +36,7 @@ export const FormControl = <
   validateMessage,
   ...rest
 }: FormControlProps<TFieldValues, TName>) => {
-  const {currentTheme} = useTheme();
+  const { currentTheme } = useTheme();
   return (
     <Controller
       {...rest}
@@ -50,10 +49,11 @@ export const FormControl = <
                   style={[
                     styles.label,
                     {
-                      fontSize: scaleFontSize(labelFontSize ?? 16),
+                      fontSize: labelFontSize ?? 16,
                       color: currentTheme.textColor,
                     },
-                  ]}>
+                  ]}
+                >
                   {label}
                 </Text>
               )}

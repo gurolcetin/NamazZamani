@@ -3,7 +3,6 @@ import { FontAwesome6 } from '@react-native-vector-icons/fontawesome6';
 import { MaterialDesignIcons } from '@react-native-vector-icons/material-design-icons';
 
 import { Image, StyleProp, ViewStyle } from 'react-native';
-import { scaleFontSize } from '../../core/utils';
 
 export const Icons = {
   FontAwesome6,
@@ -29,7 +28,7 @@ export const Icon = ({
   solid = false,
   image,
 }: IconProps) => {
-  const fontSize = scaleFontSize(24);
+  const fontSize = 24;
   const Tag = type;
   return (
     <>

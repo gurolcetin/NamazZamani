@@ -1,5 +1,4 @@
-import {StyleSheet} from 'react-native';
-import {horizontalScale, scaleFontSize} from '../../../utils';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   smallInput: {
@@ -21,7 +20,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
-    paddingLeft: horizontalScale(10),
+    paddingLeft: 10,
     borderRadius: 10,
   },
   inputContainer: {
@@ -31,10 +30,10 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 0.7,
-    fontSize: scaleFontSize(16),
+    fontSize: 16,
   },
   infoIcon: {
-    marginLeft: horizontalScale(5),
+    marginLeft: 5,
   },
   calculatedMissedPrayerRightContainer: {
     flexDirection: 'row',
@@ -42,12 +41,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
-  calculatedMissedPrayerProgress: {overflow: 'hidden'},
+  calculatedMissedPrayerProgress: { overflow: 'hidden' },
   bottomDescription: {
     textAlign: 'right',
     marginTop: 5,
     marginRight: 5,
-    fontSize: scaleFontSize(12),
+    fontSize: 12,
   },
   errorMessageStyle: {
     margin: 25,

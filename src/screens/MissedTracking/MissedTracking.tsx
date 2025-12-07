@@ -13,7 +13,6 @@ import {
   PrayerForm,
   CalculatedMissedFasting,
 } from '../../../libs/core/sections';
-import { horizontalScale } from '../../../libs/core/utils';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -59,8 +58,8 @@ const MissedTracking = () => {
       <SegmentedControl
         tabs={tabs}
         onTabChange={onTabChange}
-        marginHorizontal={horizontalScale(20)}
-        marginTop={horizontalScale(15)}
+        marginHorizontal={20}
+        marginTop={15}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

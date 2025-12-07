@@ -1,5 +1,4 @@
-import {StyleSheet} from 'react-native';
-import {horizontalScale} from '../../core/utils';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
@@ -15,7 +14,7 @@ const styles = StyleSheet.create({
     flex: 0.7,
   },
   infoIcon: {
-    marginLeft: horizontalScale(5),
+    marginLeft: 5,
   },
   renderContainer: {
     flexDirection: 'row',

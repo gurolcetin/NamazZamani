@@ -1,6 +1,5 @@
-import {getWidth} from './native.util';
-import {scaleFontSize, horizontalScale, verticalScale} from './scaling';
+import { getWidth } from './native.util';
 
-export {getWidth, scaleFontSize, horizontalScale, verticalScale};
+export { getWidth };
 
 export * from './dateUtil';

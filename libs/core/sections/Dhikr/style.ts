@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native';
-import { horizontalScale } from '../../utils';
 
 const styles = StyleSheet.create({
   prayerDhikrCard: {
@@ -145,7 +144,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: horizontalScale(20),
+    marginHorizontal: 20,
   },
   emptyStateButtonText: {
     color: '#ffffff',
