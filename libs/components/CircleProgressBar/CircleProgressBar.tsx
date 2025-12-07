@@ -8,9 +8,13 @@ import {
 } from 'react-native';
 import Svg, { Circle, Text } from 'react-native-svg';
 import { useTheme } from '../../core/providers';
-import { HapticFeedbackMethods } from '../../common/constants';
+import {
+  GeneralLanguageConstants,
+  HapticFeedbackMethods,
+} from '../../common/constants';
 import { Icon, Icons } from '../Icons/Icons';
 import { hapticFeedback } from '../../core/helpers';
+import { useTranslation } from 'react-i18next';
 
 interface CircleProgressBarProps {
   progress: number;
@@ -33,6 +37,7 @@ const CircleProgressBar = ({
   isCyclical = false,
   incraseValue,
 }: CircleProgressBarProps) => {
+  const { t } = useTranslation();
   const { currentTheme } = useTheme();
 
   const radius = size;
@@ -201,21 +206,31 @@ const CircleProgressBar = ({
               },
             ]}
           >
-            <Icon
-              name="repeat"
-              type={Icons.FontAwesome6}
-              color={currentTheme.textColor}
-              size={15}
-              solid
-            />
-            <NativeText
-              style={[
-                styles.cyclicalCountText,
-                { color: currentTheme.textColor },
-              ]}
-            >
-              {getCyclicalCount()}
-            </NativeText>
+            <View style={styles.cyclicalRow}>
+              <Icon
+                name="repeat"
+                type={Icons.FontAwesome6}
+                color={currentTheme.textColor}
+                size={15}
+                solid
+              />
+              <NativeText
+                style={[
+                  styles.cyclicalCountText,
+                  { color: currentTheme.textColor },
+                ]}
+              >
+                {getCyclicalCount()}
+              </NativeText>
+              <NativeText
+                style={[
+                  styles.totalCountText,
+                  { color: currentTheme.textColor },
+                ]}
+              >
+                {`${t(GeneralLanguageConstants.Total.key)}: ${count}`}
+              </NativeText>
+            </View>
           </View>
         )}
       </Animated.View>
@@ -247,6 +262,9 @@ const styles = StyleSheet.create({
 
   cyclicalWrapper: {
     position: 'absolute',
+    alignItems: 'center',
+  },
+  cyclicalRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -255,6 +273,12 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontSize: 20,
     textAlign: 'center',
+  },
+  totalCountText: {
+    marginTop: 6,
+    fontSize: 13,
+    textAlign: 'center',
+    fontWeight: '600',
   },
 });
 

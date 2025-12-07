@@ -1,4 +1,4 @@
-import {LanguageModel} from '../models';
+import { LanguageModel } from '../models';
 
 export class SettingsConstants {
   static LanguageSettings: LanguageModel = {
@@ -83,7 +83,8 @@ export class SettingsScreenLanguageConstants {
   };
   static FeedbackEmailBody: LanguageModel = {
     key: 'settings.FeedbackEmailBody',
-    defaultValue: 'Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:',
+    defaultValue:
+      'Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:',
   };
   static AppVersionLabel: LanguageModel = {
     key: 'settings.AppVersion',
@@ -224,6 +225,10 @@ export class GeneralLanguageConstants {
     key: 'General.Ok',
     defaultValue: 'Tamam',
   };
+  static Total: LanguageModel = {
+    key: 'General.Total',
+    defaultValue: 'Toplam',
+  };
 }
 
 export class MissedPrayerFormLanguageConstants {
@@ -249,11 +254,13 @@ export class MissedPrayerFormLanguageConstants {
   };
   static NumberofMissedPrayerBirthDatePubertyError: LanguageModel = {
     key: 'MissedPrayerForm.NumberofMissedPrayerBirthDatePubertyError',
-    defaultValue: 'Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünün tarihinden büyük olamaz!',
+    defaultValue:
+      'Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünün tarihinden büyük olamaz!',
   };
   static MissedPrayerNotCalculatedError: LanguageModel = {
     key: 'MissedPrayerForm.MissedPrayerNotCalculatedError',
-    defaultValue: 'Kılınan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
+    defaultValue:
+      'Kılınan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
   };
   static NoMissedPrayer: LanguageModel = {
     key: 'MissedPrayerForm.NoMissedPrayer',
@@ -264,7 +271,8 @@ export class MissedPrayerFormLanguageConstants {
 export class FastingFormLanguageConstants {
   static FastsNotCalculatedError: LanguageModel = {
     key: 'FastingForm.FastsNotCalculatedError',
-    defaultValue: 'Tutulan oruç sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
+    defaultValue:
+      'Tutulan oruç sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.',
   };
   static NoOutstandingFasts: LanguageModel = {
     key: 'FastingForm.NoOutstandingFasts',
