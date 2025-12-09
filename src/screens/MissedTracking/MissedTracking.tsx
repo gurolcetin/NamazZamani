@@ -16,6 +16,9 @@ import {
 import { ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { RootState } from '../../../libs/redux/store';
+import { FontScaleOption } from '../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../libs/core/helpers';
 
 const MissedTracking = () => {
   const { t } = useTranslation();
@@ -53,6 +56,12 @@ const MissedTracking = () => {
     setSelectedTab(key);
   };
 
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
+
   return (
     <BottomTabScreenViewContainer>
       <SegmentedControl
@@ -60,6 +69,7 @@ const MissedTracking = () => {
         onTabChange={onTabChange}
         marginHorizontal={20}
         marginTop={15}
+        fontScaleMultiplier={fontScaleMultiplier}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

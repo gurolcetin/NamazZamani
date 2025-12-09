@@ -10,6 +10,10 @@ import {
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
 import { AllDhikr, PrayerDhikr } from '../../../libs/core/sections';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../libs/redux/store';
+import { FontScaleOption } from '../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../libs/core/helpers';
 
 const Dhikr = () => {
   const { t } = useTranslation();
@@ -27,6 +31,11 @@ const Dhikr = () => {
   const onTabChange = (key: string | number) => {
     setSelectedTab(key);
   };
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
 
   return (
     <BottomTabScreenViewContainer>
@@ -35,6 +44,7 @@ const Dhikr = () => {
         onTabChange={onTabChange}
         marginHorizontal={20}
         marginTop={15}
+        fontScaleMultiplier={fontScaleMultiplier}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}

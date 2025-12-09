@@ -7,14 +7,17 @@ import {
   Pressable,
 } from 'react-native';
 import Svg, { Circle, Text } from 'react-native-svg';
+import { useSelector } from 'react-redux';
 import { useTheme } from '../../core/providers';
 import {
   GeneralLanguageConstants,
   HapticFeedbackMethods,
 } from '../../common/constants';
+import { FontScaleOption } from '../../common/enums';
 import { Icon, Icons } from '../Icons/Icons';
-import { hapticFeedback } from '../../core/helpers';
+import { getFontScaleMultiplier, hapticFeedback } from '../../core/helpers';
 import { useTranslation } from 'react-i18next';
+import { RootState } from '../../redux/store';
 
 interface CircleProgressBarProps {
   progress: number;
@@ -39,6 +42,11 @@ const CircleProgressBar = ({
 }: CircleProgressBarProps) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
 
   const radius = size;
   const strokeWidth = radius / 7;
@@ -175,7 +183,7 @@ const CircleProgressBar = ({
             y={textDimensions.height / 2 + radius - 10}
             textAnchor="middle"
             stroke={currentTheme.textColor}
-            fontSize={radius / 3}
+            fontSize={(radius / 3) * fontScaleMultiplier}
           >
             {getCount()}
           </Text>
@@ -187,7 +195,7 @@ const CircleProgressBar = ({
               y={radius + radius / 2.4}
               textAnchor="middle"
               stroke={currentTheme.textColor}
-              fontSize={12}
+              fontSize={12 * fontScaleMultiplier}
               fontWeight={'200'}
             >
               {description}
@@ -201,36 +209,44 @@ const CircleProgressBar = ({
             style={[
               styles.cyclicalWrapper,
               {
-                top: radius + 40,
-                left: radius - 17 + 12,
+                top: radius + 40, // sadece dikey pozisyon
               },
             ]}
           >
+            {/* ÜST SATIR: repeat + döngü sayısı */}
             <View style={styles.cyclicalRow}>
               <Icon
                 name="repeat"
                 type={Icons.FontAwesome6}
                 color={currentTheme.textColor}
-                size={15}
+                size={15 * fontScaleMultiplier}
                 solid
               />
               <NativeText
                 style={[
                   styles.cyclicalCountText,
-                  { color: currentTheme.textColor },
+                  {
+                    color: currentTheme.textColor,
+                    fontSize: 20 * fontScaleMultiplier,
+                  },
                 ]}
               >
                 {getCyclicalCount()}
               </NativeText>
-              <NativeText
-                style={[
-                  styles.totalCountText,
-                  { color: currentTheme.textColor },
-                ]}
-              >
-                {`${t(GeneralLanguageConstants.Total.key)}: ${count}`}
-              </NativeText>
             </View>
+
+            {/* ALT SATIR: total count */}
+            <NativeText
+              style={[
+                styles.totalCountText,
+                {
+                  color: currentTheme.textColor,
+                  fontSize: 13 * fontScaleMultiplier,
+                },
+              ]}
+            >
+              {`${t(GeneralLanguageConstants.Total.key)}: ${count}`}
+            </NativeText>
           </View>
         )}
       </Animated.View>
@@ -262,6 +278,8 @@ const styles = StyleSheet.create({
 
   cyclicalWrapper: {
     position: 'absolute',
+    left: 0,
+    right: 0, // 🔥 hem sol hem sağ 0 → ortayı bulur
     alignItems: 'center',
   },
   cyclicalRow: {
@@ -275,7 +293,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   totalCountText: {
-    marginTop: 6,
+    marginTop: 4,
     fontSize: 13,
     textAlign: 'center',
     fontWeight: '600',

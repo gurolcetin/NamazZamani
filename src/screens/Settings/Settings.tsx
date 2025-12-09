@@ -691,7 +691,7 @@ const Settings = ({}: SettingsProps) => {
               </View>
             </View>
 
-            {/* Hesaplama Ayarları */}
+            {/* Uygulama Ayarları */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>
                 {t(SettingsConstants.CalculateSettings.key)}

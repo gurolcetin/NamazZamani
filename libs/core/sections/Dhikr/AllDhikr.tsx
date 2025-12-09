@@ -14,6 +14,7 @@ import {
   HapticFeedbackMethods,
   StringConstants,
 } from '../../../common/constants';
+import { FontScaleOption } from '../../../common/enums';
 import {
   CardView,
   CircleProgressBar,
@@ -29,7 +30,7 @@ import {
   resetDhikrByItem,
   updateDhikr,
 } from '../../../redux/reducers/Dhikr';
-import { getDhikrProgress, hapticFeedback } from '../../helpers';
+import { getDhikrProgress, getFontScaleMultiplier, hapticFeedback } from '../../helpers';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
   isNullOrEmptyString,
@@ -39,6 +40,7 @@ import {
 import { useTheme } from '../../providers';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { RootState } from '../../../redux/store';
 
 type DhikrFormFields = {
   dhikrName: string;
@@ -64,7 +66,7 @@ const AllDhikr = () => {
   const { currentTheme } = useTheme();
   const { height } = useWindowDimensions();
 
-  const allDhikrList = useSelector((state: any) =>
+  const allDhikrList = useSelector((state: RootState) =>
     state.dhikr.dhikrs.find((x: { id: number }) => x.id === DhikrTabKeys.All),
   );
 
@@ -87,15 +89,27 @@ const AllDhikr = () => {
   const deleteConfirmation = t('Dhikr.deleteConfirmation');
   const deleteLabel = t('locationSelector.delete').toUpperCase();
 
-  const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const applicationTheme = useSelector(
+    (state: RootState) => state.applicationTheme,
+  );
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
+  const scaledFont = (size: number) => size * fontScaleMultiplier;
   const isCompactHeight = height < 740;
-  const circleSize = useMemo(() => {
+  const baseCircleSize = useMemo(() => {
     const minSize = 130;
     const maxSize = 200;
-    const computedSize = height * 0.19;
+    const computedSize = height * 0.16;
 
     return Math.max(minSize, Math.min(maxSize, computedSize));
   }, [height]);
+  const circleSize = useMemo(
+    () => baseCircleSize * fontScaleMultiplier,
+    [baseCircleSize, fontScaleMultiplier],
+  );
 
   useEffect(() => {
     if (
@@ -198,6 +212,7 @@ const AllDhikr = () => {
                           color: isSelected
                             ? currentTheme.white
                             : currentTheme.textColor,
+                          fontSize: scaledFont(16),
                         },
                       ]}
                     >
@@ -318,7 +333,10 @@ const AllDhikr = () => {
                         <Text
                           style={[
                             styles.deleteResetButtonText,
-                            { color: currentTheme.textColor },
+                            {
+                              color: currentTheme.textColor,
+                              fontSize: scaledFont(16),
+                            },
                           ]}
                         >
                           {deleteLabel}
@@ -343,7 +361,10 @@ const AllDhikr = () => {
                         <Text
                           style={[
                             styles.deleteResetButtonText,
-                            { color: currentTheme.white },
+                            {
+                              color: currentTheme.white,
+                              fontSize: scaledFont(16),
+                            },
                           ]}
                         >
                           {resetText.toLocaleUpperCase()}
@@ -370,7 +391,10 @@ const AllDhikr = () => {
             <Text
               style={[
                 styles.emptyStateTitle,
-                { color: currentTheme.textColor },
+                {
+                  color: currentTheme.textColor,
+                  fontSize: scaledFont(18),
+                },
               ]}
             >
               {emptyStateTitle}
@@ -379,7 +403,10 @@ const AllDhikr = () => {
             <Text
               style={[
                 styles.emptyStateDescription,
-                { color: currentTheme.gray },
+                {
+                  color: currentTheme.gray,
+                  fontSize: scaledFont(14),
+                },
               ]}
             >
               {emptyStateDescription}
@@ -392,7 +419,12 @@ const AllDhikr = () => {
               ]}
               onPress={showAddDhikrModal}
             >
-              <Text style={styles.emptyStateButtonText}>
+              <Text
+                style={[
+                  styles.emptyStateButtonText,
+                  { fontSize: scaledFont(16) },
+                ]}
+              >
                 {addDhikrButtonLabel}
               </Text>
             </Pressable>
@@ -445,6 +477,7 @@ const AllDhikr = () => {
                     {
                       backgroundColor: currentTheme.inputBackgroundColor,
                       color: currentTheme.textColor,
+                      fontSize: scaledFont(16),
                     },
                   ]}
                   onBlur={onBlur}
@@ -485,6 +518,7 @@ const AllDhikr = () => {
                     {
                       backgroundColor: currentTheme.inputBackgroundColor,
                       color: currentTheme.textColor,
+                      fontSize: scaledFont(16),
                     },
                   ]}
                   onBlur={onBlur}

@@ -43,7 +43,8 @@
     "Save": "Save",
     "Ok": "OK",
     "SearchPlaceHolder": "Search",
-    "SearchCancelText": "Cancel"
+    "SearchCancelText": "Cancel",
+    "Total": "Total"
   },
   "errors": {
     "prayerTimesFetchFailed": "Failed to load prayer times."

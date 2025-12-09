@@ -22,6 +22,7 @@ interface SegmentedControlProps {
   marginHorizontal?: number;
   marginTop?: number;
   marginBottom?: number;
+  fontScaleMultiplier?: number;
 }
 
 const SegmentedControl = (props: SegmentedControlProps) => {
@@ -119,6 +120,7 @@ const SegmentedControl = (props: SegmentedControlProps) => {
                       color: isActive
                         ? currentTheme.white
                         : currentTheme.textColor,
+                      fontSize: 14 * (props.fontScaleMultiplier || 1),
                     },
                   ]}
                 >

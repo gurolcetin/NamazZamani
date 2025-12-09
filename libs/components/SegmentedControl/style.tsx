@@ -13,7 +13,6 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   text: {
-    fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
     textAlignVertical: 'center',

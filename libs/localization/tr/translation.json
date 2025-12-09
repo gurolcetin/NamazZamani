@@ -44,7 +44,8 @@
     "Ok": "Tamam",
     "SearchPlaceHolder": "Ara",
     "SearchCancelText": "İptal",
-    "SearchNewLocation": "Yeni Konum Ara"
+    "SearchNewLocation": "Yeni Konum Ara",
+    "Total": "Toplam"
   },
   "errors": {
     "prayerTimesFetchFailed": "Vakitler yüklenirken bir hata oluştu."

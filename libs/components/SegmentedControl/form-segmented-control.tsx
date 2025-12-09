@@ -90,10 +90,10 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
               style={[styles.genderChip, styles.genderChipPressable]}
               onPress={() => onChange(opt.value)}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={styles.optionContent}>
                 {/* ICON (varsa gösterilir) */}
                 {opt.iconProps && (
-                  <View style={{ marginRight: 6 }}>
+                  <View style={styles.iconWrapper}>
                     <Icon
                       {...opt.iconProps}
                       color={
@@ -160,17 +160,29 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   genderChipPressable: {
-    height: 38,
+    minHeight: 42,
     backgroundColor: 'transparent',
     shadowOpacity: 0,
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 8,
   },
   genderChipText: {
     textAlign: 'center',
     fontSize: 14,
     fontWeight: '600',
+    flexShrink: 1,
+  },
+  optionContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrapper: {
+    marginRight: 6,
+    flexShrink: 0,
   },
 });
 

@@ -6,21 +6,28 @@ import {
   GeneralLanguageConstants,
   HapticFeedbackMethods,
 } from '../../../common/constants';
+import { FontScaleOption } from '../../../common/enums';
 import { CardView, CircleProgressBar } from '../../../components';
 import styles from './style';
 import { resetPrayerDhikr, updateDhikr } from '../../../redux/reducers/Dhikr';
-import { hapticFeedback } from '../../helpers';
+import { getFontScaleMultiplier, hapticFeedback } from '../../helpers';
 import { useTheme } from '../../providers';
 import { useTranslation } from 'react-i18next';
+import { RootState } from '../../../redux/store';
 
 const PrayerDhikr = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { currentTheme } = useTheme();
   const [cardWidth, setCardWidth] = useState(0);
+  const fontScalePreference = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
+  );
+  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
 
   const allDhikrList = useSelector(
-    (state: any) =>
+    (state: RootState) =>
       state.dhikr.dhikrs.find(
         (x: { id: number }) => x.id === DhikrTabKeys.Prayer,
       ).dhikrList,
@@ -28,15 +35,16 @@ const PrayerDhikr = () => {
 
   const circleSize = useMemo(() => {
     if (!cardWidth) {
-      return 75;
+      return 75 * fontScaleMultiplier;
     }
 
     const computedSize = cardWidth / 4 - 24; // CircleProgressBar extra padding is ~24px
     const minSize = 60;
     const maxSize = 90;
+    const baseSize = Math.min(maxSize, Math.max(minSize, computedSize));
 
-    return Math.min(maxSize, Math.max(minSize, computedSize));
-  }, [cardWidth]);
+    return baseSize * fontScaleMultiplier;
+  }, [cardWidth, fontScaleMultiplier]);
 
   const handleCardLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -89,7 +97,12 @@ const PrayerDhikr = () => {
           hapticFeedback(HapticFeedbackMethods.ImpactHeavy);
         }}
       >
-        <Text style={styles.emptyStateButtonText}>
+        <Text
+          style={[
+            styles.emptyStateButtonText,
+            { fontSize: 16 * fontScaleMultiplier },
+          ]}
+        >
           {t(GeneralLanguageConstants.Reset.key).toLocaleUpperCase()}
         </Text>
       </Pressable>
