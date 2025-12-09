@@ -182,8 +182,8 @@ const CircleProgressBar = ({
             x={radius}
             y={textDimensions.height / 2 + radius - 10}
             textAnchor="middle"
-            stroke={currentTheme.textColor}
             fontSize={(radius / 3) * fontScaleMultiplier}
+            fill={currentTheme.textColor}
           >
             {getCount()}
           </Text>

@@ -146,7 +146,9 @@
     "namePlaceholder": "Çekilecek zikir adı",
     "countPlaceholder": "Zikir döngü sayısı",
     "countValidation": "Zikir döngü sayısı 0 ile 99999 arasında olmalıdır.",
-    "deleteConfirmation": "Zikri silmek istediğinize emin misiniz?"
+    "deleteConfirmation": "Zikri silmek istediğinize emin misiniz?",
+    "delete": "SİL",
+    "reset": "SIFIRLA"
   },
   "prayerNames": {
     "Fajr": "İmsak",

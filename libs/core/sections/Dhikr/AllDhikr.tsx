@@ -30,7 +30,11 @@ import {
   resetDhikrByItem,
   updateDhikr,
 } from '../../../redux/reducers/Dhikr';
-import { getDhikrProgress, getFontScaleMultiplier, hapticFeedback } from '../../helpers';
+import {
+  getDhikrProgress,
+  getFontScaleMultiplier,
+  hapticFeedback,
+} from '../../helpers';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
   isNullOrEmptyString,
@@ -75,7 +79,7 @@ const AllDhikr = () => {
 
   const no = t(GeneralLanguageConstants.No.key);
   const yes = t(GeneralLanguageConstants.Yes.key);
-  const resetText = t(GeneralLanguageConstants.Reset.key);
+  const resetText = t('Dhikr.reset');
   const saveText = t(GeneralLanguageConstants.Save.key);
   const requiredMessage = t(GeneralLanguageConstants.RequiredMessage.key);
   const emptyStateTitle = t('Dhikr.emptyStateTitle');
@@ -87,7 +91,7 @@ const AllDhikr = () => {
   const dhikrCountPlaceholder = t('Dhikr.countPlaceholder');
   const dhikrCountValidation = t('Dhikr.countValidation');
   const deleteConfirmation = t('Dhikr.deleteConfirmation');
-  const deleteLabel = t('locationSelector.delete').toUpperCase();
+  const deleteLabel = t('Dhikr.delete');
 
   const applicationTheme = useSelector(
     (state: RootState) => state.applicationTheme,
@@ -113,6 +117,7 @@ const AllDhikr = () => {
 
   useEffect(() => {
     if (
+      allDhikrList &&
       !isNullOrUndefined(allDhikrList) &&
       !isNullOrUndefined(allDhikrList.dhikrList) &&
       allDhikrList.dhikrList.length > 0
@@ -367,7 +372,7 @@ const AllDhikr = () => {
                             },
                           ]}
                         >
-                          {resetText.toLocaleUpperCase()}
+                          {resetText}
                         </Text>
                       </Pressable>
                     </View>
