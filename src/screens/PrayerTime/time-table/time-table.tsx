@@ -10,7 +10,10 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { ScreenViewContainer, BottomBannerAd } from '../../../../libs/components';
+import {
+  ScreenViewContainer,
+  BottomBannerAd,
+} from '../../../../libs/components';
 import { PrayerTimings } from '../api';
 import { fetchMonthlyPrayerTimesByCoords } from '../MontlyCalendar/api';
 import { useTheme } from '../../../../libs/core/providers';
@@ -23,6 +26,8 @@ import {
 } from '../../../../libs/redux/reducers/prayerTimesCache';
 import { getCurrentPosition, requestLocationPermission } from '../permission';
 import TimeTableSkeleton from './time-table-skeleton';
+import { FontScaleOption } from '../../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 
 // ---------- types ----------
 type RowItem = {
@@ -127,7 +132,9 @@ const reviveCachedSections = (
   }));
 };
 
-const serializeSectionsForCache = (sections: Section[]): CachedTimeTableSection[] =>
+const serializeSectionsForCache = (
+  sections: Section[],
+): CachedTimeTableSection[] =>
   sections.map(section => ({
     title: section.title,
     data: section.data.map(row => ({
@@ -140,48 +147,6 @@ const serializeSectionsForCache = (sections: Section[]): CachedTimeTableSection[
     })),
   }));
 
-// ---------- küçük parça: 6 sütunlu grid ----------
-function SixColGrid({
-  labels,
-  values,
-  textColor,
-}: {
-  labels: readonly string[];
-  values: string[];
-  textColor: string;
-}) {
-  return (
-    <View style={styles.gridWrap}>
-      {/* Üst satır: etiketler */}
-      <View style={styles.gridRow}>
-        {labels.map((lbl, i) => (
-          <View key={`lbl-${i}`} style={styles.gridCell}>
-            <Text
-              style={[styles.gridLabel, { color: textColor }]}
-              numberOfLines={1}
-            >
-              {lbl}
-            </Text>
-          </View>
-        ))}
-      </View>
-      {/* Alt satır: saatler */}
-      <View style={styles.gridRow}>
-        {values.map((val, i) => (
-          <View key={`val-${i}`} style={styles.gridCell}>
-            <Text
-              style={[styles.gridValue, { color: textColor }]}
-              numberOfLines={1}
-            >
-              {val}
-            </Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-}
-
 // ---------- screen ----------
 export default function TimeTable() {
   const dispatch = useDispatch();
@@ -190,6 +155,19 @@ export default function TimeTable() {
   const navigation = useNavigation();
   const { t, i18n } = useTranslation();
   const { currentTheme } = useTheme();
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
+  const styles = useMemo(
+    () => createStyles(fontScaleMultiplier),
+    [fontScaleMultiplier],
+  );
 
   const revivedCachedSections = useMemo(
     () => reviveCachedSections(cachedTimeTable.sections),
@@ -286,13 +264,7 @@ export default function TimeTable() {
     } finally {
       setLoading(false);
     }
-  }, [
-    activeResolved,
-    dispatch,
-    getMonthLabel,
-    getWeekdayLabel,
-    startDate,
-  ]);
+  }, [activeResolved, dispatch, getMonthLabel, getWeekdayLabel, startDate, t]);
 
   useEffect(() => {
     load();
@@ -385,6 +357,7 @@ export default function TimeTable() {
                   labels={prayerLabels}
                   values={valuesRow}
                   textColor={gridTextColor}
+                  styles={styles}
                 />
               </View>
             );
@@ -404,67 +377,114 @@ export default function TimeTable() {
 // ---------- styles ----------
 const CELL_GAP = 8;
 
-const styles = StyleSheet.create({
-  contentWrapper: {
-    flex: 1,
-  },
-  center: { alignItems: 'center', justifyContent: 'center', paddingTop: 24 },
+const createStyles = (fontScaleMultiplier: number) =>
+  StyleSheet.create({
+    contentWrapper: {
+      flex: 1,
+    },
+    center: { alignItems: 'center', justifyContent: 'center', paddingTop: 24 },
 
-  sectionHeader: {
-    marginTop: 14,
-    marginHorizontal: 16,
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  sectionTitle: { fontSize: 20, fontWeight: '500' },
+    sectionHeader: {
+      marginTop: 14,
+      marginHorizontal: 16,
+      borderRadius: 14,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    sectionTitle: { fontSize: 20 * fontScaleMultiplier, fontWeight: '500' },
 
-  rowCard: {
-    marginTop: 10,
-    marginHorizontal: 16,
-    borderRadius: 18,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 2,
-  },
+    rowCard: {
+      marginTop: 10,
+      marginHorizontal: 16,
+      borderRadius: 18,
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+      shadowColor: '#000',
+      shadowOpacity: 0.08,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 6,
+      elevation: 2,
+    },
 
-  rowDateText: {
-    fontSize: 15,
-    fontWeight: '300',
-    textTransform: 'capitalize',
-  },
+    rowDateText: {
+      fontSize: 15 * fontScaleMultiplier,
+      fontWeight: '300',
+      textTransform: 'capitalize',
+    },
 
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginTop: 8,
-    marginBottom: 10,
-    marginRight: -12, // rowCard'daki paddingHorizontal kadar eksi veriyoruz
-  },
+    divider: {
+      height: StyleSheet.hairlineWidth,
+      marginTop: 8,
+      marginBottom: 10,
+      marginRight: -12, // rowCard'daki paddingHorizontal kadar eksi veriyoruz
+    },
 
-  // grid
-  gridWrap: {
-    gap: 6,
-  },
-  gridRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: CELL_GAP,
-  },
-  gridCell: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  gridLabel: {
-    fontSize: 12,
-    fontWeight: '300',
-    opacity: 0.95,
-  },
-  gridValue: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
-});
+    // grid
+    gridWrap: {
+      gap: 6,
+    },
+    gridRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: CELL_GAP,
+    },
+    gridCell: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    gridLabel: {
+      fontSize: 12 * fontScaleMultiplier,
+      fontWeight: '300',
+      opacity: 0.95,
+    },
+    gridValue: {
+      fontSize: 15 * fontScaleMultiplier,
+      fontWeight: '500',
+    },
+  });
+
+type TimeTableStyles = ReturnType<typeof createStyles>;
+
+// ---------- küçük parça: 6 sütunlu grid ----------
+function SixColGrid({
+  labels,
+  values,
+  textColor,
+  styles,
+}: {
+  labels: readonly string[];
+  values: string[];
+  textColor: string;
+  styles: TimeTableStyles;
+}) {
+  return (
+    <View style={styles.gridWrap}>
+      {/* Üst satır: etiketler */}
+      <View style={styles.gridRow}>
+        {labels.map((lbl, i) => (
+          <View key={`lbl-${i}`} style={styles.gridCell}>
+            <Text
+              style={[styles.gridLabel, { color: textColor }]}
+              numberOfLines={1}
+            >
+              {lbl}
+            </Text>
+          </View>
+        ))}
+      </View>
+      {/* Alt satır: saatler */}
+      <View style={styles.gridRow}>
+        {values.map((val, i) => (
+          <View key={`val-${i}`} style={styles.gridCell}>
+            <Text
+              style={[styles.gridValue, { color: textColor }]}
+              numberOfLines={1}
+            >
+              {val}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}

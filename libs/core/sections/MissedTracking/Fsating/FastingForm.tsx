@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -27,7 +27,11 @@ import {
   MissedTrackingLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
-import { calculateRamadanCountBetweenDates } from '../../../helpers';
+import { FontScaleOption } from '../../../../common/enums';
+import {
+  calculateRamadanCountBetweenDates,
+  getFontScaleMultiplier,
+} from '../../../helpers';
 import { createMissedFasting } from '../../../../redux/reducers/MissedFasting';
 
 type FastingFormValues = {
@@ -41,8 +45,21 @@ type FastingFormValues = {
 const FastingForm: React.FC = () => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
   const { currentTheme } = useTheme();
   const { t, i18n } = useTranslation();
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
+  const styles = useMemo(
+    () => createStyles(fontScaleMultiplier),
+    [fontScaleMultiplier],
+  );
 
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -148,8 +165,7 @@ const FastingForm: React.FC = () => {
       const menstrualCycle = isNullOrEmptyString(data.menstrualCycle)
         ? 7
         : Math.min(Math.max(Number(data.menstrualCycle), 0), 10);
-      missedFastingCount +=
-        Math.abs(ramadanCount) * menstrualCycle;
+      missedFastingCount += Math.abs(ramadanCount) * menstrualCycle;
     }
 
     if (
@@ -190,6 +206,7 @@ const FastingForm: React.FC = () => {
               error={errors.gender?.message as string}
               textColor={currentTheme.textColor}
               errorColor={currentTheme.formErrorColor}
+              styles={styles}
             >
               <Controller
                 control={control}
@@ -203,6 +220,7 @@ const FastingForm: React.FC = () => {
                     ]}
                     value={value}
                     onChange={onChange}
+                    fontScaleMultiplier={fontScaleMultiplier}
                   />
                 )}
               />
@@ -213,6 +231,7 @@ const FastingForm: React.FC = () => {
                 label={menstrualCycleLabel}
                 textColor={currentTheme.textColor}
                 errorColor={currentTheme.formErrorColor}
+                styles={styles}
               >
                 <Controller
                   control={control}
@@ -226,14 +245,17 @@ const FastingForm: React.FC = () => {
                       ]}
                     >
                       <TextInput
-                        style={[styles.input, { color: currentTheme.textColor }]}
+                        style={[
+                          styles.input,
+                          { color: currentTheme.textColor },
+                        ]}
                         onBlur={onBlur}
                         keyboardType="numeric"
                         placeholder="7"
                         placeholderTextColor={currentTheme.gray}
-                        value={
-                          (value ?? StringConstants.EMPTY_STRING).toString()
-                        }
+                        value={(
+                          value ?? StringConstants.EMPTY_STRING
+                        ).toString()}
                         onChangeText={val => {
                           if (isNullOrEmptyString(val)) {
                             return onChange(StringConstants.EMPTY_STRING);
@@ -260,6 +282,7 @@ const FastingForm: React.FC = () => {
               error={errors.date?.message as string}
               textColor={currentTheme.textColor}
               errorColor={currentTheme.formErrorColor}
+              styles={styles}
             >
               <Controller
                 control={control}
@@ -317,6 +340,7 @@ const FastingForm: React.FC = () => {
               error={errors.entryIntoPubertyAge?.message as string}
               textColor={currentTheme.textColor}
               errorColor={currentTheme.formErrorColor}
+              styles={styles}
             >
               <Controller
                 control={control}
@@ -370,6 +394,7 @@ const FastingForm: React.FC = () => {
               error={errors.fastingPerformedCount?.message as string}
               textColor={currentTheme.textColor}
               errorColor={currentTheme.formErrorColor}
+              styles={styles}
             >
               <Controller
                 control={control}
@@ -436,12 +461,84 @@ type FieldGroupProps = {
   errorColor: string;
 };
 
-const FieldGroup: React.FC<FieldGroupProps> = ({
+/* ---------------------------------- Styles --------------------------------- */
+
+const createStyles = (fontScaleMultiplier: number) =>
+  StyleSheet.create({
+    root: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: 24,
+      paddingTop: 20,
+      paddingBottom: 32,
+    },
+    card: {
+      borderRadius: 30,
+      paddingHorizontal: 18,
+      paddingBottom: 20,
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOpacity: 0.08,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+    },
+    fieldGroup: {
+      marginTop: 18,
+    },
+    fieldLabel: {
+      fontSize: 14 * fontScaleMultiplier,
+      fontWeight: '600',
+      marginBottom: 10,
+    },
+    fieldError: {
+      marginTop: 4,
+      fontSize: 12 * fontScaleMultiplier,
+    },
+    inputWrapper: {
+      height: 52,
+      borderRadius: 20,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      backgroundColor: '#f3f4f6',
+    },
+    input: {
+      flex: 1,
+      fontSize: 14 * fontScaleMultiplier,
+      color: '#111827',
+    },
+    inputText: {
+      flex: 1,
+      fontSize: 14 * fontScaleMultiplier,
+    },
+    calculateButton: {
+      marginTop: 24,
+      borderRadius: 24,
+      paddingVertical: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    calculateText: {
+      color: '#ffffff',
+      fontSize: 16 * fontScaleMultiplier,
+      fontWeight: '600',
+    },
+    errorMessage: {
+      marginHorizontal: 20,
+      marginTop: 8,
+    },
+  });
+
+type FastingFormStyles = ReturnType<typeof createStyles>;
+
+const FieldGroup: React.FC<FieldGroupProps & { styles: FastingFormStyles }> = ({
   label,
   error,
   children,
   textColor,
   errorColor,
+  styles,
 }) => (
   <View style={styles.fieldGroup}>
     <Text
@@ -460,71 +557,3 @@ const FieldGroup: React.FC<FieldGroupProps> = ({
     )}
   </View>
 );
-
-/* ---------------------------------- Styles --------------------------------- */
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 32,
-  },
-  card: {
-    borderRadius: 30,
-    paddingHorizontal: 18,
-    paddingBottom: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  fieldGroup: {
-    marginTop: 18,
-  },
-  fieldLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
-  fieldError: {
-    marginTop: 4,
-    fontSize: 12,
-  },
-  inputWrapper: {
-    height: 52,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#f3f4f6',
-  },
-  input: {
-    flex: 1,
-    fontSize: 14,
-    color: '#111827',
-  },
-  inputText: {
-    flex: 1,
-    fontSize: 14,
-  },
-  calculateButton: {
-    marginTop: 24,
-    borderRadius: 24,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  calculateText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  errorMessage: {
-    marginHorizontal: 20,
-    marginTop: 8,
-  },
-});

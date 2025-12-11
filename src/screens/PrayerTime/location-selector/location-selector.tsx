@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -42,6 +42,8 @@ import {
   selectActivePlace,
   SavedPlace,
 } from '../../../../libs/redux/reducers/location';
+import { FontScaleOption } from '../../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 
 type LocationIQItem = {
   place_id: string;
@@ -112,6 +114,19 @@ export default function LocationSelector() {
 
   const saved = useSelector(selectSavedPlaces);
   const active = useSelector(selectActivePlace);
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
+  const styles = useMemo(
+    () => createStyles(fontScaleMultiplier),
+    [fontScaleMultiplier],
+  );
 
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SavedPlace[]>([]);
@@ -739,7 +754,7 @@ export default function LocationSelector() {
 }
 
 /** ---------- Styles ---------- */
-const styles = StyleSheet.create({
+const createStyles = (fontScaleMultiplier: number) => StyleSheet.create({
   contentWrapper: {
     flex: 1,
   },
@@ -754,7 +769,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  sectionTitle: { fontSize: 13, fontWeight: '700', opacity: 0.7 },
+  sectionTitle: {
+    fontSize: 13 * fontScaleMultiplier,
+    fontWeight: '700',
+    opacity: 0.7,
+  },
 
   nextCard: {
     marginHorizontal: 16,
@@ -785,8 +804,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  nextLabel: { color: '#fff', fontSize: 16, fontWeight: '800' },
-  nextHint: { color: 'rgba(255,255,255,0.95)', fontSize: 13, marginTop: 2 },
+  nextLabel: {
+    color: '#fff',
+    fontSize: 16 * fontScaleMultiplier,
+    fontWeight: '800',
+  },
+  nextHint: {
+    color: 'rgba(255,255,255,0.95)',
+    fontSize: 13 * fontScaleMultiplier,
+    marginTop: 2,
+  },
   permissionNotice: {
     marginHorizontal: 16,
     borderRadius: 20,
@@ -810,13 +837,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   permissionNoticeTitle: {
-    fontSize: 15,
+    fontSize: 15 * fontScaleMultiplier,
     fontWeight: '700',
     marginBottom: 4,
   },
   permissionNoticeDescription: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 13 * fontScaleMultiplier,
+    lineHeight: 18 * fontScaleMultiplier,
     opacity: 0.8,
   },
   permissionNoticeButton: {
@@ -828,7 +855,7 @@ const styles = StyleSheet.create({
   },
   permissionNoticeButtonText: {
     color: '#D92F2F',
-    fontSize: 14,
+    fontSize: 14 * fontScaleMultiplier,
     fontWeight: '700',
   },
 
@@ -853,7 +880,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rowTitle: { flex: 1, fontSize: 15, fontWeight: '400' },
+  rowTitle: {
+    flex: 1,
+    fontSize: 15 * fontScaleMultiplier,
+    fontWeight: '400',
+  },
   rowTitleSelected: { fontWeight: '600' },
 
   emptyText: { paddingHorizontal: 16, paddingVertical: 6, opacity: 0.6 },
@@ -874,7 +905,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
   },
-  badgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11 * fontScaleMultiplier,
+    fontWeight: '700',
+  },
   deleteActionWrapper: {
     marginLeft: 6,
     borderRadius: 16,
@@ -893,7 +928,7 @@ const styles = StyleSheet.create({
   },
   deleteActionText: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 13 * fontScaleMultiplier,
     fontWeight: '600',
   },
 });

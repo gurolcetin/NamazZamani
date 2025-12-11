@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -18,6 +18,9 @@ import {
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
 import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
+import { useSelector } from 'react-redux';
+import { FontScaleOption } from '../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../libs/core/helpers';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,6 +30,15 @@ const CustomTabBar = ({ state, navigation }: any) => {
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(1)).current;
   const { setBannerLoaded } = useBanner();
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
 
   return (
     <View
@@ -89,6 +101,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
                       color: !isFocused
                         ? currentTheme.placeholderTextColor
                         : item?.color,
+                      fontSize: 10 * fontScaleMultiplier,
                     },
                   ]}
                   numberOfLines={1}

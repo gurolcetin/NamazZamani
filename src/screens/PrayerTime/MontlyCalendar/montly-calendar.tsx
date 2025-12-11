@@ -26,11 +26,12 @@ import { useTranslation } from 'react-i18next';
 import {
   LanguageLocaleKeys,
   LanguagePrefix,
-  BOTTOM_TAB_BANNER_AD_UNIT_ID,
 } from '../../../../libs/common/constants';
 import { selectActiveResolved } from '../../../../libs/redux/reducers/location';
 import type { PrayerTimeKey, SmallCard } from '../../../../libs/common/types';
 import MonthlyCalendarSkeleton from './montly-calendar-skeleton';
+import { FontScaleOption } from '../../../../libs/common/enums';
+import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 
 type Key = PrayerTimeKey; // aynı tip
 const PRAYER_ORDER: PrayerTimeKey[] = [
@@ -100,6 +101,19 @@ export default function MonthlyCalendar() {
   );
   const activeResolved = useSelector(selectActiveResolved);
   const { t, i18n } = useTranslation();
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
+  const styles = useMemo(
+    () => createStyles(fontScaleMultiplier),
+    [fontScaleMultiplier],
+  );
 
   useEffect(() => {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
@@ -411,7 +425,7 @@ export default function MonthlyCalendar() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (fontScaleMultiplier: number) => StyleSheet.create({
   contentWrapper: {
     flex: 1,
   },
@@ -440,7 +454,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 16 * fontScaleMultiplier,
     fontWeight: '800',
     textTransform: 'capitalize',
   },
@@ -467,7 +481,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#F2F2F7',
   },
-  dateBtnText: { fontSize: 13, fontWeight: '800', color: '#111' },
+  dateBtnText: {
+    fontSize: 13 * fontScaleMultiplier,
+    fontWeight: '800',
+    color: '#111',
+  },
 
   // Sağ: Bugün
   todayBtn: {
@@ -479,7 +497,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#F2F2F7',
   },
-  todayBtnText: { fontSize: 13, fontWeight: '800', color: '#111' },
+  todayBtnText: {
+    fontSize: 13 * fontScaleMultiplier,
+    fontWeight: '800',
+    color: '#111',
+  },
 
   // Overlay spinner
   pickerOverlay: {
@@ -495,7 +517,7 @@ const styles = StyleSheet.create({
   },
   overlayText: { marginTop: 6, color: '#111', fontWeight: '600', opacity: 0.8 },
 
-  sectionTitle: { fontSize: 16, fontWeight: '900' },
+  sectionTitle: { fontSize: 16 * fontScaleMultiplier, fontWeight: '900' },
   dailyTimesHeader: { paddingHorizontal: 16, paddingTop: 10 },
   timesLoadingText: { marginTop: 6, opacity: 0.8 },
   listContent: {

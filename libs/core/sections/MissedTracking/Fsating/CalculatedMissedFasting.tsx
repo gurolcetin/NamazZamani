@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   CardView,
   CardViewProps,
@@ -8,9 +8,9 @@ import {
 } from '../../../../components';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Text, View } from 'react-native';
-import styles from './style';
+import { createStyles } from './style';
 import { useTheme } from '../../../providers';
-import { hapticFeedback } from '../../../helpers';
+import { getFontScaleMultiplier, hapticFeedback } from '../../../helpers';
 import {
   CalculatedMissedFastingLanguageConstants,
   CalculatedMissedPrayerLanguageConstants,
@@ -18,6 +18,7 @@ import {
   HapticFeedbackMethods,
   StringConstants,
 } from '../../../../common/constants';
+import { FontScaleOption } from '../../../../common/enums';
 import { useTranslation } from 'react-i18next';
 import {
   decreasePerformedFasting,
@@ -31,6 +32,19 @@ const CalculatedMissedFasting = () => {
   const { currentTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
+  const styles = useMemo(
+    () => createStyles(fontScaleMultiplier),
+    [fontScaleMultiplier],
+  );
   const recalculateMessage = t(
     CalculatedMissedPrayerLanguageConstants.RecalculateMessage.key,
   );
@@ -123,7 +137,10 @@ const CalculatedMissedFasting = () => {
         <Text
           style={[
             styles.bottomDescriptionText,
-            { color: currentTheme.textColor },
+            {
+              color: currentTheme.textColor,
+              fontSize: 14 * fontScaleMultiplier,
+            },
           ]}
         >
           {t(GeneralLanguageConstants.LastUpdateDate.key)}
@@ -134,7 +151,10 @@ const CalculatedMissedFasting = () => {
         <Text
           style={[
             styles.bottomDescriptionText,
-            { color: currentTheme.textColor },
+            {
+              color: currentTheme.textColor,
+              fontSize: 14 * fontScaleMultiplier,
+            },
           ]}
         >
           {t(GeneralLanguageConstants.BeginDate.key)}

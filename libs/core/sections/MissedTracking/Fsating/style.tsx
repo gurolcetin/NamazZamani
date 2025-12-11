@@ -1,13 +1,14 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
-  smallInput: {
-    textAlign: 'center',
-    flex: 0.2,
-    borderRadius: 5,
-    fontSize: 16,
-    paddingVertical: 3,
-  },
+export const createStyles = (fontScaleMultiplier: number) =>
+  StyleSheet.create({
+    smallInput: {
+      textAlign: 'center',
+      flex: 0.2,
+      borderRadius: 5,
+      fontSize: 16 * fontScaleMultiplier,
+      paddingVertical: 3,
+    },
   flex05: {
     flex: 0.5,
   },
@@ -28,10 +29,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  label: {
-    flex: 0.7,
-    fontSize: 16,
-  },
+    label: {
+      flex: 0.7,
+      fontSize: 16 * fontScaleMultiplier,
+    },
   infoIcon: {
     marginLeft: 5,
   },
@@ -42,12 +43,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   calculatedMissedPrayerProgress: { overflow: 'hidden' },
-  bottomDescription: {
-    textAlign: 'right',
-    marginTop: 5,
-    marginRight: 5,
-    fontSize: 12,
-  },
+    bottomDescription: {
+      textAlign: 'right',
+      marginTop: 5,
+      marginRight: 5,
+      fontSize: 12 * fontScaleMultiplier,
+    },
   errorMessageStyle: {
     margin: 25,
   },
@@ -59,6 +60,4 @@ const styles = StyleSheet.create({
   bottomDescriptionText: {
     textAlign: 'center',
   },
-});
-
-export default styles;
+  });

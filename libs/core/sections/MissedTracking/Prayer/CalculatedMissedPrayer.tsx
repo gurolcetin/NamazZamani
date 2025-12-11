@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   CardView,
   CardViewProps,
@@ -13,15 +13,20 @@ import {
   increasePerformedPrayer,
   resetMissedPrayer,
 } from '../../../../redux/reducers/MissedPrayer';
-import styles from './style';
+import { createStyles } from './style';
 import { useTheme } from '../../../providers';
-import { GetPrayerNameByLanguage, hapticFeedback } from '../../../helpers';
+import {
+  GetPrayerNameByLanguage,
+  getFontScaleMultiplier,
+  hapticFeedback,
+} from '../../../helpers';
 import {
   CalculatedMissedPrayerLanguageConstants,
   GeneralLanguageConstants,
   HapticFeedbackMethods,
   StringConstants,
 } from '../../../../common/constants';
+import { FontScaleOption } from '../../../../common/enums';
 import { useTranslation } from 'react-i18next';
 
 const CalculatedMissedPrayer = () => {
@@ -30,6 +35,19 @@ const CalculatedMissedPrayer = () => {
   const { currentTheme } = useTheme();
   const { t, i18n } = useTranslation();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
+  const styles = useMemo(
+    () => createStyles(fontScaleMultiplier),
+    [fontScaleMultiplier],
+  );
   const recalculateMessage = t(
     CalculatedMissedPrayerLanguageConstants.RecalculateMessage.key,
   );
@@ -120,7 +138,10 @@ const CalculatedMissedPrayer = () => {
         <Text
           style={[
             styles.bottomDescriptionText,
-            { color: currentTheme.textColor },
+            {
+              color: currentTheme.textColor,
+              fontSize: 14 * fontScaleMultiplier,
+            },
           ]}
         >
           {t(GeneralLanguageConstants.LastUpdateDate.key)}
@@ -131,7 +152,10 @@ const CalculatedMissedPrayer = () => {
         <Text
           style={[
             styles.bottomDescriptionText,
-            { color: currentTheme.textColor },
+            {
+              color: currentTheme.textColor,
+              fontSize: 14 * fontScaleMultiplier,
+            },
           ]}
         >
           {t(GeneralLanguageConstants.BeginDate.key)}

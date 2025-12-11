@@ -11,7 +11,6 @@ export const style = StyleSheet.create({
     borderRadius: 30,
   },
   title: {
-    fontSize: 16,
     fontWeight: 'bold',
   },
   shadow: {

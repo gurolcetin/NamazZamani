@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -25,11 +25,13 @@ import {
   MissedTrackingLanguageConstants,
   StringConstants,
 } from '../../../../common/constants';
+import { FontScaleOption } from '../../../../common/enums';
 import {
   calculateDaysBetweenDates,
   calculateMonthsBetweenDates,
 } from '../../../utils';
 import { createMissedPrayer } from '../../../../redux/reducers/MissedPrayer';
+import { getFontScaleMultiplier } from '../../../helpers';
 
 type PrayerFormValues = {
   gender: Gender | '';
@@ -42,8 +44,21 @@ type PrayerFormValues = {
 const PrayerForm: React.FC = () => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
+  const applicationSettings = useSelector(
+    (state: any) => state.applicationSettings,
+  );
   const { currentTheme } = useTheme();
   const { t, i18n } = useTranslation();
+  const fontScalePreference =
+    applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
+  const fontScaleMultiplier = useMemo(
+    () => getFontScaleMultiplier(fontScalePreference),
+    [fontScalePreference],
+  );
+  const styles = useMemo(
+    () => createStyles(fontScaleMultiplier),
+    [fontScaleMultiplier],
+  );
 
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -199,6 +214,7 @@ const PrayerForm: React.FC = () => {
               error={errors.gender?.message as string}
               textColor={currentTheme.textColor}
               errorColor={currentTheme.formErrorColor}
+              styles={styles}
             >
               <Controller
                 control={control}
@@ -212,6 +228,7 @@ const PrayerForm: React.FC = () => {
                     ]}
                     value={value}
                     onChange={onChange}
+                    fontScaleMultiplier={fontScaleMultiplier}
                   />
                 )}
               />
@@ -222,6 +239,7 @@ const PrayerForm: React.FC = () => {
                 label={menstrualCycleLabel}
                 textColor={currentTheme.textColor}
                 errorColor={currentTheme.formErrorColor}
+                styles={styles}
               >
                 <Controller
                   control={control}
@@ -269,6 +287,7 @@ const PrayerForm: React.FC = () => {
               error={errors.date?.message as string}
               textColor={currentTheme.textColor}
               errorColor={currentTheme.formErrorColor}
+              styles={styles}
             >
               <Controller
                 control={control}
@@ -326,6 +345,7 @@ const PrayerForm: React.FC = () => {
               error={errors.entryIntoPubertyAge?.message as string}
               textColor={currentTheme.textColor}
               errorColor={currentTheme.formErrorColor}
+              styles={styles}
             >
               <Controller
                 control={control}
@@ -379,6 +399,7 @@ const PrayerForm: React.FC = () => {
               error={errors.prayersPerformedCount?.message as string}
               textColor={currentTheme.textColor}
               errorColor={currentTheme.formErrorColor}
+              styles={styles}
             >
               <Controller
                 control={control}
@@ -445,12 +466,102 @@ type FieldGroupProps = {
   errorColor: string;
 };
 
-const FieldGroup: React.FC<FieldGroupProps> = ({
+/* ---------------------------------- Styles --------------------------------- */
+
+const createStyles = (fontScaleMultiplier: number) =>
+  StyleSheet.create({
+    root: {
+      flex: 1,
+    },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 32,
+  },
+    title: {
+      fontSize: 20 * fontScaleMultiplier,
+      fontWeight: '600',
+      color: '#0f172a',
+      textAlign: 'center',
+      marginBottom: 4,
+    },
+    subtitle: {
+      fontSize: 13 * fontScaleMultiplier,
+      color: '#6b7280',
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+  card: {
+    borderRadius: 30,
+    paddingHorizontal: 18,
+    paddingBottom: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  fieldGroup: {
+    marginTop: 18,
+  },
+    fieldLabel: {
+      fontSize: 14 * fontScaleMultiplier,
+      fontWeight: '600',
+      marginBottom: 10,
+    },
+    fieldError: {
+      marginTop: 4,
+      fontSize: 12 * fontScaleMultiplier,
+    },
+  inputWrapper: {
+    height: 52,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: '#f3f4f6',
+  },
+    input: {
+      flex: 1,
+      fontSize: 14 * fontScaleMultiplier,
+      color: '#111827',
+    },
+    inputText: {
+      flex: 1,
+      fontSize: 14 * fontScaleMultiplier,
+    },
+    inputIcon: {
+      marginLeft: 8,
+      fontSize: 16 * fontScaleMultiplier,
+      color: '#9ca3af',
+    },
+  calculateButton: {
+    marginTop: 24,
+    borderRadius: 24,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+    calculateText: {
+      color: '#ffffff',
+      fontSize: 16 * fontScaleMultiplier,
+      fontWeight: '600',
+    },
+    errorMessage: {
+      marginHorizontal: 20,
+      marginTop: 8,
+    },
+  });
+
+type PrayerFormStyles = ReturnType<typeof createStyles>;
+
+const FieldGroup: React.FC<FieldGroupProps & { styles: PrayerFormStyles }> = ({
   label,
   error,
   children,
   textColor,
   errorColor,
+  styles,
 }) => (
   <View style={styles.fieldGroup}>
     <Text
@@ -469,89 +580,3 @@ const FieldGroup: React.FC<FieldGroupProps> = ({
     )}
   </View>
 );
-
-/* ---------------------------------- Styles --------------------------------- */
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#0f172a',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  card: {
-    borderRadius: 30,
-    paddingHorizontal: 18,
-    paddingBottom: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  fieldGroup: {
-    marginTop: 18,
-  },
-  fieldLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
-  fieldError: {
-    marginTop: 4,
-    fontSize: 12,
-  },
-  inputWrapper: {
-    height: 52,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#f3f4f6',
-  },
-  input: {
-    flex: 1,
-    fontSize: 14,
-    color: '#111827',
-  },
-  inputText: {
-    flex: 1,
-    fontSize: 14,
-  },
-  inputIcon: {
-    marginLeft: 8,
-    fontSize: 16,
-    color: '#9ca3af',
-  },
-  calculateButton: {
-    marginTop: 24,
-    borderRadius: 24,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  calculateText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  errorMessage: {
-    marginHorizontal: 20,
-    marginTop: 8,
-  },
-});
