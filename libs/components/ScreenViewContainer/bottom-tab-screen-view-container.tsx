@@ -11,8 +11,6 @@ const BottomTabScreenViewContainer = (props: ScreenViewContainerProps) => {
   const tabBarHeight = useBottomTabBarHeight();
   const { bannerLoaded } = useBanner();
 
-  console.log('bannerLoaded', bannerLoaded);
-
   const dynamicExtraPadding = bannerLoaded
     ? Platform.OS === 'ios'
       ? 20
@@ -21,11 +19,7 @@ const BottomTabScreenViewContainer = (props: ScreenViewContainerProps) => {
     ? -5
     : 10;
 
-  console.log('dynamicExtraPadding', dynamicExtraPadding);
-
   const extraBottomSpace = tabBarHeight + dynamicExtraPadding;
-  console.log('tabBarHeight', tabBarHeight);
-  console.log('extraBottomSpace', extraBottomSpace);
 
   return <ScreenViewContainer {...props} extraBottomSpace={extraBottomSpace} />;
 };

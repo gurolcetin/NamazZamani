@@ -108,11 +108,9 @@ const CustomTabBar = ({ state, navigation }: any) => {
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
           requestOptions={{ requestNonPersonalizedAdsOnly: true }}
           onAdLoaded={() => {
-            console.log('Banner loaded');
             setBannerLoaded(true);
           }}
           onAdFailedToLoad={() => {
-            console.log('Banner failed');
             setBannerLoaded(false);
           }}
         />

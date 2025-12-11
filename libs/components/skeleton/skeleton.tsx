@@ -12,8 +12,6 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../core/providers';
 
-const logEnabled = false;
-
 type SkeletonPlaceholderProps = {
   /**
    * Determines component's children.
@@ -291,14 +289,6 @@ const transformToPlaceholder = (
           borderRadius,
         },
       ];
-
-      logEnabled &&
-        console.log(
-          isPlaceholder ? '[skeleton] placeholder' : '[skeleton] container',
-          {
-            element,
-          },
-        );
 
       return (
         <View key={index} style={finalStyle}>

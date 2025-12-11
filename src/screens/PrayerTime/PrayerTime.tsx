@@ -838,7 +838,6 @@ export default function PrayerTime() {
       }
 
       const movedKm = haversineDistanceKm(previous, currentCoords);
-      console.log('movedKm', movedKm);
       if (movedKm > LOCATION_CHANGE_THRESHOLD_KM) {
         await load(new Date(), {
           latitude: currentCoords.lat,
