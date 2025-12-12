@@ -22,7 +22,12 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { PrayerTimings, fetchPrayerTimesByCoords } from './api';
+import {
+  PrayerTimings,
+  fetchPrayerTimesByCoords,
+  fetchPrayerTimeMethods,
+  findClosestPrayerMethod,
+} from './api';
 import {
   requestLocationPermission,
   getCurrentPosition,
@@ -74,7 +79,12 @@ import {
   selectPrayerSnapshot,
   selectRamadanSnapshot,
 } from '../../../libs/redux/reducers/prayerTimesCache';
-import { updateAppConfig } from '../../../libs/redux/reducers/ApplicationSettings';
+import {
+  updateAppConfig,
+  setPrayerTimeMethodOptions,
+  updatePrayerTimeMethod,
+  DEVICE_METHOD_KEY,
+} from '../../../libs/redux/reducers/ApplicationSettings';
 import { isCloseToBottom } from '../../../libs/core/utils';
 
 // ----- Types & Maps ---------------------------------------------------------
@@ -99,6 +109,8 @@ const PRAYER_NAME_KEYS: Record<PrayerTimeKey, string> = {
   Maghrib: 'prayerNames.Maghrib',
   Isha: 'prayerNames.Isha',
 };
+const METHODS_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 gün
+const DEFAULT_METHOD_ID = 13;
 
 // ----- Time helpers ---------------------------------------------------------
 function toTodayDate(hhmm: string, base = new Date()): Date {
@@ -427,6 +439,41 @@ export default function PrayerTime() {
     (state: RootState) =>
       state.applicationSettings?.prayerNotificationPreferences,
   );
+  const {
+    prayerTimeMethod = DEFAULT_METHOD_ID,
+    prayerTimeMethods = [],
+    prayerTimeMethodsFetchedAt = null,
+    prayerTimeMethodManuallySet = false,
+    prayerTimeMethodPreferences = {},
+  } = useSelector((state: RootState) => state.applicationSettings ?? {});
+  const methodPreferencesRef = useRef(prayerTimeMethodPreferences);
+  useEffect(() => {
+    methodPreferencesRef.current = prayerTimeMethodPreferences;
+  }, [prayerTimeMethodPreferences]);
+  const legacyMethodRef = useRef(prayerTimeMethod);
+  useEffect(() => {
+    legacyMethodRef.current = prayerTimeMethod;
+  }, [prayerTimeMethod]);
+  const legacyManualRef = useRef(prayerTimeMethodManuallySet);
+  useEffect(() => {
+    legacyManualRef.current = prayerTimeMethodManuallySet;
+  }, [prayerTimeMethodManuallySet]);
+  const getMethodPreferenceForKey = useCallback(
+    (key: string) => {
+      const prefs = methodPreferencesRef.current ?? {};
+      if (prefs[key]) {
+        return prefs[key];
+      }
+      if (key === DEVICE_METHOD_KEY) {
+        return {
+          methodId: legacyMethodRef.current ?? DEFAULT_METHOD_ID,
+          manuallySet: legacyManualRef.current ?? false,
+        };
+      }
+      return undefined;
+    },
+    [],
+  );
 
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
@@ -441,6 +488,21 @@ export default function PrayerTime() {
   );
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const methodKey =
+    activeResolved.type === 'device'
+      ? DEVICE_METHOD_KEY
+      : activeResolved.id;
+  const activeMethodPref =
+    prayerTimeMethodPreferences?.[methodKey] ??
+    (methodKey === DEVICE_METHOD_KEY
+      ? {
+          methodId: prayerTimeMethod,
+          manuallySet: prayerTimeMethodManuallySet,
+        }
+      : undefined);
+  const activeMethodId = activeMethodPref?.methodId ?? DEFAULT_METHOD_ID;
+  const activeMethodManuallySet =
+    activeMethodPref?.manuallySet ?? false;
 
   const [leftClock, setLeftClock] = useState('00:00:00');
   const [leftSec, setLeftSec] = useState(0);
@@ -482,6 +544,15 @@ export default function PrayerTime() {
   const appStateRef = useRef<string>(AppState.currentState);
   const comparingLocationRef = useRef(false);
   const deviceDateAlertShownRef = useRef(false);
+  const skipNextMethodReloadRef = useRef<Record<string, boolean>>({});
+  const lastMethodStateRef = useRef<
+    Record<string, { method: number; manual: boolean }>
+  >({
+    [DEVICE_METHOD_KEY]: {
+      method: prayerTimeMethod,
+      manual: prayerTimeMethodManuallySet,
+    },
+  });
 
   const systemDark = useColorScheme() === 'dark';
   const navigation = useNavigation();
@@ -520,6 +591,40 @@ export default function PrayerTime() {
       setLocationPermissionGranted(false);
     }
   }, []);
+
+  const ensurePrayerMethods = useCallback(async () => {
+    const cachedList = Array.isArray(prayerTimeMethods)
+      ? prayerTimeMethods
+      : [];
+    const fetchedAtMs = prayerTimeMethodsFetchedAt
+      ? new Date(prayerTimeMethodsFetchedAt).getTime()
+      : 0;
+    const isFresh =
+      cachedList.length > 0 &&
+      fetchedAtMs > 0 &&
+      Date.now() - fetchedAtMs < METHODS_CACHE_TTL_MS;
+    if (isFresh) {
+      return cachedList;
+    }
+
+    try {
+      const methods = await fetchPrayerTimeMethods();
+      dispatch(
+        setPrayerTimeMethodOptions({
+          methods,
+          fetchedAt: new Date().toISOString(),
+        }),
+      );
+      return methods;
+    } catch {
+      console.warn('[prayer-time] Using cached methods due to fetch failure');
+      return cachedList;
+    }
+  }, [dispatch, prayerTimeMethods, prayerTimeMethodsFetchedAt]);
+  const ensurePrayerMethodsRef = useRef(ensurePrayerMethods);
+  useEffect(() => {
+    ensurePrayerMethodsRef.current = ensurePrayerMethods;
+  }, [ensurePrayerMethods]);
 
   useEffect(() => {
     refreshLocationPermissionStatus();
@@ -634,6 +739,13 @@ export default function PrayerTime() {
         let latitude: number | null = null;
         let longitude: number | null = null;
         let label: string | null = null;
+        const locationMethodKey =
+          activeResolved.type === 'device'
+            ? DEVICE_METHOD_KEY
+            : activeResolved.id;
+        const methodPref = getMethodPreferenceForKey(locationMethodKey);
+        let methodId = methodPref?.methodId ?? DEFAULT_METHOD_ID;
+        let locationMethodManuallySet = methodPref?.manuallySet ?? false;
 
         if ('type' in activeResolved && activeResolved.type === 'device') {
           if (resolvedDeviceCoords) {
@@ -664,6 +776,34 @@ export default function PrayerTime() {
         }
 
         if (latitude != null && longitude != null) {
+          try {
+            const fetcher = ensurePrayerMethodsRef.current;
+            const methods = fetcher ? await fetcher() : [];
+            if (methods.length > 0 && !locationMethodManuallySet) {
+              const closest = findClosestPrayerMethod(
+                methods,
+                latitude,
+                longitude,
+              );
+              if (closest?.id && closest.id !== methodId) {
+                methodId = closest.id;
+                locationMethodManuallySet = false;
+                skipNextMethodReloadRef.current[locationMethodKey] = true;
+                dispatch(
+                  updatePrayerTimeMethod({
+                    methodId: closest.id,
+                    manuallySet: false,
+                    locationKey: locationMethodKey,
+                  }),
+                );
+              } else if (closest?.id) {
+                methodId = closest.id;
+              }
+            }
+          } catch (error) {
+            console.warn('[prayer-time] Unable to refresh method list', error);
+          }
+
           const coordsPayload = { lat: latitude, lon: longitude };
           setCoords(coordsPayload);
 
@@ -672,6 +812,7 @@ export default function PrayerTime() {
             latitude,
             longitude,
             baseDate,
+            methodId,
           );
           setTimings(data);
 
@@ -755,8 +896,33 @@ export default function PrayerTime() {
         setIsResyncing(false);
       }
     },
-    [activeResolved, dispatch, t],
+    [activeResolved, dispatch, getMethodPreferenceForKey, t],
   );
+  const loadRef = useRef(load);
+  useEffect(() => {
+    loadRef.current = load;
+  }, [load]);
+  useEffect(() => {
+    const key = methodKey;
+    const nextState = {
+      method: activeMethodId,
+      manual: activeMethodManuallySet,
+    };
+    const prev = lastMethodStateRef.current[key];
+    if (!prev) {
+      lastMethodStateRef.current[key] = nextState;
+      return;
+    }
+    if (prev.method === nextState.method && prev.manual === nextState.manual) {
+      return;
+    }
+    lastMethodStateRef.current[key] = nextState;
+    if (skipNextMethodReloadRef.current[key]) {
+      skipNextMethodReloadRef.current[key] = false;
+      return;
+    }
+    loadRef.current(new Date());
+  }, [activeMethodId, activeMethodManuallySet, methodKey]);
 
   useEffect(() => {
     const prev = prevLocationPermissionRef.current;

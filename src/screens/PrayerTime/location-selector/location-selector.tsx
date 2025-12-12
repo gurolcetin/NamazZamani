@@ -4,6 +4,7 @@ import {
   Alert,
   AppState,
   FlatList,
+  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -48,6 +49,11 @@ import {
   LOCATIONIQ_API_KEY,
   LOCATIONIQ_BASE_URL,
 } from '../../../../libs/common/constants/externalApis';
+import {
+  updatePrayerTimeMethod,
+  DEVICE_METHOD_KEY,
+} from '../../../../libs/redux/reducers/ApplicationSettings';
+import { PrayerTimeMethodOption } from '../../../../libs/common/types';
 
 type LocationIQItem = {
   place_id: string;
@@ -105,6 +111,8 @@ function setSearchCache(key: string, results: SavedPlace[]) {
     expiresAt: Date.now() + SEARCH_CACHE_TTL_MS,
   });
 }
+
+const DEFAULT_METHOD_ID = 13;
 
 async function searchPlaces(q: string): Promise<SavedPlace[]> {
   if (!q.trim()) return [];
@@ -164,6 +172,97 @@ export default function LocationSelector() {
   const applicationSettings = useSelector(
     (state: any) => state.applicationSettings,
   );
+  const rawMethodOptions = applicationSettings?.prayerTimeMethods;
+  const methodOptions: PrayerTimeMethodOption[] = useMemo(
+    () => (Array.isArray(rawMethodOptions) ? rawMethodOptions : []),
+    [rawMethodOptions],
+  );
+  const methodOptionsAvailable = methodOptions.length > 0;
+  const rawMethodPreferences = applicationSettings?.prayerTimeMethodPreferences;
+  const methodPreferences = useMemo(
+    () => rawMethodPreferences ?? {},
+    [rawMethodPreferences],
+  );
+  const methodNameLookup = useMemo(() => {
+    const map = new Map<number, string>();
+    methodOptions.forEach(option => {
+      map.set(option.id, option.name);
+    });
+    return map;
+  }, [methodOptions]);
+  const getLocationLabelByKey = useCallback(
+    (key: string) => {
+      if (key === DEVICE_METHOD_KEY) {
+        return t('locationSelector.deviceTitle');
+      }
+      const found = saved.find(x => x.id === key);
+      return found?.label ?? t('locationSelector.methodUnknownLocation');
+    },
+    [saved, t],
+  );
+  const getMethodPreferenceForKey = useCallback(
+    (key: string) => {
+      if (methodPreferences[key]) {
+        return methodPreferences[key];
+      }
+      if (key === DEVICE_METHOD_KEY) {
+        return {
+          methodId: applicationSettings?.prayerTimeMethod ?? DEFAULT_METHOD_ID,
+          manuallySet:
+            applicationSettings?.prayerTimeMethodManuallySet ?? false,
+        };
+      }
+      return {
+        methodId: applicationSettings?.prayerTimeMethod ?? DEFAULT_METHOD_ID,
+        manuallySet: false,
+      };
+    },
+    [applicationSettings, methodPreferences],
+  );
+  const computeMethodInfo = useCallback(
+    (pref: { methodId: number; manuallySet: boolean }) => {
+      const methodName =
+        methodNameLookup.get(pref.methodId) ??
+        t('locationSelector.methodUnknown');
+      const statusLabel = pref.manuallySet
+        ? t('locationSelector.methodManualStatus')
+        : t('locationSelector.methodAutoStatus');
+      return { methodName, statusLabel, pref };
+    },
+    [methodNameLookup, t],
+  );
+  const getMethodInfoForKey = useCallback(
+    (key: string) => {
+      const pref = getMethodPreferenceForKey(key);
+      return computeMethodInfo(pref);
+    },
+    [computeMethodInfo, getMethodPreferenceForKey],
+  );
+  const deviceMethodInfo = getMethodInfoForKey(DEVICE_METHOD_KEY);
+
+  const [newLocationMethodPref, setNewLocationMethodPref] = useState(() => ({
+    methodId: applicationSettings?.prayerTimeMethod ?? DEFAULT_METHOD_ID,
+    manuallySet: false,
+  }));
+  const newLocationMethodInfo = computeMethodInfo(newLocationMethodPref);
+  const newLocationCardLabel = t('locationSelector.methodNewLocationTitle');
+  const newMethodValueText = methodOptionsAvailable
+    ? newLocationMethodPref.manuallySet
+      ? newLocationMethodInfo.methodName
+      : t('locationSelector.methodAutoPlaceholder')
+    : t('locationSelector.methodLoading');
+  const newMethodHintText = methodOptionsAvailable
+    ? newLocationMethodPref.manuallySet
+      ? t('locationSelector.methodManualHint', {
+          location: newLocationCardLabel,
+        })
+      : t('locationSelector.methodAutoHint', {
+          location: newLocationCardLabel,
+        })
+    : t('locationSelector.methodLoadingHint');
+  const newMethodStatusLabel = newLocationMethodPref.manuallySet
+    ? t('locationSelector.methodManualStatus')
+    : t('locationSelector.methodAutoStatus');
   const fontScalePreference =
     applicationSettings?.fontScale ?? FontScaleOption.MEDIUM;
   const fontScaleMultiplier = useMemo(
@@ -177,6 +276,23 @@ export default function LocationSelector() {
 
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<SavedPlace[]>([]);
+  const [methodModalState, setMethodModalState] = useState<{
+    mode: 'existing' | 'new';
+    key?: string;
+    label: string;
+  } | null>(null);
+  const modalMethodInfo = useMemo(() => {
+    if (!methodModalState) return null;
+    if (methodModalState.mode === 'existing' && methodModalState.key) {
+      return getMethodInfoForKey(methodModalState.key);
+    }
+    if (methodModalState.mode === 'new') {
+      return newLocationMethodInfo;
+    }
+    return null;
+  }, [getMethodInfoForKey, methodModalState, newLocationMethodInfo]);
+  const query = search.trim();
+  const hasQuery = query.length > 0;
   const [deviceLocationLabel, setDeviceLocationLabel] = useState<string | null>(
     null,
   );
@@ -184,8 +300,6 @@ export default function LocationSelector() {
   const [locationPermissionGranted, setLocationPermissionGranted] = useState<
     boolean | null
   >(null);
-  const query = search.trim();
-  const hasQuery = query.length > 0;
   const swipeableRefs = useRef<Record<string, Swipeable | null>>({});
   const openSwipeIdRef = useRef<string | null>(null);
   const [swipeDemoRequestId, setSwipeDemoRequestId] = useState(0);
@@ -203,6 +317,24 @@ export default function LocationSelector() {
       isMountedRef.current = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!methodOptionsAvailable && methodModalState) {
+      setMethodModalState(null);
+    }
+  }, [methodModalState, methodOptionsAvailable]);
+
+  useEffect(() => {
+    if (!hasQuery) {
+      setNewLocationMethodPref({
+        methodId: applicationSettings?.prayerTimeMethod ?? DEFAULT_METHOD_ID,
+        manuallySet: false,
+      });
+      setMethodModalState(state =>
+        state?.mode === 'new' ? null : state,
+      );
+    }
+  }, [applicationSettings?.prayerTimeMethod, hasQuery]);
 
   const refreshDeviceLocation = useCallback(
     async (
@@ -313,6 +445,15 @@ export default function LocationSelector() {
   const goWith = (p: SavedPlace) => {
     dispatch(upsertSavedPlace(p));
     dispatch(setActiveById(p.id));
+    if (hasQuery) {
+      dispatch(
+        updatePrayerTimeMethod({
+          methodId: newLocationMethodPref.methodId,
+          manuallySet: newLocationMethodPref.manuallySet,
+          locationKey: p.id,
+        }),
+      );
+    }
     clearSearch();
     navigation.goBack(); // <- navigate yerine
   };
@@ -472,6 +613,91 @@ export default function LocationSelector() {
     </View>
   );
 
+  const openMethodModalForExisting = useCallback(
+    (key: string, label?: string) => {
+      if (!methodOptionsAvailable) {
+        return;
+      }
+      const resolvedLabel = label ?? getLocationLabelByKey(key);
+      setMethodModalState({
+        mode: 'existing',
+        key,
+        label: resolvedLabel,
+      });
+    },
+    [getLocationLabelByKey, methodOptionsAvailable],
+  );
+
+  const openMethodModalForNew = useCallback(() => {
+    if (!methodOptionsAvailable) {
+      return;
+    }
+    setMethodModalState({
+      mode: 'new',
+      label: t('locationSelector.methodNewLocationTitle'),
+    });
+  }, [methodOptionsAvailable, t]);
+
+  const handleMethodCardPress = useCallback(() => {
+    openMethodModalForNew();
+  }, [openMethodModalForNew]);
+
+  const closeMethodModal = useCallback(() => {
+    setMethodModalState(null);
+  }, []);
+
+  const handleManualMethodSelect = useCallback(
+    (methodId: number) => {
+      if (!methodModalState) return;
+      if (methodModalState.mode === 'existing' && methodModalState.key) {
+        dispatch(
+          updatePrayerTimeMethod({
+            methodId,
+            manuallySet: true,
+            locationKey: methodModalState.key,
+          }),
+        );
+      } else if (methodModalState.mode === 'new') {
+        setNewLocationMethodPref({
+          methodId,
+          manuallySet: true,
+        });
+      }
+      closeMethodModal();
+    },
+    [
+      closeMethodModal,
+      dispatch,
+      methodModalState,
+    ],
+  );
+
+  const handleAutoMethodSelect = useCallback(() => {
+    if (!methodModalState) return;
+    if (methodModalState.mode === 'existing' && methodModalState.key) {
+      const pref = getMethodPreferenceForKey(methodModalState.key);
+      dispatch(
+        updatePrayerTimeMethod({
+          methodId: pref?.methodId ?? DEFAULT_METHOD_ID,
+          manuallySet: false,
+          locationKey: methodModalState.key,
+        }),
+      );
+    } else if (methodModalState.mode === 'new') {
+      setNewLocationMethodPref({
+        methodId: applicationSettings?.prayerTimeMethod ?? DEFAULT_METHOD_ID,
+        manuallySet: false,
+      });
+    }
+    closeMethodModal();
+  }, [
+    closeMethodModal,
+    dispatch,
+    getMethodPreferenceForKey,
+    methodModalState,
+    applicationSettings?.prayerTimeMethod,
+  ]);
+
   /** Small UI Bits */
   const SelectedBadge = () => (
     <View style={[styles.badge, { backgroundColor: currentTheme.primary }]}>
@@ -485,9 +711,40 @@ export default function LocationSelector() {
     </View>
   );
 
+  const renderMethodOption = ({
+    item,
+  }: {
+    item: PrayerTimeMethodOption;
+  }) => {
+    const selected =
+      !!modalMethodInfo?.pref?.manuallySet &&
+      modalMethodInfo.pref.methodId === item.id;
+    return (
+      <Pressable
+        style={styles.methodOptionRow}
+        onPress={() => handleManualMethodSelect(item.id)}
+      >
+        <Text
+          style={[styles.methodOptionTitle, { color: currentTheme.textColor }]}
+        >
+          {item.name}
+        </Text>
+        {selected && (
+          <Icon
+            type={Icons.MaterialDesignIcons}
+            name="check"
+            size={20}
+            color={currentTheme.primary}
+          />
+        )}
+      </Pressable>
+    );
+  };
+
   /** Renderers */
   const renderSaved = ({ item }: { item: SavedPlace }) => {
     const selected = isActiveId(item.id);
+    const methodInfo = getMethodInfoForKey(item.id);
     return (
       <View style={styles.rowWrapper}>
         <Swipeable
@@ -545,18 +802,83 @@ export default function LocationSelector() {
                   solid
                 />
               </View>
-              <Text
-                style={[
-                  styles.rowTitle,
-                  selected && styles.rowTitleSelected,
-                  { color: currentTheme.textColor },
-                ]}
-                numberOfLines={2}
-              >
-                {item.label}
-              </Text>
+              <View style={styles.rowTextBlock}>
+                <Text
+                  style={[
+                    styles.rowTitle,
+                    selected && styles.rowTitleSelected,
+                    { color: currentTheme.textColor },
+                  ]}
+                  numberOfLines={2}
+                >
+                  {item.label}
+                </Text>
+                {selected ? (
+                  <View style={styles.methodInlineRow}>
+                    <Text
+                      style={[
+                        styles.rowMethodText,
+                        styles.methodInlineLabel,
+                        { color: currentTheme.textColor },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {methodInfo.methodName}
+                    </Text>
+                    <Pressable
+                      style={[
+                        styles.methodInlineButton,
+                        styles.methodInlineButtonLight,
+                        { borderColor: currentTheme.primary },
+                      ]}
+                      onPress={event => {
+                        event.stopPropagation();
+                        openMethodModalForExisting(item.id, item.label);
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.methodInlineAction,
+                          { color: currentTheme.primary },
+                        ]}
+                      >
+                        {t('locationSelector.methodEditAction')}
+                      </Text>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <Text
+                    style={[
+                      styles.rowMethodText,
+                      { color: currentTheme.textColor },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {t('locationSelector.methodRowDescription', {
+                      method: methodInfo.methodName,
+                      status: methodInfo.statusLabel,
+                    })}
+                  </Text>
+                )}
+              </View>
             </View>
             <View style={styles.rowRight}>
+              {!selected && (
+                <Pressable
+                  style={styles.methodEditIconButton}
+                  onPress={event => {
+                    event.stopPropagation();
+                    openMethodModalForExisting(item.id, item.label);
+                  }}
+                >
+                  <Icon
+                    type={Icons.MaterialDesignIcons}
+                    name="tune-variant"
+                    size={20}
+                    color={currentTheme.textColor}
+                  />
+                </Pressable>
+              )}
               {selected ? (
                 <SelectedBadge />
               ) : (
@@ -639,6 +961,68 @@ export default function LocationSelector() {
           style={[styles.content, { paddingTop: headerOffset + 12 }]}
           onTouchStart={handleContentTouchStart}
         >
+        {hasQuery && (
+          <View style={styles.methodWrapper}>
+            <Pressable
+              style={[
+                styles.methodCard,
+                { backgroundColor: currentTheme.cardViewBackgroundColor },
+                !methodOptionsAvailable && styles.methodCardDisabled,
+              ]}
+              onPress={handleMethodCardPress}
+              disabled={!methodOptionsAvailable}
+            >
+              <View style={styles.methodCardTextBlock}>
+                <Text
+                  style={[
+                    styles.methodCardLabel,
+                    { color: currentTheme.textColor },
+                  ]}
+                >
+                  {t('locationSelector.methodCardTitle', {
+                    location: newLocationCardLabel,
+                  })}
+                </Text>
+                <Text
+                  style={[
+                    styles.methodCardValue,
+                    { color: currentTheme.textColor },
+                  ]}
+                  numberOfLines={2}
+                >
+                  {newMethodValueText}
+                </Text>
+                <Text
+                  style={[
+                    styles.methodCardHint,
+                    { color: currentTheme.textColor },
+                  ]}
+                  numberOfLines={2}
+                >
+                  {newMethodHintText}
+                </Text>
+              </View>
+              <View style={styles.methodCardRight}>
+                <View
+                  style={[
+                    styles.methodStatusPill,
+                    { backgroundColor: currentTheme.primary },
+                  ]}
+                >
+                  <Text style={styles.methodStatusText}>
+                    {newMethodStatusLabel}
+                  </Text>
+                </View>
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name="chevron-down"
+                  size={20}
+                  color={currentTheme.textColor}
+                />
+              </View>
+            </Pressable>
+          </View>
+        )}
         {/* ---- hasQuery: false → Mevcut + Kaydedilenler ---- */}
         {!hasQuery && (
           <>
@@ -731,6 +1115,41 @@ export default function LocationSelector() {
                     <Text style={styles.nextHint}>
                       {deviceLocationSubtitle}
                     </Text>
+                    <View style={styles.methodInlineRow}>
+                      <Text
+                        style={[styles.methodInlineLabel, styles.methodInlineLabelDark]}
+                        numberOfLines={1}
+                      >
+                        {isActiveDevice
+                          ? deviceMethodInfo.methodName
+                          : t('locationSelector.methodRowDescription', {
+                              method: deviceMethodInfo.methodName,
+                              status: deviceMethodInfo.statusLabel,
+                            })}
+                      </Text>
+                      <Pressable
+                        style={[
+                          styles.methodInlineButton,
+                          styles.methodInlineButtonDark,
+                        ]}
+                        onPress={event => {
+                          event.stopPropagation();
+                          openMethodModalForExisting(
+                            DEVICE_METHOD_KEY,
+                            t('locationSelector.deviceTitle'),
+                          );
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.methodInlineAction,
+                            styles.methodInlineActionDark,
+                          ]}
+                        >
+                          {t('locationSelector.methodEditAction')}
+                        </Text>
+                      </Pressable>
+                    </View>
                   </View>
                 </View>
 
@@ -797,6 +1216,108 @@ export default function LocationSelector() {
         </View>
       </View>
       <BottomBannerAd />
+      <Modal
+        transparent
+        animationType="fade"
+        visible={!!methodModalState && methodOptionsAvailable}
+        onRequestClose={closeMethodModal}
+      >
+        <View style={styles.methodModalOverlay}>
+          <Pressable
+            style={styles.methodModalBackdrop}
+            onPress={closeMethodModal}
+          />
+          <View
+            style={[
+              styles.methodModalCard,
+              { backgroundColor: currentTheme.cardViewBackgroundColor },
+            ]}
+            >
+              <Text
+                style={[
+                  styles.methodModalTitle,
+                  { color: currentTheme.textColor },
+                ]}
+              >
+                {t('locationSelector.methodModalTitle', {
+                  location: methodModalState?.label ?? '',
+                })}
+              </Text>
+              <Text
+                style={[
+                  styles.methodModalSubtitle,
+                  { color: currentTheme.textColor },
+                ]}
+              >
+                {t('locationSelector.methodModalSubtitle', {
+                  location: methodModalState?.label ?? '',
+                })}
+              </Text>
+              <Pressable
+                style={[
+                  styles.methodAutoCard,
+                  { borderColor: currentTheme.primary },
+                ]}
+                onPress={handleAutoMethodSelect}
+              >
+                <View style={styles.methodOptionTextBlock}>
+                  <Text
+                    style={[
+                      styles.methodOptionTitle,
+                      { color: currentTheme.textColor },
+                    ]}
+                  >
+                    {t('locationSelector.methodAutoOption')}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.methodOptionSubtitle,
+                      { color: currentTheme.textColor },
+                    ]}
+                  >
+                    {t('locationSelector.methodAutoDescription', {
+                      name:
+                        modalMethodInfo?.methodName ??
+                        t('locationSelector.methodUnknown'),
+                      location:
+                        methodModalState?.label ?? newLocationCardLabel,
+                    })}
+                  </Text>
+                </View>
+              {!modalMethodInfo?.pref?.manuallySet && (
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name="check"
+                  size={20}
+                  color={currentTheme.primary}
+                />
+              )}
+              </Pressable>
+              <View
+                style={[
+                  styles.methodListDivider,
+                  { backgroundColor: currentTheme.textColor, opacity: 0.15 },
+                ]}
+              />
+              <FlatList
+                style={styles.methodList}
+                data={methodOptions}
+                keyExtractor={item => String(item.id)}
+                renderItem={renderMethodOption}
+              ItemSeparatorComponent={() => (
+                <View
+                  style={[
+                    styles.methodOptionSeparator,
+                    { backgroundColor: currentTheme.textColor, opacity: 0.15 },
+                  ]}
+                />
+              )}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingVertical: 4 }}
+            />
+          </View>
+        </View>
+      </Modal>
     </ScreenViewContainer>
   );
 }
@@ -808,6 +1329,84 @@ const createStyles = (fontScaleMultiplier: number) => StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  methodWrapper: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  methodCard: {
+    borderRadius: 20,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  methodCardDisabled: {
+    opacity: 0.6,
+  },
+  methodCardTextBlock: {
+    flex: 1,
+    gap: 6,
+  },
+  methodCardLabel: {
+    fontSize: 13 * fontScaleMultiplier,
+    fontWeight: '600',
+    opacity: 0.8,
+  },
+  methodCardValue: {
+    fontSize: 16 * fontScaleMultiplier,
+    fontWeight: '700',
+  },
+  methodCardHint: {
+    fontSize: 12 * fontScaleMultiplier,
+    opacity: 0.7,
+  },
+  methodCardRight: {
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  methodStatusPill: {
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  methodStatusText: {
+    color: '#fff',
+    fontSize: 12 * fontScaleMultiplier,
+    fontWeight: '700',
+  },
+  methodInlineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 6,
+  },
+  methodInlineLabel: {
+    flex: 1,
+    fontSize: 12 * fontScaleMultiplier,
+  },
+  methodInlineLabelDark: {
+    color: 'rgba(255,255,255,0.9)',
+  },
+  methodInlineButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  methodInlineButtonDark: {
+    borderColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+  methodInlineButtonLight: {
+    backgroundColor: 'transparent',
+  },
+  methodInlineAction: {
+    fontSize: 12 * fontScaleMultiplier,
+    fontWeight: '700',
+  },
+  methodInlineActionDark: {
+    color: '#fff',
   },
   sectionHeader: {
     paddingHorizontal: 16,
@@ -919,6 +1518,7 @@ const createStyles = (fontScaleMultiplier: number) => StyleSheet.create({
     padding: 14,
   },
   rowLeft: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
+  rowTextBlock: { flex: 1 },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   avatarCircle: {
     width: 34,
@@ -934,6 +1534,14 @@ const createStyles = (fontScaleMultiplier: number) => StyleSheet.create({
     fontWeight: '400',
   },
   rowTitleSelected: { fontWeight: '600' },
+  rowMethodText: {
+    fontSize: 12 * fontScaleMultiplier,
+    opacity: 0.7,
+    marginTop: 2,
+  },
+  methodEditIconButton: {
+    padding: 6,
+  },
 
   emptyText: { paddingHorizontal: 16, paddingVertical: 6, opacity: 0.6 },
   savedListContent: {
@@ -943,6 +1551,69 @@ const createStyles = (fontScaleMultiplier: number) => StyleSheet.create({
   searchListContent: {
     paddingHorizontal: 16,
     paddingBottom: 24,
+  },
+  methodModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  methodModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  methodModalCard: {
+    borderRadius: 24,
+    padding: 20,
+    gap: 12,
+  },
+  methodModalTitle: {
+    fontSize: 18 * fontScaleMultiplier,
+    fontWeight: '700',
+  },
+  methodModalSubtitle: {
+    fontSize: 13 * fontScaleMultiplier,
+    opacity: 0.8,
+  },
+  methodAutoCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
+  },
+  methodOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+  },
+  methodOptionTitle: {
+    flex: 1,
+    fontSize: 15 * fontScaleMultiplier,
+    fontWeight: '500',
+  },
+  methodOptionSubtitle: {
+    fontSize: 12 * fontScaleMultiplier,
+    opacity: 0.75,
+    marginTop: 4,
+  },
+  methodOptionTextBlock: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  methodOptionSeparator: {
+    height: StyleSheet.hairlineWidth,
+    width: '100%',
+  },
+  methodListDivider: {
+    height: StyleSheet.hairlineWidth,
+    width: '100%',
+    marginVertical: 6,
+  },
+  methodList: {
+    maxHeight: 320,
   },
 
   badge: {
