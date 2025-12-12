@@ -1,3 +1,8 @@
+import {
+  LOCATIONIQ_API_KEY,
+  LOCATIONIQ_BASE_URL,
+} from '../../../libs/common/constants/externalApis';
+
 // reverse-geocode.ts
 export type PlaceParts = {
   city?: string;
@@ -10,23 +15,84 @@ export type PlaceParts = {
   country_code?: string;
 };
 
-/**
- * LocationIQ için API key
- * Bunu ister burada, ister ayrı bir config dosyasında/Env'de tut.
- */
-const LOCATIONIQ_API_KEY = 'pk.b319608e31f0680f9a8c4ed7fef57626';
+const FALLBACK_LABEL = 'Bilinmeyen konum';
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat
+const ERROR_CACHE_TTL_MS = 5 * 60 * 1000; // hata durumunda kısa süreliğine tekrar etme
+const MAX_CACHE_ENTRIES = 20;
+
+type CacheEntry = {
+  label: string;
+  expiresAt: number;
+};
+
+const reverseGeocodeCache = new Map<string, CacheEntry>();
+const inflightRequests = new Map<string, Promise<string>>();
+
+function toCacheKey(latitude: number, longitude: number) {
+  const precision = 3; // ~100m hassasiyet
+  return `${latitude.toFixed(precision)},${longitude.toFixed(precision)}`;
+}
+
+function getCachedLabel(key: string) {
+  const entry = reverseGeocodeCache.get(key);
+  if (!entry) {
+    return null;
+  }
+  if (entry.expiresAt < Date.now()) {
+    reverseGeocodeCache.delete(key);
+    return null;
+  }
+  return entry.label;
+}
+
+function setCache(key: string, label: string, ttlMs = CACHE_TTL_MS) {
+  if (reverseGeocodeCache.size >= MAX_CACHE_ENTRIES) {
+    const oldestKey = reverseGeocodeCache.keys().next().value;
+    if (oldestKey) {
+      reverseGeocodeCache.delete(oldestKey);
+    }
+  }
+  reverseGeocodeCache.set(key, {
+    label,
+    expiresAt: Date.now() + ttlMs,
+  });
+}
 
 export async function reverseGeocode(
   latitude: number,
   longitude: number,
 ): Promise<string> {
   if (!LOCATIONIQ_API_KEY) {
-    return 'Bilinmeyen konum';
+    return FALLBACK_LABEL;
   }
 
-  // LocationIQ endpoint
-  const url = `https://us1.locationiq.com/v1/reverse?key=${LOCATIONIQ_API_KEY}&lat=${latitude}&lon=${longitude}&format=json&normalizeaddress=1&addressdetails=1&accept-language=tr,en`;
+  const cacheKey = toCacheKey(latitude, longitude);
+  const cachedLabel = getCachedLabel(cacheKey);
+  if (cachedLabel) {
+    return cachedLabel;
+  }
 
+  if (inflightRequests.has(cacheKey)) {
+    return inflightRequests.get(cacheKey)!;
+  }
+
+  const requestPromise = fetchReverseGeocode(
+    latitude,
+    longitude,
+    cacheKey,
+  ).finally(() => {
+    inflightRequests.delete(cacheKey);
+  });
+  inflightRequests.set(cacheKey, requestPromise);
+  return requestPromise;
+}
+
+async function fetchReverseGeocode(
+  latitude: number,
+  longitude: number,
+  cacheKey: string,
+): Promise<string> {
+  const url = `${LOCATIONIQ_BASE_URL}/reverse?key=${LOCATIONIQ_API_KEY}&lat=${latitude}&lon=${longitude}&format=json&normalizeaddress=1&addressdetails=1&accept-language=tr,en`;
   try {
     const res = await fetch(url);
 
@@ -74,11 +140,12 @@ export async function reverseGeocode(
     }
 
     const parts = [city, admin].filter(Boolean);
-    const result = parts.length ? parts.join(', ') : 'Bilinmeyen konum';
-
+    const result = parts.length ? parts.join(', ') : FALLBACK_LABEL;
+    setCache(cacheKey, result);
     return result;
   } catch {
-    return 'Bilinmeyen konum';
+    setCache(cacheKey, FALLBACK_LABEL, ERROR_CACHE_TTL_MS);
+    return FALLBACK_LABEL;
   }
 }
 

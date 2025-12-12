@@ -44,6 +44,10 @@ import {
 } from '../../../../libs/redux/reducers/location';
 import { FontScaleOption } from '../../../../libs/common/enums';
 import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
+import {
+  LOCATIONIQ_API_KEY,
+  LOCATIONIQ_BASE_URL,
+} from '../../../../libs/common/constants/externalApis';
 
 type LocationIQItem = {
   place_id: string;
@@ -65,13 +69,55 @@ function mapLocationIQToPlace(n: LocationIQItem): SavedPlace {
   };
 }
 
-const LOCATIONIQ_API_KEY = 'pk.b319608e31f0680f9a8c4ed7fef57626';
+const SEARCH_CACHE_TTL_MS = 60 * 60 * 1000; // 1 saat
+const MAX_SEARCH_CACHE_ENTRIES = 25;
+
+type SearchCacheEntry = {
+  expiresAt: number;
+  results: SavedPlace[];
+};
+
+const searchResultsCache = new Map<string, SearchCacheEntry>();
+
+function getSearchCacheKey(q: string) {
+  return q.trim().toLowerCase();
+}
+
+function getSearchCache(key: string) {
+  const entry = searchResultsCache.get(key);
+  if (!entry) return null;
+  if (entry.expiresAt < Date.now()) {
+    searchResultsCache.delete(key);
+    return null;
+  }
+  return entry.results;
+}
+
+function setSearchCache(key: string, results: SavedPlace[]) {
+  if (searchResultsCache.size >= MAX_SEARCH_CACHE_ENTRIES) {
+    const oldestKey = searchResultsCache.keys().next().value;
+    if (oldestKey) {
+      searchResultsCache.delete(oldestKey);
+    }
+  }
+  searchResultsCache.set(key, {
+    results,
+    expiresAt: Date.now() + SEARCH_CACHE_TTL_MS,
+  });
+}
 
 async function searchPlaces(q: string): Promise<SavedPlace[]> {
   if (!q.trim()) return [];
+  if (!LOCATIONIQ_API_KEY) return [];
+
+  const cacheKey = getSearchCacheKey(q);
+  const cached = getSearchCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
   const url =
-    `https://us1.locationiq.com/v1/search?` +
+    `${LOCATIONIQ_BASE_URL}/search?` +
     `key=${LOCATIONIQ_API_KEY}&` +
     `q=${encodeURIComponent(q)}&` +
     `format=json&normalizeaddress=1&limit=12&addressdetails=1&accept-language=tr,en`;
@@ -84,8 +130,9 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
     }
 
     const data = (await res.json()) as LocationIQItem[];
-
-    return data.map(mapLocationIQToPlace);
+    const mapped = data.map(mapLocationIQToPlace);
+    setSearchCache(cacheKey, mapped);
+    return mapped;
   } catch {
     return [];
   }
@@ -322,6 +369,7 @@ export default function LocationSelector() {
       return () => {
         resetSwipeDemo();
       };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
 
