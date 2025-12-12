@@ -168,9 +168,6 @@ const SkeletonPlaceholder: React.FC<SkeletonPlaceholderProps> & {
     );
   }
 
-  // https://github.com/react-native-linear-gradient/react-native-linear-gradient/issues/358
-  // to make transparent gradient we need to use original color with alpha
-
   return (
     <MaskedView
       style={{ height: layout.height, width: layout.width }}

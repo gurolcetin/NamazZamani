@@ -5,7 +5,7 @@ import {
   Animated,
   Text,
   Platform,
-  TouchableHighlight,
+  Pressable,
 } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -69,30 +69,53 @@ const CustomTabBar = ({ state, navigation }: any) => {
           ) => {
             const isFocused = state.index === index;
 
-            // route.name artık item.route ile birebir eşleşecek
             const item = bottomTabMenuItems(currentTheme).find(
               i => i.route === route.name,
             );
 
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
+
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name);
+              }
+            };
+
+            const onLongPress = () => {
+              navigation.emit({
+                type: 'tabLongPress',
+                target: route.key,
+              });
+            };
+
             return (
-              <View key={route.key} style={styles.tabItem}>
-                <TouchableHighlight
-                  onPress={() => navigation.navigate(route.name)}
-                  style={styles.tabItemTouchable}
-                  underlayColor="transparent"
-                >
-                  <Icon
-                    type={item?.type}
-                    name={item?.icon}
-                    color={
-                      !isFocused
-                        ? currentTheme.placeholderTextColor
-                        : item?.color
-                    }
-                    solid={item?.solid}
-                    size={item?.size}
-                  />
-                </TouchableHighlight>
+              <Pressable
+                key={route.key}
+                style={({ pressed }) => [
+                  styles.tabItem,
+                  pressed && styles.tabItemPressed,
+                ]}
+                accessibilityRole="button"
+                accessibilityState={isFocused ? { selected: true } : {}}
+                accessibilityLabel={item ? t(item.label.key) : undefined}
+                onPress={onPress}
+                onLongPress={onLongPress}
+              >
+                <Icon
+                  type={item?.type}
+                  name={item?.icon}
+                  color={
+                    !isFocused
+                      ? currentTheme.placeholderTextColor
+                      : item?.color
+                  }
+                  solid={item?.solid}
+                  size={item?.size}
+                />
 
                 <Text
                   style={[
@@ -109,7 +132,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
                 >
                   {item && t(item.label.key)}
                 </Text>
-              </View>
+              </Pressable>
             );
           },
         )}
@@ -174,17 +197,17 @@ const styles = StyleSheet.create({
   },
   tabItem: {
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     flex: 1,
+    paddingVertical: 4,
   },
   iconText: {
     fontSize: 10,
     marginTop: 2,
     textAlign: 'center',
   },
-  tabItemTouchable: {
-    paddingVertical: 2,
-    alignItems: 'center',
+  tabItemPressed: {
+    opacity: 0.8,
   },
   bannerContainer: {
     width: '100%',
