@@ -56,6 +56,22 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.RamadanCountdownToggleHint',
     defaultValue: 'Ramazan ayında her zaman gösterilir.',
   };
+  static ReligiousDaysSliderToggleLabel: LanguageModel = {
+    key: 'settings.ReligiousDaysSliderToggleLabel',
+    defaultValue: 'Dini Günler Kaydırıcısını Göster/Gizle',
+  };
+  static AsmaulHusnaToggleLabel: LanguageModel = {
+    key: 'settings.AsmaulHusnaToggleLabel',
+    defaultValue: 'Esmaül Hüsna Kartını Göster/Gizle',
+  };
+  static HadithToggleLabel: LanguageModel = {
+    key: 'settings.HadithToggleLabel',
+    defaultValue: 'Hadis Kartını Göster/Gizle',
+  };
+  static QuranAyahToggleLabel: LanguageModel = {
+    key: 'settings.QuranAyahToggleLabel',
+    defaultValue: 'Günün Ayeti Kartını Göster/Gizle',
+  };
   static AdvancedTitle: LanguageModel = {
     key: 'settings.AdvancedTitle',
     defaultValue: 'Gelişmiş',

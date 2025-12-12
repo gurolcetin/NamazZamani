@@ -45,6 +45,10 @@ import {
   setPrayerNotificationPreference,
   setShowRamadanCountdownCard,
   setFontScalePreference,
+  setShowReligiousDaysSlider,
+  setShowAsmaulHusnaCard,
+  setShowHadithCard,
+  setShowQuranAyahCard,
 } from '../../../libs/redux/reducers/ApplicationSettings';
 import { createStyles } from './style';
 import { PrayerTimeKey } from '../../../libs/common/types';
@@ -103,6 +107,23 @@ type SettingsProps = {
   };
 };
 
+const showActionMap = {
+  showRamadanCountdownCard: setShowRamadanCountdownCard,
+  showReligiousDaysSlider: setShowReligiousDaysSlider,
+  showAsmaulHusnaCard: setShowAsmaulHusnaCard,
+  showHadithCard: setShowHadithCard,
+  showQuranAyahCard: setShowQuranAyahCard,
+} as const;
+
+type ToggleableShowKey = keyof typeof showActionMap;
+
+type ApplicationToggleItem = {
+  key: ToggleableShowKey;
+  label: string;
+  value: boolean;
+  hint?: string;
+};
+
 const Settings = ({}: SettingsProps) => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
@@ -132,9 +153,18 @@ const Settings = ({}: SettingsProps) => {
   );
   const showRamadanCountdownCard =
     applicationSettings?.showRamadanCountdownCard ?? true;
+  const showReligiousDaysSlider =
+    applicationSettings?.showReligiousDaysSlider ?? true;
+  const showAsmaulHusnaCard =
+    applicationSettings?.showAsmaulHusnaCard ?? true;
+  const showHadithCard = applicationSettings?.showHadithCard ?? true;
+  const showQuranAyahCard =
+    applicationSettings?.showQuranAyahCard ?? true;
   const prayerNotificationPreferences =
     applicationSettings?.prayerNotificationPreferences;
   const [isNotificationCardOpen, setIsNotificationCardOpen] =
+    useState<boolean>(false);
+  const [isApplicationSettingsOpen, setIsApplicationSettingsOpen] =
     useState<boolean>(false);
   const [notificationPermissionGranted, setNotificationPermissionGranted] =
     useState<boolean>(true);
@@ -345,9 +375,9 @@ const Settings = ({}: SettingsProps) => {
     [dispatch],
   );
 
-  const handleRamadanCountdownToggle = useCallback(
-    (value: boolean) => {
-      dispatch(setShowRamadanCountdownCard(value));
+  const handleShowToggle = useCallback(
+    (key: ToggleableShowKey) => (value: boolean) => {
+      dispatch(showActionMap[key](value));
     },
     [dispatch],
   );
@@ -407,6 +437,53 @@ const Settings = ({}: SettingsProps) => {
     requestNotificationPermission,
     applyNotificationPreference,
   ]);
+
+  const applicationToggleItems = useMemo<ApplicationToggleItem[]>(
+    () => [
+      {
+        key: 'showRamadanCountdownCard',
+        label: t(
+          SettingsScreenLanguageConstants.RamadanCountdownToggleLabel.key,
+        ),
+        value: showRamadanCountdownCard,
+        hint: t(
+          SettingsScreenLanguageConstants.RamadanCountdownToggleHint.key,
+        ),
+      },
+      {
+        key: 'showReligiousDaysSlider',
+        label: t(
+          SettingsScreenLanguageConstants.ReligiousDaysSliderToggleLabel.key,
+        ),
+        value: showReligiousDaysSlider,
+      },
+      {
+        key: 'showAsmaulHusnaCard',
+        label: t(
+          SettingsScreenLanguageConstants.AsmaulHusnaToggleLabel.key,
+        ),
+        value: showAsmaulHusnaCard,
+      },
+      {
+        key: 'showHadithCard',
+        label: t(SettingsScreenLanguageConstants.HadithToggleLabel.key),
+        value: showHadithCard,
+      },
+      {
+        key: 'showQuranAyahCard',
+        label: t(SettingsScreenLanguageConstants.QuranAyahToggleLabel.key),
+        value: showQuranAyahCard,
+      },
+    ],
+    [
+      showRamadanCountdownCard,
+      showReligiousDaysSlider,
+      showAsmaulHusnaCard,
+      showHadithCard,
+      showQuranAyahCard,
+      t,
+    ],
+  );
 
   const handleClearStorage = useCallback(async () => {
     try {
@@ -693,50 +770,81 @@ const Settings = ({}: SettingsProps) => {
 
             {/* Uygulama Ayarları */}
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>
-                {t(SettingsConstants.CalculateSettings.key)}
-              </Text>
-              <Text style={styles.themeSectionLabel}>
-                {t(SettingsScreenLanguageConstants.FontSize.key)}
-              </Text>
-              <View style={{ marginBottom: 16 }}>
-                <FormSegmentedControl
-                  options={fontSizeOptions}
-                  value={fontScalePreference}
-                  fontScaleMultiplier={fontScaleMultiplier}
-                  onChange={(value: string) =>
-                    handleFontScaleChange(value as FontScaleOption)
+              <Pressable
+                onPress={() =>
+                  setIsApplicationSettingsOpen(prevState => !prevState)
+                }
+                style={styles.notificationHeader}
+                android_ripple={{ color: currentTheme.gray, borderless: false }}
+              >
+                <View style={styles.notificationHeaderLeft}>
+                  <View style={styles.notificationIconWrap}>
+                    <Icon
+                      type={Icons.MaterialDesignIcons}
+                      name="tune-variant"
+                      size={defaultIconSize}
+                      color={currentTheme.textColor}
+                    />
+                  </View>
+                  <View style={styles.notificationHeaderTexts}>
+                    <Text style={styles.notificationHeaderTitle}>
+                      {t(SettingsConstants.CalculateSettings.key)}
+                    </Text>
+                    <Text style={styles.notificationSubtitle}>
+                      {t(SettingsScreenLanguageConstants.CalculationHelper.key)}
+                    </Text>
+                  </View>
+                </View>
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name={
+                    isApplicationSettingsOpen ? 'chevron-up' : 'chevron-down'
                   }
+                  size={defaultIconSize}
+                  color={currentTheme.textColor}
                 />
-              </View>
-              <View style={styles.toggleRow}>
-                <Text style={styles.toggleLabel}>
-                  {t(
-                    SettingsScreenLanguageConstants.RamadanCountdownToggleLabel
-                      .key,
-                  )}
-                </Text>
-                <Switch
-                  value={showRamadanCountdownCard}
-                  onValueChange={handleRamadanCountdownToggle}
-                  trackColor={{
-                    false: `${currentTheme.gray}`,
-                    true: currentTheme.primary,
-                  }}
-                  thumbColor={
-                    showRamadanCountdownCard
-                      ? currentTheme.white
-                      : currentTheme.cardViewBackgroundColor
-                  }
-                  ios_backgroundColor={`${currentTheme.gray}33`}
-                />
-              </View>
-              <Text style={styles.toggleHint}>
-                {t(
-                  SettingsScreenLanguageConstants.RamadanCountdownToggleHint
-                    .key,
-                )}
-              </Text>
+              </Pressable>
+              {isApplicationSettingsOpen && (
+                <View style={styles.collapsibleContent}>
+                  <Text style={styles.themeSectionLabel}>
+                    {t(SettingsScreenLanguageConstants.FontSize.key)}
+                  </Text>
+                  <View style={{ marginBottom: 16 }}>
+                    <FormSegmentedControl
+                      options={fontSizeOptions}
+                      value={fontScalePreference}
+                      fontScaleMultiplier={fontScaleMultiplier}
+                      onChange={(value: string) =>
+                        handleFontScaleChange(value as FontScaleOption)
+                      }
+                    />
+                  </View>
+                  {applicationToggleItems.map(item => (
+                    <View key={item.key}>
+                      <View style={styles.toggleRow}>
+                        <Text style={styles.toggleLabel}>{item.label}</Text>
+                        <Switch
+                          value={item.value}
+                          onValueChange={handleShowToggle(item.key)}
+                          trackColor={{
+                            false: `${currentTheme.gray}`,
+                            true: currentTheme.primary,
+                          }}
+                          thumbColor={
+                            item.value
+                              ? currentTheme.white
+                              : currentTheme.cardViewBackgroundColor
+                          }
+                          ios_backgroundColor={`${currentTheme.gray}33`}
+                        />
+                      </View>
+                      {item.hint ? (
+                        <Text style={styles.toggleHint}>{item.hint}</Text>
+                      ) : null}
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
 
             {/* Gelişmiş */}

@@ -27,6 +27,10 @@ export const DEVICE_METHOD_KEY = 'device';
 
 type ApplicationSettingsState = {
   showRamadanCountdownCard: boolean;
+  showReligiousDaysSlider: boolean;
+  showAsmaulHusnaCard: boolean;
+  showHadithCard: boolean;
+  showQuranAyahCard: boolean;
   prayerNotificationPreferences: PrayerNotificationPreferences;
   fontScale: FontScaleOption;
   isScrollReachToBottom: boolean;
@@ -45,6 +49,10 @@ const buildDefaultNotificationPreferences = (): PrayerNotificationPreferences =>
 
 const initialState: ApplicationSettingsState = {
   showRamadanCountdownCard: true,
+  showReligiousDaysSlider: true,
+  showAsmaulHusnaCard: true,
+  showHadithCard: true,
+  showQuranAyahCard: true,
   prayerNotificationPreferences: buildDefaultNotificationPreferences(),
   fontScale: FontScaleOption.MEDIUM,
   isScrollReachToBottom: false,
@@ -89,6 +97,18 @@ const ApplicationSettings = createSlice({
   reducers: {
     setShowRamadanCountdownCard: (state, action: PayloadAction<boolean>) => {
       state.showRamadanCountdownCard = action.payload;
+    },
+    setShowReligiousDaysSlider: (state, action: PayloadAction<boolean>) => {
+      state.showReligiousDaysSlider = action.payload;
+    },
+    setShowAsmaulHusnaCard: (state, action: PayloadAction<boolean>) => {
+      state.showAsmaulHusnaCard = action.payload;
+    },
+    setShowHadithCard: (state, action: PayloadAction<boolean>) => {
+      state.showHadithCard = action.payload;
+    },
+    setShowQuranAyahCard: (state, action: PayloadAction<boolean>) => {
+      state.showQuranAyahCard = action.payload;
     },
     setPrayerNotificationPreference: (
       state,
@@ -149,6 +169,10 @@ const ApplicationSettings = createSlice({
 
 export const {
   setShowRamadanCountdownCard,
+  setShowAsmaulHusnaCard,
+  setShowHadithCard,
+  setShowQuranAyahCard,
+  setShowReligiousDaysSlider,
   setPrayerNotificationPreference,
   setFontScalePreference,
   updateAppConfig,

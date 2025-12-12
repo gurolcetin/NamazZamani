@@ -60,6 +60,7 @@ import {
   AsmaulHusnaCard,
   HadithCard,
   QuranAyahCard,
+  ReligiousDaysSliderCard,
 } from './info-cards';
 import PrayerTimeSkeleton from './prayer-time-skeleton';
 import { PrayerTimeKey, SmallCard } from '../../../libs/common/types';
@@ -435,6 +436,20 @@ export default function PrayerTime() {
     (state: RootState) =>
       state.applicationSettings?.showRamadanCountdownCard ?? true,
   );
+  const showAsmaulHusnaCard = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.showAsmaulHusnaCard ?? true,
+  );
+  const showHadithCard = useSelector(
+    (state: RootState) => state.applicationSettings?.showHadithCard ?? true,
+  );
+  const showQuranAyahCard = useSelector(
+    (state: RootState) => state.applicationSettings?.showQuranAyahCard ?? true,
+  );
+  const showReligiousDaysSlider = useSelector(
+    (state: RootState) =>
+      state.applicationSettings?.showReligiousDaysSlider ?? true,
+  );
   const prayerNotificationPreferences = useSelector(
     (state: RootState) =>
       state.applicationSettings?.prayerNotificationPreferences,
@@ -458,22 +473,19 @@ export default function PrayerTime() {
   useEffect(() => {
     legacyManualRef.current = prayerTimeMethodManuallySet;
   }, [prayerTimeMethodManuallySet]);
-  const getMethodPreferenceForKey = useCallback(
-    (key: string) => {
-      const prefs = methodPreferencesRef.current ?? {};
-      if (prefs[key]) {
-        return prefs[key];
-      }
-      if (key === DEVICE_METHOD_KEY) {
-        return {
-          methodId: legacyMethodRef.current ?? DEFAULT_METHOD_ID,
-          manuallySet: legacyManualRef.current ?? false,
-        };
-      }
-      return undefined;
-    },
-    [],
-  );
+  const getMethodPreferenceForKey = useCallback((key: string) => {
+    const prefs = methodPreferencesRef.current ?? {};
+    if (prefs[key]) {
+      return prefs[key];
+    }
+    if (key === DEVICE_METHOD_KEY) {
+      return {
+        methodId: legacyMethodRef.current ?? DEFAULT_METHOD_ID,
+        manuallySet: legacyManualRef.current ?? false,
+      };
+    }
+    return undefined;
+  }, []);
 
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
@@ -489,9 +501,7 @@ export default function PrayerTime() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const methodKey =
-    activeResolved.type === 'device'
-      ? DEVICE_METHOD_KEY
-      : activeResolved.id;
+    activeResolved.type === 'device' ? DEVICE_METHOD_KEY : activeResolved.id;
   const activeMethodPref =
     prayerTimeMethodPreferences?.[methodKey] ??
     (methodKey === DEVICE_METHOD_KEY
@@ -501,8 +511,7 @@ export default function PrayerTime() {
         }
       : undefined);
   const activeMethodId = activeMethodPref?.methodId ?? DEFAULT_METHOD_ID;
-  const activeMethodManuallySet =
-    activeMethodPref?.manuallySet ?? false;
+  const activeMethodManuallySet = activeMethodPref?.manuallySet ?? false;
 
   const [leftClock, setLeftClock] = useState('00:00:00');
   const [leftSec, setLeftSec] = useState(0);
@@ -1183,18 +1192,32 @@ export default function PrayerTime() {
   const listFooter = useMemo(
     () => (
       <View style={styles.footerStack}>
-        {shouldShowRamadanCountdown ? (
+        {shouldShowRamadanCountdown && (
           <RamadanCountdownCard
             ramadanInfo={ramadanCountdownInfo}
             currentNow={nowTick}
           />
-        ) : null}
-        <QuranAyahCard currentDateKey={currentDateKey} />
-        <AsmaulHusnaCard currentDateKey={currentDateKey} />
-        <HadithCard currentDateKey={currentDateKey} />
+        )}
+        {showReligiousDaysSlider && (
+          <ReligiousDaysSliderCard currentDateKey={currentDateKey} />
+        )}
+        {showQuranAyahCard && <QuranAyahCard currentDateKey={currentDateKey} />}
+        {showAsmaulHusnaCard && (
+          <AsmaulHusnaCard currentDateKey={currentDateKey} />
+        )}
+        {showHadithCard && <HadithCard currentDateKey={currentDateKey} />}
       </View>
     ),
-    [shouldShowRamadanCountdown, ramadanCountdownInfo, nowTick, currentDateKey],
+    [
+      shouldShowRamadanCountdown,
+      ramadanCountdownInfo,
+      nowTick,
+      showReligiousDaysSlider,
+      currentDateKey,
+      showQuranAyahCard,
+      showAsmaulHusnaCard,
+      showHadithCard,
+    ],
   );
 
   const shouldShowLocationPermissionCard =

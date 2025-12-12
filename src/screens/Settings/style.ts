@@ -94,6 +94,9 @@ export const createStyles = (theme: ThemeType, fontScale = 1) => {
       fontWeight: '600',
       color: theme.primary,
     },
+    collapsibleContent: {
+      marginTop: 18,
+    },
     notificationGrid: {
       marginTop: 18,
       gap: 12,

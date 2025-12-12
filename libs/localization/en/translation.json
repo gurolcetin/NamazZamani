@@ -78,6 +78,10 @@
     "CalculationHelper": "Used while calculating missed prayers.",
     "RamadanCountdownToggleLabel": "Show/Hide Iftar & Suhoor Counter",
     "RamadanCountdownToggleHint": "Always visible during Ramadan.",
+    "ReligiousDaysSliderToggleLabel": "Show/Hide Religious Days Slider",
+    "AsmaulHusnaToggleLabel": "Show/Hide Asmaul Husna Card",
+    "HadithToggleLabel": "Show/Hide Hadith Card",
+    "QuranAyahToggleLabel": "Show/Hide Quran Verse Card",
     "AdvancedTitle": "Advanced",
     "AdvancedDescription": "Clears all local app data (language, theme, calculation settings, etc.). Some areas will revert to default settings.",
     "AdvancedClearButton": "Clear All Data",
@@ -181,6 +185,38 @@
       "showArabic": "Show Arabic Text",
       "showTranslation": "Show Translation",
       "share": "Share"
+    },
+    "religiousDays": {
+      "title": "Upcoming Holy Days",
+      "slides": {
+        "threeMonths": {
+          "title": "Three Holy Months",
+          "description": "Rajab, Sha'ban and Ramadan open the mercy season beginning on 1 Rajab."
+        },
+        "ramadan": {
+          "title": "Ramadan",
+          "description": "Countdown to the first day of fasting and nightly worship.",
+          "extraNights": "Highlighted nights: Raghaib, Mid-Sha'ban and Laylat al-Qadr."
+        },
+        "eidFitr": {
+          "title": "Eid al-Fitr",
+          "description": "Festival of breaking the fast on 1 Shawwal.",
+          "extraNight": "Eid eve (30 Ramadan)."
+        },
+        "eidAdha": {
+          "title": "Eid al-Adha",
+          "description": "Day of sacrifice and standing at Arafat on 10 Dhu al-Hijjah."
+        },
+        "otherDays": {
+          "title": "Other Sacred Days",
+          "description": "Track Hijri New Year, Ashura and Mawlid."
+        }
+      },
+      "other": {
+        "hijriNewYear": "Hijri New Year",
+        "ashura": "Day of Ashura",
+        "mawlid": "Mawlid al-Nabi"
+      }
     }
   },
   "actionCardGroup": {

@@ -79,6 +79,10 @@
     "CalculationHelper": "Kaza namaz hesaplamasında kullanılır",
     "RamadanCountdownToggleLabel": "İftar Sahur Sayacı Göster/Gizle",
     "RamadanCountdownToggleHint": "Ramazan ayında her zaman gösterilir.",
+    "ReligiousDaysSliderToggleLabel": "Dini Günler Slaytını Göster/Gizle",
+    "AsmaulHusnaToggleLabel": "Esmaül Hüsna Kartını Göster/Gizle",
+    "HadithToggleLabel": "Hadis Kartını Göster/Gizle",
+    "QuranAyahToggleLabel": "Günün Ayeti Kartını Göster/Gizle",
     "AdvancedTitle": "Gelişmiş",
     "AdvancedDescription": "Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara döner.",
     "AdvancedClearButton": "Tüm Verileri Temizle",
@@ -182,6 +186,38 @@
       "showArabic": "Arapçayı Göster",
       "showTranslation": "Çeviriyi Göster",
       "share": "Paylaş"
+    },
+    "religiousDays": {
+      "title": "Mübarek Günler Takvimi",
+      "slides": {
+        "threeMonths": {
+          "title": "Üç Aylar",
+          "description": "Recep, Şaban ve Ramazan; 1 Recep ile başlayan rahmet mevsimidir."
+        },
+        "ramadan": {
+          "title": "Ramazan",
+          "description": "Oruç ve gece ibadetleri için ilk güne geri sayım.",
+          "extraNights": "Öne çıkan geceler: Regaib, Berat ve Kadir."
+        },
+        "eidFitr": {
+          "title": "Ramazan Bayramı",
+          "description": "1 Şevval'de oruçların tamamlandığı bayram.",
+          "extraNight": "Bayram arifesi (30 Ramazan)."
+        },
+        "eidAdha": {
+          "title": "Kurban Bayramı",
+          "description": "10 Zilhicce'de kurban ve Arafat vakfesi günleri."
+        },
+        "otherDays": {
+          "title": "Diğer Manevi Günler",
+          "description": "Hicrî yılbaşı, Aşure ve Mevlid-i Nebi için kalan süre."
+        }
+      },
+      "other": {
+        "hijriNewYear": "Hicrî Yeni Yıl",
+        "ashura": "Aşure Günü",
+        "mawlid": "Mevlid Kandili"
+      }
     }
   },
   "actionCardGroup": {
