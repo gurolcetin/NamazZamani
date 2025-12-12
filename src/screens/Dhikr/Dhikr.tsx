@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import {
   BottomTabScreenViewContainer,
   SegmentedControl,
+  ScrollAwareView,
 } from '../../../libs/components';
-import { ScrollView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import {
   DhikrLanguageConstants,
   DhikrTabKeys,
@@ -46,13 +47,13 @@ const Dhikr = () => {
         marginTop={15}
         fontScaleMultiplier={fontScaleMultiplier}
       />
-      <ScrollView
+      <ScrollAwareView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {selectedTab === DhikrTabKeys.All && <AllDhikr />}
         {selectedTab === DhikrTabKeys.Prayer && <PrayerDhikr />}
-      </ScrollView>
+      </ScrollAwareView>
     </BottomTabScreenViewContainer>
   );
 };

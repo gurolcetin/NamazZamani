@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Platform,
   PermissionsAndroid,
-  ScrollView,
   Alert,
 } from 'react-native';
 import Svg, { Circle, G, Line, Text as SvgText, Path } from 'react-native-svg';
@@ -26,6 +25,7 @@ import {
   Icons,
   ScreenViewContainer,
   BottomBannerAd,
+  ScrollAwareView,
 } from '../../../../libs/components';
 import {
   GeneralLanguageConstants,
@@ -290,7 +290,7 @@ export default function QiblaScreen() {
   return (
     <ScreenViewContainer disableBottomPadding>
       <View style={styles.contentWrapper}>
-        <ScrollView style={styles.root}>
+        <ScrollAwareView style={styles.root}>
           <View style={styles.screenInner}>
             {/* Başlık + sabit Kâbe + pusula */}
             <View style={styles.compassContainer}>
@@ -558,7 +558,7 @@ export default function QiblaScreen() {
 
             <View style={styles.bottomSpacer} />
           </View>
-        </ScrollView>
+        </ScrollAwareView>
       </View>
       <BottomBannerAd />
     </ScreenViewContainer>

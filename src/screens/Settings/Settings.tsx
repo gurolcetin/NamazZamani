@@ -10,7 +10,6 @@ import {
   Image,
   Linking,
   Pressable,
-  ScrollView,
   Text,
   View,
   StyleSheet,
@@ -29,6 +28,7 @@ import {
   FormSegmentedControl,
   Icon,
   Icons,
+  ScrollAwareView,
 } from '../../../libs/components';
 import {
   AsyncStorageConstants,
@@ -438,7 +438,7 @@ const Settings = ({}: SettingsProps) => {
     <>
       <BottomTabScreenViewContainer>
         <View style={{ flex: 1 }}>
-          <ScrollView
+          <ScrollAwareView
             contentContainerStyle={styles.contentContainer}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -821,7 +821,7 @@ const Settings = ({}: SettingsProps) => {
               </Text>
               <Text style={styles.versionInfoValue}>{versionLabel}</Text>
             </View>
-          </ScrollView>
+          </ScrollAwareView>
         </View>
       </BottomTabScreenViewContainer>
 
@@ -848,7 +848,8 @@ const Settings = ({}: SettingsProps) => {
                     },
                   ]}
                 >
-                  <ScrollView
+                  <ScrollAwareView
+                    disableReachBottomTracking
                     style={dropdownStyles.langDropdownScroll}
                     nestedScrollEnabled
                     showsVerticalScrollIndicator={false}
@@ -893,7 +894,7 @@ const Settings = ({}: SettingsProps) => {
                         </Pressable>
                       );
                     })}
-                  </ScrollView>
+                  </ScrollAwareView>
                 </View>
               </TouchableWithoutFeedback>
             </View>

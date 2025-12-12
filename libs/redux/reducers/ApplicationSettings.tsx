@@ -17,6 +17,7 @@ type ApplicationSettingsState = {
   showRamadanCountdownCard: boolean;
   prayerNotificationPreferences: PrayerNotificationPreferences;
   fontScale: FontScaleOption;
+  isScrollReachToBottom: boolean;
 };
 
 const buildDefaultNotificationPreferences = (): PrayerNotificationPreferences =>
@@ -29,6 +30,7 @@ const initialState: ApplicationSettingsState = {
   showRamadanCountdownCard: true,
   prayerNotificationPreferences: buildDefaultNotificationPreferences(),
   fontScale: FontScaleOption.MEDIUM,
+  isScrollReachToBottom: false,
 };
 
 const ensureNotificationPreferences = (
@@ -44,10 +46,7 @@ const ApplicationSettings = createSlice({
   name: 'applicationSettings',
   initialState,
   reducers: {
-    setShowRamadanCountdownCard: (
-      state,
-      action: PayloadAction<boolean>,
-    ) => {
+    setShowRamadanCountdownCard: (state, action: PayloadAction<boolean>) => {
       state.showRamadanCountdownCard = action.payload;
     },
     setPrayerNotificationPreference: (
@@ -61,6 +60,9 @@ const ApplicationSettings = createSlice({
     setFontScalePreference: (state, action: PayloadAction<FontScaleOption>) => {
       state.fontScale = action.payload;
     },
+    updateAppConfig: (state, action) => {
+      state.isScrollReachToBottom = action.payload.isScrollReachToBottom;
+    },
   },
 });
 
@@ -68,6 +70,7 @@ export const {
   setShowRamadanCountdownCard,
   setPrayerNotificationPreference,
   setFontScalePreference,
+  updateAppConfig,
 } = ApplicationSettings.actions;
 
 export default ApplicationSettings.reducer;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   BottomTabScreenViewContainer,
   SegmentedControl,
+  ScrollAwareView,
 } from '../../../libs/components';
 import {
   MissedTrackingLanguageConstants,
@@ -13,7 +14,7 @@ import {
   PrayerForm,
   CalculatedMissedFasting,
 } from '../../../libs/core/sections';
-import { ScrollView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { RootState } from '../../../libs/redux/store';
@@ -71,7 +72,7 @@ const MissedTracking = () => {
         marginTop={15}
         fontScaleMultiplier={fontScaleMultiplier}
       />
-      <ScrollView
+      <ScrollAwareView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -87,7 +88,7 @@ const MissedTracking = () => {
           ) : (
             <CalculatedMissedFasting />
           ))}
-      </ScrollView>
+      </ScrollAwareView>
     </BottomTabScreenViewContainer>
   );
 };

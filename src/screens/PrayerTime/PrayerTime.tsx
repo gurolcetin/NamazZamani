@@ -74,6 +74,8 @@ import {
   selectPrayerSnapshot,
   selectRamadanSnapshot,
 } from '../../../libs/redux/reducers/prayerTimesCache';
+import { updateAppConfig } from '../../../libs/redux/reducers/ApplicationSettings';
+import { isCloseToBottom } from '../../../libs/core/utils';
 
 // ----- Types & Maps ---------------------------------------------------------
 
@@ -1194,6 +1196,13 @@ export default function PrayerTime() {
                 progressBackgroundColor={currentTheme.cardViewBackgroundColor}
               />
             }
+            onScroll={({ nativeEvent }) => {
+              if (isCloseToBottom(nativeEvent)) {
+                dispatch(updateAppConfig({ isScrollReachToBottom: true }));
+              } else {
+                dispatch(updateAppConfig({ isScrollReachToBottom: false }));
+              }
+            }}
           />
         </View>
       </BottomTabScreenViewContainer>

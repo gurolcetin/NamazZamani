@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  ScrollView,
   StyleSheet,
   StyleProp,
   Text,
@@ -21,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   SafeAreaWithStatusBar,
   ScreenViewContainer,
+  ScrollAwareView,
 } from '../../../libs/components';
 import { GetDeviceLang } from '../../../libs/core/utils/i18next.languageDetector';
 
@@ -254,7 +254,7 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
           </Text>
         </View>
       ) : error ? (
-        <ScrollView
+        <ScrollAwareView
           style={styles.descriptionContainer}
           contentContainerStyle={styles.descriptionContent}
         >
@@ -263,15 +263,15 @@ const PrivacyContent: React.FC<PrivacyContentProps> = ({
           >
             {error}
           </Text>
-        </ScrollView>
+        </ScrollAwareView>
       ) : (
-        <ScrollView
+        <ScrollAwareView
           style={styles.descriptionContainer}
           contentContainerStyle={styles.descriptionContent}
           showsVerticalScrollIndicator
         >
           {renderRichText(parsedText, currentTheme.textColor)}
-        </ScrollView>
+        </ScrollAwareView>
       )}
     </View>
   );
@@ -488,7 +488,8 @@ const PrivacyScreen: React.FC<Props> = ({
                     },
                   ]}
                 >
-                  <ScrollView
+                  <ScrollAwareView
+                    disableReachBottomTracking
                     style={styles.langDropdownScroll}
                     nestedScrollEnabled
                     showsVerticalScrollIndicator={false}
@@ -538,7 +539,7 @@ const PrivacyScreen: React.FC<Props> = ({
                         </TouchableOpacity>
                       );
                     })}
-                  </ScrollView>
+                  </ScrollAwareView>
                 </View>
               )}
             </View>

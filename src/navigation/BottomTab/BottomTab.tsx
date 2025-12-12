@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -28,7 +28,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
-  const opacity = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(0.9)).current;
   const { setBannerLoaded } = useBanner();
   const applicationSettings = useSelector(
     (state: any) => state.applicationSettings,
@@ -39,6 +39,23 @@ const CustomTabBar = ({ state, navigation }: any) => {
     () => getFontScaleMultiplier(fontScalePreference),
     [fontScalePreference],
   );
+  useEffect(() => {
+    if (opacity) {
+      if (applicationSettings.isScrollReachToBottom) {
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 300, // 300ms içinde değişsin
+          useNativeDriver: true,
+        }).start();
+      } else if (!applicationSettings.isScrollReachToBottom) {
+        Animated.timing(opacity, {
+          toValue: 0.9,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      }
+    }
+  }, [applicationSettings.isScrollReachToBottom, opacity]);
 
   return (
     <View
@@ -109,9 +126,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
                   type={item?.type}
                   name={item?.icon}
                   color={
-                    !isFocused
-                      ? currentTheme.placeholderTextColor
-                      : item?.color
+                    !isFocused ? currentTheme.placeholderTextColor : item?.color
                   }
                   solid={item?.solid}
                   size={item?.size}

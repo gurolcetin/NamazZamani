@@ -13,6 +13,7 @@ import ErrorView from './ErrorView/ErrorView';
 import CircleProgressBar from './CircleProgressBar/CircleProgressBar';
 import CustomModal from './CustomModal/CustomModal';
 import BottomBannerAd from './Ads/BottomBannerAd';
+import ScrollAwareView from './ScrollAwareView';
 import {
   PrayerTimeSmallCard,
   PRAYER_TIME_ICONS,
@@ -34,6 +35,7 @@ export {
   ErrorView,
   CircleProgressBar,
   CustomModal,
+  ScrollAwareView,
   PrayerTimeSmallCard,
   BackButton,
   FormSegmentedControl,
