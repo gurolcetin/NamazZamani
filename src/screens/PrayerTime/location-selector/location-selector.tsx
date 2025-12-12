@@ -879,15 +879,8 @@ export default function LocationSelector() {
                   />
                 </Pressable>
               )}
-              {selected ? (
+              {selected && (
                 <SelectedBadge />
-              ) : (
-                <Icon
-                  type={Icons.MaterialDesignIcons}
-                  name="chevron-left"
-                  size={16}
-                  color={currentTheme.textColor}
-                />
               )}
             </View>
           </Pressable>

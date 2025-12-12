@@ -60,7 +60,7 @@ import {
   AsmaulHusnaCard,
   HadithCard,
   QuranAyahCard,
-} from './inspiration-cards';
+} from './info-cards';
 import PrayerTimeSkeleton from './prayer-time-skeleton';
 import { PrayerTimeKey, SmallCard } from '../../../libs/common/types';
 import {
