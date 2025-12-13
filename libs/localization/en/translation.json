@@ -75,7 +75,6 @@
     "FontSizeExtraLarge": "Extra Large",
     "NotificationSettingsTitle": "Prayer Notification Settings",
     "NotificationSettingsSubtitle": "Toggle adhan alerts for each prayer time.",
-    "CalculationHelper": "Used while calculating missed prayers.",
     "RamadanCountdownToggleLabel": "Show/Hide Iftar & Suhoor Counter",
     "RamadanCountdownToggleHint": "Always visible during Ramadan.",
     "ReligiousDaysSliderToggleLabel": "Show/Hide Religious Days Slider",
@@ -91,7 +90,8 @@
     "FeedbackEmailBody": "Hello, I have some feedback about the Namaz Zamanı app:",
     "AppVersion": "App Version",
     "mailErrorTitle": "Error",
-    "mailErrorMessage": "Unable to open the mail app."
+    "mailErrorMessage": "Unable to open the mail app.",
+    "applicationSettingsDescription": "Change font size, show/hide home screen items and other app settings."
   },
   "menu": {
     "PrayerTime": "Prayer Time",
@@ -187,7 +187,7 @@
       "share": "Share"
     },
     "religiousDays": {
-      "title": "Upcoming Holy Days",
+      "title": "Calendar of Religious Holidays",
       "slides": {
         "threeMonths": {
           "title": "Three Holy Months",

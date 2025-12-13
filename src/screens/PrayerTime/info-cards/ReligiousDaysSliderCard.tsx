@@ -102,7 +102,6 @@ const createStyles = (
     textColor: string;
     shadowColor: string;
     muted: string;
-    badgeBg: string;
   },
   fontScale: number,
 ) =>
@@ -133,17 +132,6 @@ const createStyles = (
       fontSize: 12 * fontScale,
       color: colors.muted,
       marginTop: 2,
-    },
-    badge: {
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 999,
-      backgroundColor: colors.badgeBg,
-    },
-    badgeText: {
-      fontSize: 11 * fontScale,
-      fontWeight: '600',
-      color: colors.primary,
     },
     sliderContainer: {
       marginTop: 8,
@@ -318,8 +306,7 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
           primary: currentTheme.primary,
           textColor: currentTheme.textColor,
           shadowColor: currentTheme.shadowColor || '#0F172A',
-          muted: 'rgba(148,163,184,0.8)',
-          badgeBg: 'rgba(59,130,246,0.12)',
+          muted: currentTheme.placeholderTextColor || 'rgba(148,163,184,0.8)',
         },
         fontScaleMultiplier,
       ),
@@ -341,22 +328,26 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     return () => clearInterval(id);
   }, []);
 
-  /* tarih değişince hicrî gün güncelle */
+  /* tarih değişince hicrî ve miladi gün güncelle */
   useEffect(() => {
     setTodayHijri(convertMiladiDateToHicriDate(new Date()));
+    setNow(new Date());
   }, [currentDateKey]);
 
   const currentPhaseIndex = useMemo(
     () => getCurrentPhaseIndex(todayHijri),
     [todayHijri],
   );
-
+  function dateFromYMD(ymd: string) {
+    const [y, m, d] = ymd.split('-').map(Number);
+    return new Date(y, m - 1, d); // LOCAL midnight
+  }
   /**
    * Hicrî günlerin miladî karşılıklarını günlük olarak hesaplayıp sakla.
-   * Böylece her saniye render olan geri sayımda ağır hesaplamalar tekrar etmez.
+   * currentDateKey değiştiğinde (cihaz tarihi değişince) yeniden hesaplanır.
    */
   const eventTargets = useMemo(() => {
-    const baseDate = new Date();
+    const baseDate = new Date(dateFromYMD(currentDateKey));
     const result: Record<string, Date | null> = {};
 
     const cacheEventDate = (event: HijriEvent) => {
@@ -371,7 +362,7 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     OTHER_EVENTS.forEach(cacheEventDate);
 
     return result;
-  }, []);
+  }, [currentDateKey]);
 
   /* slider açılışta doğru faza gitsin */
   useEffect(() => {

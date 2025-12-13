@@ -76,7 +76,6 @@
     "FontSizeExtraLarge": "Çok Büyük",
     "NotificationSettingsTitle": "Bildirim Ayarları",
     "NotificationSettingsSubtitle": "Her vakit için ezan bildirimini açıp kapat.",
-    "CalculationHelper": "Kaza namaz hesaplamasında kullanılır",
     "RamadanCountdownToggleLabel": "İftar Sahur Sayacı Göster/Gizle",
     "RamadanCountdownToggleHint": "Ramazan ayında her zaman gösterilir.",
     "ReligiousDaysSliderToggleLabel": "Dini Günler Slaytını Göster/Gizle",
@@ -92,7 +91,8 @@
     "FeedbackEmailBody": "Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:",
     "AppVersion": "Uygulama Sürümü",
     "mailErrorTitle": "Hata",
-    "mailErrorMessage": "Mail uygulaması açılamadı."
+    "mailErrorMessage": "Mail uygulaması açılamadı.",
+    "applicationSettingsDescription": "Yazı boyutu değiştirme, ana ekran öğeleri gösterme/gizleme ve diğer uygulama ayarları."
   },
   "menu": {
     "PrayerTime": "Namaz Vakitleri",
@@ -188,7 +188,7 @@
       "share": "Paylaş"
     },
     "religiousDays": {
-      "title": "Mübarek Günler Takvimi",
+      "title": "Dini Günler Takvimi",
       "slides": {
         "threeMonths": {
           "title": "Üç Aylar",

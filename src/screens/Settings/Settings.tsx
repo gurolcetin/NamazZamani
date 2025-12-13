@@ -791,7 +791,7 @@ const Settings = ({}: SettingsProps) => {
                       {t(SettingsConstants.CalculateSettings.key)}
                     </Text>
                     <Text style={styles.notificationSubtitle}>
-                      {t(SettingsScreenLanguageConstants.CalculationHelper.key)}
+                      {t("settings.applicationSettingsDescription")}
                     </Text>
                   </View>
                 </View>
