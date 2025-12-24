@@ -87,8 +87,8 @@
     "AdvancedClearButton": "Tüm Verileri Temizle",
     "FeedbackTitle": "Geri Bildirim Gönder",
     "FeedbackSubtitle": "Öneri, şikayet veya yorumlarınızı bizimle paylaşın",
-    "FeedbackEmailSubject": "Namaz Zamanı Uygulama Geri Bildirimi",
-    "FeedbackEmailBody": "Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:",
+    "FeedbackEmailSubject": "Namaz Defteri Uygulama Geri Bildirimi",
+    "FeedbackEmailBody": "Merhaba, namaz defteri uygulaması hakkında bir geri bildirimim var:",
     "AppVersion": "Uygulama Sürümü",
     "mailErrorTitle": "Hata",
     "mailErrorMessage": "Mail uygulaması açılamadı.",
@@ -192,17 +192,20 @@
       "slides": {
         "threeMonths": {
           "title": "Üç Aylar",
-          "description": "Recep, Şaban ve Ramazan; 1 Recep ile başlayan rahmet mevsimidir."
+          "description": "Recep, Şaban ve Ramazan; 1 Recep ile başlayan rahmet mevsimidir.",
+          "ongoing": "Üç aylar devam ediyor.",
+          "nextNight": "Sıradaki kandil: {{night}}"
         },
         "ramadan": {
           "title": "Ramazan",
           "description": "Oruç ve gece ibadetleri için ilk güne geri sayım.",
-          "extraNights": "Öne çıkan geceler: Regaib, Berat ve Kadir."
+          "regaib": "Regaib Kandili (3 Recep).",
+          "berat": "Berat Kandili (15 Şaban).",
+          "kadir": "Kadir Gecesi (27 Ramazan)."
         },
         "eidFitr": {
           "title": "Ramazan Bayramı",
-          "description": "1 Şevval'de oruçların tamamlandığı bayram.",
-          "extraNight": "Bayram arifesi (30 Ramazan)."
+          "description": "1 Şevval'de oruçların tamamlandığı bayram."
         },
         "eidAdha": {
           "title": "Kurban Bayramı",

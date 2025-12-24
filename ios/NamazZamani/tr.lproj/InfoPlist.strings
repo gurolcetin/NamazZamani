@@ -1,2 +1,3 @@
 "NSLocationWhenInUseUsageDescription" = "Yakınınızdaki namaz vakitlerini gösterebilmek için konumunuza ihtiyaç duyuyoruz.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "Uygulama arka planda çalışırken de doğru namaz vakti hesaplaması için konumunuza ihtiyaç duyuyor.";
+"CFBundleDisplayName" = "Namaz Defteri";

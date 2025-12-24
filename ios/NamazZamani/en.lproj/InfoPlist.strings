@@ -1,2 +1,3 @@
 "NSLocationWhenInUseUsageDescription" = "We need your location to show accurate prayer times nearby.";
 "NSLocationAlwaysAndWhenInUseUsageDescription" = "We need your location even in the background to calculate prayer times correctly.";
+"CFBundleDisplayName" = "Prayer Log";

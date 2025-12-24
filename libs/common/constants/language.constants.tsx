@@ -95,12 +95,12 @@ export class SettingsScreenLanguageConstants {
   };
   static FeedbackEmailSubject: LanguageModel = {
     key: 'settings.FeedbackEmailSubject',
-    defaultValue: 'Namaz Zamanı Uygulama Geri Bildirimi',
+    defaultValue: 'Namaz Defteri Uygulama Geri Bildirimi',
   };
   static FeedbackEmailBody: LanguageModel = {
     key: 'settings.FeedbackEmailBody',
     defaultValue:
-      'Merhaba, namaz zamanı uygulaması hakkında bir geri bildirimim var:',
+      'Merhaba, namaz defteri uygulaması hakkında bir geri bildirimim var:',
   };
   static AppVersionLabel: LanguageModel = {
     key: 'settings.AppVersion',

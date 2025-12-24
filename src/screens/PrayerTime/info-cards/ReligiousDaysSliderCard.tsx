@@ -18,9 +18,13 @@ import {
   getFontScaleMultiplier,
 } from '../../../../libs/core/helpers';
 import type { RootState } from '../../../../libs/redux/store';
+import {
+  LanguageLocaleKeys,
+  LanguagePrefix,
+} from '../../../../libs/common/constants';
 
 /* ----------------------------------------------------
- * HICRÎ TARİH TİPİ (Senin fonksiyonuna göre)
+ * HICRÎ TARİH TİPİ
  * ---------------------------------------------------- */
 type HijriDate = {
   dayOfWeekText: string;
@@ -49,7 +53,7 @@ type SlideConfig = {
 };
 
 /* ----------------------------------------------------
- * SLIDE TANIMLARI (Kurallarına göre 1–5)
+ * SLIDE TANIMLARI
  * ---------------------------------------------------- */
 const SLIDES: SlideConfig[] = [
   {
@@ -63,14 +67,14 @@ const SLIDES: SlideConfig[] = [
     mainEvent: { id: 'ramadanStart', hijriDay: 1, hijriMonth: 9 },
     titleKey: 'prayerTime.religiousDays.slides.ramadan.title',
     descriptionKey: 'prayerTime.religiousDays.slides.ramadan.description',
-    extraInfoKey: 'prayerTime.religiousDays.slides.ramadan.extraNights',
+    extraInfoKey: '',
   },
   {
     id: 'eidFitr',
     mainEvent: { id: 'eidFitr', hijriDay: 1, hijriMonth: 10 },
     titleKey: 'prayerTime.religiousDays.slides.eidFitr.title',
     descriptionKey: 'prayerTime.religiousDays.slides.eidFitr.description',
-    extraInfoKey: 'prayerTime.religiousDays.slides.eidFitr.extraNight',
+    extraInfoKey: '',
   },
   {
     id: 'eidAdha',
@@ -90,6 +94,23 @@ const OTHER_EVENTS: HijriEvent[] = [
   { id: 'hijriNewYear', hijriDay: 1, hijriMonth: 1 },
   { id: 'ashura', hijriDay: 10, hijriMonth: 1 },
   { id: 'mawlid', hijriDay: 12, hijriMonth: 3 },
+];
+
+/**
+ * Üç aylarla ilgili öne çıkan geceler:
+ * Regaib, Berat
+ */
+const THREE_MONTHS_SPECIAL_NIGHTS: HijriEvent[] = [
+  { id: 'regaib', hijriDay: 1, hijriMonth: 7 }, // Receb 1 (Regaib Kandili)
+  { id: 'berat', hijriDay: 15, hijriMonth: 8 }, // Şaban 15 (Berat Kandili)
+];
+
+/**
+ * Ramazan ile ilgili öne çıkan gece:
+ * Kadir
+ */
+const RAMADAN_SPECIAL_NIGHTS: HijriEvent[] = [
+  { id: 'qadr', hijriDay: 27, hijriMonth: 9 }, // Ramazan 27 (Kadir Gecesi)
 ];
 
 /* ----------------------------------------------------
@@ -195,10 +216,15 @@ const createStyles = (
       fontWeight: '600',
       color: colors.primary,
     },
+    miniDate: {
+      fontSize: 11 * fontScale,
+      color: colors.muted,
+      marginBottom: 6,
+    },
   });
 
 /* ----------------------------------------------------
- * HEDEF HİCRÎ GÜNÜN MİLADİ KARŞILIĞINI BULMA (GÜNCELLENDİ)
+ * HEDEF HİCRÎ GÜNÜN MİLADİ KARŞILIĞINI BULMA
  * ---------------------------------------------------- */
 const findNextGregorianDateForHijri = (
   hijriDay: number,
@@ -216,11 +242,44 @@ const findNextGregorianDateForHijri = (
     const h = convertMiladiDateToHicriDate(cursor);
 
     if (h.dayOfMonth === hijriDay && h.month === hijriMonth) {
-      if (cursor.getTime() <= fromDate.getTime()) {
+      if (cursor.getTime() < fromDate.getTime()) {
         cursor.setDate(cursor.getDate() + 1);
         continue;
       }
       return cursor;
+    }
+
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return null;
+};
+
+/**
+ * Regaib Kandili Receb ayının ilk perşembe gecesidir.
+ * Receb ayının başlangıç tarihini tespit edip ilk perşembeyi buluyoruz.
+ */
+const findUpcomingRegaibDate = (fromDate: Date): Date | null => {
+  const normalized = new Date(
+    fromDate.getFullYear(),
+    fromDate.getMonth(),
+    fromDate.getDate(),
+  );
+  const cursor = new Date(normalized);
+  cursor.setDate(cursor.getDate() - 40);
+
+  for (let i = 0; i < 800; i++) {
+    const hijri = convertMiladiDateToHicriDate(cursor);
+    if (hijri.month === 7 && hijri.dayOfMonth === 1) {
+      const startOfRajab = new Date(cursor);
+      const desiredWeekday = 4; // Thursday
+      const offset = (desiredWeekday - startOfRajab.getDay() + 7) % 7;
+      const regaibDate = new Date(startOfRajab);
+      regaibDate.setDate(regaibDate.getDate() + offset);
+
+      if (regaibDate.getTime() >= normalized.getTime()) {
+        return regaibDate;
+      }
     }
 
     cursor.setDate(cursor.getDate() + 1);
@@ -248,6 +307,9 @@ const formatRemaining = (
 
   if (diff > oneDay) {
     const d = Math.floor(diff / oneDay);
+    if (d === 1) {
+      return lang.startsWith('tr') ? 'Yarın' : 'Tomorrow';
+    }
     return lang.startsWith('tr') ? `${d} gün` : `${d} days`;
   }
 
@@ -259,8 +321,32 @@ const formatRemaining = (
   return `${h}:${m}:${s}`;
 };
 
+/**
+ * Sadece "X gün" formatı için – özel geceler satırlarında kullanılıyor.
+ */
+const formatRemainingDaysOnly = (
+  now: Date,
+  target: Date | null,
+  lang: string,
+): string => {
+  if (!target) return '-';
+
+  const diff = target.getTime() - now.getTime();
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  if (diff <= 0) {
+    return lang.startsWith('tr') ? 'Tamamlandı' : 'Completed';
+  }
+
+  const d = Math.ceil(diff / oneDay);
+  if (d === 1) {
+    return lang.startsWith('tr') ? 'Yarın' : 'Tomorrow';
+  }
+  return lang.startsWith('tr') ? `${d} gün` : `${d} days`;
+};
+
 /* ----------------------------------------------------
- * FAZ BELİRLEME – SENİN HİCRÎ SİSTEMİNE UYUMLU (Receb–Şaban–Ramazan)
+ * FAZ BELİRLEME (Receb–Şaban–Ramazan)
  * ---------------------------------------------------- */
 const getCurrentPhaseIndex = (today: HijriDate): number => {
   const { dayOfMonth, month } = today;
@@ -277,6 +363,31 @@ const getCurrentPhaseIndex = (today: HijriDate): number => {
   }
 
   return 4;
+};
+
+const isWithinThreeMonths = (today: HijriDate): boolean => {
+  return today.month >= 7 && today.month <= 9;
+};
+
+const getUpcomingThreeMonthsSpecialNight = (
+  today: HijriDate,
+  targets: Record<string, Date | null>,
+  currentDate: Date,
+): HijriEvent | null => {
+  if (!isWithinThreeMonths(today)) {
+    return null;
+  }
+
+  for (const evt of THREE_MONTHS_SPECIAL_NIGHTS) {
+    const target = targets[evt.id];
+    if (!target) continue;
+
+    if (target.getTime() >= currentDate.getTime()) {
+      return evt;
+    }
+  }
+
+  return null;
 };
 
 /* ----------------------------------------------------
@@ -319,7 +430,9 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
   );
   const [slideWidth, setSlideWidth] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
-
+  const [dateLocale, setDateLocale] = useState<string>(
+    LanguageLocaleKeys.TURKISH,
+  );
   const scrollRef = useRef<ScrollView>(null);
 
   /* her saniye geri sayımı güncelle */
@@ -328,29 +441,44 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
+  }, [i18n.language]);
+
   /* tarih değişince hicrî ve miladi gün güncelle */
   useEffect(() => {
     setTodayHijri(convertMiladiDateToHicriDate(new Date()));
     setNow(new Date());
   }, [currentDateKey]);
 
+  const startOfToday = useMemo(
+    () => dateFromYMD(currentDateKey),
+    [currentDateKey],
+  );
+
   const currentPhaseIndex = useMemo(
     () => getCurrentPhaseIndex(todayHijri),
     [todayHijri],
   );
+
   function dateFromYMD(ymd: string) {
     const [y, m, d] = ymd.split('-').map(Number);
     return new Date(y, m - 1, d); // LOCAL midnight
   }
+
   /**
    * Hicrî günlerin miladî karşılıklarını günlük olarak hesaplayıp sakla.
    * currentDateKey değiştiğinde (cihaz tarihi değişince) yeniden hesaplanır.
    */
   const eventTargets = useMemo(() => {
-    const baseDate = new Date(dateFromYMD(currentDateKey));
+    const baseDate = new Date(startOfToday);
     const result: Record<string, Date | null> = {};
 
     const cacheEventDate = (event: HijriEvent) => {
+      if (event.id === 'regaib') {
+        result[event.id] = findUpcomingRegaibDate(baseDate);
+        return;
+      }
       result[event.id] = findNextGregorianDateForHijri(
         event.hijriDay,
         event.hijriMonth,
@@ -360,9 +488,39 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
 
     SLIDES.forEach(slide => cacheEventDate(slide.mainEvent));
     OTHER_EVENTS.forEach(cacheEventDate);
+    THREE_MONTHS_SPECIAL_NIGHTS.forEach(cacheEventDate);
+    RAMADAN_SPECIAL_NIGHTS.forEach(cacheEventDate);
 
     return result;
-  }, [currentDateKey]);
+  }, [startOfToday]);
+
+  const upcomingThreeMonthsNight = useMemo(
+    () =>
+      getUpcomingThreeMonthsSpecialNight(
+        todayHijri,
+        eventTargets,
+        startOfToday,
+      ),
+    [todayHijri, eventTargets, startOfToday],
+  );
+
+  const upcomingThreeMonthsNightLabelKey = useMemo(() => {
+    if (!upcomingThreeMonthsNight) {
+      return null;
+    }
+
+    return upcomingThreeMonthsNight.id === 'regaib'
+      ? 'prayerTime.religiousDays.slides.ramadan.regaib'
+      : 'prayerTime.religiousDays.slides.ramadan.berat';
+  }, [upcomingThreeMonthsNight]);
+
+  const upcomingThreeMonthsNightTarget = useMemo(() => {
+    if (!upcomingThreeMonthsNight) {
+      return null;
+    }
+
+    return eventTargets[upcomingThreeMonthsNight.id] ?? null;
+  }, [eventTargets, upcomingThreeMonthsNight]);
 
   /* slider açılışta doğru faza gitsin */
   useEffect(() => {
@@ -384,18 +542,41 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     setActiveIndex(index);
   };
 
+  const formatDate = (date: Date | null): string => {
+    if (!date) return '-';
+    return date.toLocaleDateString(dateLocale, {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
   /* tek bir slide'ın içeriğini üret */
   const renderSlideContent = (slide: SlideConfig) => {
     const target = eventTargets[slide.mainEvent.id] ?? null;
+    const isThreeMonthsSlide = slide.id === 'threeMonths';
+    const showThreeMonthsOngoingState =
+      isThreeMonthsSlide && Boolean(upcomingThreeMonthsNight);
 
-    const remaining = formatRemaining(now, target, i18n.language);
+    const remaining = showThreeMonthsOngoingState
+      ? ''
+      : formatRemaining(now, target, i18n.language);
+
+    const displayValue = showThreeMonthsOngoingState
+      ? t('prayerTime.religiousDays.slides.threeMonths.ongoing')
+      : remaining;
+
+    const displayDate = showThreeMonthsOngoingState
+      ? formatDate(upcomingThreeMonthsNightTarget)
+      : formatDate(target);
 
     return (
       <View style={styles.slide}>
         {slide.id !== 'otherDays' && (
           <>
             <Text style={styles.slideTitle}>{t(slide.titleKey)}</Text>
-            <Text style={styles.mainValue}>{remaining}</Text>
+            <Text style={styles.mainValue}>{displayValue}</Text>
+            <Text style={styles.miniDate}>{displayDate}</Text>
           </>
         )}
 
@@ -403,11 +584,80 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
           <Text style={styles.description}>{t(slide.descriptionKey)}</Text>
         )}
 
-        {slide.extraInfoKey && (
+        {/* Diğer slaytlar için ekstra bilgi */}
+        {slide.extraInfoKey && slide.id !== 'ramadan' && (
           <Text style={styles.extraInfo}>{t(slide.extraInfoKey)}</Text>
         )}
 
-        {/* Hicrî yılbaşı / Aşure / Mevlid */}
+        {showThreeMonthsOngoingState &&
+          upcomingThreeMonthsNightLabelKey && (
+            <Text style={styles.extraInfo}>
+              {t('prayerTime.religiousDays.slides.threeMonths.nextNight', {
+                night: t(upcomingThreeMonthsNightLabelKey),
+              })}
+            </Text>
+          )}
+
+        {/* Üç aylar slaytında: Regaib / Berat satırları */}
+        {slide.id === 'threeMonths' && (
+          <View style={{ marginTop: 8 }}>
+            {slide.extraInfoKey && (
+              <Text style={styles.extraInfo}>{t(slide.extraInfoKey)}</Text>
+            )}
+
+            {THREE_MONTHS_SPECIAL_NIGHTS.map(evt => {
+              const target2 = eventTargets[evt.id] ?? null;
+              const remainingDays = formatRemainingDaysOnly(
+                now,
+                target2,
+                i18n.language,
+              );
+
+              // Mevcut çeviri key'lerini bozmamak için ramadan.* key'leri kullanılabilir
+              const labelKey =
+                evt.id === 'regaib'
+                  ? 'prayerTime.religiousDays.slides.ramadan.regaib'
+                  : 'prayerTime.religiousDays.slides.ramadan.berat';
+
+              return (
+                <View key={evt.id} style={styles.otherRow}>
+                  <Text style={styles.otherLabel}>{t(labelKey)}</Text>
+                  <Text style={styles.otherValue}>{remainingDays}</Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Ramazan slaytında: sadece Kadir Gecesi satırı */}
+        {slide.id === 'ramadan' && (
+          <View style={{ marginTop: 8 }}>
+            {slide.extraInfoKey && (
+              <Text style={styles.extraInfo}>{t(slide.extraInfoKey)}</Text>
+            )}
+
+            {RAMADAN_SPECIAL_NIGHTS.map(evt => {
+              const target2 = eventTargets[evt.id] ?? null;
+              const remainingDays = formatRemainingDaysOnly(
+                now,
+                target2,
+                i18n.language,
+              );
+
+              const labelKey =
+                'prayerTime.religiousDays.slides.ramadan.kadir';
+
+              return (
+                <View key={evt.id} style={styles.otherRow}>
+                  <Text style={styles.otherLabel}>{t(labelKey)}</Text>
+                  <Text style={styles.otherValue}>{remainingDays}</Text>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Hicrî yılbaşı / Aşure / Mevlid – otherDays slaytı */}
         {slide.id === 'otherDays' &&
           OTHER_EVENTS.map(evt => {
             const target2 = eventTargets[evt.id] ?? null;
