@@ -1,4 +1,4 @@
-package com.namazzamani; // kendi package name’inle aynı olmalı
+package com.namazdefteri; // kendi package name’inle aynı olmalı
 
 import android.app.Notification;
 import android.app.NotificationChannel;
