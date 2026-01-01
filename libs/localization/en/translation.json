@@ -188,7 +188,23 @@
     },
     "religiousDays": {
       "title": "Calendar of Religious Holidays",
+      "loading": "Loading religious days…",
+      "error": "Something went wrong while loading religious days.",
+      "retry": "Try again",
       "empty": "No upcoming religious days remain for this year.",
+      "eventNames": {
+        "mirac": "Isra and Mi'raj",
+        "berat": "Mid-Sha'ban",
+        "ramazanBaslangic": "Start of Ramadan",
+        "kadir": "Laylat al-Qadr",
+        "ramazanBayram": "Eid al-Fitr",
+        "kurbanBayram": "Eid al-Adha",
+        "hicriYilbasi": "Hijri New Year",
+        "asure": "Day of Ashura",
+        "mevlid": "Mawlid al-Nabi",
+        "ucAylarBaslangic": "Beginning of the Three Holy Months",
+        "regaib": "Raghaib Night"
+      },
       "slides": {
         "threeMonths": {
           "title": "Three Holy Months",

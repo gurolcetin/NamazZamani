@@ -189,7 +189,23 @@
     },
     "religiousDays": {
       "title": "Dini Günler Takvimi",
+      "loading": "Dini günler yükleniyor…",
+      "error": "Dini günler alınırken bir sorun oluştu.",
+      "retry": "Tekrar dene",
       "empty": "Bu yıl için yaklaşan dini gün bulunmuyor.",
+      "eventNames": {
+        "mirac": "Miraç Kandili",
+        "berat": "Berat Kandili",
+        "ramazanBaslangic": "Ramazan Başlangıcı",
+        "kadir": "Kadir Gecesi",
+        "ramazanBayram": "Ramazan Bayramı",
+        "kurbanBayram": "Kurban Bayramı",
+        "hicriYilbasi": "Hicrî Yılbaşı",
+        "asure": "Aşure Günü",
+        "mevlid": "Mevlid Kandili",
+        "ucAylarBaslangic": "Üç Ayların Başlangıcı",
+        "regaib": "Regaib Kandili"
+      },
       "slides": {
         "threeMonths": {
           "title": "Üç Aylar",
