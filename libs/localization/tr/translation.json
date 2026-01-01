@@ -189,6 +189,7 @@
     },
     "religiousDays": {
       "title": "Dini Günler Takvimi",
+      "empty": "Bu yıl için yaklaşan dini gün bulunmuyor.",
       "slides": {
         "threeMonths": {
           "title": "Üç Aylar",
@@ -199,7 +200,9 @@
         "ramadan": {
           "title": "Ramazan",
           "description": "Oruç ve gece ibadetleri için ilk güne geri sayım.",
+          "ongoing": "Ramazan devam ediyor.",
           "regaib": "Regaib Kandili (3 Recep).",
+          "miraj": "Miraç Kandili (27 Recep).",
           "berat": "Berat Kandili (15 Şaban).",
           "kadir": "Kadir Gecesi (27 Ramazan)."
         },
@@ -214,6 +217,20 @@
         "otherDays": {
           "title": "Diğer Manevi Günler",
           "description": "Hicrî yılbaşı, Aşure ve Mevlid-i Nebi için kalan süre."
+        }
+      },
+      "cards": {
+        "regaib": {
+          "title": "Regaib Kandili"
+        },
+        "miraj": {
+          "title": "Miraç Kandili"
+        },
+        "berat": {
+          "title": "Berat Kandili"
+        },
+        "qadr": {
+          "title": "Kadir Gecesi"
         }
       },
       "other": {

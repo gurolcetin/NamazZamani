@@ -188,6 +188,7 @@
     },
     "religiousDays": {
       "title": "Calendar of Religious Holidays",
+      "empty": "No upcoming religious days remain for this year.",
       "slides": {
         "threeMonths": {
           "title": "Three Holy Months",
@@ -198,7 +199,9 @@
         "ramadan": {
           "title": "Ramadan",
           "description": "Countdown to the first day of fasting and nightly worship.",
+          "ongoing": "Ramadan is in progress.",
           "regaib": "Raghaib Night (3 Rajab).",
+          "miraj": "Isra and Mi'raj (27 Rajab).",
           "berat": "Mid-Sha'ban (15 Sha'ban).",
           "kadir": "Laylat al-Qadr (27 Ramadan)."
         },
@@ -213,6 +216,20 @@
         "otherDays": {
           "title": "Other Sacred Days",
           "description": "Track Hijri New Year, Ashura and Mawlid."
+        }
+      },
+      "cards": {
+        "regaib": {
+          "title": "Raghaib Night"
+        },
+        "miraj": {
+          "title": "Isra and Mi'raj"
+        },
+        "berat": {
+          "title": "Mid-Sha'ban"
+        },
+        "qadr": {
+          "title": "Laylat al-Qadr"
         }
       },
       "other": {
