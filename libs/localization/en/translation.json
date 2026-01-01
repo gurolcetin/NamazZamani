@@ -16,7 +16,7 @@
         "description": "A fast, modern experience to track prayer times."
       },
       "location": {
-        "title": "Choose your location",
+        "title": "Select location",
         "description": "Pick or change your location for accurate times."
       },
       "reminders": {
@@ -44,7 +44,8 @@
     "Ok": "OK",
     "SearchPlaceHolder": "Search",
     "SearchCancelText": "Cancel",
-    "Total": "Total"
+    "Total": "Total",
+    "SearchNewLocation": "Search New Location"
   },
   "errors": {
     "prayerTimesFetchFailed": "Failed to load prayer times."
@@ -126,7 +127,7 @@
     "RecalculateMessage": "Do you want to recalculate?",
     "Sunrise": "Sunrise",
     "Dhuhr": "Dhuhr",
-    "Asr": "Ase",
+    "Asr": "Asr",
     "Maghrib": "Maghrib",
     "Isha": "Isha",
     "Witr": "Witr"
@@ -136,7 +137,7 @@
     "NumberofFastsKept": "Number of Fasts Kept"
   },
   "CalculateSettings": {
-    "NumberOfMenstrualDays": "Number Of Menstrual Days"
+    "NumberOfMenstrualDays": "Number of Menstruation Days"
   },
   "Dhikr": {
     "Dhikr": "Dhikr",
@@ -165,7 +166,7 @@
     "locationFetching": "Fetching location…",
     "locationNotFound": "Location not found",
     "loadingTimes": "Loading prayer times…",
-    "nextPrayerCountdown": "Time left until {{label}} ends",
+    "nextPrayerCountdown": "Time left until {{label}} prayer time ends",
     "syncing": "Synchronizing…",
     "sendTestNotification": "Send test adhan notification",
     "permissionCardTitle": "Location required",
