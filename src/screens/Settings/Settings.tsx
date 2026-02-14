@@ -124,6 +124,64 @@ type ApplicationToggleItem = {
   hint?: string;
 };
 
+type DebugStorageEntry = {
+  key: string;
+  value: string;
+  summaryLines: string[];
+};
+
+const DEV_STORAGE_PREFIXES = [
+  'prayerTimes:month:v1',
+  'prayerNotifications:scheduledIds:v1',
+];
+
+const MONTH_CACHE_PREFIX = 'prayerTimes:month:v1:';
+
+const formatDebugEntry = (key: string, value: string | null): DebugStorageEntry => {
+  const rawValue = value ?? '(null)';
+  const summaryLines: string[] = [];
+
+  if (key.startsWith(MONTH_CACHE_PREFIX)) {
+    try {
+      const parsed = JSON.parse(rawValue) as {
+        fetchedAt?: string;
+        cacheLabel?: string;
+        data?: unknown[];
+      };
+      const rawCacheKey = key.slice(MONTH_CACHE_PREFIX.length);
+      const keyParts = rawCacheKey.split('@');
+      const coordsPart = keyParts[1] ?? '';
+      const methodPart = keyParts[2] ?? '';
+      const tzPart = keyParts.slice(3).join('@');
+      summaryLines.push(`Label: ${parsed.cacheLabel ?? '(no label)'}`);
+      summaryLines.push(`FetchedAt: ${parsed.fetchedAt ?? '(unknown)'}`);
+      summaryLines.push(
+        `Days: ${Array.isArray(parsed.data) ? parsed.data.length : 0}`,
+      );
+      if (coordsPart) summaryLines.push(`Coords: ${coordsPart}`);
+      if (methodPart) summaryLines.push(`Method: ${methodPart}`);
+      if (tzPart) summaryLines.push(`TZ: ${tzPart}`);
+    } catch {
+      summaryLines.push('Month cache parse failed');
+    }
+  } else if (key.startsWith('prayerNotifications:scheduledIds:v1')) {
+    try {
+      const ids = JSON.parse(rawValue) as string[];
+      summaryLines.push(
+        `Scheduled IDs: ${Array.isArray(ids) ? ids.length : 0}`,
+      );
+    } catch {
+      summaryLines.push('Notification cache parse failed');
+    }
+  }
+
+  return {
+    key,
+    value: rawValue,
+    summaryLines,
+  };
+};
+
 const Settings = ({}: SettingsProps) => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
@@ -168,6 +226,11 @@ const Settings = ({}: SettingsProps) => {
     useState<boolean>(false);
   const [notificationPermissionGranted, setNotificationPermissionGranted] =
     useState<boolean>(true);
+  const [debugStorageEntries, setDebugStorageEntries] = useState<
+    DebugStorageEntry[]
+  >([]);
+  const [isLoadingDebugStorage, setIsLoadingDebugStorage] =
+    useState<boolean>(false);
 
   const styles = useMemo(
     () => createStyles(currentTheme, fontScaleMultiplier),
@@ -509,6 +572,33 @@ const Settings = ({}: SettingsProps) => {
 
   const closeDropdown = useCallback(() => {
     setIsLangOpen(false);
+  }, []);
+
+  const handleLoadDebugStorage = useCallback(async () => {
+    if (!__DEV__) {
+      return;
+    }
+    try {
+      setIsLoadingDebugStorage(true);
+      const allKeys = await AsyncStorage.getAllKeys();
+      const keys = allKeys
+        .filter(key => DEV_STORAGE_PREFIXES.some(prefix => key.startsWith(prefix)))
+        .sort((a, b) => a.localeCompare(b));
+      if (!keys.length) {
+        setDebugStorageEntries([]);
+        return;
+      }
+      const keyValuePairs = await AsyncStorage.multiGet(keys);
+      const entries = keyValuePairs.map(([key, value]) =>
+        formatDebugEntry(key, value),
+      );
+      setDebugStorageEntries(entries);
+    } catch (error) {
+      console.warn('Debug storage load error:', error);
+      setDebugStorageEntries([]);
+    } finally {
+      setIsLoadingDebugStorage(false);
+    }
   }, []);
 
   return (
@@ -878,6 +968,48 @@ const Settings = ({}: SettingsProps) => {
                   {t(SettingsScreenLanguageConstants.AdvancedClearButton.key)}
                 </Text>
               </Pressable>
+
+              {__DEV__ && (
+                <View style={styles.debugContainer}>
+                  <Pressable
+                    style={[
+                      styles.debugButton,
+                      {
+                        backgroundColor: `${currentTheme.primary}18`,
+                        borderColor: `${currentTheme.primary}44`,
+                      },
+                    ]}
+                    onPress={handleLoadDebugStorage}
+                    android_ripple={{
+                      color: `${currentTheme.primary}22`,
+                      borderless: false,
+                    }}
+                  >
+                    <Text style={styles.debugButtonLabel}>
+                      {isLoadingDebugStorage
+                        ? 'Loading cache...'
+                        : 'Dev: Prayer Cache List'}
+                    </Text>
+                  </Pressable>
+                  <Text style={styles.debugHint}>
+                    Filtre: prayerTimes:month:v1, prayerNotifications:scheduledIds:v1
+                  </Text>
+                  {debugStorageEntries.map(entry => (
+                    <View key={entry.key} style={styles.debugItem}>
+                      <Text style={styles.debugKey}>{entry.key}</Text>
+                      {entry.summaryLines.map(line => (
+                        <Text key={`${entry.key}-${line}`} style={styles.debugMeta}>
+                          {line}
+                        </Text>
+                      ))}
+                      <Text style={styles.debugValue}>{entry.value}</Text>
+                    </View>
+                  ))}
+                  {!isLoadingDebugStorage && debugStorageEntries.length === 0 && (
+                    <Text style={styles.debugEmpty}>No matching cache key.</Text>
+                  )}
+                </View>
+              )}
             </View>
 
             {/* Geri Bildirim */}

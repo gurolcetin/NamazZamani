@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotification, { Importance } from 'react-native-push-notification';
 import {
   check,
@@ -27,6 +28,8 @@ type SyncOptions = {
   buildContent: (entry: SequenceEntry) => NotificationContent;
   now?: Date;
   enabledKeys?: PrayerTimeKey[];
+  shiftPastToNextDay?: boolean;
+  storeKey?: string;
 };
 
 const CHANNEL_ID = 'prayer-call-channel';
@@ -45,6 +48,14 @@ const NOTIFICATION_IDS: Record<PrayerTimeKey, string> = {
   Asr: '204',
   Maghrib: '205',
   Isha: '206',
+};
+
+const DEFAULT_STORE_KEY = 'prayerNotifications:scheduledIds:v1';
+
+const ymd = (d: Date) => {
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
 };
 
 class PrayerNotificationManager {
@@ -136,8 +147,14 @@ class PrayerNotificationManager {
     buildContent,
     now = new Date(),
     enabledKeys,
+    shiftPastToNextDay = true,
+    storeKey = DEFAULT_STORE_KEY,
   }: SyncOptions): Promise<boolean> {
     this.initialize();
+    if (enabledKeys && enabledKeys.length === 0) {
+      await this.clearStoredNotifications(storeKey);
+      return false;
+    }
     if (!sequence?.length) {
       return false;
     }
@@ -151,9 +168,15 @@ class PrayerNotificationManager {
       ? new Set<PrayerTimeKey>(enabledKeys)
       : null;
 
+    await this.clearStoredNotifications(storeKey);
+
+    const scheduledIds: string[] = [];
     sequence.forEach(entry => {
       const fireDate = new Date(entry.date);
       if (fireDate <= now) {
+        if (!shiftPastToNextDay) {
+          return;
+        }
         fireDate.setDate(fireDate.getDate() + 1);
       }
 
@@ -162,8 +185,9 @@ class PrayerNotificationManager {
         return;
       }
 
-      const id = NOTIFICATION_IDS[entry.key] ?? entry.key;
-      PushNotification.cancelLocalNotification(id);
+      const id = `${NOTIFICATION_IDS[entry.key] ?? entry.key}-${ymd(
+        fireDate,
+      )}`;
       if (allowedSet && !allowedSet.has(entry.key)) {
         return;
       }
@@ -180,9 +204,45 @@ class PrayerNotificationManager {
         date: fireDate,
         userInfo: { type: 'prayer', prayerKey: entry.key },
       });
+      scheduledIds.push(id);
     });
 
+    await this.storeScheduledNotifications(storeKey, scheduledIds);
     return true;
+  }
+
+  private async clearStoredNotifications(storeKey: string) {
+    const legacyIds = Object.values(NOTIFICATION_IDS);
+    legacyIds.forEach(id => {
+      PushNotification.cancelLocalNotification(id);
+    });
+    try {
+      const raw = await AsyncStorage.getItem(storeKey);
+      if (!raw) return;
+      const ids = JSON.parse(raw) as string[];
+      if (!Array.isArray(ids)) return;
+      ids.forEach(id => {
+        PushNotification.cancelLocalNotification(id);
+      });
+      await AsyncStorage.removeItem(storeKey);
+    } catch (err) {
+      console.warn('[prayer-notification] Failed to clear cache', err);
+    }
+  }
+
+  private async storeScheduledNotifications(
+    storeKey: string,
+    ids: string[],
+  ) {
+    try {
+      if (!ids.length) {
+        await AsyncStorage.removeItem(storeKey);
+        return;
+      }
+      await AsyncStorage.setItem(storeKey, JSON.stringify(ids));
+    } catch (err) {
+      console.warn('[prayer-notification] Failed to store cache', err);
+    }
   }
 
   async sendTestNotification(

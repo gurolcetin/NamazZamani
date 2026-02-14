@@ -244,6 +244,56 @@ export const createStyles = (theme: ThemeType, fontScale = 1) => {
       fontWeight: '600',
       color: '#fff',
     },
+    debugContainer: {
+      marginTop: 14,
+      borderTopWidth: 1,
+      borderTopColor: `${theme.gray}22`,
+      paddingTop: 14,
+      gap: 8,
+    },
+    debugButton: {
+      borderRadius: 16,
+      borderWidth: 1,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      alignItems: 'center',
+    },
+    debugButtonLabel: {
+      fontSize: scaleFont(13),
+      fontWeight: '600',
+      color: theme.textColor,
+    },
+    debugHint: {
+      fontSize: scaleFont(11),
+      color: theme.gray,
+    },
+    debugItem: {
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: `${theme.gray}33`,
+      backgroundColor: `${theme.gray}10`,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      gap: 4,
+    },
+    debugKey: {
+      fontSize: scaleFont(11),
+      fontWeight: '600',
+      color: theme.textColor,
+    },
+    debugValue: {
+      fontSize: scaleFont(11),
+      color: theme.gray,
+    },
+    debugMeta: {
+      fontSize: scaleFont(11),
+      color: theme.textColor,
+    },
+    debugEmpty: {
+      fontSize: scaleFont(12),
+      color: theme.gray,
+      fontStyle: 'italic',
+    },
     versionInfoContainer: {
       alignItems: 'center',
       justifyContent: 'center',

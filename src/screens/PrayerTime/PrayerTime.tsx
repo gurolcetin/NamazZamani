@@ -28,6 +28,7 @@ import {
   fetchPrayerTimeMethods,
   findClosestPrayerMethod,
 } from './api';
+import { fetchMonthlyPrayerTimesByCoords } from './MontlyCalendar/api';
 import {
   requestLocationPermission,
   getCurrentPosition,
@@ -138,14 +139,52 @@ function progressBetween(start: Date, end: Date, now = new Date()) {
 function buildSequence(
   t: PrayerTimings,
   labels: Record<PrayerTimeKey, string>,
+  baseDate: Date = new Date(),
 ) {
-  const today = new Date();
   return PRAYER_ORDER.map(k => ({
     key: k,
     label: labels[k] ?? k,
     time: t[k],
-    date: toTodayDate(t[k], today),
+    date: toTodayDate(t[k], baseDate),
   }));
+}
+
+type NotificationSequenceEntry = {
+  key: PrayerTimeKey;
+  label: string;
+  date: Date;
+};
+
+function buildNotificationSequenceRange(
+  start: Date,
+  totalDays: number,
+  month1: PrayerTimings[],
+  month2: PrayerTimings[] | null,
+  labels: Record<PrayerTimeKey, string>,
+): NotificationSequenceEntry[] {
+  const startYear = start.getFullYear();
+  const startMonth = start.getMonth() + 1;
+
+  const items: NotificationSequenceEntry[] = [];
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+    const day = d.getDate();
+    const arr = y === startYear && m === startMonth ? month1 : month2 ?? month1;
+    const timings = arr[day - 1];
+    if (!timings) continue;
+    PRAYER_ORDER.forEach(key => {
+      items.push({
+        key,
+        label: labels[key] ?? key,
+        date: toTodayDate(timings[key], d),
+      });
+    });
+  }
+
+  return items;
 }
 
 // İftar ve sahur hedeflerini hesaplayan helper
@@ -207,6 +246,7 @@ function ymd(d: Date) {
 
 const getCurrentDateKey = (d: Date) => ymd(d);
 const MAX_SPAN_SEC = 26 * 3600; // güvenli üst sınır (clamp)
+const NOTIFICATION_WINDOW_DAYS = 7;
 
 function haversineDistanceKm(a: LatLng, b: LatLng) {
   const toRad = (deg: number) => (deg * Math.PI) / 180;
@@ -361,6 +401,7 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
     );
     const countdownClock = fmtClock(secondsLeft);
     const isCritical = secondsLeft > 0 && secondsLeft <= FIFTEEN_MIN;
+    const labelLineHeight = 20 * fontScaleMultiplier;
 
     // Ramazan temalı renk önerileri:
     // const ramadanIndigo = '#312E81';
@@ -389,36 +430,36 @@ const RamadanCountdownCard: React.FC<RamadanCountdownProps> = memo(
           >
             <RamadanIcon size={50} color="#fff" opacity={1} />
           </View>
-          <View style={styles.ramadanTextWrap}>
-            <Text
-              style={[
-                styles.ramadanActiveText,
-                {
-                  color: ramadanColors.labelColor,
-                  fontSize: 16 * fontScaleMultiplier,
-                },
-              ]}
-            >
-              {activeLabel}
-            </Text>
-          </View>
+          <View style={styles.ramadanContentColumn}>
+            <View style={styles.ramadanTextWrap}>
+              <Text
+                style={[
+                  styles.ramadanActiveText,
+                  {
+                    color: ramadanColors.labelColor,
+                    fontSize: 16 * fontScaleMultiplier,
+                    lineHeight: labelLineHeight,
+                    minHeight: labelLineHeight,
+                  },
+                ]}
+                numberOfLines={2}
+              >
+                {activeLabel}
+              </Text>
+            </View>
 
-          <View
-            style={[
-              styles.ramadanCountdownWrap,
-              { backgroundColor: ramadanColors.timerBackground },
-            ]}
-          >
-            <Text
-              style={[
-                styles.ramadanCountdownText,
-                { color: ramadanColors.timerText },
-                isCritical && { color: ramadanColors.timerCriticalText },
-                { fontSize: 26 * fontScaleMultiplier },
-              ]}
-            >
-              {countdownClock}
-            </Text>
+            <View style={[styles.ramadanCountdownWrap]}>
+              <Text
+                style={[
+                  styles.ramadanCountdownText,
+                  { color: ramadanColors.timerText },
+                  isCritical && { color: ramadanColors.timerCriticalText },
+                  { fontSize: 26 * fontScaleMultiplier },
+                ]}
+              >
+                {countdownClock}
+              </Text>
+            </View>
           </View>
         </View>
       </View>
@@ -969,21 +1010,122 @@ export default function PrayerTime() {
   }, [timings, prayerLabels]);
 
   useEffect(() => {
-    if (!seqRef.current || !timings) {
+    if (!coords || !timings) {
       return;
     }
+    let cancelled = false;
 
-    prayerNotificationManager.syncDailyNotifications({
-      sequence: seqRef.current,
-      buildContent: entry => ({
-        title: t('notifications.prayerReminderTitle'),
-        message: t('notifications.prayerReminderBody', {
-          label: entry.label,
-        }),
-      }),
-      enabledKeys: enabledNotificationKeys,
-    });
-  }, [timings, currentDateKey, t, enabledNotificationKeys]);
+    const run = async () => {
+      try {
+        const schedulingCoords =
+          activeResolved.type === 'device'
+            ? coords
+            : { lat: activeResolved.latitude, lon: activeResolved.longitude };
+        const cacheLabel =
+          activeResolved.type === 'device'
+            ? locationLabel || 'Device Location'
+            : activeResolved.label;
+
+        if (activeResolved.type !== 'device') {
+          const driftKm = haversineDistanceKm(coords, schedulingCoords);
+          if (driftKm > 0.5) {
+            return;
+          }
+        }
+
+        if (enabledNotificationKeys.length === 0) {
+          await prayerNotificationManager.syncDailyNotifications({
+            sequence: [],
+            buildContent: () => ({ title: '', message: '' }),
+            enabledKeys: [],
+          });
+          return;
+        }
+
+        const now = new Date();
+        const start = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+        );
+        const end = new Date(start);
+        end.setDate(start.getDate() + NOTIFICATION_WINDOW_DAYS - 1);
+
+        const startYear = start.getFullYear();
+        const startMonth = start.getMonth() + 1;
+        const endYear = end.getFullYear();
+        const endMonth = end.getMonth() + 1;
+
+        let tz: string | undefined;
+        try {
+          tz = getTimeZoneByCoords(schedulingCoords.lat, schedulingCoords.lon);
+        } catch {
+          tz = undefined;
+        }
+
+        const month1 = await fetchMonthlyPrayerTimesByCoords(
+          startYear,
+          startMonth,
+          schedulingCoords.lat,
+          schedulingCoords.lon,
+          activeMethodId,
+          tz,
+          cacheLabel,
+        );
+        const month2 =
+          startYear !== endYear || startMonth !== endMonth
+            ? await fetchMonthlyPrayerTimesByCoords(
+                endYear,
+                endMonth,
+                schedulingCoords.lat,
+                schedulingCoords.lon,
+                activeMethodId,
+                tz,
+                cacheLabel,
+              )
+            : null;
+
+        if (cancelled) return;
+        const sequence = buildNotificationSequenceRange(
+          start,
+          NOTIFICATION_WINDOW_DAYS,
+          month1,
+          month2,
+          prayerLabels,
+        );
+
+        await prayerNotificationManager.syncDailyNotifications({
+          sequence,
+          buildContent: entry => ({
+            title: t('notifications.prayerReminderTitle'),
+            message: t('notifications.prayerReminderBody', {
+              label: entry.label,
+            }),
+          }),
+          enabledKeys: enabledNotificationKeys,
+          now,
+          shiftPastToNextDay: false,
+        });
+      } catch (error) {
+        console.warn('[prayer-time] notification sync failed', error);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    coords,
+    timings,
+    activeResolved,
+    activeMethodId,
+    currentDateKey,
+    locationLabel,
+    t,
+    prayerLabels,
+    enabledNotificationKeys,
+  ]);
 
   // ilk yükleme
   useEffect(() => {
@@ -1630,21 +1772,30 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   ramadanTextWrap: {
+    width: '100%',
+  },
+  ramadanContentColumn: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: 6,
+    paddingLeft: 10,
   },
   ramadanActiveText: {
-    marginTop: 4,
     fontSize: 15,
     fontWeight: '700',
   },
   ramadanCountdownWrap: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
     borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   ramadanCountdownText: {
     fontSize: 22,
     fontWeight: '800',
     letterSpacing: 1,
+    textAlign: 'center',
+    fontVariant: ['tabular-nums'],
+    minWidth: 120,
   },
 });

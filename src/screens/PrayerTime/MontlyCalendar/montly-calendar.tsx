@@ -192,6 +192,9 @@ export default function MonthlyCalendar() {
           month,
           coords.lat,
           coords.lon,
+          13,
+          undefined,
+          activeResolved.type === 'device' ? undefined : activeResolved.label,
         );
         setMonthTimings(data);
         const dim = daysInMonth(year, month);
@@ -201,7 +204,7 @@ export default function MonthlyCalendar() {
       }
     })();
     // selectedDay burada dependency değil: sadece ay/koordinat değişince fetch
-  }, [coords, year, month, selectedDay]);
+  }, [activeResolved, coords, year, month, selectedDay]);
   // PrayerTimeSmallCard için renderItem
   const renderSmallCard = useCallback(
     ({ item, index }: ListRenderItemInfo<SmallCard>) => (

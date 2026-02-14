@@ -70,6 +70,7 @@ async function buildRange(
   lon: number,
   getWeekdayLabel: (dayIndex: number) => string,
   getMonthLabel: (monthIndex: number) => string,
+  cacheLabel?: string,
 ): Promise<Section[]> {
   const { y: y1, m: m1 } = ymd(start);
   const end = new Date(start);
@@ -77,10 +78,26 @@ async function buildRange(
   const { y: y2, m: m2 } = ymd(end);
 
   // aynı ay mı? değilse iki ay çek
-  const month1 = await fetchMonthlyPrayerTimesByCoords(y1, m1, lat, lon);
+  const month1 = await fetchMonthlyPrayerTimesByCoords(
+    y1,
+    m1,
+    lat,
+    lon,
+    13,
+    undefined,
+    cacheLabel,
+  );
   const month2 =
     y1 !== y2 || m1 !== m2
-      ? await fetchMonthlyPrayerTimesByCoords(y2, m2, lat, lon)
+      ? await fetchMonthlyPrayerTimesByCoords(
+          y2,
+          m2,
+          lat,
+          lon,
+          13,
+          undefined,
+          cacheLabel,
+        )
       : null;
 
   const todayKey = new Date().toDateString();
@@ -225,6 +242,8 @@ export default function TimeTable() {
       }
       if (latitude != null && longitude != null) {
         const coordsPayload = { lat: latitude, lon: longitude };
+        const cacheLabel =
+          activeResolved.type === 'device' ? undefined : activeResolved.label;
         const items = await buildRange(
           startDate,
           30,
@@ -232,6 +251,7 @@ export default function TimeTable() {
           longitude,
           getWeekdayLabel,
           getMonthLabel,
+          cacheLabel,
         );
         setSections(items);
         dispatch(
