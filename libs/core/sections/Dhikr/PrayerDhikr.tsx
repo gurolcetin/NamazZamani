@@ -10,7 +10,11 @@ import { FontScaleOption } from '../../../common/enums';
 import { CardView, CircleProgressBar } from '../../../components';
 import styles from './style';
 import { resetPrayerDhikr, updateDhikr } from '../../../redux/reducers/Dhikr';
-import { getFontScaleMultiplier, hapticFeedback } from '../../helpers';
+import {
+  getFontScaleMultiplier,
+  hapticFeedback,
+  resolveDhikrDisplayName,
+} from '../../helpers';
 import { useTheme } from '../../providers';
 import { useTranslation } from 'react-i18next';
 import { RootState } from '../../../redux/store';
@@ -28,9 +32,8 @@ const PrayerDhikr = () => {
 
   const allDhikrList = useSelector(
     (state: RootState) =>
-      state.dhikr.dhikrs.find(
-        (x: { id: number }) => x.id === DhikrTabKeys.Prayer,
-      ).dhikrList,
+      state.dhikr.dhikrs.find((x: { id: number }) => x.id === DhikrTabKeys.Prayer)
+        ?.dhikrList ?? [],
   );
 
   const circleSize = useMemo(() => {
@@ -71,7 +74,7 @@ const PrayerDhikr = () => {
                     size={circleSize}
                     count={item.count}
                     maxCount={item.maxCount}
-                    description={item.name}
+                    description={resolveDhikrDisplayName(item.name, t)}
                     incraseValue={() => {
                       dispatch(
                         updateDhikr({

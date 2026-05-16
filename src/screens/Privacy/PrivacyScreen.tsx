@@ -365,7 +365,7 @@ const PrivacyScreen: React.FC<Props> = ({
         label: t('privacyScreen.languageNames.ko'),
       },
     ],
-    [i18n.language, t],
+    [t],
   );
 
   const currentLangOption =

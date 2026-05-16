@@ -143,6 +143,11 @@
     "Dhikr": "Zikir",
     "AllDhikr": "Zikirlerim",
     "PrayerDhikr": "Namaz Zikirleri",
+    "prayerDhikrPresets": {
+      "subhanallah": "Sübhanallah",
+      "alhamdulillah": "Elhamdülillah",
+      "allahuAkbar": "Allahu Ekber"
+    },
     "emptyStateTitle": "Henüz özel bir zikriniz bulunmuyor.",
     "emptyStateDescription": "Sık tekrar ettiğiniz zikirleri buraya ekleyerek kolayca takip edebilirsiniz. Başlamak için butona dokunarak ilk zikrinizi oluşturun.",
     "addDhikrButton": "Zikir Ekle",

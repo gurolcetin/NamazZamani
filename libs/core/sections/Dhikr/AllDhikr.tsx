@@ -14,7 +14,7 @@ import {
   HapticFeedbackMethods,
   StringConstants,
 } from '../../../common/constants';
-import { FontScaleOption } from '../../../common/enums';
+import { FontScaleOption, Theme } from '../../../common/enums';
 import {
   CardView,
   CircleProgressBar,
@@ -34,6 +34,7 @@ import {
   getDhikrProgress,
   getFontScaleMultiplier,
   hapticFeedback,
+  resolveDhikrDisplayName,
 } from '../../helpers';
 import { ScrollView } from 'react-native-gesture-handler';
 import {
@@ -96,6 +97,8 @@ const AllDhikr = () => {
   const applicationTheme = useSelector(
     (state: RootState) => state.applicationTheme,
   );
+  const alertUserInterfaceStyle =
+    applicationTheme.theme === Theme.DARK ? 'dark' : 'light';
   const fontScalePreference = useSelector(
     (state: RootState) =>
       state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
@@ -130,7 +133,7 @@ const AllDhikr = () => {
           maxCount: number;
         }) => ({
           value: item.dhikrId.toString(),
-          label: item.name,
+          label: resolveDhikrDisplayName(item.name, t),
         }),
       );
 
@@ -156,7 +159,7 @@ const AllDhikr = () => {
       setRadioButtonList([]);
       setValue('');
     }
-  }, [allDhikrList]);
+  }, [allDhikrList, t]);
 
   const showAddDhikrModal = () => {
     setVisible(true);
@@ -331,7 +334,7 @@ const AllDhikr = () => {
                                 },
                               },
                             ],
-                            { userInterfaceStyle: applicationTheme.theme },
+                            { userInterfaceStyle: alertUserInterfaceStyle },
                           );
                         }}
                       >

@@ -143,6 +143,11 @@
     "Dhikr": "Dhikr",
     "AllDhikr": "My Dhikrs",
     "PrayerDhikr": "Prayer Dhikr",
+    "prayerDhikrPresets": {
+      "subhanallah": "Subhanallah",
+      "alhamdulillah": "Alhamdulillah",
+      "allahuAkbar": "Allahu Akbar"
+    },
     "emptyStateTitle": "You don't have any custom dhikr yet.",
     "emptyStateDescription": "Add the dhikr you repeat often to track them easily. Tap the button to create your first entry.",
     "addDhikrButton": "Add Dhikr",
