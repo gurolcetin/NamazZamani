@@ -324,7 +324,7 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
                 <Text
                   style={[
                     styles.nextBigTime,
-                    { fontSize: 32 * fontScaleMultiplier },
+                    { fontSize: 50 * fontScaleMultiplier },
                   ]}
                 >
                   {leftClock}
