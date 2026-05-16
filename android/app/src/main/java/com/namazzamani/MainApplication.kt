@@ -1,4 +1,4 @@
-package com.namazdefteri
+package com.gmsac.namazdefteri
 
 import android.app.Application
 import com.facebook.react.PackageList

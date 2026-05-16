@@ -1,4 +1,4 @@
-package com.namazdefteri
+package com.gmsac.namazdefteri
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

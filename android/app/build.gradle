@@ -77,9 +77,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.namazdefteri"
+    namespace "com.gmsac.namazdefteri"
     defaultConfig {
-        applicationId "com.namazdefteri"
+        applicationId "com.gmsac.namazdefteri"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
