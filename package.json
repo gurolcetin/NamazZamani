@@ -9,7 +9,8 @@
     "start": "react-native start",
     "test": "jest",
     "iphone15PM": "react-native run-ios --simulator='iPhone 15 Pro Max'",
-    "run-pods": "cd ios && pod install && cd .. && npx react-native run-ios"
+    "run-pods": "cd ios && pod install && cd .. && npx react-native run-ios",
+    "postinstall": "node scripts/postinstall-fixes.js"
   },
   "dependencies": {
     "@photostructure/tz-lookup": "^11.2.1",

@@ -564,7 +564,7 @@ const Settings = ({}: SettingsProps) => {
     const bodyLine = t(SettingsScreenLanguageConstants.FeedbackEmailBody.key);
     const subject = encodeURIComponent(subjectText);
     const body = encodeURIComponent(`${bodyLine}\n\n`);
-    const url = `mailto:gurolmehmetcetin@gmail.com?subject=${subject}&body=${body}`;
+    const url = `mailto:gmsactech@gmail.com?subject=${subject}&body=${body}`;
     Linking.openURL(url).catch(() => {
       Alert.alert(mailErrorTitle, mailErrorMessage);
     });
