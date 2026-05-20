@@ -7,7 +7,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './libs/redux/store';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
-  ActivityIndicator,
   LogBox,
   StyleSheet,
   Text,
@@ -19,6 +18,7 @@ import { prayerNotificationManager } from './libs/core/helpers/prayer-notificati
 import { enableScreens } from 'react-native-screens';
 import { useTranslation } from 'react-i18next';
 import mobileAds from 'react-native-google-mobile-ads';
+import BootSplash from 'react-native-bootsplash';
 
 LogBox.ignoreLogs(['Sending...']);
 enableScreens();
@@ -53,23 +53,21 @@ const App = () => {
       .then(() => mobileAds().initialize());
   }, []);
 
+  useEffect(() => {
+    if (!isChecking && !canContinue) {
+      BootSplash.hide({ fade: true });
+    }
+  }, [isChecking, canContinue]);
+
   if (isChecking) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator />
-        <Text>{t('app.checkingVersion')}</Text>
-      </View>
-    );
+    return null;
   }
 
   if (!canContinue) {
-    // Eski sürümdeyse ve update zorunluysa,
-    // kullanıcı alert sonrası da buraya dönse bile
-    // ana içeriği göstermeyebilirsin
     return (
       <View style={styles.center}>
-        <Text>{t('app.unsupportedVersionTitle')}</Text>
-        <Text>{t('app.unsupportedVersionMessage')}</Text>
+        <Text style={styles.title}>{t('app.unsupportedVersionTitle')}</Text>
+        <Text style={styles.message}>{t('app.unsupportedVersionMessage')}</Text>
       </View>
     );
   }
@@ -92,6 +90,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 24,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  message: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#666666',
   },
 });
 export default App;

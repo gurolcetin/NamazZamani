@@ -272,6 +272,7 @@ type HeaderProps = {
   leftClock: string;
   isResyncing: boolean;
   seqDateLabel: string;
+  hijriDateLabel: string;
 };
 
 const PrayerTimeHeader: React.FC<HeaderProps> = memo(
@@ -283,6 +284,7 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
     leftClock,
     isResyncing,
     seqDateLabel,
+    hijriDateLabel,
   }) => {
     const fontScalePreference = useSelector(
       (state: RootState) =>
@@ -349,6 +351,18 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
                     {seqDateLabel}
                   </Text>
                 </View>
+              )}
+              {!!hijriDateLabel && (
+                <Text
+                  style={[
+                    styles.metaText,
+                    styles.hijriText,
+                    { fontSize: 12 * fontScaleMultiplier },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {hijriDateLabel}
+                </Text>
               )}
             </View>
           </View>
@@ -770,6 +784,11 @@ export default function PrayerTime() {
     const s = dtf.format(seqBaseDate);
     return s.charAt(0).toUpperCase() + s.slice(1);
   }, [dtf, seqBaseDate]);
+
+  const hijriDateLabel = useMemo(() => {
+    const h = convertMiladiDateToHicriDate(seqBaseDate);
+    return `${h.dayOfMonth} ${h.monthText} ${h.year}`;
+  }, [seqBaseDate]);
 
   // --- LOAD (timestamp'li) --------------------------------------------------
   const load = useCallback(
@@ -1503,6 +1522,7 @@ export default function PrayerTime() {
                   leftClock={leftClock}
                   isResyncing={isResyncing}
                   seqDateLabel={seqDateLabel}
+                  hijriDateLabel={hijriDateLabel}
                 />
               </>
             }
@@ -1740,6 +1760,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  hijriText: {
+    opacity: 0.85,
+    marginTop: 2,
   },
 
   // ---- Ramadan card styles -------------------------------------------------

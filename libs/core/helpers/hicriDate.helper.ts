@@ -55,8 +55,9 @@ function basecal(date: Date, adjust = 0) {
   year = cc - 4716;
 
   var iyear = 10631.0 / 30.0;
-  var epochastro = 1948084;
-  // var epochcivil = 1948085; Not used
+  // Civil/tabular epoch (1948085), resmi İslam takvimleriyle uyumlu.
+  // Astronomik epoch (1948084) 1 gün ileri hesaplar.
+  var epochastro = 1948085;
 
   var shift1 = 8.01 / 60.0;
 

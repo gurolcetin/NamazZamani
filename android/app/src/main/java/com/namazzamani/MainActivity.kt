@@ -28,6 +28,6 @@ class MainActivity : ReactActivity() {
   // Custom
   override fun onCreate(savedInstanceState: Bundle?) {
     RNBootSplash.init(this, R.style.BootTheme) // ⬅️ initialize the splash screen
-    super.onCreate(savedInstanceState) // super.onCreate(null) with react-native-screens
+    super.onCreate(null) // null prevents react-native-screens fragment restoration crash
   }
 }

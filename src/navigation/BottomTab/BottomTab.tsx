@@ -29,7 +29,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(0.9)).current;
-  const { setBannerLoaded } = useBanner();
+  const { setBannerLoaded, bannerLoaded } = useBanner();
   const applicationSettings = useSelector(
     (state: any) => state.applicationSettings,
   );
@@ -153,7 +153,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
         )}
       </View>
 
-      <View style={styles.bannerContainer}>
+      <View style={[styles.bannerContainer, !bannerLoaded && styles.bannerContainerHidden]}>
         <BannerAd
           unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
@@ -229,6 +229,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
+  },
+  bannerContainerHidden: {
+    height: 0,
+    marginTop: 0,
+    overflow: 'hidden',
   },
 });
 

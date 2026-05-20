@@ -35,8 +35,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -70,22 +70,7 @@
 		<string>FontAwesome6_Solid.ttf</string>
 		<string>MaterialDesignIcons.ttf</string>
 	</array>
-	<!-- Ön plan -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Yakınınızdaki özellikleri göstermek için konumunuza ihtiyaç duyuyoruz.</string>
-
-	<!-- Arka plan da gerekiyorsa (iOS 13+ için zorunlu ek açıklama) -->
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Arka planda konumunuzu izleyerek özelliği kesintisiz sunuyoruz.</string>
-
-	<!-- Eski iOS sürümleriyle uyumluluk için (opsiyonel ama önerilir) -->
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Uygulama kapalıyken de konumunuzu kullanmamız gerekiyor.</string>
-
-	<!-- Arka plan izleme gerekiyorsa -->
-	<key>UIBackgroundModes</key>
-	<array>
-  		<string>location</string>
-	</array>
+	<string>Namaz vakitlerini ve kıble yönünü hesaplamak için konumunuza ihtiyaç duyulur.</string>
 </dict>
 </plist>
