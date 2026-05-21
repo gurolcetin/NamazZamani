@@ -44,7 +44,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
       if (applicationSettings.isScrollReachToBottom) {
         Animated.timing(opacity, {
           toValue: 1,
-          duration: 300, // 300ms içinde değişsin
+          duration: 300,
           useNativeDriver: true,
         }).start();
       } else if (!applicationSettings.isScrollReachToBottom) {
@@ -70,7 +70,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
     >
       {/* Arka plan */}
       <Animated.View
-        pointerEvents="none" // <-- dokunmaları yutmasın
+        pointerEvents="none"
         style={[
           StyleSheet.absoluteFill,
           { opacity, backgroundColor: currentTheme.menuBackgroundColor },

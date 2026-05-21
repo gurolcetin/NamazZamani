@@ -24,7 +24,6 @@ import {
   Icon,
   Icons,
   ScreenViewContainer,
-  BottomBannerAd,
   ScrollAwareView,
 } from '../../../../libs/components';
 import {
@@ -560,7 +559,6 @@ export default function QiblaScreen() {
           </View>
         </ScrollAwareView>
       </View>
-      <BottomBannerAd />
     </ScreenViewContainer>
   );
 }

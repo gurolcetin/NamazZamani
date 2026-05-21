@@ -1,12 +1,6 @@
 import React, { memo } from 'react';
-import { View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 import { LocationChip } from '../location-chip';
-import { Icon, Icons } from '../../../../libs/components';
-import { RootState } from '../../../../libs/redux/store';
-import { FontScaleOption } from '../../../../libs/common/enums';
-import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 
 type Props = {
   label: string;
@@ -30,24 +24,7 @@ type Props = {
 };
 
 export const ActionCardGroup = memo((props: Props) => {
-  const { t } = useTranslation();
-  const {
-    label,
-    utc,
-    loading,
-    isDark,
-    theme,
-    onOpenLocationSelector,
-    onPickDate,
-    onOpenImsakiye,
-    onOpenQibla,
-  } = props;
-  const fontScalePreference = useSelector(
-    (state: RootState) =>
-      state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
-  );
-  const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
-  const baseIconSize = 28 * fontScaleMultiplier;
+  const { label, utc, loading, isDark, theme, onOpenLocationSelector } = props;
 
   return (
     <View style={[stylesL.card]}>
@@ -64,102 +41,6 @@ export const ActionCardGroup = memo((props: Props) => {
           }}
           onPress={onOpenLocationSelector}
         />
-      </View>
-
-      {/* Butonlar yan yana */}
-      <View style={stylesL.actionsRow}>
-        <Pressable
-          onPress={onPickDate}
-          style={({ pressed }) => [
-            stylesL.actionBtn,
-            {
-              backgroundColor: theme.cardViewBackgroundColor,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-            },
-          ]}
-        >
-          <View style={stylesL.actionLeft}>
-            <Icon
-              name="calendar-multiselect-outline"
-              type={Icons.MaterialDesignIcons}
-              size={baseIconSize}
-              color={theme.primary}
-            />
-            <Text
-              style={[
-                stylesL.actionTitle,
-                {
-                  color: theme.textColor,
-                  fontSize: 12 * fontScaleMultiplier,
-                },
-              ]}
-            >
-              {t('actionCardGroup.pickDate')}
-            </Text>
-          </View>
-        </Pressable>
-
-        <Pressable
-          onPress={onOpenImsakiye}
-          style={({ pressed }) => [
-            stylesL.actionBtn,
-            {
-              backgroundColor: theme.cardViewBackgroundColor,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-            },
-          ]}
-        >
-          <View style={stylesL.actionLeft}>
-            <Icon
-              type={Icons.MaterialDesignIcons}
-              name="format-list-bulleted"
-              size={baseIconSize}
-              color={theme.primary}
-            />
-            <Text
-              style={[
-                stylesL.actionTitle,
-                {
-                  color: theme.textColor,
-                  fontSize: 12 * fontScaleMultiplier,
-                },
-              ]}
-            >
-              {t('actionCardGroup.imsakiye')}
-            </Text>
-          </View>
-        </Pressable>
-
-        <Pressable
-          onPress={onOpenQibla}
-          style={({ pressed }) => [
-            stylesL.actionBtn,
-            {
-              backgroundColor: theme.cardViewBackgroundColor,
-              transform: [{ scale: pressed ? 0.98 : 1 }],
-            },
-          ]}
-        >
-          <View style={stylesL.actionLeft}>
-            <Icon
-              type={Icons.MaterialDesignIcons}
-              name="compass-outline"
-              size={baseIconSize}
-              color={theme.primary}
-            />
-            <Text
-              style={[
-                stylesL.actionTitle,
-                {
-                  color: theme.textColor,
-                  fontSize: 12 * fontScaleMultiplier,
-                },
-              ]}
-            >
-              {t('actionCardGroup.qibla')}
-            </Text>
-          </View>
-        </Pressable>
       </View>
     </View>
   );

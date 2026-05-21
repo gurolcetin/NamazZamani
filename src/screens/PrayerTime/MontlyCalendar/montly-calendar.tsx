@@ -17,7 +17,6 @@ import {
   PrayerTimeSmallCard,
   Icons,
   Icon,
-  BottomBannerAd,
 } from '../../../../libs/components';
 import { fetchMonthlyPrayerTimesByCoords, type PrayerTimings } from './api';
 import { getCurrentPosition, requestLocationPermission } from '../permission';
@@ -423,7 +422,6 @@ export default function MonthlyCalendar() {
           />
         )}
       </View>
-      <BottomBannerAd />
     </ScreenViewContainer>
   );
 }

@@ -344,7 +344,7 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
                   <Text
                     style={[
                       styles.metaText,
-                      { fontSize: 13 * fontScaleMultiplier },
+                      { fontSize: 14 * fontScaleMultiplier },
                     ]}
                     numberOfLines={1}
                   >
@@ -357,7 +357,7 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
                   style={[
                     styles.metaText,
                     styles.hijriText,
-                    { fontSize: 12 * fontScaleMultiplier },
+                    { fontSize: 14 * fontScaleMultiplier },
                   ]}
                   numberOfLines={1}
                 >
@@ -1499,20 +1499,6 @@ export default function PrayerTime() {
                       PrayerTimeScreens.LocationSelector as never,
                     )
                   }
-                  onPickDate={() => {
-                    if (!coords) return;
-                    navigation.navigate(
-                      PrayerTimeScreens.MontlyCalendar as never,
-                    );
-                  }}
-                  onOpenImsakiye={() => {
-                    if (!coords) return;
-                    navigation.navigate(PrayerTimeScreens.Imsakiye as never);
-                  }}
-                  onOpenQibla={() => {
-                    if (!coords) return;
-                    navigation.navigate(PrayerTimeScreens.Qibla as never);
-                  }}
                 />
                 <PrayerTimeHeader
                   cardBg={cardBg}

@@ -7,7 +7,13 @@ export const Routes = {
 };
 
 export const PrayerTimeScreens = {
-  LocationSelector: 'LocationSelector',
+  LocationSelector: 'LocationSelector'
+};
+
+export const ToolsRoutes = {
+  ToolsHub: 'ToolsHub',
+  MissedTracking: 'ToolsMissedTracking',
+  Dhikr: 'ToolsDhikr',
   MontlyCalendar: 'MontlyCalendar',
   Imsakiye: 'Imsakiye',
   Qibla: 'Qibla',
@@ -19,6 +25,7 @@ export const StackRoutes = {
   MissedTrackingStack: 'MissedTrackingStack',
   DhikrStack: 'DhikrStack',
   SettingsStack: 'SettingsStack',
+  ToolsStack: 'ToolsStack',
 };
 
 export const RootRoutes = {

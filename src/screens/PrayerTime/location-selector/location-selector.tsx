@@ -162,9 +162,10 @@ export default function LocationSelector() {
       placeholder: t('General.SearchNewLocation'),
       cancelButtonText: t('General.SearchCancelText'),
       ref: searchRef,
+      placement: 'integrated',
+      allowToolbarIntegration: false,
     },
   });
-
   // UI State
 
   const saved = useSelector(selectSavedPlaces);

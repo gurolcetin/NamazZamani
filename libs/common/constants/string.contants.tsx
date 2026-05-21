@@ -2,6 +2,7 @@ export const MenuIconConstants = {
   PrayerTime: 'clock-time-two',
   MissedTracking: 'calculator',
   Dhikr: 'counter',
+  Tools: 'view-grid',
   Settings: 'cogs',
 };
 

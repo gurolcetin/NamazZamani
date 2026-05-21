@@ -166,6 +166,10 @@ export class MenuNameLanguageConstants {
     key: 'menu.Dhikr',
     defaultValue: 'Zikir',
   };
+  static Tools: LanguageModel = {
+    key: 'menu.Tools',
+    defaultValue: 'Araçlar',
+  };
   static Settings: LanguageModel = {
     key: 'menu.Settings',
     defaultValue: 'Ayarlar',
@@ -281,6 +285,37 @@ export class MissedPrayerFormLanguageConstants {
   static NoMissedPrayer: LanguageModel = {
     key: 'MissedPrayerForm.NoMissedPrayer',
     defaultValue: 'Tebrikler! Kılınmamış namazınız bulunmamaktadır.',
+  };
+}
+
+export class ToolsHubLanguageConstants {
+  static HeaderTitle: LanguageModel = {
+    key: 'toolsHub.headerTitle',
+    defaultValue: 'Araçlar',
+  };
+  static HeaderSubtitle: LanguageModel = {
+    key: 'toolsHub.headerSubtitle',
+    defaultValue: 'Dini araçlar ve takip özellikleri',
+  };
+  static MissedTrackingTitle: LanguageModel = {
+    key: 'toolsHub.missedTrackingTitle',
+    defaultValue: 'Kaza Takip',
+  };
+  static MissedTrackingDescription: LanguageModel = {
+    key: 'toolsHub.missedTrackingDescription',
+    defaultValue: 'Kaza namaz ve oruçlarını hesapla ve takip et.',
+  };
+  static DhikrTitle: LanguageModel = {
+    key: 'toolsHub.dhikrTitle',
+    defaultValue: 'Zikir',
+  };
+  static DhikrDescription: LanguageModel = {
+    key: 'toolsHub.dhikrDescription',
+    defaultValue: 'Namaz sonrası tesbihat ve günlük zikirleri takip et.',
+  };
+  static ComingSoon: LanguageModel = {
+    key: 'toolsHub.comingSoon',
+    defaultValue: 'Yakında...',
   };
 }
 

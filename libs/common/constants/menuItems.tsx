@@ -1,8 +1,7 @@
 import { StackRoutes } from '../../../src/navigation/Routes';
 import { PrayerTimeStack } from '../../../src/navigation/Stack/PrayerTimeStack';
 import { SettingsStack } from '../../../src/navigation/Stack/SettingsStack';
-import Dhikr from '../../../src/screens/Dhikr/Dhikr';
-import MissedTracking from '../../../src/screens/MissedTracking/MissedTracking';
+import { ToolsStack } from '../../../src/navigation/Stack/ToolsStack';
 import { Icons } from '../../components/Icons/Icons';
 import { ThemeType } from '../models';
 import { MenuNameLanguageConstants } from './language.constants';
@@ -23,30 +22,18 @@ export const bottomTabMenuItems = (currentTheme: ThemeType) => [
   },
   {
     id: 2,
-    route: StackRoutes.MissedTrackingStack,
-    label: MenuNameLanguageConstants.MissedTracking,
+    route: StackRoutes.ToolsStack,
+    label: MenuNameLanguageConstants.Tools,
     type: Icons.MaterialDesignIcons,
-    icon: MenuIconConstants.MissedTracking,
-    component: MissedTracking,
+    icon: MenuIconConstants.Tools,
+    component: ToolsStack,
     color: currentTheme.primary,
     size: 22,
     solid: true,
-    headerShown: true,
+    headerShown: false,
   },
   {
     id: 3,
-    route: StackRoutes.DhikrStack,
-    label: MenuNameLanguageConstants.Dhikr,
-    type: Icons.MaterialDesignIcons,
-    icon: MenuIconConstants.Dhikr,
-    component: Dhikr,
-    color: currentTheme.primary,
-    size: 22,
-    solid: true,
-    headerShown: true,
-  },
-  {
-    id: 4,
     route: StackRoutes.SettingsStack,
     label: MenuNameLanguageConstants.Settings,
     type: Icons.MaterialDesignIcons,

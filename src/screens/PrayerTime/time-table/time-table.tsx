@@ -12,7 +12,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
   ScreenViewContainer,
-  BottomBannerAd,
 } from '../../../../libs/components';
 import { PrayerTimings } from '../api';
 import { fetchMonthlyPrayerTimesByCoords } from '../MontlyCalendar/api';
@@ -389,7 +388,6 @@ export default function TimeTable() {
           }
         />
       </View>
-      <BottomBannerAd />
     </ScreenViewContainer>
   );
 }
