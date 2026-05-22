@@ -322,7 +322,7 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
                 <Text
                   style={[
                     styles.nextLabelText,
-                    { fontSize: 14 * fontScaleMultiplier },
+                    { fontSize: 18 * fontScaleMultiplier },
                   ]}
                 >
                   {countdownTitle}
@@ -1475,15 +1475,19 @@ export default function PrayerTime() {
   }
 
   // Büyük kart
-  const currentLabel = prayerLabels[currentKeyRef.current] ?? '';
+  const nextKey = nextKeyRef.current;
+  const nextLabel = prayerLabels[nextKey] ?? '';
   const currentIcon = PRAYER_TIME_ICONS[currentKeyRef.current] as any;
   const isCritical = leftSec <= 45 * 60;
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
-  const countdownTitle = t('prayerTime.nextPrayerCountdown', {
-    label: currentLabel,
-  });
+  const countdownTitle =
+    nextKey === 'Sunrise'
+      ? t('prayerTime.sunriseCountdown')
+      : t('prayerTime.nextPrayerCountdown', {
+          label: nextLabel,
+        });
   return (
     <SafeAreaWithStatusBar>
       <BottomTabScreenViewContainer>
