@@ -241,6 +241,47 @@ function computeNext(seq: ReturnType<typeof buildSequence>, now = new Date()) {
   };
 }
 
+function isBetween(now: Date, start: Date, end: Date) {
+  const nowTs = now.getTime();
+  return nowTs >= start.getTime() && nowTs < end.getTime();
+}
+
+function shiftSeconds(base: Date, seconds: number) {
+  return new Date(base.getTime() + seconds * 1000);
+}
+
+function isKerahatTime(seq: ReturnType<typeof buildSequence>, now = new Date()) {
+  const byKey = new Map(seq.map(item => [item.key, item.date] as const));
+  const fajr = byKey.get('Fajr');
+  const sunrise = byKey.get('Sunrise');
+  const dhuhr = byKey.get('Dhuhr');
+  const asr = byKey.get('Asr');
+  const maghrib = byKey.get('Maghrib');
+
+  if (!fajr || !sunrise || !dhuhr || !asr || !maghrib) {
+    return false;
+  }
+
+  const FORTY_FIVE_MIN_SEC = 45 * 60;
+  const sunriseForbiddenEnd = shiftSeconds(sunrise, FORTY_FIVE_MIN_SEC);
+  const noonForbiddenStart = shiftSeconds(dhuhr, -FORTY_FIVE_MIN_SEC);
+  const sunsetForbiddenStart = shiftSeconds(maghrib, -FORTY_FIVE_MIN_SEC);
+
+  // Görselde belirtilen kerahat pencereleri:
+  // 1) İmsak -> Güneş: nafile kılınmaz
+  // 2) Güneş doğumu sonrası 40-45 dk: hiçbir namaz kılınmaz
+  // 3) Öğleye yakın 30-45 dk: hiçbir namaz kılınmaz
+  // 4) İkindi -> Akşama 40-45 dk kala: nafile kılınmaz
+  // 5) Akşama son 40-45 dk: hiçbir namaz kılınmaz
+  return (
+    isBetween(now, fajr, sunrise) ||
+    isBetween(now, sunrise, sunriseForbiddenEnd) ||
+    isBetween(now, noonForbiddenStart, dhuhr) ||
+    isBetween(now, asr, sunsetForbiddenStart) ||
+    isBetween(now, sunsetForbiddenStart, maghrib)
+  );
+}
+
 // ---- Flicker guard helpers -------------------------------------------------
 function ymd(d: Date) {
   const mm = String(d.getMonth() + 1).padStart(2, '0'); // getMonth 0-based
@@ -273,6 +314,9 @@ type HeaderProps = {
   iconType: any;
   iconName: string;
   countdownTitle: string;
+  showKerahatBar: boolean;
+  kerahatLabel: string;
+  kerahatTextColor: string;
   leftClock: string;
   isResyncing: boolean;
   seqDateLabel: string;
@@ -285,6 +329,9 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
     iconType,
     iconName,
     countdownTitle,
+    showKerahatBar,
+    kerahatLabel,
+    kerahatTextColor,
     leftClock,
     isResyncing,
     seqDateLabel,
@@ -299,7 +346,13 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
 
     return (
       <View style={styles.listHeaderRoot}>
-        <View style={[styles.nextCardWrapper, { backgroundColor: cardBg }]}>
+        <View
+          style={[
+            styles.nextCardWrapper,
+            { backgroundColor: cardBg },
+            showKerahatBar && styles.nextCardWrapperWithKerahat,
+          ]}
+        >
           {/* Dekoratif baloncuklar */}
           <View style={styles.nextDecorTop} />
           <View style={styles.nextDecorBottom} />
@@ -370,7 +423,24 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
               )}
             </View>
           </View>
+
         </View>
+
+        {showKerahatBar && (
+          <View style={styles.nextKerahatBar}>
+            <Text
+              style={[
+                styles.nextKerahatText,
+                {
+                  color: kerahatTextColor,
+                  fontSize: 14 * fontScaleMultiplier,
+                },
+              ]}
+            >
+              {kerahatLabel}
+            </Text>
+          </View>
+        )}
       </View>
     );
   },
@@ -573,7 +643,7 @@ export default function PrayerTime() {
   const activeMethodManuallySet = activeMethodPref?.manuallySet ?? false;
 
   const [leftClock, setLeftClock] = useState('00:00:00');
-  const [leftSec, setLeftSec] = useState(0);
+  const [, setLeftSec] = useState(0);
   const nextKeyRef = useRef<PrayerTimeKey>('Fajr');
   const currentKeyRef = useRef<PrayerTimeKey>('Fajr');
 
@@ -1478,16 +1548,17 @@ export default function PrayerTime() {
   const nextKey = nextKeyRef.current;
   const nextLabel = prayerLabels[nextKey] ?? '';
   const currentIcon = PRAYER_TIME_ICONS[currentKeyRef.current] as any;
-  const isCritical = leftSec <= 45 * 60;
+  const isCritical = seqRef.current ? isKerahatTime(seqRef.current, nowTick) : false;
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
-  const countdownTitle =
+  const countdownBaseTitle =
     nextKey === 'Sunrise'
       ? t('prayerTime.sunriseCountdown')
       : t('prayerTime.nextPrayerCountdown', {
           label: nextLabel,
         });
+  const countdownTitle = countdownBaseTitle;
   return (
     <SafeAreaWithStatusBar>
       <BottomTabScreenViewContainer>
@@ -1524,6 +1595,9 @@ export default function PrayerTime() {
                   iconType={currentIcon.type}
                   iconName={currentIcon.name as any}
                   countdownTitle={countdownTitle}
+                  showKerahatBar={isCritical}
+                  kerahatLabel={t('prayerTime.kerahatTimeLabel')}
+                  kerahatTextColor={currentTheme.systemRed || '#FF3B30'}
                   leftClock={leftClock}
                   isResyncing={isResyncing}
                   seqDateLabel={seqDateLabel}
@@ -1702,6 +1776,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
   },
+  nextCardWrapperWithKerahat: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
   nextCardInner: {
     padding: 20,
     borderRadius: 28,
@@ -1755,6 +1833,20 @@ const styles = StyleSheet.create({
   nextMeta: {
     marginTop: 10,
     alignItems: 'flex-end',
+  },
+  nextKerahatBar: {
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(15,23,42,0.12)',
+  },
+  nextKerahatText: {
+    fontWeight: '700',
+    textAlign: 'center',
   },
   metaText: {
     color: 'rgba(240,253,250,0.9)',

@@ -206,6 +206,7 @@
     "loadingTimes": "Loading prayer times…",
     "nextPrayerCountdown": "Time left until {{label}}",
     "sunriseCountdown": "Time left until sunrise",
+    "kerahatTimeLabel": "Kerahat Time",
     "syncing": "Synchronizing…",
     "sendTestNotification": "Send test adhan notification",
     "permissionCardTitle": "Location required",

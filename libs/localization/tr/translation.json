@@ -206,6 +206,7 @@
     "loadingTimes": "Vakitler yükleniyor…",
     "nextPrayerCountdown": "{{label}} vaktine kalan",
     "sunriseCountdown": "Güneşin doğmasına kalan",
+    "kerahatTimeLabel": "Kerahat Vakti",
     "syncing": "Senkronize ediliyor…",
     "sendTestNotification": "Test ezan bildirimi gönder",
     "permissionCardTitle": "Konum gerekli",

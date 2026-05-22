@@ -2,7 +2,6 @@ import React, { FC, useEffect, useRef } from 'react';
 import {
   Animated,
   Easing,
-  InteractionManager,
   StatusBar,
   StyleSheet,
   View,
@@ -15,6 +14,8 @@ type SplashScreenProps = {
   nextRoute?: string;
   onComplete?: () => void;
 };
+
+const SPLASH_EXIT_DELAY_MS = 1500;
 
 export const SplashScreen: FC<SplashScreenProps> = ({
   navigation,
@@ -31,6 +32,43 @@ export const SplashScreen: FC<SplashScreenProps> = ({
   const contentY = useRef(new Animated.Value(22)).current;
   const contentOpacity = useRef(new Animated.Value(0)).current;
   const progress = useRef(new Animated.Value(0)).current;
+  const idleCallbackRef = useRef<number | null>(null);
+  const idleFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  const clearIdleTask = () => {
+    const cancelIdleCallback = (globalThis as any)
+      .cancelIdleCallback as ((id: number) => void) | undefined;
+    if (
+      idleCallbackRef.current !== null &&
+      typeof cancelIdleCallback === 'function'
+    ) {
+      cancelIdleCallback(idleCallbackRef.current);
+      idleCallbackRef.current = null;
+    }
+    if (idleFallbackTimerRef.current) {
+      clearTimeout(idleFallbackTimerRef.current);
+      idleFallbackTimerRef.current = null;
+    }
+  };
+
+  const runWhenIdle = (callback: () => void) => {
+    const requestIdleCallback = (globalThis as any).requestIdleCallback as
+      | ((cb: () => void) => number)
+      | undefined;
+    if (typeof requestIdleCallback === 'function') {
+      idleCallbackRef.current = requestIdleCallback(() => {
+        idleCallbackRef.current = null;
+        callback();
+      });
+      return;
+    }
+    idleFallbackTimerRef.current = setTimeout(() => {
+      idleFallbackTimerRef.current = null;
+      callback();
+    }, 0);
+  };
 
   useEffect(() => {
     Animated.parallel([
@@ -60,7 +98,7 @@ export const SplashScreen: FC<SplashScreenProps> = ({
       }),
       Animated.timing(progress, {
         toValue: 1,
-        duration: 2400,
+        duration: SPLASH_EXIT_DELAY_MS,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: false,
       }),
@@ -80,14 +118,17 @@ export const SplashScreen: FC<SplashScreenProps> = ({
           useNativeDriver: true,
         }),
       ]).start(navigateNext);
-    }, 2700);
+    }, SPLASH_EXIT_DELAY_MS);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearIdleTask();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const navigateNext = () => {
-    InteractionManager.runAfterInteractions(() => {
+    runWhenIdle(() => {
       onComplete?.();
       if (!targetRoute) {
         return;
