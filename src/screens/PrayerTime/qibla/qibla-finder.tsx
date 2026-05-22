@@ -23,7 +23,7 @@ import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import {
   Icon,
   Icons,
-  ScreenViewContainer,
+  BottomTabScreenViewContainer,
   ScrollAwareView,
 } from '../../../../libs/components';
 import {
@@ -287,7 +287,7 @@ export default function QiblaScreen() {
   }, [isCorrect]);
 
   return (
-    <ScreenViewContainer disableBottomPadding>
+    <BottomTabScreenViewContainer>
       <View style={styles.contentWrapper}>
         <ScrollAwareView style={styles.root}>
           <View style={styles.screenInner}>
@@ -559,7 +559,7 @@ export default function QiblaScreen() {
           </View>
         </ScrollAwareView>
       </View>
-    </ScreenViewContainer>
+    </BottomTabScreenViewContainer>
   );
 }
 

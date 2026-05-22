@@ -85,6 +85,8 @@
     "AdvancedTitle": "Gelişmiş",
     "AdvancedDescription": "Uygulamaya ait tüm yerel verileri (dil, tema, hesaplama ayarları vb.) temizler. Uygulama bazı alanlarda varsayılan ayarlara döner.",
     "AdvancedClearButton": "Tüm Verileri Temizle",
+    "RestartRequiredTitle": "Yeniden Başlatma Gerekiyor",
+    "RestartRequiredMessage": "Veriler temizlendi. Değişikliklerin tam uygulanması için uygulamayı kapatıp tekrar açın.",
     "FeedbackTitle": "Geri Bildirim Gönder",
     "FeedbackSubtitle": "Öneri, şikayet veya yorumlarınızı bizimle paylaşın",
     "FeedbackEmailSubject": "Namaz Defteri Uygulama Geri Bildirimi",
@@ -210,6 +212,8 @@
     "permissionCardButton": "Konum Seç",
     "ramadanIftarCountdown": "İftara kalan süre",
     "ramadanSahurCountdown": "Sahura kalan süre",
+    "locationHintMessage": "Buraya dokunarak yeni konum ekleyebilir veya mevcut konumun hesaplama yöntemini değiştirebilirsiniz.",
+    "ramadanCountdownHintMessage": "İftar/Sahur sayacını Ayarlar > Uygulama Ayarları bölümünden gizleyebilirsiniz.",
     "inspiration": {
       "quranTitle": "Günün Ayeti",
       "asmaTitle": "Esmaül Hüsna",
@@ -366,6 +370,10 @@
     "methodAutoOption": "Otomatik (önerilen)",
     "methodAutoDescription": "{{location}} için en yakın yöntemi kullanır. Şu an: {{name}}",
     "SearchNewLocation": "Yeni Konum Ara"
+  },
+  "contextualHints": {
+    "dismissForever": "Bir daha gösterme",
+    "close": "Tamam"
   },
   "monthlyCalendar": {
     "loadingLocation": "Konum alınıyor…",

@@ -85,6 +85,15 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.AdvancedClearButton',
     defaultValue: 'Tüm Verileri Temizle',
   };
+  static RestartRequiredTitle: LanguageModel = {
+    key: 'settings.RestartRequiredTitle',
+    defaultValue: 'Yeniden Başlatma Gerekiyor',
+  };
+  static RestartRequiredMessage: LanguageModel = {
+    key: 'settings.RestartRequiredMessage',
+    defaultValue:
+      'Veriler temizlendi. Değişikliklerin tam uygulanması için uygulamayı kapatıp tekrar açın.',
+  };
   static FeedbackTitle: LanguageModel = {
     key: 'settings.FeedbackTitle',
     defaultValue: 'Geri Bildirim Gönder',

@@ -6,6 +6,7 @@ import {
   Text,
   Platform,
   Pressable,
+  LayoutChangeEvent,
 } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -29,7 +30,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
   const { currentTheme } = useTheme();
   const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(0.9)).current;
-  const { setBannerLoaded, bannerLoaded } = useBanner();
+  const { setBannerLoaded, bannerLoaded, setBottomOverlayHeight } = useBanner();
   const applicationSettings = useSelector(
     (state: any) => state.applicationSettings,
   );
@@ -57,8 +58,16 @@ const CustomTabBar = ({ state, navigation }: any) => {
     }
   }, [applicationSettings.isScrollReachToBottom, opacity]);
 
+  const handleTabBarLayout = (event: LayoutChangeEvent) => {
+    const nextHeight = Math.round(event.nativeEvent.layout.height);
+    if (nextHeight > 0) {
+      setBottomOverlayHeight(nextHeight);
+    }
+  };
+
   return (
     <View
+      onLayout={handleTabBarLayout}
       style={[
         styles.tabBarContainer,
         {

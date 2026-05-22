@@ -16,7 +16,6 @@ import {
   TouchableWithoutFeedback,
   Modal,
   Switch,
-  DevSettings,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,6 +31,7 @@ import {
 } from '../../../libs/components';
 import {
   AsyncStorageConstants,
+  GeneralLanguageConstants,
   LanguagePrefix,
   LanguageSettingsConstants,
   SettingsConstants,
@@ -551,11 +551,15 @@ const Settings = ({}: SettingsProps) => {
   const handleClearStorage = useCallback(async () => {
     try {
       await AsyncStorage.clear();
-      DevSettings.reload();
+      Alert.alert(
+        t(SettingsScreenLanguageConstants.RestartRequiredTitle.key),
+        t(SettingsScreenLanguageConstants.RestartRequiredMessage.key),
+        [{ text: t(GeneralLanguageConstants.Ok.key) }],
+      );
     } catch (error) {
       console.warn('AsyncStorage clear error:', error);
     }
-  }, []);
+  }, [t]);
 
   const handleSendFeedback = useCallback(() => {
     const subjectText = t(

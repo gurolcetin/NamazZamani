@@ -13,7 +13,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { useTheme } from '../../../../libs/core/providers';
 import {
-  ScreenViewContainer,
+  BottomTabScreenViewContainer,
   PrayerTimeSmallCard,
   Icons,
   Icon,
@@ -266,10 +266,9 @@ export default function MonthlyCalendar() {
   };
 
   return (
-    <ScreenViewContainer
+    <BottomTabScreenViewContainer
       showSkeleton={shouldShowSkeleton}
       skeletonContent={<MonthlyCalendarSkeleton />}
-      disableBottomPadding
     >
       <View style={styles.contentWrapper}>
         {/* Beyaz Card içinde Takvim başlık + gövde */}
@@ -422,7 +421,7 @@ export default function MonthlyCalendar() {
           />
         )}
       </View>
-    </ScreenViewContainer>
+    </BottomTabScreenViewContainer>
   );
 }
 

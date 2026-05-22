@@ -11,7 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import {
-  ScreenViewContainer,
+  BottomTabScreenViewContainer,
 } from '../../../../libs/components';
 import { PrayerTimings } from '../api';
 import { fetchMonthlyPrayerTimesByCoords } from '../MontlyCalendar/api';
@@ -305,10 +305,9 @@ export default function TimeTable() {
   const shouldShowSkeleton = loading && !sections;
 
   return (
-    <ScreenViewContainer
+    <BottomTabScreenViewContainer
       showSkeleton={shouldShowSkeleton}
       skeletonContent={<TimeTableSkeleton />}
-      disableBottomPadding
     >
       <View style={styles.contentWrapper}>
         <SectionList
@@ -388,7 +387,7 @@ export default function TimeTable() {
           }
         />
       </View>
-    </ScreenViewContainer>
+    </BottomTabScreenViewContainer>
   );
 }
 

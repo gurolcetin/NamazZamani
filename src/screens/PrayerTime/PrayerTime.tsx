@@ -36,6 +36,7 @@ import {
 } from './permission';
 import {
   BottomTabScreenViewContainer,
+  ContextualHint,
   Icon,
   Icons,
   PRAYER_TIME_ICONS,
@@ -113,6 +114,9 @@ const PRAYER_NAME_KEYS: Record<PrayerTimeKey, string> = {
 };
 const METHODS_CACHE_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 gün
 const DEFAULT_METHOD_ID = 13;
+const LOCATION_HINT_FREQUENCY_MS = 7 * 24 * 60 * 60 * 1000;
+const RAMADAN_HINT_FREQUENCY_MS = 7 * 24 * 60 * 60 * 1000;
+const DEFAULT_HINT_DURATION_MS = 9000;
 
 // ----- Time helpers ---------------------------------------------------------
 function toTodayDate(hhmm: string, base = new Date()): Date {
@@ -1354,10 +1358,17 @@ export default function PrayerTime() {
     () => (
       <View style={styles.footerStack}>
         {shouldShowRamadanCountdown && (
-          <RamadanCountdownCard
-            ramadanInfo={ramadanCountdownInfo}
-            currentNow={nowTick}
-          />
+          <ContextualHint
+            hintId="hint_ramadan_countdown"
+            message={t('prayerTime.ramadanCountdownHintMessage')}
+            frequencyMs={RAMADAN_HINT_FREQUENCY_MS}
+            durationMs={DEFAULT_HINT_DURATION_MS}
+          >
+            <RamadanCountdownCard
+              ramadanInfo={ramadanCountdownInfo}
+              currentNow={nowTick}
+            />
+          </ContextualHint>
         )}
         {showReligiousDaysSlider && (
           <ReligiousDaysSliderCard currentDateKey={currentDateKey} />
@@ -1378,6 +1389,7 @@ export default function PrayerTime() {
       showQuranAyahCard,
       showAsmaulHusnaCard,
       showHadithCard,
+      t,
     ],
   );
 
@@ -1499,6 +1511,9 @@ export default function PrayerTime() {
                       PrayerTimeScreens.LocationSelector as never,
                     )
                   }
+                  locationHintMessage={t('prayerTime.locationHintMessage')}
+                  locationHintFrequencyMs={LOCATION_HINT_FREQUENCY_MS}
+                  locationHintDurationMs={DEFAULT_HINT_DURATION_MS}
                 />
                 <PrayerTimeHeader
                   cardBg={cardBg}

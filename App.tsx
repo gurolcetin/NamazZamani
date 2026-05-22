@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import 'react-native-gesture-handler';
 import RootNavigation from './src/navigation/RootNavigation';
 import { ThemeProvider } from './libs/core/providers';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import store, { persistor } from './libs/redux/store';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -18,10 +18,20 @@ import { prayerNotificationManager } from './libs/core/helpers/prayer-notificati
 import { enableScreens } from 'react-native-screens';
 import { useTranslation } from 'react-i18next';
 import mobileAds from 'react-native-google-mobile-ads';
-import BootSplash from 'react-native-bootsplash';
+import { resetHintRuntimeState } from './libs/redux/reducers/ContextualHints';
 
 LogBox.ignoreLogs(['Sending...']);
 enableScreens();
+
+const HintRuntimeBootstrap = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(resetHintRuntimeState());
+  }, [dispatch]);
+
+  return null;
+};
 
 const App = () => {
   const [isChecking, setIsChecking] = useState(true);
@@ -53,17 +63,7 @@ const App = () => {
       .then(() => mobileAds().initialize());
   }, []);
 
-  useEffect(() => {
-    if (!isChecking && !canContinue) {
-      BootSplash.hide({ fade: true });
-    }
-  }, [isChecking, canContinue]);
-
-  if (isChecking) {
-    return null;
-  }
-
-  if (!canContinue) {
+  if (!isChecking && !canContinue) {
     return (
       <View style={styles.center}>
         <Text style={styles.title}>{t('app.unsupportedVersionTitle')}</Text>
@@ -71,21 +71,30 @@ const App = () => {
       </View>
     );
   }
+
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
-        <Provider store={store}>
-          <PersistGate persistor={persistor} loading={null}>
-            <ThemeProvider>
-              <RootNavigation />
-            </ThemeProvider>
-          </PersistGate>
-        </Provider>
+        {!isChecking && canContinue ? (
+          <Provider store={store}>
+            <PersistGate persistor={persistor} loading={null}>
+              <HintRuntimeBootstrap />
+              <ThemeProvider>
+                <RootNavigation />
+              </ThemeProvider>
+            </PersistGate>
+          </Provider>
+        ) : (
+          <View style={styles.root} />
+        )}
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 };
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   center: {
     flex: 1,
     alignItems: 'center',

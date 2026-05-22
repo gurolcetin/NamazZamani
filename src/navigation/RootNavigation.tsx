@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Authenticated } from './MainNavigation';
 import {
   DarkTheme,
   DefaultTheme,
@@ -8,16 +7,15 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { BannerProvider, useTheme } from '../../libs/core/providers';
 import { Theme } from '../../libs/common/enums';
-import BootSplash from 'react-native-bootsplash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingScreen from '../screens/Onboarding/OnboardingScreen';
 import { RootRoutes } from './Routes';
 import PrivacyScreen, { PRIVACY_KEY } from '../screens/Privacy/PrivacyScreen';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { MainNavigator } from './main-navigator';
 
 const RootStack = createNativeStackNavigator();
 // const ONBOARDING_KEY = 'onboarded';
-
 const RootNavigation = () => {
   const { theme, currentTheme } = useTheme();
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
@@ -79,12 +77,7 @@ const RootNavigation = () => {
 
   return (
     <BannerProvider>
-      <NavigationContainer
-        theme={navigationTheme}
-        onReady={() => {
-          BootSplash.hide();
-        }}
-      >
+      <NavigationContainer theme={navigationTheme}>
         <RootStack.Navigator
           screenOptions={{ headerShown: false }}
           initialRouteName={initialRouteName}
@@ -110,7 +103,7 @@ const RootNavigation = () => {
             )}
           </RootStack.Screen>
 
-          <RootStack.Screen name={RootRoutes.Main} component={Authenticated} />
+          <RootStack.Screen name={RootRoutes.Main} component={MainNavigator} />
         </RootStack.Navigator>
       </NavigationContainer>
     </BannerProvider>

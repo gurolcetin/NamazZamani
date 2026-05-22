@@ -85,6 +85,8 @@
     "AdvancedTitle": "Advanced",
     "AdvancedDescription": "Clears all local app data (language, theme, calculation settings, etc.). Some areas will revert to default settings.",
     "AdvancedClearButton": "Clear All Data",
+    "RestartRequiredTitle": "Restart Required",
+    "RestartRequiredMessage": "Data has been cleared. Please close and reopen the app to fully apply changes.",
     "FeedbackTitle": "Send Feedback",
     "FeedbackSubtitle": "Share your suggestions, complaints or comments with us",
     "FeedbackEmailSubject": "Prayer Log App Feedback",
@@ -210,6 +212,8 @@
     "permissionCardButton": "Choose location",
     "ramadanIftarCountdown": "Counting down to Iftar",
     "ramadanSahurCountdown": "Counting down to Suhoor",
+    "locationHintMessage": "Tap here to add a new location or change the calculation method for the current location.",
+    "ramadanCountdownHintMessage": "You can hide the Iftar/Suhoor countdown in Settings > Application Settings.",
     "inspiration": {
       "quranTitle": "Verse of the Day",
       "asmaTitle": "Asma-ul-Husna",
@@ -366,6 +370,10 @@
     "methodModalSubtitle": "Prayer times for {{location}} will use the selected method.",
     "methodAutoOption": "Automatic (recommended)",
     "methodAutoDescription": "Uses the closest method for {{location}}. Current: {{name}}"
+  },
+  "contextualHints": {
+    "dismissForever": "Don't show again",
+    "close": "Got it"
   },
   "monthlyCalendar": {
     "loadingLocation": "Fetching location…",

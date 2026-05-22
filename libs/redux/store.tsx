@@ -13,6 +13,7 @@ import Dhikr from './reducers/Dhikr';
 import Location from './reducers/location';
 import ApplicationSettings from './reducers/ApplicationSettings';
 import prayerTimesCache from './reducers/prayerTimesCache';
+import contextualHints from './reducers/ContextualHints';
 
 // Creating a rootReducer that combines all reducers in the app
 const rootReducer = combineReducers({
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   location: Location,
   applicationSettings: ApplicationSettings,
   prayerTimesCache,
+  contextualHints,
 });
 
 // Configuring the redux-persist library to persist the root reducer with AsyncStorage

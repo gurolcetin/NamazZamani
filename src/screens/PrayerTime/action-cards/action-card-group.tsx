@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { LocationChip } from '../location-chip';
+import { ContextualHint } from '../../../../libs/components';
 
 type Props = {
   label: string;
@@ -21,26 +22,56 @@ type Props = {
 
   // İsteğe bağlı stil
   style?: ViewStyle;
+  locationHintMessage?: string;
+  locationHintFrequencyMs?: number;
+  locationHintDurationMs?: number;
 };
 
 export const ActionCardGroup = memo((props: Props) => {
-  const { label, utc, loading, isDark, theme, onOpenLocationSelector } = props;
+  const {
+    label,
+    utc,
+    loading,
+    isDark,
+    theme,
+    onOpenLocationSelector,
+    locationHintMessage,
+    locationHintFrequencyMs = 0,
+    locationHintDurationMs,
+  } = props;
+
+  const locationChip = (
+    <LocationChip
+      label={label}
+      utc={utc}
+      style={stylesL.locationChipFullWidth}
+      loading={loading}
+      themeColors={{
+        primary: theme.primary,
+        text: theme.textColor,
+        isDark,
+      }}
+      onPress={onOpenLocationSelector}
+    />
+  );
 
   return (
     <View style={[stylesL.card]}>
       {/* Konum satırı (chip + “değiştir”) */}
       <View style={stylesL.locationRow}>
-        <LocationChip
-          label={label}
-          utc={utc}
-          loading={loading}
-          themeColors={{
-            primary: theme.primary,
-            text: theme.textColor,
-            isDark,
-          }}
-          onPress={onOpenLocationSelector}
-        />
+        {locationHintMessage ? (
+          <ContextualHint
+            hintId="hint_location_chip"
+            message={locationHintMessage}
+            frequencyMs={locationHintFrequencyMs}
+            durationMs={locationHintDurationMs}
+            containerStyle={stylesL.locationChipFullWidth}
+          >
+            {locationChip}
+          </ContextualHint>
+        ) : (
+          locationChip
+        )}
       </View>
     </View>
   );
@@ -68,6 +99,10 @@ const stylesL = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     marginTop: 10,
+  },
+  locationChipFullWidth: {
+    flex: 1,
+    width: '100%',
   },
   changeBtn: {
     flexDirection: 'row',

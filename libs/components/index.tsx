@@ -14,6 +14,7 @@ import CircleProgressBar from './CircleProgressBar/CircleProgressBar';
 import CustomModal from './CustomModal/CustomModal';
 import BottomBannerAd from './Ads/BottomBannerAd';
 import ScrollAwareView from './ScrollAwareView';
+import ContextualHint from './ContextualHint/ContextualHint';
 import {
   PrayerTimeSmallCard,
   PRAYER_TIME_ICONS,
@@ -43,5 +44,6 @@ export {
   SkeletonPlaceholder,
   BottomTabScreenViewContainer,
   BottomBannerAd,
+  ContextualHint,
 };
 export type { IconProps, CardViewProps };

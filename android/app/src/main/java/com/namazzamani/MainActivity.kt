@@ -7,7 +7,6 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 
 // Custom
 import android.os.Bundle
-import com.zoontek.rnbootsplash.RNBootSplash
 
 class MainActivity : ReactActivity() {
 
@@ -27,7 +26,6 @@ class MainActivity : ReactActivity() {
 
   // Custom
   override fun onCreate(savedInstanceState: Bundle?) {
-    RNBootSplash.init(this, R.style.BootTheme) // ⬅️ initialize the splash screen
     super.onCreate(null) // null prevents react-native-screens fragment restoration crash
   }
 }

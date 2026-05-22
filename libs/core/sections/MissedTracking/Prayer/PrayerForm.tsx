@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   TextInput,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useForm, Controller } from 'react-hook-form';
@@ -35,7 +35,7 @@ import { getFontScaleMultiplier } from '../../../helpers';
 
 type PrayerFormValues = {
   gender: Gender | '';
-  date: Date;
+  date?: Date;
   entryIntoPubertyAge?: any;
   prayersPerformedCount?: any;
   menstrualCycle?: any;
@@ -60,7 +60,6 @@ const PrayerForm: React.FC = () => {
     [fontScaleMultiplier],
   );
 
-  const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [submitErrorMessages, setSubmitErrorMessages] = useState<string>(
     StringConstants.EMPTY_STRING,
@@ -124,7 +123,7 @@ const PrayerForm: React.FC = () => {
   } = useForm<PrayerFormValues>({
     defaultValues: {
       gender: '' as Gender | '',
-      date: new Date(),
+      date: undefined,
       entryIntoPubertyAge: undefined,
       prayersPerformedCount: undefined,
       menstrualCycle: undefined,
@@ -197,10 +196,7 @@ const PrayerForm: React.FC = () => {
   return (
     <>
       <View style={[styles.root]}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.scrollContent}>
           {/* Main card */}
           <View
             style={[
@@ -228,6 +224,7 @@ const PrayerForm: React.FC = () => {
                     ]}
                     value={value}
                     onChange={onChange}
+                    compact
                     fontScaleMultiplier={fontScaleMultiplier}
                   />
                 )}
@@ -256,7 +253,7 @@ const PrayerForm: React.FC = () => {
                         style={[styles.input, { color: currentTheme.textColor }]}
                         onBlur={onBlur}
                         keyboardType="numeric"
-                        placeholder="7"
+                        placeholder={menstrualCycleLabel}
                         placeholderTextColor={currentTheme.gray}
                         value={
                           (value ?? StringConstants.EMPTY_STRING).toString()
@@ -307,12 +304,16 @@ const PrayerForm: React.FC = () => {
                       <Text
                         style={[
                           styles.inputText,
-                          { color: currentTheme.textColor },
+                          {
+                            color: value
+                              ? currentTheme.textColor
+                              : currentTheme.gray,
+                          },
                         ]}
                       >
-                        {(date ?? value ?? new Date()).toLocaleDateString(
-                          dateLocale,
-                        )}
+                        {value
+                          ? value.toLocaleDateString(dateLocale)
+                          : birthDateLabel}
                       </Text>
                     </Pressable>
 
@@ -322,12 +323,17 @@ const PrayerForm: React.FC = () => {
                         testID="dateTimePicker"
                         value={value ?? new Date()}
                         mode={'date' as any}
-                        onChange={(_event, selectedDate) => {
+                        onChange={(event, selectedDate) => {
+                          if (Platform.OS === 'android') {
+                            setShowDatePicker(false);
+                            if (event?.type === 'dismissed' || !selectedDate) {
+                              return;
+                            }
+                          }
                           const currentDate = selectedDate ?? new Date();
-                          setDate(currentDate);
                           onChange(currentDate);
                         }}
-                        display="inline"
+                        display={Platform.OS === 'ios' ? 'inline' : 'default'}
                         accentColor={currentTheme.primary}
                         maximumDate={new Date()}
                         minimumDate={new Date(1900, 1, 1)}
@@ -373,7 +379,7 @@ const PrayerForm: React.FC = () => {
                       style={[styles.input, { color: currentTheme.textColor }]}
                       onBlur={onBlur}
                       keyboardType="numeric"
-                      placeholder="12"
+                      placeholder={pubertyAgeLabel}
                       placeholderTextColor={currentTheme.gray}
                       value={(value ?? StringConstants.EMPTY_STRING).toString()}
                       onChangeText={val => {
@@ -416,7 +422,7 @@ const PrayerForm: React.FC = () => {
                       style={[styles.input, { color: currentTheme.textColor }]}
                       onBlur={onBlur}
                       keyboardType="numeric"
-                      placeholder="0"
+                      placeholder={daysOfPrayerLabel}
                       placeholderTextColor={currentTheme.gray}
                       value={(value ?? StringConstants.EMPTY_STRING).toString()}
                       onChangeText={val => {
@@ -442,7 +448,7 @@ const PrayerForm: React.FC = () => {
           >
             <Text style={styles.calculateText}>{calculateLabel}</Text>
           </Pressable>
-        </ScrollView>
+        </View>
       </View>
 
       <ErrorView
@@ -471,13 +477,13 @@ type FieldGroupProps = {
 const createStyles = (fontScaleMultiplier: number) =>
   StyleSheet.create({
     root: {
-      flex: 1,
+      width: '100%',
     },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 32,
-  },
+    scrollContent: {
+      paddingHorizontal: 24,
+      paddingTop: 20,
+      paddingBottom: 20,
+    },
     title: {
       fontSize: 20 * fontScaleMultiplier,
       fontWeight: '600',
@@ -491,36 +497,36 @@ const createStyles = (fontScaleMultiplier: number) =>
       textAlign: 'center',
       marginBottom: 20,
     },
-  card: {
-    borderRadius: 30,
-    paddingHorizontal: 18,
-    paddingBottom: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  fieldGroup: {
-    marginTop: 18,
-  },
+    card: {
+      borderRadius: 30,
+      paddingHorizontal: 18,
+      paddingBottom: 20,
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOpacity: 0.08,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+    },
+    fieldGroup: {
+      marginTop: 14,
+    },
     fieldLabel: {
       fontSize: 14 * fontScaleMultiplier,
       fontWeight: '600',
-      marginBottom: 10,
+      marginBottom: 8,
     },
     fieldError: {
       marginTop: 4,
       fontSize: 12 * fontScaleMultiplier,
     },
-  inputWrapper: {
-    height: 52,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#f3f4f6',
-  },
+    inputWrapper: {
+      height: 44,
+      borderRadius: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      backgroundColor: '#f3f4f6',
+    },
     input: {
       flex: 1,
       fontSize: 14 * fontScaleMultiplier,
@@ -535,13 +541,13 @@ const createStyles = (fontScaleMultiplier: number) =>
       fontSize: 16 * fontScaleMultiplier,
       color: '#9ca3af',
     },
-  calculateButton: {
-    marginTop: 24,
-    borderRadius: 24,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    calculateButton: {
+      marginTop: 24,
+      borderRadius: 24,
+      paddingVertical: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
     calculateText: {
       color: '#ffffff',
       fontSize: 16 * fontScaleMultiplier,
@@ -549,7 +555,8 @@ const createStyles = (fontScaleMultiplier: number) =>
     },
     errorMessage: {
       marginHorizontal: 20,
-      marginTop: 8,
+      marginTop: 12,
+      marginBottom: 8,
     },
   });
 

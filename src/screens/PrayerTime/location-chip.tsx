@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
   View,
+  ViewStyle,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -18,6 +20,7 @@ type LocationChipProps = {
   label: string;
   utc: string;
   onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
   themeColors: {
     primary: string;
     text?: string;
@@ -30,6 +33,7 @@ export function LocationChip({
   label,
   utc,
   onPress,
+  style,
   themeColors,
   loading,
 }: LocationChipProps) {
@@ -58,6 +62,7 @@ export function LocationChip({
       })}
       style={[
         styles.locChip,
+        style,
         {
           backgroundColor: bg,
           transform: [{ scale: pressed ? 0.98 : 1 }],

@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   TextInput,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useForm, Controller } from 'react-hook-form';
@@ -36,7 +36,7 @@ import { createMissedFasting } from '../../../../redux/reducers/MissedFasting';
 
 type FastingFormValues = {
   gender: Gender | '';
-  date: Date;
+  date?: Date;
   entryIntoPubertyAge?: any;
   fastingPerformedCount?: any;
   menstrualCycle?: any;
@@ -61,7 +61,6 @@ const FastingForm: React.FC = () => {
     [fontScaleMultiplier],
   );
 
-  const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [submitErrorMessages, setSubmitErrorMessages] = useState<string>(
     StringConstants.EMPTY_STRING,
@@ -117,7 +116,7 @@ const FastingForm: React.FC = () => {
   } = useForm<FastingFormValues>({
     defaultValues: {
       gender: '' as Gender | '',
-      date: new Date(),
+      date: undefined,
       entryIntoPubertyAge: undefined,
       fastingPerformedCount: undefined,
       menstrualCycle: undefined,
@@ -154,12 +153,13 @@ const FastingForm: React.FC = () => {
       return setSubmitErrorMessages(errorMessage);
     }
 
+    const selectedBirthDate = data.date as Date;
     let missedFastingCount =
       calculateRamadanCountBetweenDates(fastingCalculatorDate, new Date()) * 30;
 
     if (data.gender === Gender.Female) {
       const ramadanCount = calculateRamadanCountBetweenDates(
-        data.date,
+        selectedBirthDate,
         fastingCalculatorDate,
       );
       const menstrualCycle = isNullOrEmptyString(data.menstrualCycle)
@@ -189,10 +189,7 @@ const FastingForm: React.FC = () => {
   return (
     <>
       <View style={[styles.root]}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <View style={styles.scrollContent}>
           {/* Main card */}
           <View
             style={[
@@ -220,6 +217,7 @@ const FastingForm: React.FC = () => {
                     ]}
                     value={value}
                     onChange={onChange}
+                    compact
                     fontScaleMultiplier={fontScaleMultiplier}
                   />
                 )}
@@ -251,7 +249,7 @@ const FastingForm: React.FC = () => {
                         ]}
                         onBlur={onBlur}
                         keyboardType="numeric"
-                        placeholder="7"
+                        placeholder={menstrualCycleLabel}
                         placeholderTextColor={currentTheme.gray}
                         value={(
                           value ?? StringConstants.EMPTY_STRING
@@ -302,12 +300,16 @@ const FastingForm: React.FC = () => {
                       <Text
                         style={[
                           styles.inputText,
-                          { color: currentTheme.textColor },
+                          {
+                            color: value
+                              ? currentTheme.textColor
+                              : currentTheme.gray,
+                          },
                         ]}
                       >
-                        {(date ?? value ?? new Date()).toLocaleDateString(
-                          dateLocale,
-                        )}
+                        {value
+                          ? value.toLocaleDateString(dateLocale)
+                          : birthDateLabel}
                       </Text>
                     </Pressable>
 
@@ -317,12 +319,17 @@ const FastingForm: React.FC = () => {
                         testID="dateTimePicker"
                         value={value ?? new Date()}
                         mode={'date' as any}
-                        onChange={(_event, selectedDate) => {
+                        onChange={(event, selectedDate) => {
+                          if (Platform.OS === 'android') {
+                            setShowDatePicker(false);
+                            if (event?.type === 'dismissed' || !selectedDate) {
+                              return;
+                            }
+                          }
                           const currentDate = selectedDate ?? new Date();
-                          setDate(currentDate);
                           onChange(currentDate);
                         }}
-                        display="inline"
+                        display={Platform.OS === 'ios' ? 'inline' : 'default'}
                         accentColor={currentTheme.primary}
                         maximumDate={new Date()}
                         minimumDate={new Date(1900, 1, 1)}
@@ -368,7 +375,7 @@ const FastingForm: React.FC = () => {
                       style={[styles.input, { color: currentTheme.textColor }]}
                       onBlur={onBlur}
                       keyboardType="numeric"
-                      placeholder="12"
+                      placeholder={pubertyAgeLabel}
                       placeholderTextColor={currentTheme.gray}
                       value={(value ?? StringConstants.EMPTY_STRING).toString()}
                       onChangeText={val => {
@@ -411,7 +418,7 @@ const FastingForm: React.FC = () => {
                       style={[styles.input, { color: currentTheme.textColor }]}
                       onBlur={onBlur}
                       keyboardType="numeric"
-                      placeholder="0"
+                      placeholder={fastingPerformedLabel}
                       placeholderTextColor={currentTheme.gray}
                       value={(value ?? StringConstants.EMPTY_STRING).toString()}
                       onChangeText={val => {
@@ -437,7 +444,7 @@ const FastingForm: React.FC = () => {
           >
             <Text style={styles.calculateText}>{calculateLabel}</Text>
           </Pressable>
-        </ScrollView>
+        </View>
       </View>
 
       <ErrorView
@@ -466,12 +473,12 @@ type FieldGroupProps = {
 const createStyles = (fontScaleMultiplier: number) =>
   StyleSheet.create({
     root: {
-      flex: 1,
+      width: '100%',
     },
     scrollContent: {
       paddingHorizontal: 24,
       paddingTop: 20,
-      paddingBottom: 32,
+      paddingBottom: 20,
     },
     card: {
       borderRadius: 30,
@@ -484,20 +491,20 @@ const createStyles = (fontScaleMultiplier: number) =>
       shadowOffset: { width: 0, height: 8 },
     },
     fieldGroup: {
-      marginTop: 18,
+      marginTop: 14,
     },
     fieldLabel: {
       fontSize: 14 * fontScaleMultiplier,
       fontWeight: '600',
-      marginBottom: 10,
+      marginBottom: 8,
     },
     fieldError: {
       marginTop: 4,
       fontSize: 12 * fontScaleMultiplier,
     },
     inputWrapper: {
-      height: 52,
-      borderRadius: 20,
+      height: 44,
+      borderRadius: 16,
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: 16,
@@ -526,7 +533,8 @@ const createStyles = (fontScaleMultiplier: number) =>
     },
     errorMessage: {
       marginHorizontal: 20,
-      marginTop: 8,
+      marginTop: 12,
+      marginBottom: 8,
     },
   });
 
