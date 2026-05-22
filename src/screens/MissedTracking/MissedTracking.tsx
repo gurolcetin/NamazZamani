@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BottomTabScreenViewContainer,
   SegmentedControl,
@@ -14,7 +14,7 @@ import {
   PrayerForm,
   CalculatedMissedFasting,
 } from '../../../libs/core/sections';
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { RootState } from '../../../libs/redux/store';
@@ -62,6 +62,13 @@ const MissedTracking = () => {
       state.applicationSettings?.fontScale ?? FontScaleOption.MEDIUM,
   );
   const fontScaleMultiplier = getFontScaleMultiplier(fontScalePreference);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const scrollToWarning = useCallback(() => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 120);
+  }, []);
 
   return (
     <BottomTabScreenViewContainer>
@@ -73,18 +80,19 @@ const MissedTracking = () => {
         fontScaleMultiplier={fontScaleMultiplier}
       />
       <ScrollAwareView
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {selectedTab === MissedTrackingTabKeys.Prayer &&
           (!isMissedPrayerCalculated ? (
-            <PrayerForm />
+            <PrayerForm onWarningDetected={scrollToWarning} />
           ) : (
             <CalculatedMissedPrayer />
           ))}
         {selectedTab === MissedTrackingTabKeys.Fasting &&
           (!isMissedFastingCalculated ? (
-            <FastingForm />
+            <FastingForm onWarningDetected={scrollToWarning} />
           ) : (
             <CalculatedMissedFasting />
           ))}

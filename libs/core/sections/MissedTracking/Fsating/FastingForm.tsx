@@ -42,7 +42,11 @@ type FastingFormValues = {
   menstrualCycle?: any;
 };
 
-const FastingForm: React.FC = () => {
+type FastingFormProps = {
+  onWarningDetected?: () => void;
+};
+
+const FastingForm: React.FC<FastingFormProps> = ({ onWarningDetected }) => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const applicationSettings = useSelector(
@@ -130,6 +134,7 @@ const FastingForm: React.FC = () => {
   // --- BUSINESS: eski onSubmit bire bir korunuyor ----------------------------
   const onSubmit = (data: FastingFormValues) => {
     let errorMessage: string = StringConstants.EMPTY_STRING;
+    let shouldScrollToWarning = false;
 
     setSubmitErrorMessages(StringConstants.EMPTY_STRING);
     setShowDatePicker(false);
@@ -144,12 +149,16 @@ const FastingForm: React.FC = () => {
         errorMessage = birthDateError;
       } else if (new Date() < fastingCalculatorDate) {
         errorMessage = birthDatePubertyError;
+        shouldScrollToWarning = true;
       }
     } else {
       errorMessage = birthDateControlError;
     }
 
     if (!isNullOrEmptyString(errorMessage)) {
+      if (shouldScrollToWarning) {
+        onWarningDetected?.();
+      }
       return setSubmitErrorMessages(errorMessage);
     }
 

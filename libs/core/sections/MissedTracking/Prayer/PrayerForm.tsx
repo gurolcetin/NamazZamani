@@ -41,7 +41,11 @@ type PrayerFormValues = {
   menstrualCycle?: any;
 };
 
-const PrayerForm: React.FC = () => {
+type PrayerFormProps = {
+  onWarningDetected?: () => void;
+};
+
+const PrayerForm: React.FC<PrayerFormProps> = ({ onWarningDetected }) => {
   const dispatch = useDispatch();
   const applicationTheme = useSelector((state: any) => state.applicationTheme);
   const applicationSettings = useSelector(
@@ -137,6 +141,7 @@ const PrayerForm: React.FC = () => {
   // --- BUSINESS: bire bir eski onSubmit --------------------------------------
   const onSubmit = (data: PrayerFormValues) => {
     let errorMessage: string = StringConstants.EMPTY_STRING;
+    let shouldScrollToWarning = false;
     setSubmitErrorMessages(StringConstants.EMPTY_STRING);
     setShowDatePicker(false);
 
@@ -149,6 +154,7 @@ const PrayerForm: React.FC = () => {
         errorMessage = birthDateError;
       } else if (new Date() < prayerCalculatorDate) {
         errorMessage = birthDatePubertyError;
+        shouldScrollToWarning = true;
       } else if (
         !isNullOrEmptyString(data.prayersPerformedCount) &&
         isNumber(data.prayersPerformedCount)
@@ -158,6 +164,7 @@ const PrayerForm: React.FC = () => {
         );
         if (new Date() < prayerCalculatorDate) {
           errorMessage = numberofMissedPrayerBirthDatePubertyError;
+          shouldScrollToWarning = true;
         }
       }
     } else {
@@ -165,6 +172,9 @@ const PrayerForm: React.FC = () => {
     }
 
     if (!isNullOrEmptyString(errorMessage)) {
+      if (shouldScrollToWarning) {
+        onWarningDetected?.();
+      }
       return setSubmitErrorMessages(errorMessage);
     }
 
