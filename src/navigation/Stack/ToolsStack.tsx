@@ -25,6 +25,8 @@ export const ToolsStack = () => {
         },
         headerTitle: '',
         headerShadowVisible: false,
+        headerBackTitle: '',
+        headerBackButtonDisplayMode: 'minimal',
         contentStyle: {},
       })}
     >
@@ -48,27 +50,27 @@ export const ToolsStack = () => {
         }}
       />
 
-        <Stack.Screen
-          name={ToolsRoutes.MontlyCalendar}
-          component={MonthlyCalendar}
-          options={{
-            headerTitle: t('actionCardGroup.pickDate'),
-          }}
-        />
-        <Stack.Screen
-          name={ToolsRoutes.Imsakiye}
-          component={TimeTable}
-          options={{
-            headerTitle: t('actionCardGroup.imsakiye'),
-          }}
-        />
-        <Stack.Screen
-          name={ToolsRoutes.Qibla}
-          component={QiblaScreen}
-          options={{
-            headerTitle: t('actionCardGroup.qibla'),
-          }}
-        />
+      <Stack.Screen
+        name={ToolsRoutes.MontlyCalendar}
+        component={MonthlyCalendar}
+        options={{
+          headerTitle: t('actionCardGroup.pickDate'),
+        }}
+      />
+      <Stack.Screen
+        name={ToolsRoutes.Imsakiye}
+        component={TimeTable}
+        options={{
+          headerTitle: t('actionCardGroup.imsakiye'),
+        }}
+      />
+      <Stack.Screen
+        name={ToolsRoutes.Qibla}
+        component={QiblaScreen}
+        options={{
+          headerTitle: t('actionCardGroup.qibla'),
+        }}
+      />
     </Stack.Navigator>
   );
 };

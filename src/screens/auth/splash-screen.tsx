@@ -15,7 +15,7 @@ type SplashScreenProps = {
   onComplete?: () => void;
 };
 
-const SPLASH_EXIT_DELAY_MS = 1500;
+const SPLASH_EXIT_DELAY_MS = 750;
 
 export const SplashScreen: FC<SplashScreenProps> = ({
   navigation,
@@ -74,7 +74,7 @@ export const SplashScreen: FC<SplashScreenProps> = ({
     Animated.parallel([
       Animated.timing(logoOpacity, {
         toValue: 1,
-        duration: 650,
+        duration: 200,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
@@ -86,13 +86,13 @@ export const SplashScreen: FC<SplashScreenProps> = ({
       }),
       Animated.timing(contentY, {
         toValue: 0,
-        duration: 700,
+        duration: 300,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
       Animated.timing(contentOpacity, {
-        toValue: 1,
-        duration: 800,
+        toValue: 600,
+        duration: 450,
         delay: 180,
         useNativeDriver: true,
       }),
@@ -211,7 +211,7 @@ export const SplashScreen: FC<SplashScreenProps> = ({
                 styles.progressFill,
                 {
                   width: progressWidth,
-                  backgroundColor: currentTheme.primary,
+                  backgroundColor: '#20745C',
                 },
               ]}
             />

@@ -19,6 +19,8 @@ export const PrayerTimeStack = () => {
         },
         headerTitle: '',
         headerShadowVisible: false,
+        headerBackTitle: '',
+        headerBackButtonDisplayMode: 'minimal',
         contentStyle: {
           paddingTop: 20,
         },
@@ -40,7 +42,6 @@ export const PrayerTimeStack = () => {
           contentStyle: undefined, // istersen paddingTop burada sıfırlayabilirsin
         }}
       />
-
     </Stack.Navigator>
   );
 };

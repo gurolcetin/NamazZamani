@@ -9,7 +9,13 @@ const Stack = createNativeStackNavigator();
 export const SettingsStack = () => {
   const { t } = useTranslation();
   return (
-    <Stack.Navigator initialRouteName={Routes.Settings}>
+    <Stack.Navigator
+      initialRouteName={Routes.Settings}
+      screenOptions={{
+        headerBackTitle: '',
+        headerBackButtonDisplayMode: 'minimal',
+      }}
+    >
       <Stack.Screen
         name={Routes.Settings}
         component={Settings}

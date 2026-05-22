@@ -33,7 +33,6 @@ export const Authenticated = () => {
           headerBackVisible: true,
           headerTintColor: currentTheme.textColor,
           headerBackTitle: '',
-          headerBackTitleVisible: false,
           headerBackButtonDisplayMode: 'minimal',
           // headerBlurEffect: 'systemThinMaterial',
           // headerTransparent: Platform.OS === 'ios',

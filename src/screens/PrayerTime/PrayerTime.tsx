@@ -250,15 +250,16 @@ function shiftSeconds(base: Date, seconds: number) {
   return new Date(base.getTime() + seconds * 1000);
 }
 
-function isKerahatTime(seq: ReturnType<typeof buildSequence>, now = new Date()) {
+function isKerahatTime(
+  seq: ReturnType<typeof buildSequence>,
+  now = new Date(),
+) {
   const byKey = new Map(seq.map(item => [item.key, item.date] as const));
-  const fajr = byKey.get('Fajr');
   const sunrise = byKey.get('Sunrise');
   const dhuhr = byKey.get('Dhuhr');
-  const asr = byKey.get('Asr');
   const maghrib = byKey.get('Maghrib');
 
-  if (!fajr || !sunrise || !dhuhr || !asr || !maghrib) {
+  if (!sunrise || !dhuhr || !maghrib) {
     return false;
   }
 
@@ -267,17 +268,13 @@ function isKerahatTime(seq: ReturnType<typeof buildSequence>, now = new Date()) 
   const noonForbiddenStart = shiftSeconds(dhuhr, -FORTY_FIVE_MIN_SEC);
   const sunsetForbiddenStart = shiftSeconds(maghrib, -FORTY_FIVE_MIN_SEC);
 
-  // Görselde belirtilen kerahat pencereleri:
-  // 1) İmsak -> Güneş: nafile kılınmaz
-  // 2) Güneş doğumu sonrası 40-45 dk: hiçbir namaz kılınmaz
-  // 3) Öğleye yakın 30-45 dk: hiçbir namaz kılınmaz
-  // 4) İkindi -> Akşama 40-45 dk kala: nafile kılınmaz
-  // 5) Akşama son 40-45 dk: hiçbir namaz kılınmaz
+  // Kerahat pencereleri:
+  // 1) Güneşten sonra 45 dk
+  // 2) Öğleden önce 45 dk
+  // 3) Akşamdan önce 45 dk
   return (
-    isBetween(now, fajr, sunrise) ||
     isBetween(now, sunrise, sunriseForbiddenEnd) ||
     isBetween(now, noonForbiddenStart, dhuhr) ||
-    isBetween(now, asr, sunsetForbiddenStart) ||
     isBetween(now, sunsetForbiddenStart, maghrib)
   );
 }
@@ -423,7 +420,6 @@ const PrayerTimeHeader: React.FC<HeaderProps> = memo(
               )}
             </View>
           </View>
-
         </View>
 
         {showKerahatBar && (
@@ -1280,6 +1276,26 @@ export default function PrayerTime() {
     }
   }, [load]);
 
+  const handleDevTestNotification = useCallback(async () => {
+    const sent = await prayerNotificationManager.sendTestNotification({
+      title: t('notifications.testTitle'),
+      message: t('notifications.testBody'),
+    });
+
+    if (!sent) {
+      Alert.alert(
+        t('notifications.permissionDeniedTitle'),
+        t('notifications.permissionDeniedMessage'),
+      );
+      return;
+    }
+
+    Alert.alert(
+      t('notifications.testTitle'),
+      t('notifications.testScheduledMessage'),
+    );
+  }, [t]);
+
   // Timer'ı kur/yeniden kur
   const startTimer = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -1548,7 +1564,9 @@ export default function PrayerTime() {
   const nextKey = nextKeyRef.current;
   const nextLabel = prayerLabels[nextKey] ?? '';
   const currentIcon = PRAYER_TIME_ICONS[currentKeyRef.current] as any;
-  const isCritical = seqRef.current ? isKerahatTime(seqRef.current, nowTick) : false;
+  const isCritical = seqRef.current
+    ? isKerahatTime(seqRef.current, nowTick)
+    : false;
   const criticalRed = `${currentTheme.systemRed || '#FF3B30'}E6`;
   const cardBg = isCritical ? criticalRed : `${currentTheme.primary}CC`;
 
@@ -1603,6 +1621,33 @@ export default function PrayerTime() {
                   seqDateLabel={seqDateLabel}
                   hijriDateLabel={hijriDateLabel}
                 />
+                {__DEV__ && (
+                  <Pressable
+                    style={[
+                      styles.devTestNotificationButton,
+                      {
+                        backgroundColor: currentTheme.cardViewBackgroundColor,
+                        borderColor: `${currentTheme.primary}66`,
+                      },
+                    ]}
+                    onPress={handleDevTestNotification}
+                  >
+                    <Icon
+                      type={Icons.MaterialDesignIcons}
+                      name="bell-ring-outline"
+                      size={18}
+                      color={currentTheme.primary}
+                    />
+                    <Text
+                      style={[
+                        styles.devTestNotificationButtonText,
+                        { color: currentTheme.primary },
+                      ]}
+                    >
+                      {t('prayerTime.sendTestNotification')}
+                    </Text>
+                  </Pressable>
+                )}
               </>
             }
             ListFooterComponent={listFooter}
@@ -1684,6 +1729,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     position: 'relative',
+  },
+  devTestNotificationButton: {
+    marginTop: 4,
+    marginBottom: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'flex-start',
+  },
+  devTestNotificationButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
   },
   screenInner: {
     flex: 1,

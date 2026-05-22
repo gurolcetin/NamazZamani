@@ -148,7 +148,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
                       color: !isFocused
                         ? currentTheme.placeholderTextColor
                         : item?.color,
-                      fontSize: 10 * fontScaleMultiplier,
+                      fontSize: 11 * fontScaleMultiplier,
                     },
                   ]}
                   numberOfLines={1}

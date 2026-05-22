@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotification, { Importance } from 'react-native-push-notification';
 import {
+  canScheduleExactAlarms,
   check,
   request,
   PERMISSIONS,
@@ -41,25 +42,46 @@ const ANDROID_NOTIFICATION_PERMISSION: Permission =
   )?.ANDROID?.POST_NOTIFICATIONS as Permission | undefined) ??
   ('android.permission.POST_NOTIFICATIONS' as Permission);
 
-const NOTIFICATION_IDS: Record<PrayerTimeKey, string> = {
-  Fajr: '201',
-  Sunrise: '202',
-  Dhuhr: '203',
-  Asr: '204',
-  Maghrib: '205',
-  Isha: '206',
+const LEGACY_NOTIFICATION_IDS = ['201', '202', '203', '204', '205', '206'];
+const PRAYER_ID_OFFSETS: Record<PrayerTimeKey, number> = {
+  Fajr: 1,
+  Sunrise: 2,
+  Dhuhr: 3,
+  Asr: 4,
+  Maghrib: 5,
+  Isha: 6,
 };
 
 const DEFAULT_STORE_KEY = 'prayerNotifications:scheduledIds:v1';
 
-const ymd = (d: Date) => {
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${mm}-${dd}`;
+const toAndroidSchedulableId = (key: PrayerTimeKey, date: Date) => {
+  // Android native tarafta id alanı Integer.parseInt ile parse ediliyor.
+  // YYYYMMDD + vakit index'i formatı 32-bit int sınırında güvenle kalır.
+  const yyyymmdd =
+    date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+  const offset = PRAYER_ID_OFFSETS[key] ?? 0;
+  return String(yyyymmdd * 10 + offset);
 };
 
 class PrayerNotificationManager {
   private initialized = false;
+
+  private async hasAndroidExactAlarmPermission(): Promise<boolean> {
+    if (Platform.OS !== 'android') {
+      return true;
+    }
+
+    const version = Number(Platform.Version);
+    if (Number.isNaN(version) || version < 31) {
+      return true;
+    }
+
+    try {
+      return await canScheduleExactAlarms();
+    } catch {
+      return false;
+    }
+  }
 
   initialize() {
     if (this.initialized) {
@@ -99,6 +121,11 @@ class PrayerNotificationManager {
     }
 
     if (Platform.OS === 'android') {
+      const exactAlarmGranted = await this.hasAndroidExactAlarmPermission();
+      if (!exactAlarmGranted) {
+        return false;
+      }
+
       const version = Number(Platform.Version);
       if (Number.isNaN(version) || version < 33) {
         return true;
@@ -132,11 +159,14 @@ class PrayerNotificationManager {
 
     if (Platform.OS === 'android') {
       const version = Number(Platform.Version);
-      if (Number.isNaN(version) || version < 33) {
-        return true;
+      if (!Number.isNaN(version) && version >= 33) {
+        const status = await request(ANDROID_NOTIFICATION_PERMISSION);
+        if (status !== RESULTS.GRANTED) {
+          return false;
+        }
       }
-      const status = await request(ANDROID_NOTIFICATION_PERMISSION);
-      return status === RESULTS.GRANTED;
+
+      return this.hasAndroidExactAlarmPermission();
     }
 
     return false;
@@ -164,9 +194,7 @@ class PrayerNotificationManager {
       return false;
     }
 
-    const allowedSet = enabledKeys
-      ? new Set<PrayerTimeKey>(enabledKeys)
-      : null;
+    const allowedSet = enabledKeys ? new Set<PrayerTimeKey>(enabledKeys) : null;
 
     await this.clearStoredNotifications(storeKey);
 
@@ -185,9 +213,7 @@ class PrayerNotificationManager {
         return;
       }
 
-      const id = `${NOTIFICATION_IDS[entry.key] ?? entry.key}-${ymd(
-        fireDate,
-      )}`;
+      const id = toAndroidSchedulableId(entry.key, fireDate);
       if (allowedSet && !allowedSet.has(entry.key)) {
         return;
       }
@@ -212,8 +238,7 @@ class PrayerNotificationManager {
   }
 
   private async clearStoredNotifications(storeKey: string) {
-    const legacyIds = Object.values(NOTIFICATION_IDS);
-    legacyIds.forEach(id => {
+    LEGACY_NOTIFICATION_IDS.forEach(id => {
       PushNotification.cancelLocalNotification(id);
     });
     try {
@@ -230,10 +255,7 @@ class PrayerNotificationManager {
     }
   }
 
-  private async storeScheduledNotifications(
-    storeKey: string,
-    ids: string[],
-  ) {
+  private async storeScheduledNotifications(storeKey: string, ids: string[]) {
     try {
       if (!ids.length) {
         await AsyncStorage.removeItem(storeKey);
