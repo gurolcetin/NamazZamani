@@ -16,6 +16,7 @@ import {
   bottomTabMenuItems,
   defaultNativeStackNavOptions,
   BOTTOM_TAB_BANNER_AD_UNIT_ID,
+  IS_ADS_ENABLED,
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
 import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
@@ -40,6 +41,13 @@ const CustomTabBar = ({ state, navigation }: any) => {
     () => getFontScaleMultiplier(fontScalePreference),
     [fontScalePreference],
   );
+
+  useEffect(() => {
+    if (!IS_ADS_ENABLED && bannerLoaded) {
+      setBannerLoaded(false);
+    }
+  }, [bannerLoaded, setBannerLoaded]);
+
   useEffect(() => {
     if (opacity) {
       if (applicationSettings.isScrollReachToBottom) {
@@ -162,19 +170,23 @@ const CustomTabBar = ({ state, navigation }: any) => {
         )}
       </View>
 
-      <View style={[styles.bannerContainer, !bannerLoaded && styles.bannerContainerHidden]}>
-        <BannerAd
-          unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
-          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-          onAdLoaded={() => {
-            setBannerLoaded(true);
-          }}
-          onAdFailedToLoad={() => {
-            setBannerLoaded(false);
-          }}
-        />
-      </View>
+      {IS_ADS_ENABLED && (
+        <View
+          style={[styles.bannerContainer, !bannerLoaded && styles.bannerContainerHidden]}
+        >
+          <BannerAd
+            unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+            onAdLoaded={() => {
+              setBannerLoaded(true);
+            }}
+            onAdFailedToLoad={() => {
+              setBannerLoaded(false);
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 };

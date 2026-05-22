@@ -19,6 +19,7 @@ import { enableScreens } from 'react-native-screens';
 import { useTranslation } from 'react-i18next';
 import mobileAds from 'react-native-google-mobile-ads';
 import { resetHintRuntimeState } from './libs/redux/reducers/ContextualHints';
+import { IS_ADS_ENABLED } from './libs/common/constants';
 
 LogBox.ignoreLogs(['Sending...']);
 enableScreens();
@@ -53,6 +54,10 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    if (!IS_ADS_ENABLED) {
+      return;
+    }
+
     mobileAds()
       .setRequestConfiguration({
         testDeviceIdentifiers: [

@@ -28,6 +28,7 @@ import type { RootState } from '../../../../libs/redux/store';
 import {
   LanguageLocaleKeys,
   LanguagePrefix,
+  IS_DEV_FEATURES_ENABLED,
 } from '../../../../libs/common/constants';
 
 const RELIGIOUS_DAYS_URL =
@@ -641,7 +642,7 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
           <Text style={styles.title}>
             {t('prayerTime.religiousDays.title')}
           </Text>
-          {__DEV__ && (
+          {IS_DEV_FEATURES_ENABLED && (
             <View style={styles.devRow}>
               <Text style={styles.subtitle}>{formattedActiveDate}</Text>
               <View style={styles.devActions}>
@@ -666,7 +667,7 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
         </View>
       </View>
 
-      {__DEV__ && showTestDatePicker && (
+      {IS_DEV_FEATURES_ENABLED && showTestDatePicker && (
         <View style={styles.devPickerWrapper}>
           <DateTimePicker
             display={Platform.OS === 'ios' ? 'inline' : 'default'}

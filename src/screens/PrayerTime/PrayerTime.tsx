@@ -69,6 +69,7 @@ import { PrayerTimeKey, SmallCard } from '../../../libs/common/types';
 import {
   LanguageLocaleKeys,
   LanguagePrefix,
+  IS_DEV_FEATURES_ENABLED,
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
 import RamadanIcon from '../../../libs/components/svg/icons/ramadan-icon';
@@ -1621,7 +1622,7 @@ export default function PrayerTime() {
                   seqDateLabel={seqDateLabel}
                   hijriDateLabel={hijriDateLabel}
                 />
-                {__DEV__ && (
+                {IS_DEV_FEATURES_ENABLED && (
                   <Pressable
                     style={[
                       styles.devTestNotificationButton,

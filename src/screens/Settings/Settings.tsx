@@ -38,6 +38,7 @@ import {
   SettingsScreenLanguageConstants,
   ThemeSettingsConstants,
   FontSizeSettingsConstants,
+  IS_DEV_FEATURES_ENABLED,
 } from '../../../libs/common/constants';
 import { Accent, Theme, FontScaleOption } from '../../../libs/common/enums';
 import { useTheme } from '../../../libs/core/providers';
@@ -579,7 +580,7 @@ const Settings = ({}: SettingsProps) => {
   }, []);
 
   const handleLoadDebugStorage = useCallback(async () => {
-    if (!__DEV__) {
+    if (!IS_DEV_FEATURES_ENABLED) {
       return;
     }
     try {
@@ -973,7 +974,7 @@ const Settings = ({}: SettingsProps) => {
                 </Text>
               </Pressable>
 
-              {__DEV__ && (
+              {IS_DEV_FEATURES_ENABLED && (
                 <View style={styles.debugContainer}>
                   <Pressable
                     style={[

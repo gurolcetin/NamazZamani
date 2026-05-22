@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
-import { BOTTOM_TAB_BANNER_AD_UNIT_ID } from '../../common/constants';
+import {
+  BOTTOM_TAB_BANNER_AD_UNIT_ID,
+  IS_ADS_ENABLED,
+} from '../../common/constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type BottomBannerAdProps = {
@@ -11,6 +14,11 @@ type BottomBannerAdProps = {
 const BottomBannerAd: React.FC<BottomBannerAdProps> = ({ containerStyle }) => {
   const insets = useSafeAreaInsets();
   const [isLoaded, setIsLoaded] = useState(false);
+
+  if (!IS_ADS_ENABLED) {
+    return null;
+  }
+
   const spacingStyle = isLoaded
     ? {
         paddingTop: 16,
