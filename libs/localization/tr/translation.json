@@ -203,6 +203,7 @@
   "prayerTime": {
     "locationFetching": "Konum alınıyor…",
     "locationNotFound": "Konum bulunamadı",
+    "bottomTabTimeLeftLabel": "Vaktin Çıkmasına Kalan",
     "loadingTimes": "Vakitler yükleniyor…",
     "nextPrayerCountdown": "{{label}} vaktine kalan",
     "sunriseCountdown": "Güneşin doğmasına kalan",

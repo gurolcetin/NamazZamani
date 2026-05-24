@@ -23,6 +23,8 @@ import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { useSelector } from 'react-redux';
 import { FontScaleOption } from '../../../libs/common/enums';
 import { getFontScaleMultiplier } from '../../../libs/core/helpers';
+import BottomTabPrayerCountdown from './BottomTabPrayerCountdown';
+import { StackRoutes } from '../Routes';
 
 const Tab = createBottomTabNavigator();
 
@@ -72,6 +74,8 @@ const CustomTabBar = ({ state, navigation }: any) => {
       setBottomOverlayHeight(nextHeight);
     }
   };
+  const activeRouteName = state.routes?.[state.index]?.name;
+  const showPrayerCountdown = activeRouteName !== StackRoutes.PrayerTimeStack;
 
   return (
     <View
@@ -79,114 +83,127 @@ const CustomTabBar = ({ state, navigation }: any) => {
       style={[
         styles.tabBarContainer,
         {
-          paddingBottom: Math.max(insets.bottom, 6),
-          borderTopColor: currentTheme.bottomTabBorderTopColor,
-          paddingTop: Platform.OS === 'ios' ? 2 : 4,
+          backgroundColor: currentTheme.backgroundColor,
         },
       ]}
     >
-      {/* Arka plan */}
-      <Animated.View
-        pointerEvents="none"
+      {showPrayerCountdown ? <BottomTabPrayerCountdown /> : null}
+      <View
         style={[
-          StyleSheet.absoluteFill,
-          { opacity, backgroundColor: currentTheme.menuBackgroundColor },
-        ]}
-      />
-
-      {/* İçerik */}
-      <View style={styles.tabBar}>
-        {state.routes.map(
-          (
-            route: { key: React.Key | null | undefined; name: string },
-            index: number,
-          ) => {
-            const isFocused = state.index === index;
-
-            const item = bottomTabMenuItems(currentTheme).find(
-              i => i.route === route.name,
-            );
-
-            const onPress = () => {
-              const event = navigation.emit({
-                type: 'tabPress',
-                target: route.key,
-                canPreventDefault: true,
-              });
-
-              if (!isFocused && !event.defaultPrevented) {
-                navigation.navigate(route.name);
-              }
-            };
-
-            const onLongPress = () => {
-              navigation.emit({
-                type: 'tabLongPress',
-                target: route.key,
-              });
-            };
-
-            return (
-              <Pressable
-                key={route.key}
-                style={({ pressed }) => [
-                  styles.tabItem,
-                  pressed && styles.tabItemPressed,
-                ]}
-                accessibilityRole="button"
-                accessibilityState={isFocused ? { selected: true } : {}}
-                accessibilityLabel={item ? t(item.label.key) : undefined}
-                onPress={onPress}
-                onLongPress={onLongPress}
-              >
-                <Icon
-                  type={item?.type}
-                  name={item?.icon}
-                  color={
-                    !isFocused ? currentTheme.placeholderTextColor : item?.color
-                  }
-                  solid={item?.solid}
-                  size={item?.size}
-                />
-
-                <Text
-                  style={[
-                    styles.iconText,
-                    {
-                      color: !isFocused
-                        ? currentTheme.placeholderTextColor
-                        : item?.color,
-                      fontSize: 11 * fontScaleMultiplier,
-                    },
-                  ]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {item && t(item.label.key)}
-                </Text>
-              </Pressable>
-            );
+          styles.menuSurface,
+          {
+            paddingBottom: Math.max(insets.bottom, 6),
+            paddingTop: Platform.OS === 'ios' ? 2 : 4,
           },
+        ]}
+      >
+        {/* Sadece menü yüzeyi için arka plan */}
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFill,
+            { opacity, backgroundColor: currentTheme.menuBackgroundColor },
+          ]}
+        />
+
+        <View style={styles.tabBar}>
+          {state.routes.map(
+            (
+              route: { key: React.Key | null | undefined; name: string },
+              index: number,
+            ) => {
+              const isFocused = state.index === index;
+
+              const item = bottomTabMenuItems(currentTheme).find(
+                i => i.route === route.name,
+              );
+
+              const onPress = () => {
+                const event = navigation.emit({
+                  type: 'tabPress',
+                  target: route.key,
+                  canPreventDefault: true,
+                });
+
+                if (!isFocused && !event.defaultPrevented) {
+                  navigation.navigate(route.name);
+                }
+              };
+
+              const onLongPress = () => {
+                navigation.emit({
+                  type: 'tabLongPress',
+                  target: route.key,
+                });
+              };
+
+              return (
+                <Pressable
+                  key={route.key}
+                  style={({ pressed }) => [
+                    styles.tabItem,
+                    pressed && styles.tabItemPressed,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityState={isFocused ? { selected: true } : {}}
+                  accessibilityLabel={item ? t(item.label.key) : undefined}
+                  onPress={onPress}
+                  onLongPress={onLongPress}
+                >
+                  <Icon
+                    type={item?.type}
+                    name={item?.icon}
+                    color={
+                      !isFocused
+                        ? currentTheme.placeholderTextColor
+                        : item?.color
+                    }
+                    solid={item?.solid}
+                    size={item?.size}
+                  />
+
+                  <Text
+                    style={[
+                      styles.iconText,
+                      {
+                        color: !isFocused
+                          ? currentTheme.placeholderTextColor
+                          : item?.color,
+                        fontSize: 11 * fontScaleMultiplier,
+                      },
+                    ]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item && t(item.label.key)}
+                  </Text>
+                </Pressable>
+              );
+            },
+          )}
+        </View>
+
+        {IS_ADS_ENABLED && (
+          <View
+            style={[
+              styles.bannerContainer,
+              !bannerLoaded && styles.bannerContainerHidden,
+            ]}
+          >
+            <BannerAd
+              unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
+              size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+              requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+              onAdLoaded={() => {
+                setBannerLoaded(true);
+              }}
+              onAdFailedToLoad={() => {
+                setBannerLoaded(false);
+              }}
+            />
+          </View>
         )}
       </View>
-
-      {IS_ADS_ENABLED && (
-        <View
-          style={[styles.bannerContainer, !bannerLoaded && styles.bannerContainerHidden]}
-        >
-          <BannerAd
-            unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
-            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-            onAdLoaded={() => {
-              setBannerLoaded(true);
-            }}
-            onAdFailedToLoad={() => {
-              setBannerLoaded(false);
-            }}
-          />
-        </View>
-      )}
     </View>
   );
 };
@@ -220,14 +237,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderTopWidth: 1,
-    paddingHorizontal: 16,
+    alignItems: 'stretch',
+  },
+  menuSurface: {
+    width: '100%',
   },
   tabBar: {
     flexDirection: 'row',
     width: '100%',
+    paddingHorizontal: 16,
     justifyContent: 'space-around',
     alignItems: 'center',
   },

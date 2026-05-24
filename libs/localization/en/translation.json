@@ -203,6 +203,7 @@
   "prayerTime": {
     "locationFetching": "Fetching location…",
     "locationNotFound": "Location not found",
+    "bottomTabTimeLeftLabel": "Time Left Until End",
     "loadingTimes": "Loading prayer times…",
     "nextPrayerCountdown": "Time left until {{label}}",
     "sunriseCountdown": "Time left until sunrise",
