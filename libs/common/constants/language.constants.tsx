@@ -295,6 +295,18 @@ export class MissedPrayerFormLanguageConstants {
     key: 'MissedPrayerForm.NoMissedPrayer',
     defaultValue: 'Tebrikler! Kılınmamış namazınız bulunmamaktadır.',
   };
+  static GenderRequiredMessage: LanguageModel = {
+    key: 'MissedPrayerForm.GenderRequiredMessage',
+    defaultValue: 'Cinsiyetinizi seçiniz',
+  };
+  static BirthDateRequiredMessage: LanguageModel = {
+    key: 'MissedPrayerForm.BirthDateRequiredMessage',
+    defaultValue: 'Doğum tarihinizi seçiniz',
+  };
+  static EntryIntoPubertyAgeRequiredMessage: LanguageModel = {
+    key: 'MissedPrayerForm.EntryIntoPubertyAgeRequiredMessage',
+    defaultValue: 'Buluğ çağına giriş yaşınızı giriniz',
+  };
 }
 
 export class ToolsHubLanguageConstants {

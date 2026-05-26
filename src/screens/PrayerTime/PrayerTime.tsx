@@ -576,10 +576,6 @@ export default function PrayerTime() {
     (state: RootState) =>
       state.applicationSettings?.showReligiousDaysSlider ?? true,
   );
-  const prayerNotificationPreferences = useSelector(
-    (state: RootState) =>
-      state.applicationSettings?.prayerNotificationPreferences,
-  );
   const {
     prayerTimeMethod = DEFAULT_METHOD_ID,
     prayerTimeMethods = [],
@@ -829,14 +825,9 @@ export default function PrayerTime() {
     }, {} as Record<PrayerTimeKey, string>);
   }, [t]);
 
-  const enabledNotificationKeys = useMemo<PrayerTimeKey[]>(() => {
-    if (!prayerNotificationPreferences) {
-      return PRAYER_ORDER;
-    }
-    return PRAYER_ORDER.filter(
-      key => prayerNotificationPreferences[key] !== false,
-    );
-  }, [prayerNotificationPreferences]);
+  const advancedNotifications = useSelector(
+    (state: RootState) => state.advancedNotifications,
+  );
 
   // --- Date formatter'ı memoize et (ESLint uyarısı çözümü) ------------------
   const dtf = useMemo(
@@ -1123,11 +1114,23 @@ export default function PrayerTime() {
           }
         }
 
-        if (enabledNotificationKeys.length === 0) {
-          await prayerNotificationManager.syncDailyNotifications({
-            sequence: [],
+        const perPrayer = advancedNotifications?.perPrayer ?? {};
+        const silentModeDuration =
+          advancedNotifications?.silentModeDuration ?? 'off';
+        const silentModeStartedAt =
+          advancedNotifications?.silentModeStartedAt ?? null;
+
+        const anyEnabled = PRAYER_ORDER.some(k =>
+          (perPrayer[k] ?? []).some(item => item.enabled),
+        );
+
+        if (!anyEnabled) {
+          await prayerNotificationManager.syncAdvancedNotifications({
+            baseSequence: [],
+            perPrayer: perPrayer as Record<PrayerTimeKey, any>,
+            silentModeDuration,
+            silentModeStartedAt,
             buildContent: () => ({ title: '', message: '' }),
-            enabledKeys: [],
           });
           return;
         }
@@ -1184,17 +1187,44 @@ export default function PrayerTime() {
           prayerLabels,
         );
 
-        await prayerNotificationManager.syncDailyNotifications({
-          sequence,
-          buildContent: entry => ({
-            title: t('notifications.prayerReminderTitle'),
-            message: t('notifications.prayerReminderBody', {
-              label: entry.label,
-            }),
-          }),
-          enabledKeys: enabledNotificationKeys,
+        await prayerNotificationManager.syncAdvancedNotifications({
+          baseSequence: sequence,
+          perPrayer,
+          silentModeDuration,
+          silentModeStartedAt,
+          buildContent: (entry, notifItem) => {
+            const abs = Math.abs(notifItem.offsetMinutes);
+            const hrs = Math.floor(abs / 60);
+            const mins = abs % 60;
+            const timeStr =
+              hrs > 0 && mins > 0
+                ? `${hrs}s ${mins}dk`
+                : hrs > 0
+                ? `${hrs}s`
+                : `${mins}dk`;
+
+            let message: string;
+            if (notifItem.offsetMinutes < 0) {
+              message = t('notifications.prayerReminderBodyBefore', {
+                label: entry.label,
+                time: timeStr,
+              });
+            } else if (notifItem.offsetMinutes > 0) {
+              message = t('notifications.prayerReminderBodyAfter', {
+                label: entry.label,
+                time: timeStr,
+              });
+            } else {
+              message = t('notifications.prayerReminderBody', {
+                label: entry.label,
+              });
+            }
+            return {
+              title: t('notifications.prayerReminderTitle'),
+              message,
+            };
+          },
           now,
-          shiftPastToNextDay: false,
         });
       } catch (error) {
         console.warn('[prayer-time] notification sync failed', error);
@@ -1214,7 +1244,7 @@ export default function PrayerTime() {
     locationLabel,
     t,
     prayerLabels,
-    enabledNotificationKeys,
+    advancedNotifications,
   ]);
 
   // ilk yükleme

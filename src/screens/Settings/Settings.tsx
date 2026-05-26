@@ -17,7 +17,6 @@ import {
   Modal,
   Switch,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
 import { useTranslation } from 'react-i18next';
@@ -43,7 +42,6 @@ import {
 import { Accent, Theme, FontScaleOption } from '../../../libs/common/enums';
 import { useTheme } from '../../../libs/core/providers';
 import {
-  setPrayerNotificationPreference,
   setShowRamadanCountdownCard,
   setFontScalePreference,
   setShowReligiousDaysSlider,
@@ -52,8 +50,6 @@ import {
   setShowQuranAyahCard,
 } from '../../../libs/redux/reducers/ApplicationSettings';
 import { createStyles } from './style';
-import { PrayerTimeKey } from '../../../libs/common/types';
-import { prayerNotificationManager } from '../../../libs/core/helpers/prayer-notification';
 import { getFontScaleMultiplier } from '../../../libs/core/helpers';
 
 const accentOptions: Accent[] = [
@@ -83,20 +79,6 @@ const themeModeIcons: Record<Theme, MaterialDesignIconsThemeName> = {
   [Theme.SYSTEM]: 'cellphone-cog',
 };
 
-const PRAYER_NOTIFICATION_ORDER: PrayerTimeKey[] = [
-  'Fajr',
-  'Sunrise',
-  'Dhuhr',
-  'Asr',
-  'Maghrib',
-  'Isha',
-];
-
-type NotificationToggleItem = {
-  key: PrayerTimeKey;
-  label: string;
-  enabled: boolean;
-};
 
 const normalizeLanguageKey = (value?: string | null) =>
   (value ?? LanguagePrefix.TURKISH).slice(0, 2);
@@ -219,14 +201,8 @@ const Settings = ({}: SettingsProps) => {
   const showHadithCard = applicationSettings?.showHadithCard ?? true;
   const showQuranAyahCard =
     applicationSettings?.showQuranAyahCard ?? true;
-  const prayerNotificationPreferences =
-    applicationSettings?.prayerNotificationPreferences;
-  const [isNotificationCardOpen, setIsNotificationCardOpen] =
-    useState<boolean>(false);
   const [isApplicationSettingsOpen, setIsApplicationSettingsOpen] =
     useState<boolean>(false);
-  const [notificationPermissionGranted, setNotificationPermissionGranted] =
-    useState<boolean>(true);
   const [debugStorageEntries, setDebugStorageEntries] = useState<
     DebugStorageEntry[]
   >([]);
@@ -280,32 +256,6 @@ const Settings = ({}: SettingsProps) => {
     languageOptions.find(option => option.key === selectedLanguage) ||
     languageOptions[0];
 
-  const notificationItems = useMemo<NotificationToggleItem[]>(
-    () =>
-      PRAYER_NOTIFICATION_ORDER.map(key => ({
-        key,
-        label: t(`prayerNames.${key}`),
-        enabled: prayerNotificationPreferences?.[key] !== false,
-      })),
-    [prayerNotificationPreferences, t],
-  );
-
-  const notificationRows = useMemo(
-    () =>
-      notificationItems.reduce<
-        Array<{ left: NotificationToggleItem; right?: NotificationToggleItem }>
-      >((rows, _, index) => {
-        if (index % 2 === 0) {
-          rows.push({
-            left: notificationItems[index],
-            right: notificationItems[index + 1],
-          });
-        }
-        return rows;
-      }, []),
-    [notificationItems],
-  );
-
   const fontSizeOptions = useMemo(
     () => [
       {
@@ -332,57 +282,10 @@ const Settings = ({}: SettingsProps) => {
   const smallIconSize = 18 * fontScaleMultiplier;
   const largeIconSize = 22 * fontScaleMultiplier;
 
-  const areAllNotificationsEnabled = useMemo(
-    () =>
-      notificationPermissionGranted &&
-      notificationItems.every(item => item.enabled),
-    [notificationItems, notificationPermissionGranted],
-  );
-
   const versionLabel = useMemo(() => {
     const version = DeviceInfo.getVersion();
     return version;
   }, []);
-
-  const refreshNotificationPermissionStatus = useCallback(async () => {
-    const granted = await prayerNotificationManager.hasPermission();
-    setNotificationPermissionGranted(granted);
-    return granted;
-  }, []);
-
-  useEffect(() => {
-    refreshNotificationPermissionStatus();
-  }, [refreshNotificationPermissionStatus]);
-
-  useFocusEffect(
-    useCallback(() => {
-      refreshNotificationPermissionStatus();
-    }, [refreshNotificationPermissionStatus]),
-  );
-
-  const requestNotificationPermission = useCallback(async () => {
-    const granted = await prayerNotificationManager.requestPermission();
-    setNotificationPermissionGranted(granted);
-    if (!granted) {
-      Alert.alert(
-        t('notifications.permissionDeniedTitle'),
-        t('notifications.permissionDeniedMessage'),
-        [
-          {
-            text: t('notifications.goToSettingsButton'),
-            onPress: () => {
-              Linking.openSettings().catch(() => {});
-            },
-          },
-          {
-            text: t('notifications.cancelButton'),
-            style: 'cancel',
-          },
-        ],
-      );
-    }
-    return granted;
-  }, [t]);
 
   const handleLanguageChange = useCallback(
     (lang: string) => {
@@ -445,62 +348,6 @@ const Settings = ({}: SettingsProps) => {
     },
     [dispatch],
   );
-
-  const applyNotificationPreference = useCallback(
-    (key: PrayerTimeKey, enabled: boolean) => {
-      dispatch(setPrayerNotificationPreference({ key, enabled }));
-    },
-    [dispatch],
-  );
-
-  const handleNotificationToggle = useCallback(
-    async (key: PrayerTimeKey, enabled: boolean) => {
-      if (enabled) {
-        let granted = notificationPermissionGranted;
-        if (granted) {
-          granted = await refreshNotificationPermissionStatus();
-        }
-        if (!granted) {
-          granted = await requestNotificationPermission();
-        }
-        if (!granted) {
-          return;
-        }
-      }
-      applyNotificationPreference(key, enabled);
-    },
-    [
-      notificationPermissionGranted,
-      refreshNotificationPermissionStatus,
-      requestNotificationPermission,
-      applyNotificationPreference,
-    ],
-  );
-
-  const handleToggleAllNotifications = useCallback(async () => {
-    const nextValue = !areAllNotificationsEnabled;
-    if (nextValue) {
-      let granted = notificationPermissionGranted;
-      if (granted) {
-        granted = await refreshNotificationPermissionStatus();
-      }
-      if (!granted) {
-        granted = await requestNotificationPermission();
-      }
-      if (!granted) {
-        return;
-      }
-    }
-    PRAYER_NOTIFICATION_ORDER.forEach(prayerKey => {
-      applyNotificationPreference(prayerKey, nextValue);
-    });
-  }, [
-    areAllNotificationsEnabled,
-    notificationPermissionGranted,
-    refreshNotificationPermissionStatus,
-    requestNotificationPermission,
-    applyNotificationPreference,
-  ]);
 
   const applicationToggleItems = useMemo<ApplicationToggleItem[]>(
     () => [
@@ -654,114 +501,6 @@ const Settings = ({}: SettingsProps) => {
                   color={currentTheme.textColor}
                 />
               </Pressable>
-            </View>
-
-            {/* Bildirim kartı */}
-            <View style={styles.card}>
-              <Pressable
-                onPress={() => setIsNotificationCardOpen(prev => !prev)}
-                style={styles.notificationHeader}
-                android_ripple={{ color: currentTheme.gray, borderless: false }}
-              >
-                <View style={styles.notificationHeaderLeft}>
-                  <View style={styles.notificationIconWrap}>
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="bell-outline"
-                      size={defaultIconSize}
-                      color={currentTheme.textColor}
-                    />
-                  </View>
-                  <View style={styles.notificationHeaderTexts}>
-                    <Text style={styles.notificationHeaderTitle}>
-                      {t(
-                        SettingsScreenLanguageConstants
-                          .NotificationSettingsTitle.key,
-                      )}
-                    </Text>
-                    <Text style={styles.notificationSubtitle}>
-                      {t(
-                        SettingsScreenLanguageConstants
-                          .NotificationSettingsSubtitle.key,
-                      )}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.notificationHeaderRight}>
-                  <Pressable
-                    onPress={event => {
-                      event.stopPropagation();
-                      handleToggleAllNotifications();
-                    }}
-                    style={styles.notificationChip}
-                    android_ripple={{
-                      color: `${currentTheme.primary}22`,
-                      borderless: false,
-                    }}
-                  >
-                    <Text style={styles.notificationChipText}>
-                      {t(
-                        areAllNotificationsEnabled
-                          ? 'common.turnOffAll'
-                          : 'common.turnOnAll',
-                      )}
-                    </Text>
-                  </Pressable>
-                  <Icon
-                    type={Icons.MaterialDesignIcons}
-                    name={
-                      isNotificationCardOpen ? 'chevron-up' : 'chevron-down'
-                    }
-                    size={defaultIconSize}
-                    color={currentTheme.textColor}
-                  />
-                </View>
-              </Pressable>
-              {isNotificationCardOpen && (
-                <View style={styles.notificationGrid}>
-                  {notificationRows.map(row => (
-                    <View style={styles.notificationRow} key={row.left.key}>
-                      {[row.left, row.right].map((item, idx) =>
-                        item ? (
-                          <View key={item.key} style={styles.notificationCell}>
-                            <Text style={styles.notificationLabel}>
-                              {item.label}
-                            </Text>
-                            <Switch
-                              value={
-                                notificationPermissionGranted
-                                  ? item.enabled
-                                  : false
-                              }
-                              onValueChange={value =>
-                                handleNotificationToggle(item.key, value)
-                              }
-                              trackColor={{
-                                false: `${currentTheme.gray}33`,
-                                true: currentTheme.primary,
-                              }}
-                              thumbColor={
-                                item.enabled
-                                  ? currentTheme.white
-                                  : currentTheme.cardViewBackgroundColor
-                              }
-                              ios_backgroundColor={`${currentTheme.gray}33`}
-                            />
-                          </View>
-                        ) : (
-                          <View
-                            key={`placeholder-${row.left.key}-${idx}`}
-                            style={[
-                              styles.notificationCell,
-                              styles.notificationCellPlaceholder,
-                            ]}
-                          />
-                        ),
-                      )}
-                    </View>
-                  ))}
-                </View>
-              )}
             </View>
 
             {/* Tema + Accent */}

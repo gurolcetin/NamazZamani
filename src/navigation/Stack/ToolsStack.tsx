@@ -9,6 +9,8 @@ import Dhikr from '../../screens/Dhikr/Dhikr';
 import MonthlyCalendar from '../../screens/PrayerTime/MontlyCalendar/montly-calendar';
 import TimeTable from '../../screens/PrayerTime/time-table/time-table';
 import QiblaScreen from '../../screens/PrayerTime/qibla/qibla-finder';
+import PrayerNotificationsHub from '../../screens/Notifications/PrayerNotificationsHub';
+import PrayerNotificationDetail from '../../screens/Notifications/PrayerNotificationDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +72,21 @@ export const ToolsStack = () => {
         options={{
           headerTitle: t('actionCardGroup.qibla'),
         }}
+      />
+      <Stack.Screen
+        name={ToolsRoutes.PrayerNotifications}
+        component={PrayerNotificationsHub}
+        options={{
+          headerTitle: t('toolsHub.prayerNotificationsTitle'),
+        }}
+      />
+      <Stack.Screen
+        name={ToolsRoutes.PrayerNotificationDetail}
+        component={PrayerNotificationDetail}
+        options={({ route }: any) => ({
+          headerShown: true,
+          headerTitle: t(`prayerNames.${route.params?.prayerKey ?? 'Fajr'}`) + ' ' + t('notifications.detail.headerSuffix'),
+        })}
       />
     </Stack.Navigator>
   );

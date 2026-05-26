@@ -17,6 +17,8 @@ export const ToolsRoutes = {
   MontlyCalendar: 'MontlyCalendar',
   Imsakiye: 'Imsakiye',
   Qibla: 'Qibla',
+  PrayerNotifications: 'ToolsPrayerNotifications',
+  PrayerNotificationDetail: 'ToolsPrayerNotificationDetail',
 };
 
 export const StackRoutes = {

@@ -106,7 +106,15 @@ const PrayerForm: React.FC<PrayerFormProps> = ({ onWarningDetected }) => {
   const noMissedPrayer = t(
     MissedPrayerFormLanguageConstants.NoMissedPrayer.key,
   );
-  const requiredMessage = t(GeneralLanguageConstants.RequiredMessage.key);
+  const genderRequiredMessage = t(
+    MissedPrayerFormLanguageConstants.GenderRequiredMessage.key,
+  );
+  const birthDateRequiredMessage = t(
+    MissedPrayerFormLanguageConstants.BirthDateRequiredMessage.key,
+  );
+  const pubertyAgeRequiredMessage = t(
+    MissedPrayerFormLanguageConstants.EntryIntoPubertyAgeRequiredMessage.key,
+  );
   const pubertyValidateMessage = t(
     MissedPrayerFormLanguageConstants.EntryIntoPubertyAgeValidateMessage.key,
   );
@@ -225,7 +233,7 @@ const PrayerForm: React.FC<PrayerFormProps> = ({ onWarningDetected }) => {
               <Controller
                 control={control}
                 name="gender"
-                rules={{ required: requiredMessage }}
+                rules={{ required: genderRequiredMessage }}
                 render={({ field: { value, onChange } }) => (
                   <FormSegmentedControl
                     options={[
@@ -299,7 +307,7 @@ const PrayerForm: React.FC<PrayerFormProps> = ({ onWarningDetected }) => {
               <Controller
                 control={control}
                 name="date"
-                rules={{ required: requiredMessage }}
+                rules={{ required: birthDateRequiredMessage }}
                 render={({ field: { value, onChange } }) => (
                   <>
                     <Pressable
@@ -367,7 +375,7 @@ const PrayerForm: React.FC<PrayerFormProps> = ({ onWarningDetected }) => {
                 control={control}
                 name="entryIntoPubertyAge"
                 rules={{
-                  required: requiredMessage,
+                  required: pubertyAgeRequiredMessage,
                   validate: value => {
                     if (!isNullOrEmptyString(value)) {
                       const numeric = Number(value);
@@ -463,7 +471,6 @@ const PrayerForm: React.FC<PrayerFormProps> = ({ onWarningDetected }) => {
 
       <ErrorView
         message={submitErrorMessages}
-        duration={3}
         style={styles.errorMessage}
       />
     </>
