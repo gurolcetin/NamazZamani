@@ -53,7 +53,7 @@ export async function fetchMonthlyPrayerTimesByCoords(
   const key = `${year}-${String(month1to12).padStart(
     2,
     '0',
-  )}@${latitude.toFixed(3)},${longitude.toFixed(3)}@${methodId}@${tz}`;
+  )}@${latitude.toFixed(2)},${longitude.toFixed(2)}@${methodId}@${tz}`;
   const cached = monthCache.get(key);
   if (cached) return cached;
   try {

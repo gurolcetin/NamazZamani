@@ -104,7 +104,7 @@ const PRAYER_ORDER: PrayerTimeKey[] = [
 
 type LatLng = { lat: number; lon: number };
 
-const LOCATION_CHANGE_THRESHOLD_KM = 3; // şehir değişimi için yaklaşık eşik
+const LOCATION_CHANGE_THRESHOLD_KM = 7; // şehir değişimi için yaklaşık eşik
 const PRAYER_NAME_KEYS: Record<PrayerTimeKey, string> = {
   Fajr: 'prayerNames.Fajr',
   Sunrise: 'prayerNames.Sunrise',
