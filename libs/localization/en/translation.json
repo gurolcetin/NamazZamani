@@ -356,6 +356,7 @@
     "emptySaved": "No saved locations yet. Search to add a new location.",
     "searchPlaceholder": "Search city / district / neighborhood",
     "searchResults": "Search Results",
+    "locationIqAttribution": "Search by LocationIQ",
     "noResults": "No results found.",
     "selected": "Selected",
     "locationSelect": "Select Location",

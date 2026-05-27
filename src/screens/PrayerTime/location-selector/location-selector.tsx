@@ -4,6 +4,7 @@ import {
   Alert,
   AppState,
   FlatList,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -1186,9 +1187,23 @@ export default function LocationSelector() {
               >
                 {t('locationSelector.searchResults')}
               </Text>
-              {searching && (
-                <ActivityIndicator size="small" color={currentTheme.primary} />
-              )}
+              <View style={styles.sectionHeaderRight}>
+                <Pressable
+                  onPress={() => Linking.openURL('https://locationiq.com')}
+                >
+                  <Text
+                    style={[
+                      styles.attributionText,
+                      { color: currentTheme.textColor },
+                    ]}
+                  >
+                    {t('locationSelector.locationIqAttribution')}
+                  </Text>
+                </Pressable>
+                {searching && (
+                  <ActivityIndicator size="small" color={currentTheme.primary} />
+                )}
+              </View>
             </View>
             {results.length === 0 ? (
               <Text
@@ -1408,6 +1423,11 @@ const createStyles = (fontScaleMultiplier: number) => StyleSheet.create({
     paddingBottom: 6,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sectionHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   sectionTitle: {
@@ -1545,6 +1565,11 @@ const createStyles = (fontScaleMultiplier: number) => StyleSheet.create({
   searchListContent: {
     paddingHorizontal: 16,
     paddingBottom: 24,
+  },
+  attributionText: {
+    fontSize: 11 * fontScaleMultiplier,
+    opacity: 0.7,
+    textDecorationLine: 'underline',
   },
   methodModalOverlay: {
     flex: 1,
