@@ -494,18 +494,6 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     [t],
   );
 
-  const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (!slideWidth) return;
-    const index = Math.round(e.nativeEvent.contentOffset.x / slideWidth);
-    setActiveIndex(index);
-  };
-
-  useEffect(() => {
-    if (!slideWidth) return;
-    setActiveIndex(0);
-    scrollRef.current?.scrollTo({ x: 0, animated: false });
-  }, [slideWidth, startOfActiveDay, religiousDays.length]);
-
   const formatDate = (date: Date | null): string => {
     if (!date) return '-';
     return date.toLocaleDateString(dateLocale, {
@@ -525,6 +513,48 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
       );
     });
   }, [religiousDays, startOfActiveDay]);
+
+  // Extended list for infinite loop: [last, ...items, first]
+  const extendedEvents = useMemo(() => {
+    if (upcomingEvents.length <= 1) return upcomingEvents;
+    return [
+      upcomingEvents[upcomingEvents.length - 1],
+      ...upcomingEvents,
+      upcomingEvents[0],
+    ];
+  }, [upcomingEvents]);
+
+  const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (!slideWidth) return;
+    const offsetX = e.nativeEvent.contentOffset.x;
+    const extendedIndex = Math.round(offsetX / slideWidth);
+    const count = upcomingEvents.length;
+
+    if (count <= 1) {
+      setActiveIndex(0);
+      return;
+    }
+
+    if (extendedIndex === 0) {
+      // Cloned last item — silently jump to the real last item
+      scrollRef.current?.scrollTo({ x: slideWidth * count, animated: false });
+      setActiveIndex(count - 1);
+    } else if (extendedIndex === count + 1) {
+      // Cloned first item — silently jump to the real first item
+      scrollRef.current?.scrollTo({ x: slideWidth * 1, animated: false });
+      setActiveIndex(0);
+    } else {
+      setActiveIndex(extendedIndex - 1);
+    }
+  };
+
+  useEffect(() => {
+    if (!slideWidth) return;
+    setActiveIndex(0);
+    // Start at index 1 to skip the prepended clone
+    const initialOffset = upcomingEvents.length > 1 ? slideWidth * 1 : 0;
+    scrollRef.current?.scrollTo({ x: initialOffset, animated: false });
+  }, [slideWidth, startOfActiveDay, upcomingEvents.length]);
 
   const renderEventSlide = (event: ReligiousDayInstance) => {
     const countdown = formatRemaining(now, event.date, currentLanguage);
@@ -608,11 +638,20 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
               showsHorizontalScrollIndicator={false}
               onMomentumScrollEnd={handleScrollEnd}
             >
-              {upcomingEvents.map(event => (
-                <View key={event.instanceId} style={{ width: slideWidth }}>
-                  {renderEventSlide(event)}
-                </View>
-              ))}
+              {extendedEvents.map((event, idx) => {
+                const key =
+                  idx === 0 && upcomingEvents.length > 1
+                    ? `clone-last-${event.instanceId}`
+                    : idx === extendedEvents.length - 1 &&
+                      upcomingEvents.length > 1
+                    ? `clone-first-${event.instanceId}`
+                    : event.instanceId;
+                return (
+                  <View key={key} style={{ width: slideWidth }}>
+                    {renderEventSlide(event)}
+                  </View>
+                );
+              })}
             </ScrollView>
           )}
         </View>

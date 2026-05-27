@@ -12,6 +12,10 @@ import {
   type Permission,
 } from 'react-native-permissions';
 import { PrayerTimeKey } from '../../common/types';
+import type {
+  NotificationItem,
+  SilentModeDuration,
+} from '../../redux/reducers/AdvancedNotifications';
 
 type SequenceEntry = {
   key: PrayerTimeKey;
@@ -34,6 +38,24 @@ type SyncOptions = {
 };
 
 const CHANNEL_ID = 'prayer-call-channel';
+
+// Per-sound channel IDs for Android (sound is set at channel level on Android 8+)
+const SOUND_CHANNEL_IDS: Record<string, string> = {
+  default: 'prayer-call-channel',
+  big_bell: 'prayer-call-channel-big-bell',
+};
+
+function getChannelId(sound: string): string {
+  return SOUND_CHANNEL_IDS[sound] ?? CHANNEL_ID;
+}
+
+// Android: soundName = filename without extension (from res/raw/)
+// iOS: soundName = filename with extension (from app bundle)
+function resolveSoundName(sound: string): string {
+  if (sound === 'default') return 'default';
+  return Platform.OS === 'ios' ? `${sound}.mp3` : sound;
+}
+
 const ANDROID_NOTIFICATION_PERMISSION: Permission =
   ((
     PERMISSIONS as unknown as {
@@ -53,6 +75,40 @@ const PRAYER_ID_OFFSETS: Record<PrayerTimeKey, number> = {
 };
 
 const DEFAULT_STORE_KEY = 'prayerNotifications:scheduledIds:v1';
+const ADVANCED_STORE_KEY = 'prayerNotifications:advanced:scheduledIds:v1';
+const ADVANCED_ID_OFFSET = 500000;
+
+const SILENT_MODE_DURATIONS_MS: Record<SilentModeDuration, number> = {
+  off: 0,
+  '1h': 60 * 60 * 1000,
+  '2h': 2 * 60 * 60 * 1000,
+  '5h': 5 * 60 * 60 * 1000,
+  '12h': 12 * 60 * 60 * 1000,
+  '1d': 24 * 60 * 60 * 1000,
+  '7d': 7 * 24 * 60 * 60 * 1000,
+};
+
+// Maps JS Date.getDay() (0=Sun) to our day index (0=Mon, 6=Sun)
+const jsDayToOurDay = (jsDay: number): number => (jsDay + 6) % 7;
+
+type AdvancedSequenceEntry = {
+  key: PrayerTimeKey;
+  label: string;
+  date: Date;
+};
+
+type AdvancedSyncOptions = {
+  baseSequence: AdvancedSequenceEntry[];
+  perPrayer: Record<PrayerTimeKey, NotificationItem[]>;
+  silentModeDuration: SilentModeDuration;
+  silentModeStartedAt: string | null;
+  buildContent: (
+    entry: AdvancedSequenceEntry,
+    item: NotificationItem,
+  ) => NotificationContent;
+  now?: Date;
+  storeKey?: string;
+};
 
 const toAndroidSchedulableId = (key: PrayerTimeKey, date: Date) => {
   // Android native tarafta id alanı Integer.parseInt ile parse ediliyor.
@@ -104,6 +160,19 @@ class PrayerNotificationManager {
             'Plays an audible reminder when a prayer time arrives.',
           playSound: true,
           soundName: 'default',
+          importance: Importance.HIGH,
+          vibrate: true,
+        },
+        () => {},
+      );
+      PushNotification.createChannel(
+        {
+          channelId: SOUND_CHANNEL_IDS.big_bell,
+          channelName: 'Prayer Call Alerts (Big Bell)',
+          channelDescription:
+            'Plays the Big Bell sound when a prayer time arrives.',
+          playSound: true,
+          soundName: 'big_bell',
           importance: Importance.HIGH,
           vibrate: true,
         },
@@ -290,6 +359,93 @@ class PrayerNotificationManager {
       date: new Date(Date.now() + delayMs),
       userInfo: { type: 'prayer-test' },
     });
+    return true;
+  }
+
+  isSilentModeActive(
+    duration: SilentModeDuration,
+    startedAt: string | null,
+    now: Date = new Date(),
+  ): boolean {
+    if (duration === 'off') return false;
+    if (!startedAt) return false;
+    const start = new Date(startedAt).getTime();
+    const durationMs = SILENT_MODE_DURATIONS_MS[duration] ?? 0;
+    return now.getTime() < start + durationMs;
+  }
+
+  async syncAdvancedNotifications({
+    baseSequence,
+    perPrayer,
+    silentModeDuration,
+    silentModeStartedAt,
+    buildContent,
+    now = new Date(),
+    storeKey = ADVANCED_STORE_KEY,
+  }: AdvancedSyncOptions): Promise<boolean> {
+    this.initialize();
+
+    // Check if any notification is enabled
+    const anyEnabled = (Object.keys(perPrayer) as PrayerTimeKey[]).some(
+      key => perPrayer[key]?.some(item => item.enabled),
+    );
+
+    if (!anyEnabled) {
+      await this.clearStoredNotifications(storeKey);
+      return false;
+    }
+
+    if (this.isSilentModeActive(silentModeDuration, silentModeStartedAt, now)) {
+      await this.clearStoredNotifications(storeKey);
+      return false;
+    }
+
+    const granted = await this.requestPermission();
+    if (!granted) {
+      return false;
+    }
+
+    await this.clearStoredNotifications(storeKey);
+
+    const scheduledIds: string[] = [];
+    baseSequence.forEach((entry, entryIndex) => {
+      const items = perPrayer[entry.key] ?? [];
+      items.forEach((notifItem, itemIndex) => {
+        if (!notifItem.enabled) return;
+
+        // Check day of week (days[0]=Mon, days[6]=Sun)
+        const dayOfWeek = jsDayToOurDay(entry.date.getDay());
+        if (!notifItem.days[dayOfWeek]) return;
+
+        const fireDate = new Date(
+          entry.date.getTime() + notifItem.offsetMinutes * 60 * 1000,
+        );
+        if (fireDate <= now) return;
+
+        const content = buildContent(entry, notifItem);
+        if (!content?.message) return;
+
+        const numericId = ADVANCED_ID_OFFSET + entryIndex * 20 + itemIndex;
+        const id = String(numericId);
+
+        PushNotification.localNotificationSchedule({
+          id,
+          channelId: getChannelId(notifItem.sound),
+          allowWhileIdle: true,
+          autoCancel: true,
+          playSound: true,
+          soundName: resolveSoundName(notifItem.sound),
+          importance: 'high',
+          title: content.title,
+          message: content.message,
+          date: fireDate,
+          userInfo: { type: 'prayer', prayerKey: entry.key },
+        });
+        scheduledIds.push(id);
+      });
+    });
+
+    await this.storeScheduledNotifications(storeKey, scheduledIds);
     return true;
   }
 }

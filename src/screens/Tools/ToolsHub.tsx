@@ -95,6 +95,17 @@ const FEATURES: Feature[] = [
     categories: ['all', 'other'],
     available: true,
   },
+  {
+    id: 'prayerNotifications',
+    titleKey: 'toolsHub.prayerNotificationsTitle',
+    descriptionKey: 'toolsHub.prayerNotificationsDescription',
+    icon: 'bell-badge-outline',
+    gradientStart: '#1BB89D',
+    gradientEnd: '#0A7A69',
+    route: ToolsRoutes.PrayerNotifications,
+    categories: ['all', 'prayer'],
+    available: true,
+  },
   //   {
   //     id: 'tasbih',
   //     titleKey: 'toolsHub.tasbihTitle',

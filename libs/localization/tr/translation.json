@@ -121,7 +121,7 @@
     "missedTrackingDescription": "Namaz ve oruç kazalarını hesapla, takip et.",
     "dhikrTitle": "Zikir",
     "dhikrDescription": "Günlük zikirlerini ve namaz tesbihatlarını takip et.",
-    "monthlyCalendarTitle": "Tarih Göre Namaz Vakitleri",
+    "monthlyCalendarTitle": "Tarihe Göre Namaz Vakitleri",
     "monthlyCalendarDescription": "İstediğin tarihin namaz vakitlerini hızlıca görüntüle.",
     "imsakiyeTitle": "İmsakiye",
     "imsakiyeDescription": "Seçtiğin konumun aylık namaz vakitlerini görüntüle.",
@@ -131,7 +131,9 @@
     "qiblaDescription": "Bulunduğun yerden kıble yönünü bul.",
     "calcTitle": "Hesaplama Araçları",
     "calcDescription": "Zekat, fitre ve diğer hesaplamaları yap.",
-    "comingSoon": "Yakında..."
+    "comingSoon": "Yakında...",
+    "prayerNotificationsTitle": "Namaz Bildirimleri",
+    "prayerNotificationsDescription": "Her vakit için özelleştirilmiş bildirimler ayarla."
   },
   "MissedTracking": {
     "PrayerTracking": "Namaz Takip",
@@ -149,6 +151,9 @@
     "NumberofMissedPrayerBirthDatePubertyError": "Doğum tarihi, kılınan namaz sayısı ve buluğ çağına giriş yaşının toplamları bugünün tarihinden büyük olamaz!",
     "MissedPrayerNotCalculatedError": "Kılınan namaz sayısı hesaplanamadı. Lütfen bilgilerinizi kontrol ediniz.",
     "NoMissedPrayer": "Tebrikler! Kılınmamış namazınız bulunmamaktadır.",
+    "GenderRequiredMessage": "Cinsiyetinizi seçiniz",
+    "BirthDateRequiredMessage": "Doğum tarihinizi seçiniz",
+    "EntryIntoPubertyAgeRequiredMessage": "Buluğ çağına giriş yaşınızı giriniz",
     "PerformedPrayerCountLabel": "Kılınan Toplam {{name}} Namazı Sayısı: {{count}}"
   },
   "FastingForm": {
@@ -426,6 +431,8 @@
   "notifications": {
     "prayerReminderTitle": "Namaz Vakti Hatırlatıcısı",
     "prayerReminderBody": "{{label}} vakti girdi.",
+    "prayerReminderBodyBefore": "{{label}} vaktine {{time}} kaldı.",
+    "prayerReminderBodyAfter": "{{label}} vaktinin üzerinden {{time}} geçti.",
     "permissionDeniedTitle": "İzin gerekli",
     "permissionDeniedMessage": "Ezan bildirimlerini duyabilmek için bildirim iznini açmalısın.",
     "goToSettingsButton": "Ayarlara Git",
@@ -433,7 +440,67 @@
     "testTitle": "Test Namaz Bildirimi",
     "testBody": "Sesli ezan bildirimi bu şekilde görünecek.",
     "testScheduledTitle": "Test planlandı",
-    "testScheduledMessage": "Birkaç saniye içinde deneme bildirimi çalacak."
+    "testScheduledMessage": "Birkaç saniye içinde deneme bildirimi çalacak.",
+    "hub": {
+      "title": "Namaz Bildirimleri",
+      "subtitle": "Bildirimlerini kolayca yönet.",
+      "chipActiveNotifs": "Aktif Bildirim",
+      "allNotifs": "Tüm Bildirimler",
+          "allNotifs": "Tüm Bildirimler",
+      "chipSilentMode": "Sessiz Mod",
+      "prayersSection": "Vakitler",
+      "disableAll": "Tüm Bildirimleri Kapat",
+      "enableAll": "Tüm Bildirimleri Aç",
+      "active": "Aktif",
+      "notifCount": "{{count}} bildirim aktif",
+      "noneActive": "Bildirim yok",
+      "silentModeTitle": "Sessiz Mod Süresi",
+      "silentModeDesc": "Seçilen süre boyunca tüm bildirimler geçici olarak durdurulur."
+    },
+    "silentMode": {
+      "off": "Kapalı",
+      "1h": "1 Saat",
+      "2h": "2 Saat",
+      "5h": "5 Saat",
+      "12h": "12 Saat",
+      "1d": "1 Gün",
+      "7d": "7 Gün"
+    },
+    "detail": {
+      "headerSuffix": "Bildirimleri",
+      "prayerDisabledDesc": "Bildirimler kapalı",
+      "flowTitle": "Bildirim Akışı",
+      "atPrayerTime": "Vakit Ezanı",
+      "before": "{{time}} önce",
+      "after": "{{time}} sonra",
+      "hour": "saat",
+      "minute": "dakika",
+      "minuteShort": "dk",
+      "disabled": "Kapalı",
+      "addButton": "Yeni bildirim ekle",
+      "addSheetTitle": "Yeni Bildirim Ekle",
+      "addSheetSubtitle": "Vakitten önce veya sonra bildirim zamanı seç.",
+      "beforeLabel": "Vakitten Önce",
+      "afterLabel": "Vakitten Sonra",
+      "addConfirm": "Ekle",
+      "settingsTitle": "Bildirim Ayarları",
+      "sound": "Ses",
+      "soundDefault": "Varsayılan",
+          "sound_default": "Varsayılan",
+          "sound_big_bell": "Büyük Zil",
+          "soundPreviewTitle": "Ses Önizleme",
+          "soundPreviewMessage": "Bildirim sesi bu şekilde gelecek.",
+      "snooze": "Tekrar (Snooze)",
+      "snoozeOff": "Kapalı",
+      "daysTitle": "Günler",
+      "allDaysActive": "Tüm günler aktif",
+      "activateAllDays": "Tüm günleri aç",
+      "deleteTitle": "Bildirimi Sil",
+      "deleteMessage": "Bu bildirimi silmek istiyor musunuz?",
+      "deleteConfirm": "Sil",
+      "duplicateTitle": "Zaten Mevcut",
+      "duplicateMessage": "Bu vakitte zaten bir bildirim mevcut."
+    }
   },
   "updates": {
     "optional": {

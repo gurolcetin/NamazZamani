@@ -121,7 +121,7 @@
     "missedTrackingDescription": "Calculate missed prayers and fasts based on your information.",
     "dhikrTitle": "Dhikr",
     "dhikrDescription": "Create and track your dhikr counts with a customizable digital counter.",
-    "monthlyCalendarTitle": "Monthly Calendar",
+    "monthlyCalendarTitle": "Date-Based Prayer Times",
     "monthlyCalendarDescription": "View prayer times for any date with the monthly calendar.",
     "imsakiyeTitle": "Prayer Timetable",
     "imsakiyeDescription": "View a monthly timetable of prayer times for any location and date.",
@@ -131,7 +131,9 @@
     "qiblaDescription": "Find the Qibla direction from your location.",
     "calcTitle": "Calculation Tools",
     "calcDescription": "Calculate Zakat, Fitre and other religious amounts.",
-    "comingSoon": "Coming Soon..."
+    "comingSoon": "Coming Soon...",
+    "prayerNotificationsTitle": "Prayer Notifications",
+    "prayerNotificationsDescription": "Set up customized alerts for each prayer time."
   },
   "MissedTracking": {
     "PrayerTracking": "Prayer Tracking",
@@ -149,6 +151,9 @@
     "NumberofMissedPrayerBirthDatePubertyError": "The sum of the date of birth, the number of prayers performed and the age of puberty cannot be greater than today's date!",
     "MissedPrayerNotCalculatedError": "The number of missed prayers could not be calculated. Please check your information.",
     "NoMissedPrayer": "Congratulations! You have no missed prayers.",
+    "GenderRequiredMessage": "Please select your gender",
+    "BirthDateRequiredMessage": "Please select your date of birth",
+    "EntryIntoPubertyAgeRequiredMessage": "Please enter your age at puberty",
     "PerformedPrayerCountLabel": "Total {{name}} prayers completed: {{count}}"
   },
   "FastingForm": {
@@ -426,6 +431,8 @@
   "notifications": {
     "prayerReminderTitle": "Prayer Reminder",
     "prayerReminderBody": "{{label}} prayer time has started.",
+    "prayerReminderBodyBefore": "{{time}} until {{label}} prayer.",
+    "prayerReminderBodyAfter": "{{time}} since {{label}} prayer.",
     "permissionDeniedTitle": "Permission Needed",
     "permissionDeniedMessage": "Allow notifications to hear the adhan reminders.",
     "goToSettingsButton": "Open Settings",
@@ -433,7 +440,66 @@
     "testTitle": "Test Prayer Reminder",
     "testBody": "This is how the audible adhan notification will look.",
     "testScheduledTitle": "Scheduled",
-    "testScheduledMessage": "You will hear a test alert in a few seconds."
+    "testScheduledMessage": "You will hear a test alert in a few seconds.",
+    "hub": {
+      "title": "Prayer Notifications",
+      "subtitle": "Easily manage your notifications.",
+      "chipActiveNotifs": "Active Notifs",
+      "allNotifs": "All Notifications",
+      "chipSilentMode": "Silent Mode",
+      "prayersSection": "Prayer Times",
+      "disableAll": "Disable All Notifications",
+      "enableAll": "Enable All Notifications",
+      "active": "Active",
+      "notifCount": "{{count}} active",
+      "noneActive": "None active",
+      "silentModeTitle": "Silent Mode Duration",
+      "silentModeDesc": "All notifications will be temporarily paused for the selected duration."
+    },
+    "silentMode": {
+      "off": "Off",
+      "1h": "1 Hour",
+      "2h": "2 Hours",
+      "5h": "5 Hours",
+      "12h": "12 Hours",
+      "1d": "1 Day",
+      "7d": "7 Days"
+    },
+    "detail": {
+      "headerSuffix": "Notifications",
+      "prayerDisabledDesc": "Notifications off",
+      "flowTitle": "Notification Flow",
+      "atPrayerTime": "At Prayer Time",
+      "before": "{{time}} before",
+      "after": "{{time}} after",
+      "hour": "hour",
+      "minute": "minutes",
+      "minuteShort": "min",
+      "disabled": "Off",
+      "addButton": "Add notification",
+      "addSheetTitle": "Add Notification",
+      "addSheetSubtitle": "Pick a time before or after the prayer.",
+      "beforeLabel": "Before Prayer",
+      "afterLabel": "After Prayer",
+      "addConfirm": "Add",
+      "settingsTitle": "Notification Settings",
+      "sound": "Sound",
+      "soundDefault": "Default",
+          "sound_default": "Default",
+          "sound_big_bell": "Big Bell",
+          "soundPreviewTitle": "Sound Preview",
+          "soundPreviewMessage": "Your notification will sound like this.",
+      "snooze": "Snooze",
+      "snoozeOff": "Off",
+      "daysTitle": "Days",
+      "allDaysActive": "All days active",
+      "activateAllDays": "Enable all days",
+      "deleteTitle": "Delete Notification",
+      "deleteMessage": "Are you sure you want to delete this notification?",
+      "deleteConfirm": "Delete",
+      "duplicateTitle": "Already Exists",
+      "duplicateMessage": "A notification at this time already exists."
+    }
   },
   "updates": {
     "optional": {
