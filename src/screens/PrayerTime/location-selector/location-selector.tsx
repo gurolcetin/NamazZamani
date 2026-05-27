@@ -46,8 +46,8 @@ import {
 import { FontScaleOption } from '../../../../libs/common/enums';
 import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 import {
-  LOCATIONIQ_API_KEY,
-  LOCATIONIQ_BASE_URL,
+  OPENWEATHER_API_KEY,
+  OPENWEATHER_GEO_BASE_URL,
 } from '../../../../libs/common/constants/externalApis';
 import {
   updatePrayerTimeMethod,
@@ -55,23 +55,25 @@ import {
 } from '../../../../libs/redux/reducers/ApplicationSettings';
 import { PrayerTimeMethodOption } from '../../../../libs/common/types';
 
-type LocationIQItem = {
-  place_id: string;
-  lat: string;
-  lon: string;
-  display_name: string;
-  address?: Record<string, string>;
-  type?: string;
-  class?: string;
+type OWMDirectItem = {
+  name: string;
+  local_names?: Record<string, string>;
+  lat: number;
+  lon: number;
+  country: string;
+  state?: string;
 };
 
 /** ---------- Mapping & Search ---------- */
-function mapLocationIQToPlace(n: LocationIQItem): SavedPlace {
+function mapOWMToPlace(item: OWMDirectItem): SavedPlace {
+  const localName =
+    item.local_names?.tr || item.local_names?.en || item.name;
+  const parts = [localName, item.state, item.country].filter(Boolean);
   return {
-    id: `nom:${n.place_id}`,
-    label: n.display_name,
-    latitude: parseFloat(n.lat),
-    longitude: parseFloat(n.lon),
+    id: `owm:${item.lat.toFixed(4)},${item.lon.toFixed(4)}`,
+    label: parts.join(', '),
+    latitude: item.lat,
+    longitude: item.lon,
   };
 }
 
@@ -116,7 +118,7 @@ const DEFAULT_METHOD_ID = 13;
 
 async function searchPlaces(q: string): Promise<SavedPlace[]> {
   if (!q.trim()) return [];
-  if (!LOCATIONIQ_API_KEY) return [];
+  if (!OPENWEATHER_API_KEY) return [];
 
   const cacheKey = getSearchCacheKey(q);
   const cached = getSearchCache(cacheKey);
@@ -125,10 +127,9 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
   }
 
   const url =
-    `${LOCATIONIQ_BASE_URL}/search?` +
-    `key=${LOCATIONIQ_API_KEY}&` +
+    `${OPENWEATHER_GEO_BASE_URL}/direct?` +
     `q=${encodeURIComponent(q)}&` +
-    `format=json&normalizeaddress=1&limit=12&addressdetails=1&accept-language=tr,en`;
+    `limit=10&appid=${OPENWEATHER_API_KEY}`;
 
   try {
     const res = await fetch(url);
@@ -137,8 +138,8 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
       return [];
     }
 
-    const data = (await res.json()) as LocationIQItem[];
-    const mapped = data.map(mapLocationIQToPlace);
+    const data = (await res.json()) as OWMDirectItem[];
+    const mapped = data.map(mapOWMToPlace);
     setSearchCache(cacheKey, mapped);
     return mapped;
   } catch {

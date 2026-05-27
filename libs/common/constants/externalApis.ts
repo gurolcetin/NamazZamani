@@ -9,5 +9,5 @@ export const ASMA_UL_HUSNA_ENDPOINT =
   'https://islamicapi.com/api/v1/asma-ul-husna';
 export const HADITH_API_BASE_URL = 'https://hadeethenc.com/api/v1';
 
-export const LOCATIONIQ_API_KEY = 'pk.b319608e31f0680f9a8c4ed7fef57626';
-export const LOCATIONIQ_BASE_URL = 'https://us1.locationiq.com/v1';
+export const OPENWEATHER_API_KEY = '';
+export const OPENWEATHER_GEO_BASE_URL = 'https://api.openweathermap.org/geo/1.0';

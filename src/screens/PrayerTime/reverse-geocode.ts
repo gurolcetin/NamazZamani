@@ -1,20 +1,9 @@
 import {
-  LOCATIONIQ_API_KEY,
-  LOCATIONIQ_BASE_URL,
+  OPENWEATHER_API_KEY,
+  OPENWEATHER_GEO_BASE_URL,
 } from '../../../libs/common/constants/externalApis';
 
 // reverse-geocode.ts
-export type PlaceParts = {
-  city?: string;
-  state?: string;
-  county?: string;
-  town?: string;
-  village?: string;
-  district?: string;
-  suburb?: string;
-  country_code?: string;
-};
-
 const FALLBACK_LABEL = 'Bilinmeyen konum';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat
 const ERROR_CACHE_TTL_MS = 5 * 60 * 1000; // hata durumunda kısa süreliğine tekrar etme
@@ -62,7 +51,7 @@ export async function reverseGeocode(
   latitude: number,
   longitude: number,
 ): Promise<string> {
-  if (!LOCATIONIQ_API_KEY) {
+  if (!OPENWEATHER_API_KEY) {
     return FALLBACK_LABEL;
   }
 
@@ -87,60 +76,53 @@ export async function reverseGeocode(
   return requestPromise;
 }
 
+type OWMReverseItem = {
+  name: string;
+  local_names?: Record<string, string>;
+  lat: number;
+  lon: number;
+  country: string;
+  state?: string;
+};
+
 async function fetchReverseGeocode(
   latitude: number,
   longitude: number,
   cacheKey: string,
 ): Promise<string> {
-  const url = `${LOCATIONIQ_BASE_URL}/reverse?key=${LOCATIONIQ_API_KEY}&lat=${latitude}&lon=${longitude}&format=json&normalizeaddress=1&addressdetails=1&accept-language=tr,en`;
+  const url = `${OPENWEATHER_GEO_BASE_URL}/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${OPENWEATHER_API_KEY}`;
   try {
     const res = await fetch(url);
 
     if (!res.ok) {
       throw new Error(
-        `LocationIQ reverse geocode failed. Status: ${res.status}`,
+        `OpenWeather reverse geocode failed. Status: ${res.status}`,
       );
     }
 
-    const json = await res.json();
+    const json = (await res.json()) as OWMReverseItem[];
 
-    const a = json?.address || {};
-
-    // 1️⃣ City-level alan
-    const cityLike =
-      a.city ||
-      a.town ||
-      a.village ||
-      a.municipality ||
-      a.suburb ||
-      a.hamlet ||
-      a.locality ||
-      a.county ||
-      a.state_district;
-
-    // 2️⃣ Üst idari alan (state / province / region sıralı)
-    let adminLike = a.state || a.province || a.region || a.county || undefined;
-
-    // 3️⃣ Çok geniş bölgeleri filtrele (Region, Bölgesi, Area, Zone vs.)
-    if (adminLike && /(region|bölgesi|area|zone)/i.test(adminLike)) {
-      adminLike = a.state || a.province || undefined;
+    if (!Array.isArray(json) || json.length === 0) {
+      setCache(cacheKey, FALLBACK_LABEL, ERROR_CACHE_TTL_MS);
+      return FALLBACK_LABEL;
     }
 
-    // 4️⃣ Normalize ve tekrar kontrol
-    let city = normalize(cityLike);
-    let admin = normalize(adminLike);
+    const item = json[0];
 
-    if (city && admin && city.toLowerCase() === admin.toLowerCase()) {
-      admin = undefined;
-    }
+    // Yerel isim varsa önce onu kullan (tr sonra en)
+    const localName =
+      item.local_names?.tr || item.local_names?.en || item.name;
 
-    // 5️⃣ Fallback — hiçbir şey yoksa ülkeyi kullan
-    if (!city && !admin && a.country) {
-      city = a.country;
-    }
+    const city = normalize(localName);
+    const state = normalize(item.state);
 
-    const parts = [city, admin].filter(Boolean);
-    const result = parts.length ? parts.join(', ') : FALLBACK_LABEL;
+    // Şehir ve eyalet aynıysa tekrar etme
+    const parts =
+      city && state && city.toLowerCase() !== state.toLowerCase()
+        ? [city, state]
+        : [city || state];
+
+    const result = parts.filter(Boolean).join(', ') || FALLBACK_LABEL;
     setCache(cacheKey, result);
     return result;
   } catch {
