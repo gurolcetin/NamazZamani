@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   LOCATIONIQ_API_KEY,
   LOCATIONIQ_BASE_URL,
@@ -19,6 +20,14 @@ const FALLBACK_LABEL = 'Bilinmeyen konum';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat
 const ERROR_CACHE_TTL_MS = 5 * 60 * 1000; // hata durumunda kısa süreliğine tekrar etme
 const MAX_CACHE_ENTRIES = 20;
+const REVERSE_CACHE_STORAGE_KEY = '@locationiq/reverse-cache:v1';
+const CACHE_PERSIST_DEBOUNCE_MS = 200;
+/**
+ * Koordinatları cache key üretirken kaç ondalık basamağa yuvarlayacağımızı belirler.
+ * Varsayılan `3` değeri yaklaşık 100m hücre hassasiyetine denk gelir.
+ * Daha az request için değeri `2` yapabilirsiniz (~1.1km), daha hassas etiket için `4` yapabilirsiniz.
+ */
+const REVERSE_CACHE_COORD_PRECISION = 3;
 
 type CacheEntry = {
   label: string;
@@ -27,10 +36,85 @@ type CacheEntry = {
 
 const reverseGeocodeCache = new Map<string, CacheEntry>();
 const inflightRequests = new Map<string, Promise<string>>();
+let reverseCacheHydrated = false;
+let reverseCacheHydrationPromise: Promise<void> | null = null;
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
 
 function toCacheKey(latitude: number, longitude: number) {
-  const precision = 3; // ~100m hassasiyet
-  return `${latitude.toFixed(precision)},${longitude.toFixed(precision)}`;
+  return `${latitude.toFixed(REVERSE_CACHE_COORD_PRECISION)},${longitude.toFixed(REVERSE_CACHE_COORD_PRECISION)}`;
+}
+
+type PersistedReverseCache = {
+  entries?: Array<[string, CacheEntry]>;
+};
+
+function schedulePersistCache() {
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+  }
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    persistCache().catch(() => undefined);
+  }, CACHE_PERSIST_DEBOUNCE_MS);
+}
+
+async function persistCache() {
+  try {
+    const payload: PersistedReverseCache = {
+      entries: Array.from(reverseGeocodeCache.entries()),
+    };
+    await AsyncStorage.setItem(
+      REVERSE_CACHE_STORAGE_KEY,
+      JSON.stringify(payload),
+    );
+  } catch {
+    // best-effort persist
+  }
+}
+
+async function hydrateCache() {
+  if (reverseCacheHydrated) {
+    return;
+  }
+  if (!reverseCacheHydrationPromise) {
+    reverseCacheHydrationPromise = (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(REVERSE_CACHE_STORAGE_KEY);
+        if (!raw) {
+          return;
+        }
+        const parsed = JSON.parse(raw) as PersistedReverseCache;
+        const now = Date.now();
+        const entries = Array.isArray(parsed?.entries) ? parsed.entries : [];
+        for (const entry of entries) {
+          if (!Array.isArray(entry) || entry.length !== 2) {
+            continue;
+          }
+          const [key, value] = entry;
+          if (!key || !value || typeof value.label !== 'string') {
+            continue;
+          }
+          if (typeof value.expiresAt !== 'number' || value.expiresAt <= now) {
+            continue;
+          }
+          reverseGeocodeCache.set(key, value);
+        }
+        while (reverseGeocodeCache.size > MAX_CACHE_ENTRIES) {
+          const oldestKey = reverseGeocodeCache.keys().next().value;
+          if (!oldestKey) {
+            break;
+          }
+          reverseGeocodeCache.delete(oldestKey);
+        }
+      } catch {
+        // best-effort hydrate
+      } finally {
+        reverseCacheHydrated = true;
+        reverseCacheHydrationPromise = null;
+      }
+    })();
+  }
+  await reverseCacheHydrationPromise;
 }
 
 function getCachedLabel(key: string) {
@@ -40,6 +124,7 @@ function getCachedLabel(key: string) {
   }
   if (entry.expiresAt < Date.now()) {
     reverseGeocodeCache.delete(key);
+    schedulePersistCache();
     return null;
   }
   return entry.label;
@@ -56,6 +141,7 @@ function setCache(key: string, label: string, ttlMs = CACHE_TTL_MS) {
     label,
     expiresAt: Date.now() + ttlMs,
   });
+  schedulePersistCache();
 }
 
 export async function reverseGeocode(
@@ -65,6 +151,8 @@ export async function reverseGeocode(
   if (!LOCATIONIQ_API_KEY) {
     return FALLBACK_LABEL;
   }
+
+  await hydrateCache();
 
   const cacheKey = toCacheKey(latitude, longitude);
   const cachedLabel = getCachedLabel(cacheKey);

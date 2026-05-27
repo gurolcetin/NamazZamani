@@ -43,6 +43,9 @@ const CHANNEL_ID = 'prayer-call-channel';
 const SOUND_CHANNEL_IDS: Record<string, string> = {
   default: 'prayer-call-channel',
   big_bell: 'prayer-call-channel-big-bell',
+  zil_sesi_1: 'prayer-call-channel-zil-sesi-1',
+  zil_sesi_2: 'prayer-call-channel-zil-sesi-2',
+  zil_sesi_3: 'prayer-call-channel-zil-sesi-3',
 };
 
 function getChannelId(sound: string): string {
@@ -173,6 +176,45 @@ class PrayerNotificationManager {
             'Plays the Big Bell sound when a prayer time arrives.',
           playSound: true,
           soundName: 'big_bell',
+          importance: Importance.HIGH,
+          vibrate: true,
+        },
+        () => {},
+      );
+      PushNotification.createChannel(
+        {
+          channelId: SOUND_CHANNEL_IDS.zil_sesi_1,
+          channelName: 'Prayer Call Alerts (Zil Sesi 1)',
+          channelDescription:
+            'Plays the Zil Sesi 1 sound when a prayer time arrives.',
+          playSound: true,
+          soundName: 'zil_sesi_1',
+          importance: Importance.HIGH,
+          vibrate: true,
+        },
+        () => {},
+      );
+      PushNotification.createChannel(
+        {
+          channelId: SOUND_CHANNEL_IDS.zil_sesi_2,
+          channelName: 'Prayer Call Alerts (Zil Sesi 2)',
+          channelDescription:
+            'Plays the Zil Sesi 2 sound when a prayer time arrives.',
+          playSound: true,
+          soundName: 'zil_sesi_2',
+          importance: Importance.HIGH,
+          vibrate: true,
+        },
+        () => {},
+      );
+      PushNotification.createChannel(
+        {
+          channelId: SOUND_CHANNEL_IDS.zil_sesi_3,
+          channelName: 'Prayer Call Alerts (Zil Sesi 3)',
+          channelDescription:
+            'Plays the Zil Sesi 3 sound when a prayer time arrives.',
+          playSound: true,
+          soundName: 'zil_sesi_3',
           importance: Importance.HIGH,
           vibrate: true,
         },

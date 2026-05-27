@@ -1294,6 +1294,9 @@ export default function PrayerTime() {
 
   // Pull-to-refresh için handler
   const handleRefresh = useCallback(async () => {
+    if (!IS_DEV_FEATURES_ENABLED) {
+      return;
+    }
     if (isResyncingRef.current) {
       // Zaten reload çalışıyorsa ikinci isteğe gerek yok
       return;
@@ -1688,19 +1691,21 @@ export default function PrayerTime() {
             removeClippedSubviews
             initialNumToRender={6}
             windowSize={7}
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
+            refreshing={IS_DEV_FEATURES_ENABLED ? refreshing : false}
+            onRefresh={IS_DEV_FEATURES_ENABLED ? handleRefresh : undefined}
             refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-                // Android için spinner rengi
-                colors={[currentTheme.primary]}
-                // iOS için spinner rengi
-                tintColor={currentTheme.primary}
-                // İstersen arka plan da tema ile uyumlu olsun:
-                progressBackgroundColor={currentTheme.cardViewBackgroundColor}
-              />
+              IS_DEV_FEATURES_ENABLED ? (
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  // Android için spinner rengi
+                  colors={[currentTheme.primary]}
+                  // iOS için spinner rengi
+                  tintColor={currentTheme.primary}
+                  // İstersen arka plan da tema ile uyumlu olsun:
+                  progressBackgroundColor={currentTheme.cardViewBackgroundColor}
+                />
+              ) : undefined
             }
             onScroll={({ nativeEvent }) => {
               if (isCloseToBottom(nativeEvent)) {

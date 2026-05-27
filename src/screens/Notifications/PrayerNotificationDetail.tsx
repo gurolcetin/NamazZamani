@@ -36,6 +36,7 @@ import {
   updateNotificationItem,
   NotificationItem,
   NotificationDays,
+  NotificationSound,
 } from '../../../libs/redux/reducers/AdvancedNotifications';
 import { prayerNotificationManager } from '../../../libs/core/helpers/prayer-notification';
 import Sound from 'react-native-sound';
@@ -53,7 +54,13 @@ const PRAYER_GRADIENTS: Record<PrayerTimeKey, [string, string]> = {
 
 const SNOOZE_OPTIONS = [0, 5, 10, 15, 20, 30, 45, 60];
 
-const SOUND_OPTIONS = ['default', 'big_bell'] as const;
+const SOUND_OPTIONS: NotificationSound[] = [
+  'default',
+  'zil_sesi_1',
+  'zil_sesi_2',
+  'zil_sesi_3',
+  'big_bell',
+];
 
 const OFFSET_PRESETS = [-120, -90, -60, -45, -30, -20, -15, -10, -5, 5, 10, 15, 20, 30, 45, 60, 90, 120];
 
@@ -114,7 +121,9 @@ export default function PrayerNotificationDetail() {
   const [showAddSheet, setShowAddSheet] = useState(false);
   const [addOffsetMinutes, setAddOffsetMinutes] = useState<number>(-15);
   const [addSnoozeMinutes, setAddSnoozeMinutes] = useState<number>(0);
-  const [addSoundOption, setAddSoundOption] = useState<'default' | 'big_bell'>('default');
+  const [addSoundOption, setAddSoundOption] = useState<NotificationSound>(
+    'default',
+  );
   const [playingSound, setPlayingSound] = useState<string | null>(null);
   const activeSoundRef = useRef<InstanceType<typeof Sound> | null>(null);
 
@@ -327,7 +336,7 @@ export default function PrayerNotificationDetail() {
   );
 
   const handlePreviewSound = useCallback(
-    (sound: 'default' | 'big_bell') => {
+    (sound: NotificationSound) => {
       // Stop any currently playing sound first
       if (activeSoundRef.current) {
         activeSoundRef.current.stop(() => {
@@ -344,25 +353,52 @@ export default function PrayerNotificationDetail() {
 
       if (sound === 'default') return; // No preview for system default
 
-      // Play custom sound
-      const filename = Platform.OS === 'android' ? sound : `${sound}.mp3`;
-      const basePath = Platform.OS === 'android' ? undefined : Sound.MAIN_BUNDLE;
-      const s = new Sound(filename, basePath, err => {
-        if (err) return;
-        activeSoundRef.current = s;
-        setPlayingSound(sound);
-        s.play(() => {
-          setPlayingSound(null);
-          activeSoundRef.current = null;
-          s.release();
+      // Play custom sound (Android'de cihaz/packaging farkları için fallback denemeleri)
+      const candidates: Array<{ filename: string; basePath: string }> =
+        Platform.OS === 'android'
+          ? [
+              { filename: `${sound}.mp3`, basePath: Sound.MAIN_BUNDLE },
+              { filename: sound, basePath: Sound.MAIN_BUNDLE },
+              { filename: sound, basePath: '' },
+            ]
+          : [{ filename: `${sound}.mp3`, basePath: Sound.MAIN_BUNDLE }];
+      const errors: string[] = [];
+
+      const tryLoad = (index: number) => {
+        if (index >= candidates.length) {
+          console.warn(
+            `[notification-sound-preview] Failed to load sound: ${sound}. Tried: ${errors.join(
+              ' | ',
+            )}`,
+          );
+          return;
+        }
+
+        const { filename, basePath } = candidates[index];
+        const s = new Sound(filename, basePath, err => {
+          if (err) {
+            errors.push(`${basePath || '<empty>'}/${filename}`);
+            s.release();
+            tryLoad(index + 1);
+            return;
+          }
+          activeSoundRef.current = s;
+          setPlayingSound(sound);
+          s.play(() => {
+            setPlayingSound(null);
+            activeSoundRef.current = null;
+            s.release();
+          });
         });
-      });
+      };
+
+      tryLoad(0);
     },
     [playingSound],
   );
 
   const handleUpdateSound = useCallback(
-    (sound: 'default' | 'big_bell') => {
+    (sound: NotificationSound) => {
       if (!selectedItem) return;
       dispatch(
         updateNotificationItem({

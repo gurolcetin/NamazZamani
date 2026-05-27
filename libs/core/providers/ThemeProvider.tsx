@@ -69,7 +69,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
         let storedPreference =
           applicationTheme?.preference ??
           ((await AsyncStorage.getItem(THEME_KEY)) as Theme | null) ??
-          Theme.SYSTEM;
+          Theme.LIGHT;
         const storedAccent =
           ((await AsyncStorage.getItem(ACCENT_KEY)) as Accent | null) ??
           Accent.TEAL;

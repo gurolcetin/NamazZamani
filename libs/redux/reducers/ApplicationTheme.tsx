@@ -3,7 +3,7 @@ import {Theme} from '../../common/enums';
 
 const initialState = {
   theme: Theme.LIGHT, // resolved runtime theme (light/dark)
-  preference: Theme.SYSTEM, // user selection (light/dark/system)
+  preference: Theme.LIGHT, // user selection (light/dark/system)
 };
 
 const ApplicationTheme = createSlice({

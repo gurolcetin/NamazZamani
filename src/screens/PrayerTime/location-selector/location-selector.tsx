@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ActivityIndicator,
   Alert,
@@ -78,6 +79,10 @@ function mapLocationIQToPlace(n: LocationIQItem): SavedPlace {
 
 const SEARCH_CACHE_TTL_MS = 60 * 60 * 1000; // 1 saat
 const MAX_SEARCH_CACHE_ENTRIES = 25;
+const SEARCH_CACHE_STORAGE_KEY = '@locationiq/search-cache:v1';
+const SEARCH_CACHE_PERSIST_DEBOUNCE_MS = 200;
+const MIN_SEARCH_QUERY_LENGTH = 3;
+const DEVICE_LOCATION_REFRESH_COOLDOWN_MS = 2 * 60 * 1000;
 
 type SearchCacheEntry = {
   expiresAt: number;
@@ -85,6 +90,14 @@ type SearchCacheEntry = {
 };
 
 const searchResultsCache = new Map<string, SearchCacheEntry>();
+const searchInflightRequests = new Map<string, Promise<SavedPlace[]>>();
+let searchCacheHydrated = false;
+let searchCacheHydrationPromise: Promise<void> | null = null;
+let searchCachePersistTimer: ReturnType<typeof setTimeout> | null = null;
+
+type PersistedSearchCache = {
+  entries?: Array<[string, SearchCacheEntry]>;
+};
 
 function getSearchCacheKey(q: string) {
   return q.trim().toLowerCase();
@@ -95,9 +108,82 @@ function getSearchCache(key: string) {
   if (!entry) return null;
   if (entry.expiresAt < Date.now()) {
     searchResultsCache.delete(key);
+    scheduleSearchCachePersist();
     return null;
   }
   return entry.results;
+}
+
+function scheduleSearchCachePersist() {
+  if (searchCachePersistTimer) {
+    clearTimeout(searchCachePersistTimer);
+  }
+  searchCachePersistTimer = setTimeout(() => {
+    searchCachePersistTimer = null;
+    persistSearchCache().catch(() => undefined);
+  }, SEARCH_CACHE_PERSIST_DEBOUNCE_MS);
+}
+
+async function persistSearchCache() {
+  try {
+    const payload: PersistedSearchCache = {
+      entries: Array.from(searchResultsCache.entries()),
+    };
+    await AsyncStorage.setItem(
+      SEARCH_CACHE_STORAGE_KEY,
+      JSON.stringify(payload),
+    );
+  } catch {
+    // best-effort persist
+  }
+}
+
+async function hydrateSearchCache() {
+  if (searchCacheHydrated) {
+    return;
+  }
+  if (!searchCacheHydrationPromise) {
+    searchCacheHydrationPromise = (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(SEARCH_CACHE_STORAGE_KEY);
+        if (!raw) {
+          return;
+        }
+        const parsed = JSON.parse(raw) as PersistedSearchCache;
+        const now = Date.now();
+        const entries = Array.isArray(parsed?.entries) ? parsed.entries : [];
+        for (const entry of entries) {
+          if (!Array.isArray(entry) || entry.length !== 2) {
+            continue;
+          }
+          const [key, value] = entry;
+          if (
+            !key ||
+            !value ||
+            typeof value.expiresAt !== 'number' ||
+            value.expiresAt <= now ||
+            !Array.isArray(value.results)
+          ) {
+            continue;
+          }
+          searchResultsCache.set(key, value);
+        }
+        while (searchResultsCache.size > MAX_SEARCH_CACHE_ENTRIES) {
+          const oldestKey = searchResultsCache.keys().next().value;
+          if (!oldestKey) {
+            break;
+          }
+          searchResultsCache.delete(oldestKey);
+        }
+      } catch {
+        // best-effort hydrate
+      } finally {
+        searchCacheHydrated = true;
+        searchCacheHydrationPromise = null;
+      }
+    })();
+  }
+  await searchCacheHydrationPromise;
 }
 
 function setSearchCache(key: string, results: SavedPlace[]) {
@@ -111,40 +197,56 @@ function setSearchCache(key: string, results: SavedPlace[]) {
     results,
     expiresAt: Date.now() + SEARCH_CACHE_TTL_MS,
   });
+  scheduleSearchCachePersist();
 }
 
 const DEFAULT_METHOD_ID = 13;
 
 async function searchPlaces(q: string): Promise<SavedPlace[]> {
-  if (!q.trim()) return [];
+  const normalized = q.trim();
+  if (normalized.length < MIN_SEARCH_QUERY_LENGTH) return [];
   if (!LOCATIONIQ_API_KEY) return [];
 
-  const cacheKey = getSearchCacheKey(q);
+  await hydrateSearchCache();
+
+  const cacheKey = getSearchCacheKey(normalized);
   const cached = getSearchCache(cacheKey);
+  console.log(`Search for "${normalized}" (cache key: "${cacheKey}")`, { cached });
   if (cached) {
     return cached;
+  }
+
+  if (searchInflightRequests.has(cacheKey)) {
+    return searchInflightRequests.get(cacheKey)!;
   }
 
   const url =
     `${LOCATIONIQ_BASE_URL}/search?` +
     `key=${LOCATIONIQ_API_KEY}&` +
-    `q=${encodeURIComponent(q)}&` +
+    `q=${encodeURIComponent(normalized)}&` +
     `format=json&normalizeaddress=1&limit=12&addressdetails=1&accept-language=tr,en`;
 
-  try {
-    const res = await fetch(url);
+  const requestPromise = (async () => {
+    try {
+      const res = await fetch(url);
 
-    if (!res.ok) {
+      if (!res.ok) {
+        return [];
+      }
+
+      const data = (await res.json()) as LocationIQItem[];
+      const mapped = data.map(mapLocationIQToPlace);
+      setSearchCache(cacheKey, mapped);
+      return mapped;
+    } catch {
       return [];
     }
+  })().finally(() => {
+    searchInflightRequests.delete(cacheKey);
+  });
 
-    const data = (await res.json()) as LocationIQItem[];
-    const mapped = data.map(mapLocationIQToPlace);
-    setSearchCache(cacheKey, mapped);
-    return mapped;
-  } catch {
-    return [];
-  }
+  searchInflightRequests.set(cacheKey, requestPromise);
+  return requestPromise;
 }
 
 /** =======================================================================
@@ -295,6 +397,7 @@ export default function LocationSelector() {
   }, [getMethodInfoForKey, methodModalState, newLocationMethodInfo]);
   const query = search.trim();
   const hasQuery = query.length > 0;
+  const canSearchByQuery = query.length >= MIN_SEARCH_QUERY_LENGTH;
   const [deviceLocationLabel, setDeviceLocationLabel] = useState<string | null>(
     null,
   );
@@ -311,6 +414,9 @@ export default function LocationSelector() {
     useRef<ReturnType<typeof setTimeout> | null>(null);
   const swipeDemoActiveIdRef = useRef<string | null>(null);
   const swipeDemoHandledRef = useRef(0);
+  const lastDeviceRefreshAtRef = useRef(0);
+  const refreshDeviceLocationInFlightRef =
+    useRef<Promise<LocationPermissionResult> | null>(null);
 
   const isMountedRef = useRef(true);
   useEffect(() => {
@@ -341,48 +447,70 @@ export default function LocationSelector() {
   const refreshDeviceLocation = useCallback(
     async (
       requestPermission = false,
+      force = false,
     ): Promise<LocationPermissionResult> => {
-      setDeviceLocationLoading(true);
-      try {
-        let permissionResult: LocationPermissionResult;
-        if (requestPermission) {
-          permissionResult = await requestLocationPermission();
-        } else {
-          const granted = await hasLocationPermission();
-          permissionResult = granted ? 'granted' : 'denied';
-        }
-
-        if (!isMountedRef.current) {
-          return permissionResult;
-        }
-
-        setLocationPermissionGranted(permissionResult === 'granted');
-
-        if (permissionResult !== 'granted') {
-          setDeviceLocationLabel(null);
-          return permissionResult;
-        }
-
-        const pos = await getCurrentPosition();
-        const label = await reverseGeocode(pos.latitude, pos.longitude);
-
-        if (isMountedRef.current) {
-          setDeviceLocationLabel(label);
-        }
-
-        return 'granted';
-      } catch {
-        if (isMountedRef.current) {
-          setDeviceLocationLabel(null);
-        }
-        return 'denied';
-      } finally {
-        if (isMountedRef.current) {
-          setDeviceLocationLoading(false);
-        }
+      const now = Date.now();
+      const shouldApplyCooldown = !requestPermission && !force;
+      if (
+        shouldApplyCooldown &&
+        now - lastDeviceRefreshAtRef.current < DEVICE_LOCATION_REFRESH_COOLDOWN_MS
+      ) {
+        return locationPermissionGranted ? 'granted' : 'denied';
       }
+
+      if (refreshDeviceLocationInFlightRef.current) {
+        return refreshDeviceLocationInFlightRef.current;
+      }
+
+      const requestPromise = (async (): Promise<LocationPermissionResult> => {
+        setDeviceLocationLoading(true);
+        try {
+          let permissionResult: LocationPermissionResult;
+          if (requestPermission) {
+            permissionResult = await requestLocationPermission();
+          } else {
+            const granted = await hasLocationPermission();
+            permissionResult = granted ? 'granted' : 'denied';
+          }
+
+          if (!isMountedRef.current) {
+            return permissionResult;
+          }
+
+          setLocationPermissionGranted(permissionResult === 'granted');
+
+          if (permissionResult !== 'granted') {
+            setDeviceLocationLabel(null);
+            return permissionResult;
+          }
+
+          const pos = await getCurrentPosition();
+          const label = await reverseGeocode(pos.latitude, pos.longitude);
+
+          if (isMountedRef.current) {
+            setDeviceLocationLabel(label);
+          }
+          lastDeviceRefreshAtRef.current = Date.now();
+
+          return 'granted';
+        } catch {
+          if (isMountedRef.current) {
+            setDeviceLocationLabel(null);
+          }
+          return 'denied';
+        } finally {
+          if (isMountedRef.current) {
+            setDeviceLocationLoading(false);
+          }
+        }
+      })();
+
+      refreshDeviceLocationInFlightRef.current = requestPromise;
+      return requestPromise.finally(() => {
+        refreshDeviceLocationInFlightRef.current = null;
+      });
     },
-    [],
+    [locationPermissionGranted],
   );
 
   useFocusEffect(
@@ -413,6 +541,11 @@ export default function LocationSelector() {
       setResults([]);
       return;
     }
+    if (!canSearchByQuery) {
+      setSearching(false);
+      setResults([]);
+      return;
+    }
     timerRef.current = setTimeout(async () => {
       try {
         setSearching(true);
@@ -430,7 +563,7 @@ export default function LocationSelector() {
         timerRef.current = null;
       }
     };
-  }, [hasQuery, query]);
+  }, [canSearchByQuery, hasQuery, query]);
 
   /** Navigation Actions */
   const clearSearch = () => {
@@ -1209,7 +1342,11 @@ export default function LocationSelector() {
               <Text
                 style={[styles.emptyText, { color: currentTheme.textColor }]}
               >
-                {t('locationSelector.noResults')}
+                {canSearchByQuery
+                  ? t('locationSelector.noResults')
+                  : t('locationSelector.minQueryPrompt', {
+                      count: MIN_SEARCH_QUERY_LENGTH,
+                    })}
               </Text>
             ) : (
               <FlatList

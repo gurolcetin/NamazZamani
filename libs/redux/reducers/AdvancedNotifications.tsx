@@ -10,7 +10,12 @@ const PRAYER_KEYS: PrayerTimeKey[] = [
   'Isha',
 ];
 
-export type NotificationSound = 'default' | 'big_bell';
+export type NotificationSound =
+  | 'default'
+  | 'big_bell'
+  | 'zil_sesi_1'
+  | 'zil_sesi_2'
+  | 'zil_sesi_3';
 
 export type SilentModeDuration =
   | 'off'
