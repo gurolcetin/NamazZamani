@@ -9,5 +9,10 @@ export const ASMA_UL_HUSNA_ENDPOINT =
   'https://islamicapi.com/api/v1/asma-ul-husna';
 export const HADITH_API_BASE_URL = 'https://hadeethenc.com/api/v1';
 
-export const OPENWEATHER_API_KEY = '';
 export const OPENWEATHER_GEO_BASE_URL = 'https://api.openweathermap.org/geo/1.0';
+
+/** GPS koordinatından şehir/ilçe etiketi üretmek için kullanılan key */
+export const OPENWEATHER_API_KEY_REVERSE = '';
+
+/** Şehir/ilçe metin aramasından lat/lon üretmek için kullanılan key */
+export const OPENWEATHER_API_KEY_SEARCH = '';

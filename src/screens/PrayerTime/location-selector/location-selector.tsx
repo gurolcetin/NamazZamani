@@ -46,7 +46,7 @@ import {
 import { FontScaleOption } from '../../../../libs/common/enums';
 import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
 import {
-  OPENWEATHER_API_KEY,
+  OPENWEATHER_API_KEY_SEARCH,
   OPENWEATHER_GEO_BASE_URL,
 } from '../../../../libs/common/constants/externalApis';
 import {
@@ -118,7 +118,7 @@ const DEFAULT_METHOD_ID = 13;
 
 async function searchPlaces(q: string): Promise<SavedPlace[]> {
   if (!q.trim()) return [];
-  if (!OPENWEATHER_API_KEY) return [];
+  if (!OPENWEATHER_API_KEY_SEARCH) return [];
 
   const cacheKey = getSearchCacheKey(q);
   const cached = getSearchCache(cacheKey);
@@ -129,7 +129,7 @@ async function searchPlaces(q: string): Promise<SavedPlace[]> {
   const url =
     `${OPENWEATHER_GEO_BASE_URL}/direct?` +
     `q=${encodeURIComponent(q)}&` +
-    `limit=10&appid=${OPENWEATHER_API_KEY}`;
+    `limit=10&appid=${OPENWEATHER_API_KEY_SEARCH}`;
 
   try {
     const res = await fetch(url);

@@ -1,5 +1,5 @@
 import {
-  OPENWEATHER_API_KEY,
+  OPENWEATHER_API_KEY_REVERSE,
   OPENWEATHER_GEO_BASE_URL,
 } from '../../../libs/common/constants/externalApis';
 
@@ -51,7 +51,7 @@ export async function reverseGeocode(
   latitude: number,
   longitude: number,
 ): Promise<string> {
-  if (!OPENWEATHER_API_KEY) {
+  if (!OPENWEATHER_API_KEY_REVERSE) {
     return FALLBACK_LABEL;
   }
 
@@ -90,7 +90,7 @@ async function fetchReverseGeocode(
   longitude: number,
   cacheKey: string,
 ): Promise<string> {
-  const url = `${OPENWEATHER_GEO_BASE_URL}/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${OPENWEATHER_API_KEY}`;
+  const url = `${OPENWEATHER_GEO_BASE_URL}/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${OPENWEATHER_API_KEY_REVERSE}`;
   try {
     const res = await fetch(url);
 
