@@ -464,6 +464,14 @@ export class QiblaLanguageConstants {
     key: 'qibla.unknownError',
     defaultValue: 'Bilinmeyen hata',
   };
+  static LocationUnavailable: LanguageModel = {
+    key: 'qibla.locationUnavailable',
+    defaultValue: 'Konum alınamadı. Lütfen internet ve konum servislerini kontrol edin.',
+  };
+  static LocationTimeout: LanguageModel = {
+    key: 'qibla.locationTimeout',
+    defaultValue: 'Konum alınırken zaman aşımı oluştu. Lütfen tekrar deneyin.',
+  };
   static CompassUnsupportedTitle: LanguageModel = {
     key: 'qibla.unsupportedTitle',
     defaultValue: 'Pusula Desteklenmiyor',

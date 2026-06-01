@@ -22,6 +22,10 @@ type StoredMonthCache = {
   cacheLabel?: string;
 };
 
+type MonthlyPrayerTimesOptions = {
+  tune?: number[] | null;
+};
+
 function getDeviceTimeZone(): string {
   try {
     return (
@@ -41,7 +45,13 @@ export async function fetchMonthlyPrayerTimesByCoords(
   methodId = 13,
   timeZone?: string,
   cacheLabel?: string,
+  options: MonthlyPrayerTimesOptions = {},
 ): Promise<PrayerTimings[]> {
+  const tune =
+    Array.isArray(options.tune) && options.tune.length === 9
+      ? options.tune
+      : null;
+  const tuneSignature = tune ? tune.join(',') : 'none';
   let tz = timeZone;
   if (!tz) {
     try {
@@ -53,7 +63,7 @@ export async function fetchMonthlyPrayerTimesByCoords(
   const key = `${year}-${String(month1to12).padStart(
     2,
     '0',
-  )}@${latitude.toFixed(2)},${longitude.toFixed(2)}@${methodId}@${tz}`;
+  )}@${latitude.toFixed(2)},${longitude.toFixed(2)}@${methodId}@${tz}@tune:${tuneSignature}`;
   const cached = monthCache.get(key);
   if (cached) return cached;
   try {
@@ -83,7 +93,8 @@ export async function fetchMonthlyPrayerTimesByCoords(
 
   // method=13 (Diyanet) aynı kalsın; ihtiyaç olursa ayarlanabilir.
   const tzParam = encodeURIComponent(tz ?? getDeviceTimeZone());
-  const url = `https://api.aladhan.com/v1/calendar?latitude=${latitude}&longitude=${longitude}&method=${methodId}&month=${month1to12}&year=${year}&timezonestring=${tzParam}`;
+  const tuneParam = tune ? `&tune=${encodeURIComponent(tune.join(','))}` : '';
+  const url = `https://api.aladhan.com/v1/calendar?latitude=${latitude}&longitude=${longitude}&method=${methodId}&month=${month1to12}&year=${year}&timezonestring=${tzParam}${tuneParam}`;
   const res = await fetch(url);
   const json = await res.json();
   if (json?.code !== 200)

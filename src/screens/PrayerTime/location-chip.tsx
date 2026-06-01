@@ -53,9 +53,18 @@ export function LocationChip({
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => setPressed(true)}
-      onPressOut={() => setPressed(false)}
-      accessibilityRole="button"
+      onPressIn={() => {
+        if (onPress) {
+          setPressed(true);
+        }
+      }}
+      onPressOut={() => {
+        if (onPress) {
+          setPressed(false);
+        }
+      }}
+      disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={t('locationChip.accessibilityLabel', {
         label,
         utc,
@@ -65,7 +74,7 @@ export function LocationChip({
         style,
         {
           backgroundColor: bg,
-          transform: [{ scale: pressed ? 0.98 : 1 }],
+          transform: [{ scale: onPress && pressed ? 0.98 : 1 }],
         },
       ]}
     >
@@ -103,7 +112,7 @@ export function LocationChip({
         </View>
       </View>
 
-      {/* Sağ taraf: UTC + değiştirilebilirlik ikonu */}
+      {/* Sağ taraf: UTC */}
       <View style={styles.utcRight}>
         <Text
           style={[
@@ -118,12 +127,6 @@ export function LocationChip({
         >
           {utc}
         </Text>
-        <Icon
-          type={Icons.MaterialDesignIcons}
-          name="chevron-down"
-          size={18 * fontScaleMultiplier}
-          color={currentTheme.placeholderTextColor}
-        />
       </View>
     </Pressable>
   );
@@ -179,9 +182,7 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   utcRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    alignItems: 'flex-end',
   },
   utcTextRight: {
     fontSize: 13,

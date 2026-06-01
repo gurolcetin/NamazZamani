@@ -28,6 +28,16 @@ type NotificationContent = {
   message: string;
 };
 
+export type ScheduledLocalNotification = {
+  id?: string | number;
+  title?: string;
+  message?: string;
+  date?: string | number | Date;
+  fireDate?: string | number | Date;
+  userInfo?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+
 type SyncOptions = {
   sequence: SequenceEntry[];
   buildContent: (entry: SequenceEntry) => NotificationContent;
@@ -42,21 +52,26 @@ const CHANNEL_ID = 'prayer-call-channel';
 // Per-sound channel IDs for Android (sound is set at channel level on Android 8+)
 const SOUND_CHANNEL_IDS: Record<string, string> = {
   default: 'prayer-call-channel',
-  big_bell: 'prayer-call-channel-big-bell',
   zil_sesi_1: 'prayer-call-channel-zil-sesi-1',
   zil_sesi_2: 'prayer-call-channel-zil-sesi-2',
   zil_sesi_3: 'prayer-call-channel-zil-sesi-3',
+  ezan_sesi1: 'prayer-call-channel-ezan-sesi-1',
+  ezan_sesi2: 'prayer-call-channel-ezan-sesi-2',
+  ezan_sesi3: 'prayer-call-channel-ezan-sesi-3',
 };
 
 function getChannelId(sound: string): string {
   return SOUND_CHANNEL_IDS[sound] ?? CHANNEL_ID;
 }
 
-// Android: soundName = filename without extension (from res/raw/)
-// iOS: soundName = filename with extension (from app bundle)
+// Use extension for custom sounds on both platforms to avoid
+// vendor-specific parsing bugs in notification channel creation.
 function resolveSoundName(sound: string): string {
   if (sound === 'default') return 'default';
-  return Platform.OS === 'ios' ? `${sound}.mp3` : sound;
+  if (sound.startsWith('ezan_sesi')) {
+    return `${sound}.wav`;
+  }
+  return `${sound}.mp3`;
 }
 
 const ANDROID_NOTIFICATION_PERMISSION: Permission =
@@ -80,6 +95,7 @@ const PRAYER_ID_OFFSETS: Record<PrayerTimeKey, number> = {
 const DEFAULT_STORE_KEY = 'prayerNotifications:scheduledIds:v1';
 const ADVANCED_STORE_KEY = 'prayerNotifications:advanced:scheduledIds:v1';
 const ADVANCED_ID_OFFSET = 500000;
+const KNOWN_STORE_KEYS = [DEFAULT_STORE_KEY, ADVANCED_STORE_KEY] as const;
 
 const SILENT_MODE_DURATIONS_MS: Record<SilentModeDuration, number> = {
   off: 0,
@@ -124,6 +140,35 @@ const toAndroidSchedulableId = (key: PrayerTimeKey, date: Date) => {
 
 class PrayerNotificationManager {
   private initialized = false;
+
+  private cancelById(id: string | number | undefined) {
+    if (id == null) return;
+    PushNotification.cancelLocalNotification(String(id));
+  }
+
+  private getNotificationId(item: ScheduledLocalNotification): string {
+    return item.id != null ? String(item.id) : '';
+  }
+
+  private isLikelyPrayerNotification(item: ScheduledLocalNotification): boolean {
+    const userInfoType =
+      typeof item.userInfo?.type === 'string' ? item.userInfo.type : '';
+    if (userInfoType === 'prayer' || userInfoType === 'prayer-test') {
+      return true;
+    }
+
+    const id = this.getNotificationId(item);
+    if (!id) return false;
+    if (LEGACY_NOTIFICATION_IDS.includes(id)) return true;
+    if (/^20\d{6}[1-6]$/.test(id)) return true;
+
+    const numericId = Number(id);
+    if (Number.isFinite(numericId) && numericId >= ADVANCED_ID_OFFSET) {
+      return true;
+    }
+
+    return false;
+  }
 
   private async hasAndroidExactAlarmPermission(): Promise<boolean> {
     if (Platform.OS !== 'android') {
@@ -170,25 +215,12 @@ class PrayerNotificationManager {
       );
       PushNotification.createChannel(
         {
-          channelId: SOUND_CHANNEL_IDS.big_bell,
-          channelName: 'Prayer Call Alerts (Big Bell)',
-          channelDescription:
-            'Plays the Big Bell sound when a prayer time arrives.',
-          playSound: true,
-          soundName: 'big_bell',
-          importance: Importance.HIGH,
-          vibrate: true,
-        },
-        () => {},
-      );
-      PushNotification.createChannel(
-        {
           channelId: SOUND_CHANNEL_IDS.zil_sesi_1,
           channelName: 'Prayer Call Alerts (Zil Sesi 1)',
           channelDescription:
             'Plays the Zil Sesi 1 sound when a prayer time arrives.',
           playSound: true,
-          soundName: 'zil_sesi_1',
+          soundName: resolveSoundName('zil_sesi_1'),
           importance: Importance.HIGH,
           vibrate: true,
         },
@@ -201,7 +233,7 @@ class PrayerNotificationManager {
           channelDescription:
             'Plays the Zil Sesi 2 sound when a prayer time arrives.',
           playSound: true,
-          soundName: 'zil_sesi_2',
+          soundName: resolveSoundName('zil_sesi_2'),
           importance: Importance.HIGH,
           vibrate: true,
         },
@@ -214,7 +246,46 @@ class PrayerNotificationManager {
           channelDescription:
             'Plays the Zil Sesi 3 sound when a prayer time arrives.',
           playSound: true,
-          soundName: 'zil_sesi_3',
+          soundName: resolveSoundName('zil_sesi_3'),
+          importance: Importance.HIGH,
+          vibrate: true,
+        },
+        () => {},
+      );
+      PushNotification.createChannel(
+        {
+          channelId: SOUND_CHANNEL_IDS.ezan_sesi1,
+          channelName: 'Prayer Call Alerts (Ezan Sesi 1)',
+          channelDescription:
+            'Plays the Ezan Sesi 1 sound when a prayer time arrives.',
+          playSound: true,
+          soundName: resolveSoundName('ezan_sesi1'),
+          importance: Importance.HIGH,
+          vibrate: true,
+        },
+        () => {},
+      );
+      PushNotification.createChannel(
+        {
+          channelId: SOUND_CHANNEL_IDS.ezan_sesi2,
+          channelName: 'Prayer Call Alerts (Ezan Sesi 2)',
+          channelDescription:
+            'Plays the Ezan Sesi 2 sound when a prayer time arrives.',
+          playSound: true,
+          soundName: resolveSoundName('ezan_sesi2'),
+          importance: Importance.HIGH,
+          vibrate: true,
+        },
+        () => {},
+      );
+      PushNotification.createChannel(
+        {
+          channelId: SOUND_CHANNEL_IDS.ezan_sesi3,
+          channelName: 'Prayer Call Alerts (Ezan Sesi 3)',
+          channelDescription:
+            'Plays the Ezan Sesi 3 sound when a prayer time arrives.',
+          playSound: true,
+          soundName: resolveSoundName('ezan_sesi3'),
           importance: Importance.HIGH,
           vibrate: true,
         },
@@ -292,8 +363,9 @@ class PrayerNotificationManager {
     storeKey = DEFAULT_STORE_KEY,
   }: SyncOptions): Promise<boolean> {
     this.initialize();
+    await this.clearAllPrayerNotifications([storeKey]);
+
     if (enabledKeys && enabledKeys.length === 0) {
-      await this.clearStoredNotifications(storeKey);
       return false;
     }
     if (!sequence?.length) {
@@ -306,8 +378,6 @@ class PrayerNotificationManager {
     }
 
     const allowedSet = enabledKeys ? new Set<PrayerTimeKey>(enabledKeys) : null;
-
-    await this.clearStoredNotifications(storeKey);
 
     const scheduledIds: string[] = [];
     sequence.forEach(entry => {
@@ -349,21 +419,52 @@ class PrayerNotificationManager {
   }
 
   private async clearStoredNotifications(storeKey: string) {
-    LEGACY_NOTIFICATION_IDS.forEach(id => {
-      PushNotification.cancelLocalNotification(id);
-    });
     try {
       const raw = await AsyncStorage.getItem(storeKey);
-      if (!raw) return;
-      const ids = JSON.parse(raw) as string[];
-      if (!Array.isArray(ids)) return;
-      ids.forEach(id => {
-        PushNotification.cancelLocalNotification(id);
-      });
+      if (raw) {
+        const ids = JSON.parse(raw) as string[];
+        if (Array.isArray(ids)) {
+          ids.forEach(id => {
+            this.cancelById(id);
+          });
+        }
+      }
       await AsyncStorage.removeItem(storeKey);
     } catch (err) {
       console.warn('[prayer-notification] Failed to clear cache', err);
+      try {
+        await AsyncStorage.removeItem(storeKey);
+      } catch {
+        // ignore secondary cleanup error
+      }
     }
+  }
+
+  private async clearAllPrayerNotifications(extraStoreKeys: string[] = []) {
+    LEGACY_NOTIFICATION_IDS.forEach(id => this.cancelById(id));
+
+    const storeKeys = Array.from(
+      new Set<string>([...KNOWN_STORE_KEYS, ...extraStoreKeys]),
+    );
+    for (const storeKey of storeKeys) {
+      await this.clearStoredNotifications(storeKey);
+    }
+
+    try {
+      const scheduled = await this.getScheduledLocalNotifications();
+      scheduled.forEach(item => {
+        if (this.isLikelyPrayerNotification(item)) {
+          this.cancelById(item.id);
+        }
+      });
+    } catch (err) {
+      console.warn('[prayer-notification] Failed to clear scheduled list', err);
+    }
+  }
+
+  async clearPrayerNotifications(): Promise<void> {
+    this.initialize();
+    await this.clearAllPrayerNotifications();
   }
 
   private async storeScheduledNotifications(storeKey: string, ids: string[]) {
@@ -404,6 +505,31 @@ class PrayerNotificationManager {
     return true;
   }
 
+  async getScheduledLocalNotifications(): Promise<ScheduledLocalNotification[]> {
+    this.initialize();
+
+    const pushNotification = PushNotification as unknown as {
+      getScheduledLocalNotifications?: (
+        callback: (notifications: ScheduledLocalNotification[]) => void,
+      ) => void;
+    };
+
+    return new Promise(resolve => {
+      if (typeof pushNotification.getScheduledLocalNotifications !== 'function') {
+        resolve([]);
+        return;
+      }
+
+      try {
+        pushNotification.getScheduledLocalNotifications(notifications => {
+          resolve(Array.isArray(notifications) ? notifications : []);
+        });
+      } catch {
+        resolve([]);
+      }
+    });
+  }
+
   isSilentModeActive(
     duration: SilentModeDuration,
     startedAt: string | null,
@@ -426,6 +552,7 @@ class PrayerNotificationManager {
     storeKey = ADVANCED_STORE_KEY,
   }: AdvancedSyncOptions): Promise<boolean> {
     this.initialize();
+    await this.clearAllPrayerNotifications([storeKey]);
 
     // Check if any notification is enabled
     const anyEnabled = (Object.keys(perPrayer) as PrayerTimeKey[]).some(
@@ -433,12 +560,10 @@ class PrayerNotificationManager {
     );
 
     if (!anyEnabled) {
-      await this.clearStoredNotifications(storeKey);
       return false;
     }
 
     if (this.isSilentModeActive(silentModeDuration, silentModeStartedAt, now)) {
-      await this.clearStoredNotifications(storeKey);
       return false;
     }
 
@@ -446,8 +571,6 @@ class PrayerNotificationManager {
     if (!granted) {
       return false;
     }
-
-    await this.clearStoredNotifications(storeKey);
 
     const scheduledIds: string[] = [];
     baseSequence.forEach((entry, entryIndex) => {
@@ -467,8 +590,10 @@ class PrayerNotificationManager {
         const content = buildContent(entry, notifItem);
         if (!content?.message) return;
 
-        const numericId = ADVANCED_ID_OFFSET + entryIndex * 20 + itemIndex;
-        const id = String(numericId);
+        // Keep deterministic and unique IDs for primary + snooze notifications.
+        const baseNumericId =
+          ADVANCED_ID_OFFSET + entryIndex * 1000 + itemIndex * 10;
+        const id = String(baseNumericId);
 
         PushNotification.localNotificationSchedule({
           id,
@@ -481,9 +606,43 @@ class PrayerNotificationManager {
           title: content.title,
           message: content.message,
           date: fireDate,
-          userInfo: { type: 'prayer', prayerKey: entry.key },
+          userInfo: {
+            type: 'prayer',
+            prayerKey: entry.key,
+            sourceItemId: notifItem.id,
+            isSnooze: false,
+          },
         });
         scheduledIds.push(id);
+
+        if (notifItem.snoozeMinutes > 0) {
+          const snoozeFireDate = new Date(
+            fireDate.getTime() + notifItem.snoozeMinutes * 60 * 1000,
+          );
+          if (snoozeFireDate > now) {
+            const snoozeId = String(baseNumericId + 1);
+            PushNotification.localNotificationSchedule({
+              id: snoozeId,
+              channelId: getChannelId(notifItem.sound),
+              allowWhileIdle: true,
+              autoCancel: true,
+              playSound: true,
+              soundName: resolveSoundName(notifItem.sound),
+              importance: 'high',
+              title: content.title,
+              message: content.message,
+              date: snoozeFireDate,
+              userInfo: {
+                type: 'prayer',
+                prayerKey: entry.key,
+                sourceItemId: notifItem.id,
+                isSnooze: true,
+                snoozeMinutes: notifItem.snoozeMinutes,
+              },
+            });
+            scheduledIds.push(snoozeId);
+          }
+        }
       });
     });
 

@@ -100,6 +100,10 @@ export default function QiblaScreen() {
     QiblaLanguageConstants.PermissionDenied.key,
   );
   const unknownErrorMessage = t(QiblaLanguageConstants.UnknownError.key);
+  const locationUnavailableMessage = t(
+    QiblaLanguageConstants.LocationUnavailable.key,
+  );
+  const locationTimeoutMessage = t(QiblaLanguageConstants.LocationTimeout.key);
   const directionLabel = t(QiblaLanguageConstants.DirectionLabel.key);
   const angleLabel = t(QiblaLanguageConstants.AngleLabel.key);
   const distanceLabel = t(QiblaLanguageConstants.DistanceLabel.key);
@@ -132,6 +136,35 @@ export default function QiblaScreen() {
 
   const [error, setError] = useState<string | null>(null);
   const geoWatchId = useRef<number | null>(null);
+
+  const resolveLocationErrorMessage = useCallback(
+    (errorValue: unknown) => {
+      const errorWithCode = errorValue as { code?: number; message?: string };
+      if (errorWithCode?.code === 1) {
+        return permissionDeniedMessage;
+      }
+      if (errorWithCode?.code === 2) {
+        return locationUnavailableMessage;
+      }
+      if (errorWithCode?.code === 3) {
+        return locationTimeoutMessage;
+      }
+      const rawMessage = (errorWithCode?.message ?? '').toLowerCase();
+      if (
+        rawMessage.includes('network') ||
+        rawMessage.includes('unable to retrieve location')
+      ) {
+        return locationUnavailableMessage;
+      }
+      return unknownErrorMessage;
+    },
+    [
+      locationTimeoutMessage,
+      locationUnavailableMessage,
+      permissionDeniedMessage,
+      unknownErrorMessage,
+    ],
+  );
 
   const cleanupSensors = useCallback(() => {
     CompassHeading.stop();
@@ -198,7 +231,7 @@ export default function QiblaScreen() {
           p => {
             setCoords({ lat: p.coords.latitude, lon: p.coords.longitude });
           },
-          e => setError(e.message),
+          e => setError(resolveLocationErrorMessage(e)),
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 },
         );
 
@@ -212,7 +245,7 @@ export default function QiblaScreen() {
           (p: GeoPosition) => {
             setCoords({ lat: p.coords.latitude, lon: p.coords.longitude });
           },
-          e => setError(e.message),
+          e => setError(resolveLocationErrorMessage(e)),
           opts,
         );
 
@@ -226,7 +259,11 @@ export default function QiblaScreen() {
           return;
         }
       } catch (e: any) {
-        setError(e?.message ?? unknownErrorMessage);
+        if (e?.message === permissionDeniedMessage) {
+          setError(permissionDeniedMessage);
+          return;
+        }
+        setError(resolveLocationErrorMessage(e));
       }
     })();
 
@@ -235,9 +272,9 @@ export default function QiblaScreen() {
     };
   }, [
     cleanupSensors,
+    resolveLocationErrorMessage,
     permissionDeniedMessage,
     showUnsupportedAlert,
-    unknownErrorMessage,
   ]);
 
   /** Smoothing loop (yaklaşık 60 FPS) */

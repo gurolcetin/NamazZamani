@@ -2,6 +2,9 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   PrayerTimeKey,
   PrayerTimeMethodOption,
+  PrayerTimeTuneSettings,
+  PrayerTuneKey,
+  DEFAULT_PRAYER_TIME_TUNE,
 } from '../../common/types';
 import { FontScaleOption } from '../../common/enums';
 
@@ -39,6 +42,7 @@ type ApplicationSettingsState = {
   prayerTimeMethodsFetchedAt: string | null;
   prayerTimeMethodManuallySet: boolean;
   prayerTimeMethodPreferences: PrayerTimeMethodPreferenceMap;
+  prayerTimeTune: PrayerTimeTuneSettings;
 };
 
 const buildDefaultNotificationPreferences = (): PrayerNotificationPreferences =>
@@ -66,6 +70,7 @@ const initialState: ApplicationSettingsState = {
       manuallySet: false,
     },
   },
+  prayerTimeTune: { ...DEFAULT_PRAYER_TIME_TUNE },
 };
 
 const ensureNotificationPreferences = (
@@ -89,6 +94,21 @@ const ensureMethodPreferences = (
     };
   }
   return state.prayerTimeMethodPreferences;
+};
+
+const ensurePrayerTimeTune = (
+  state: ApplicationSettingsState,
+): PrayerTimeTuneSettings => {
+  if (!state.prayerTimeTune) {
+    state.prayerTimeTune = { ...DEFAULT_PRAYER_TIME_TUNE };
+    return state.prayerTimeTune;
+  }
+  for (const key of Object.keys(DEFAULT_PRAYER_TIME_TUNE) as PrayerTuneKey[]) {
+    if (!Number.isFinite(state.prayerTimeTune[key])) {
+      state.prayerTimeTune[key] = DEFAULT_PRAYER_TIME_TUNE[key];
+    }
+  }
+  return state.prayerTimeTune;
 };
 
 const ApplicationSettings = createSlice({
@@ -164,6 +184,30 @@ const ApplicationSettings = createSlice({
       state.prayerTimeMethods = action.payload.methods;
       state.prayerTimeMethodsFetchedAt = action.payload.fetchedAt;
     },
+    setPrayerTimeTuneValue: (
+      state,
+      action: PayloadAction<{ key: PrayerTuneKey; value: number }>,
+    ) => {
+      const tune = ensurePrayerTimeTune(state);
+      const { key, value } = action.payload;
+      const nextValue = Number.isFinite(value)
+        ? Math.max(-120, Math.min(120, Math.trunc(value)))
+        : 0;
+      tune[key] = nextValue;
+    },
+    setPrayerTimeTuneValues: (
+      state,
+      action: PayloadAction<PrayerTimeTuneSettings>,
+    ) => {
+      const tune = ensurePrayerTimeTune(state);
+      const payload = action.payload ?? DEFAULT_PRAYER_TIME_TUNE;
+      for (const key of Object.keys(DEFAULT_PRAYER_TIME_TUNE) as PrayerTuneKey[]) {
+        const value = payload[key];
+        tune[key] = Number.isFinite(value)
+          ? Math.max(-120, Math.min(120, Math.trunc(value)))
+          : DEFAULT_PRAYER_TIME_TUNE[key];
+      }
+    },
   },
 });
 
@@ -178,6 +222,8 @@ export const {
   updateAppConfig,
   updatePrayerTimeMethod,
   setPrayerTimeMethodOptions,
+  setPrayerTimeTuneValue,
+  setPrayerTimeTuneValues,
 } = ApplicationSettings.actions;
 
 export default ApplicationSettings.reducer;

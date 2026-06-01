@@ -50,7 +50,11 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    prayerNotificationManager.initialize();
+    try {
+      prayerNotificationManager.initialize();
+    } catch (error) {
+      console.warn('Prayer notification init failed', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -58,14 +62,21 @@ const App = () => {
       return;
     }
 
-    mobileAds()
-      .setRequestConfiguration({
-        testDeviceIdentifiers: [
-          'EMULATOR', // Android/iOS simülatörler için
-          'a8ac00e6ebc87db82a1f53a559e17a2c', // iOS cihaz örneği
-        ],
-      })
-      .then(() => mobileAds().initialize());
+    const initAds = async () => {
+      try {
+        await mobileAds().setRequestConfiguration({
+          testDeviceIdentifiers: [
+            'EMULATOR', // Android/iOS simülatörler için
+            'a8ac00e6ebc87db82a1f53a559e17a2c', // iOS cihaz örneği
+          ],
+        });
+        await mobileAds().initialize();
+      } catch (error) {
+        console.warn('Mobile Ads init failed', error);
+      }
+    };
+
+    initAds();
   }, []);
 
   if (!isChecking && !canContinue) {

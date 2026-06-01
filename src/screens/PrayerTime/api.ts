@@ -1,5 +1,9 @@
 import { getTimeZoneByCoords } from '../../../libs/core/helpers';
-import { PrayerTimeMethodOption } from '../../../libs/common/types';
+import {
+  PrayerTimeMethodOption,
+  PrayerTimeTuneSettings,
+  DEFAULT_PRAYER_TIME_TUNE,
+} from '../../../libs/common/types';
 import i18next from 'i18next';
 
 export type PrayerTimings = {
@@ -13,6 +17,31 @@ export type PrayerTimings = {
 };
 
 const METHODS_ENDPOINT = 'https://api.aladhan.com/v1/methods';
+export const tuneSettingsToArray = (
+  tune: PrayerTimeTuneSettings = DEFAULT_PRAYER_TIME_TUNE,
+) => [
+  tune.imsak,
+  tune.fajr,
+  tune.sunrise,
+  tune.dhuhr,
+  tune.asr,
+  tune.maghrib,
+  tune.sunset,
+  tune.isha,
+  tune.midnight,
+];
+
+export const DEFAULT_TUNE_OFFSETS = tuneSettingsToArray();
+
+type FetchPrayerTimesOptions = {
+  tune?: number[] | null;
+  school?: 0 | 1;
+  midnightMode?: 0 | 1;
+  latitudeAdjustmentMethod?: 1 | 2 | 3;
+  calendarMethod?: 'HJCoSA' | 'UAQ' | 'DIYANET' | 'MATHEMATICAL';
+  shafaq?: 'general' | 'ahmer' | 'abyad';
+  iso8601?: boolean;
+};
 
 const haversineDistanceKm = (
   a: { latitude: number; longitude: number },
@@ -119,6 +148,7 @@ export async function fetchPrayerTimesByCoords(
   longitude: number,
   baseDate: Date = new Date(), // cihazın o anki tarihi (veya geçilecek tarih)
   methodId = 13,
+  options: FetchPrayerTimesOptions = {},
 ): Promise<PrayerTimings> {
   let tzString = 'Europe/Istanbul';
   try {
@@ -129,10 +159,44 @@ export async function fetchPrayerTimesByCoords(
 
   // Cihaz tarihine göre - saniye cinsinden timestamp
   const ts = Math.floor(baseDate.getTime() / 1000);
+
+  const query: string[] = [
+    `latitude=${encodeURIComponent(String(latitude))}`,
+    `longitude=${encodeURIComponent(String(longitude))}`,
+    `method=${encodeURIComponent(String(methodId))}`,
+    `timezonestring=${encodeURIComponent(tzString)}`,
+  ];
+
+  if (typeof options.school === 'number') {
+    query.push(`school=${encodeURIComponent(String(options.school))}`);
+  }
+  if (typeof options.midnightMode === 'number') {
+    query.push(`midnightMode=${encodeURIComponent(String(options.midnightMode))}`);
+  }
+  if (typeof options.latitudeAdjustmentMethod === 'number') {
+    query.push(
+      `latitudeAdjustmentMethod=${encodeURIComponent(
+        String(options.latitudeAdjustmentMethod),
+      )}`,
+    );
+  }
+  if (options.calendarMethod) {
+    query.push(`calendarMethod=${encodeURIComponent(options.calendarMethod)}`);
+  }
+  if (options.shafaq) {
+    query.push(`shafaq=${encodeURIComponent(options.shafaq)}`);
+  }
+  if (typeof options.iso8601 === 'boolean') {
+    query.push(`iso8601=${encodeURIComponent(String(options.iso8601))}`);
+  }
+
+  if (Array.isArray(options.tune) && options.tune.length === 9) {
+    query.push(`tune=${encodeURIComponent(options.tune.join(','))}`);
+  }
+
   // O güne ait vakitler
-  const url = `https://api.aladhan.com/v1/timings/${ts}?latitude=${latitude}&longitude=${longitude}&method=${methodId}&timezonestring=${encodeURIComponent(
-    tzString,
-  )}`;
+  const url = `https://api.aladhan.com/v1/timings/${ts}?${query.join('&')}`;
+
   const makeNetworkError = (cause?: unknown) => {
     const err: any = new Error('PRAYER_TIMES_NETWORK_ERROR');
     err.prayerTimesCode = 'NETWORK_OR_DEVICE_DATE';
@@ -142,6 +206,7 @@ export async function fetchPrayerTimesByCoords(
   try {
     const res = await fetchWithHttpFallback(url);
     const json = await res.json();
+
     if (json?.code !== 200) {
       throw new Error(json?.data || i18next.t('errors.prayerTimesFetchFailed'));
     }

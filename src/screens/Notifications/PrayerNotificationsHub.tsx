@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,9 @@ import {
   Modal,
   Alert,
   Linking,
+  Animated,
+  Dimensions,
+  Easing,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -56,6 +59,8 @@ const SILENT_MODE_OPTIONS: SilentModeDuration[] = [
   '7d',
 ];
 
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
 export default function PrayerNotificationsHub() {
   const { currentTheme } = useTheme();
   const { t, i18n } = useTranslation();
@@ -80,6 +85,32 @@ export default function PrayerNotificationsHub() {
   const [notificationPermissionGranted, setNotificationPermissionGranted] =
     useState(true);
   const [showSilentModal, setShowSilentModal] = useState(false);
+  const silentSheetAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+
+  const openSilentModal = useCallback(() => {
+    silentSheetAnim.stopAnimation();
+    silentSheetAnim.setValue(SCREEN_HEIGHT);
+    setShowSilentModal(true);
+    Animated.timing(silentSheetAnim, {
+      toValue: 0,
+      duration: 260,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [silentSheetAnim]);
+
+  const closeSilentModal = useCallback(() => {
+    silentSheetAnim.stopAnimation();
+    Animated.timing(silentSheetAnim, {
+      toValue: SCREEN_HEIGHT,
+      duration: 250,
+      easing: Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => {
+      setShowSilentModal(false);
+      silentSheetAnim.setValue(SCREEN_HEIGHT);
+    });
+  }, [silentSheetAnim]);
 
   const refreshPermission = useCallback(async () => {
     const granted = await prayerNotificationManager.hasPermission();
@@ -162,7 +193,7 @@ export default function PrayerNotificationsHub() {
 
   const handleSilentModeSelect = useCallback(
     (duration: SilentModeDuration) => {
-      setShowSilentModal(false);
+      closeSilentModal();
       dispatch(
         setSilentMode({
           duration,
@@ -170,7 +201,7 @@ export default function PrayerNotificationsHub() {
         }),
       );
     },
-    [dispatch],
+    [closeSilentModal, dispatch],
   );
 
   const silentModeLabel = useMemo(() => {
@@ -218,7 +249,7 @@ export default function PrayerNotificationsHub() {
             {/* Silent mode chip */}
             <Pressable
               style={styles.chip}
-              onPress={() => setShowSilentModal(true)}
+              onPress={openSilentModal}
             >
               <Icon
                 type={Icons.MaterialDesignIcons}
@@ -320,65 +351,71 @@ export default function PrayerNotificationsHub() {
       <Modal
         visible={showSilentModal}
         transparent
-        animationType="slide"
-        onRequestClose={() => setShowSilentModal(false)}
+        animationType="none"
+        presentationStyle="overFullScreen"
+        onRequestClose={closeSilentModal}
       >
         <Pressable
           style={styles.modalOverlay}
-          onPress={() => setShowSilentModal(false)}
+          onPress={closeSilentModal}
         >
-          <Pressable
+          <Animated.View
             style={[
               styles.silentSheet,
-              { backgroundColor: currentTheme.cardViewBackgroundColor },
+              {
+                backgroundColor: currentTheme.cardViewBackgroundColor,
+                transform: [{ translateY: silentSheetAnim }],
+              },
             ]}
           >
-            <View style={styles.sheetHandle} />
-            <Text style={styles.sheetTitle}>
-              {t('notifications.hub.silentModeTitle')}
-            </Text>
-            <Text style={styles.sheetDesc}>
-              {t('notifications.hub.silentModeDesc')}
-            </Text>
-            <ScrollView
-              bounces={false}
-              showsVerticalScrollIndicator={false}
-            >
-              {SILENT_MODE_OPTIONS.map(option => (
-                <Pressable
-                  key={option}
-                  style={[
-                    styles.silentOption,
-                    silentModeDuration === option &&
-                      styles.silentOptionSelected,
-                  ]}
-                  onPress={() => handleSilentModeSelect(option)}
-                  android_ripple={{
-                    color: `${currentTheme.primary}22`,
-                    borderless: false,
-                  }}
-                >
-                  <Text
+            <Pressable onPress={() => {}}>
+              <View style={styles.sheetHandle} />
+              <Text style={styles.sheetTitle}>
+                {t('notifications.hub.silentModeTitle')}
+              </Text>
+              <Text style={styles.sheetDesc}>
+                {t('notifications.hub.silentModeDesc')}
+              </Text>
+              <ScrollView
+                bounces={false}
+                showsVerticalScrollIndicator={false}
+              >
+                {SILENT_MODE_OPTIONS.map(option => (
+                  <Pressable
+                    key={option}
                     style={[
-                      styles.silentOptionText,
+                      styles.silentOption,
                       silentModeDuration === option &&
-                        styles.silentOptionTextSelected,
+                        styles.silentOptionSelected,
                     ]}
+                    onPress={() => handleSilentModeSelect(option)}
+                    android_ripple={{
+                      color: `${currentTheme.primary}22`,
+                      borderless: false,
+                    }}
                   >
-                    {t(`notifications.silentMode.${option}`)}
-                  </Text>
-                  {silentModeDuration === option && (
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="check"
-                      size={18 * fontScaleMultiplier}
-                      color={currentTheme.primary}
-                    />
-                  )}
-                </Pressable>
-              ))}
-            </ScrollView>
-          </Pressable>
+                    <Text
+                      style={[
+                        styles.silentOptionText,
+                        silentModeDuration === option &&
+                          styles.silentOptionTextSelected,
+                      ]}
+                    >
+                      {t(`notifications.silentMode.${option}`)}
+                    </Text>
+                    {silentModeDuration === option && (
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="check"
+                        size={18 * fontScaleMultiplier}
+                        color={currentTheme.primary}
+                      />
+                    )}
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </Pressable>
+          </Animated.View>
         </Pressable>
       </Modal>
     </>
@@ -507,8 +544,8 @@ const createStyles = (theme: any, fsm: number) =>
       borderTopRightRadius: 20,
       paddingTop: 12,
       paddingHorizontal: 16,
-      paddingBottom: 48,
-      maxHeight: '80%',
+      paddingBottom: 40,
+      maxHeight: SCREEN_HEIGHT * 0.75,
     },
     sheetHandle: {
       width: 36,

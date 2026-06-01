@@ -19,7 +19,7 @@ import {
   Icon,
 } from '../../../../libs/components';
 import { fetchMonthlyPrayerTimesByCoords, type PrayerTimings } from './api';
-import { getCurrentPosition, requestLocationPermission } from '../permission';
+import { getCurrentPosition, hasLocationPermission } from '../permission';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
@@ -158,8 +158,8 @@ export default function MonthlyCalendar() {
       let latitude: number | null = null;
       let longitude: number | null = null;
       if ('type' in activeResolved && activeResolved.type === 'device') {
-        const permissionResult = await requestLocationPermission();
-        if (permissionResult !== 'granted') return;
+        const granted = await hasLocationPermission();
+        if (!granted) return;
         const pos = await getCurrentPosition();
         latitude = pos.latitude;
         longitude = pos.longitude;

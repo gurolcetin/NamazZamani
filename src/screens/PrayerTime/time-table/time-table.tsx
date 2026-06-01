@@ -23,7 +23,10 @@ import {
   saveTimeTableSnapshot,
   selectCachedTimeTable,
 } from '../../../../libs/redux/reducers/prayerTimesCache';
-import { getCurrentPosition, requestLocationPermission } from '../permission';
+import {
+  getCurrentPosition,
+  hasLocationPermission,
+} from '../permission';
 import TimeTableSkeleton from './time-table-skeleton';
 import { FontScaleOption } from '../../../../libs/common/enums';
 import { getFontScaleMultiplier } from '../../../../libs/core/helpers';
@@ -230,8 +233,8 @@ export default function TimeTable() {
       let latitude: number | null = null;
       let longitude: number | null = null;
       if ('type' in activeResolved && activeResolved.type === 'device') {
-        const permissionResult = await requestLocationPermission();
-        if (permissionResult !== 'granted') return;
+        const granted = await hasLocationPermission();
+        if (!granted) return;
         const pos = await getCurrentPosition();
         latitude = pos.latitude;
         longitude = pos.longitude;

@@ -61,8 +61,10 @@ export function getCurrentPosition(): Promise<{
         enableHighAccuracy: true,
         timeout: 15000,
         maximumAge: 10000,
-        forceRequestLocation: true,
-        showLocationDialog: true,
+        // Avoid repeatedly prompting Android location accuracy dialog.
+        // When location services are disabled/inaccurate, fail silently and let UI handle it.
+        forceRequestLocation: false,
+        showLocationDialog: false,
       },
     );
   });

@@ -12,10 +12,12 @@ const PRAYER_KEYS: PrayerTimeKey[] = [
 
 export type NotificationSound =
   | 'default'
-  | 'big_bell'
   | 'zil_sesi_1'
   | 'zil_sesi_2'
-  | 'zil_sesi_3';
+  | 'zil_sesi_3'
+  | 'ezan_sesi1'
+  | 'ezan_sesi2'
+  | 'ezan_sesi3';
 
 export type SilentModeDuration =
   | 'off'

@@ -407,6 +407,7 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
   const [isLoadingDays, setIsLoadingDays] = useState(true);
   const [hasFetchError, setHasFetchError] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  const activeIndexRef = useRef(0);
 
   const defaultStartOfToday = useMemo(
     () => dateFromYMD(currentDateKey),
@@ -531,6 +532,7 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     const count = upcomingEvents.length;
 
     if (count <= 1) {
+      activeIndexRef.current = 0;
       setActiveIndex(0);
       return;
     }
@@ -538,18 +540,38 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     if (extendedIndex === 0) {
       // Cloned last item — silently jump to the real last item
       scrollRef.current?.scrollTo({ x: slideWidth * count, animated: false });
+      activeIndexRef.current = count - 1;
       setActiveIndex(count - 1);
     } else if (extendedIndex === count + 1) {
       // Cloned first item — silently jump to the real first item
       scrollRef.current?.scrollTo({ x: slideWidth * 1, animated: false });
+      activeIndexRef.current = 0;
       setActiveIndex(0);
     } else {
+      activeIndexRef.current = extendedIndex - 1;
       setActiveIndex(extendedIndex - 1);
+    }
+  };
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (!slideWidth) return;
+    const count = upcomingEvents.length;
+    if (count <= 1) return;
+
+    const offsetX = e.nativeEvent.contentOffset.x;
+    const extendedIndex = Math.round(offsetX / slideWidth);
+    const normalizedIndex =
+      ((extendedIndex - 1) % count + count) % count;
+
+    if (normalizedIndex !== activeIndexRef.current) {
+      activeIndexRef.current = normalizedIndex;
+      setActiveIndex(normalizedIndex);
     }
   };
 
   useEffect(() => {
     if (!slideWidth) return;
+    activeIndexRef.current = 0;
     setActiveIndex(0);
     // Start at index 1 to skip the prepended clone
     const initialOffset = upcomingEvents.length > 1 ? slideWidth * 1 : 0;
@@ -636,6 +658,8 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
               onMomentumScrollEnd={handleScrollEnd}
             >
               {extendedEvents.map((event, idx) => {

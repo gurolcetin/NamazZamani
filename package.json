@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
+    "android": "react-native run-android --appIdSuffix debug",
     "android:bundle": "cd android && ./gradlew bundleRelease",
     "android:apk": "cd android && ./gradlew assembleRelease",
     "android:clean": "cd android && ./gradlew clean",

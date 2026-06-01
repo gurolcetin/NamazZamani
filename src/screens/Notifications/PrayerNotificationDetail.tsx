@@ -24,7 +24,13 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../../../libs/core/providers';
-import { BottomTabScreenViewContainer, Icon, Icons, PRAYER_TIME_ICONS } from '../../../libs/components';
+import {
+  BottomTabScreenViewContainer,
+  FormSegmentedControl,
+  Icon,
+  Icons,
+  PRAYER_TIME_ICONS,
+} from '../../../libs/components';
 import { RootState } from '../../../libs/redux/store';
 import { FontScaleOption } from '../../../libs/common/enums';
 import { getFontScaleMultiplier } from '../../../libs/core/helpers';
@@ -56,16 +62,36 @@ const SNOOZE_OPTIONS = [0, 5, 10, 15, 20, 30, 45, 60];
 
 const SOUND_OPTIONS: NotificationSound[] = [
   'default',
+  'ezan_sesi1',
+  'ezan_sesi2',
+  'ezan_sesi3',
   'zil_sesi_1',
   'zil_sesi_2',
   'zil_sesi_3',
-  'big_bell',
 ];
 
 const OFFSET_PRESETS = [-120, -90, -60, -45, -30, -20, -15, -10, -5, 5, 10, 15, 20, 30, 45, 60, 90, 120];
 
-const DAY_LABELS_TR = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-const DAY_LABELS_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAY_LABELS_SHORT_TR = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+const DAY_LABELS_SHORT_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAY_LABELS_LONG_TR = [
+  'Pazartesi',
+  'Salı',
+  'Çarşamba',
+  'Perşembe',
+  'Cuma',
+  'Cumartesi',
+  'Pazar',
+];
+const DAY_LABELS_LONG_EN = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -119,20 +145,33 @@ export default function PrayerNotificationDetail() {
     () => items[0]?.id ?? 'item_0',
   );
   const [showAddSheet, setShowAddSheet] = useState(false);
+  const [selectionModalType, setSelectionModalType] = useState<
+    'sound' | 'snooze' | 'offset' | 'days' | null
+  >(null);
+  const [selectionModalTarget, setSelectionModalTarget] = useState<
+    'selected' | 'add'
+  >(
+    'selected',
+  );
   const [addOffsetMinutes, setAddOffsetMinutes] = useState<number>(-15);
+  const [addOffsetDirection, setAddOffsetDirection] = useState<
+    'before' | 'after'
+  >('before');
   const [addSnoozeMinutes, setAddSnoozeMinutes] = useState<number>(0);
   const [addSoundOption, setAddSoundOption] = useState<NotificationSound>(
     'default',
   );
+  const [addDays, setAddDays] = useState<NotificationDays>([
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+  ]);
   const [playingSound, setPlayingSound] = useState<string | null>(null);
   const activeSoundRef = useRef<InstanceType<typeof Sound> | null>(null);
-
-  const beforeScrollRef = useRef<ScrollView>(null);
-  const afterScrollRef = useRef<ScrollView>(null);
-  const beforeChipLayoutRef = useRef<Record<number, number>>({});
-  const afterChipLayoutRef = useRef<Record<number, number>>({});
-  const settingsOffsetScrollRef = useRef<ScrollView>(null);
-  const settingsOffsetChipLayoutRef = useRef<Record<number, number>>({});
 
   const sheetAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
@@ -142,7 +181,8 @@ export default function PrayerNotificationDetail() {
   );
 
   const isLangTurkish = i18n.language?.startsWith('tr');
-  const dayLabels = isLangTurkish ? DAY_LABELS_TR : DAY_LABELS_EN;
+  const dayLabelsShort = isLangTurkish ? DAY_LABELS_SHORT_TR : DAY_LABELS_SHORT_EN;
+  const dayLabelsLong = isLangTurkish ? DAY_LABELS_LONG_TR : DAY_LABELS_LONG_EN;
   const uc = useCallback(
     (s: string) => (isLangTurkish ? s.toLocaleUpperCase('tr-TR') : s.toUpperCase()),
     [isLangTurkish],
@@ -154,35 +194,14 @@ export default function PrayerNotificationDetail() {
     }
   }, [items, selectedItemId]);
 
-  useEffect(() => {
-    if (!showAddSheet) return;
-    const timeout = setTimeout(() => {
-      const isNeg = addOffsetMinutes < 0;
-      const map = isNeg ? beforeChipLayoutRef.current : afterChipLayoutRef.current;
-      const x = map[addOffsetMinutes];
-      if (x != null) {
-        const ref = isNeg ? beforeScrollRef : afterScrollRef;
-        ref.current?.scrollTo({ x: Math.max(0, x - 80), animated: true });
-      }
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [showAddSheet, addOffsetMinutes]);
-
-  useEffect(() => {
-    if (!selectedItem || selectedItem.offsetMinutes === 0) return;
-    const timeout = setTimeout(() => {
-      const x = settingsOffsetChipLayoutRef.current[selectedItem.offsetMinutes];
-      if (x != null) {
-        settingsOffsetScrollRef.current?.scrollTo({ x: Math.max(0, x - 80), animated: true });
-      }
-    }, 150);
-    return () => clearTimeout(timeout);
-  }, [selectedItem, selectedItem.id, selectedItem.offsetMinutes]);
-
   const openAddSheet = useCallback(() => {
     setAddOffsetMinutes(-15);
+    setAddOffsetDirection('before');
     setAddSnoozeMinutes(0);
     setAddSoundOption('default');
+    setAddDays([true, true, true, true, true, true, true]);
+    setSelectionModalType(null);
+    setSelectionModalTarget('selected');
     setShowAddSheet(true);
     Animated.spring(sheetAnim, {
       toValue: 0,
@@ -192,6 +211,8 @@ export default function PrayerNotificationDetail() {
   }, [sheetAnim]);
 
   const closeAddSheet = useCallback(() => {
+    setSelectionModalType(null);
+    setSelectionModalTarget('selected');
     Animated.timing(sheetAnim, {
       toValue: SCREEN_HEIGHT,
       duration: 250,
@@ -280,37 +301,34 @@ export default function PrayerNotificationDetail() {
     [dispatch, prayerKey, selectedItem],
   );
 
-  const handleToggleDay = useCallback(
-    (dayIndex: number) => {
+  const getDaysByTarget = useCallback((): NotificationDays => {
+    if (selectionModalTarget === 'add') {
+      return addDays;
+    }
+    return (
+      selectedItem?.days ?? [true, true, true, true, true, true, true]
+    ) as NotificationDays;
+  }, [addDays, selectionModalTarget, selectedItem]);
+
+  const updateDaysByTarget = useCallback(
+    (days: NotificationDays) => {
+      if (selectionModalTarget === 'add') {
+        setAddDays(days);
+        return;
+      }
       if (!selectedItem) return;
-      const newDays = [...selectedItem.days] as NotificationDays;
-      newDays[dayIndex] = !newDays[dayIndex];
       dispatch(
         updateNotificationItem({
           prayerKey,
-          item: { ...selectedItem, days: newDays },
+          item: { ...selectedItem, days },
         }),
       );
     },
-    [dispatch, prayerKey, selectedItem],
+    [dispatch, prayerKey, selectedItem, selectionModalTarget],
   );
 
-  const allDaysActive = useMemo(
-    () => selectedItem?.days?.every(d => d) ?? true,
-    [selectedItem],
-  );
-
-  const handleToggleAllDays = useCallback(() => {
-    if (!selectedItem) return;
-    const next = !allDaysActive;
-    const newDays = [next, next, next, next, next, next, next] as NotificationDays;
-    dispatch(
-      updateNotificationItem({
-        prayerKey,
-        item: { ...selectedItem, days: newDays },
-      }),
-    );
-  }, [allDaysActive, dispatch, prayerKey, selectedItem]);
+  const modalDays = useMemo(() => getDaysByTarget(), [getDaysByTarget]);
+  const allDaysActive = useMemo(() => modalDays.every(Boolean), [modalDays]);
 
   const handleUpdateOffset = useCallback(
     (offsetMinutes: number) => {
@@ -354,14 +372,15 @@ export default function PrayerNotificationDetail() {
       if (sound === 'default') return; // No preview for system default
 
       // Play custom sound (Android'de cihaz/packaging farkları için fallback denemeleri)
+      const extension = sound.startsWith('ezan_sesi') ? 'wav' : 'mp3';
       const candidates: Array<{ filename: string; basePath: string }> =
         Platform.OS === 'android'
           ? [
-              { filename: `${sound}.mp3`, basePath: Sound.MAIN_BUNDLE },
+              { filename: `${sound}.${extension}`, basePath: Sound.MAIN_BUNDLE },
               { filename: sound, basePath: Sound.MAIN_BUNDLE },
               { filename: sound, basePath: '' },
             ]
-          : [{ filename: `${sound}.mp3`, basePath: Sound.MAIN_BUNDLE }];
+          : [{ filename: `${sound}.${extension}`, basePath: Sound.MAIN_BUNDLE }];
       const errors: string[] = [];
 
       const tryLoad = (index: number) => {
@@ -410,6 +429,128 @@ export default function PrayerNotificationDetail() {
     [dispatch, prayerKey, selectedItem],
   );
 
+  const openSoundSelector = useCallback(() => {
+    setSelectionModalTarget('selected');
+    setSelectionModalType('sound');
+  }, []);
+
+  const openAddSoundSelector = useCallback(() => {
+    setSelectionModalTarget('add');
+    setSelectionModalType('sound');
+  }, []);
+
+  const openSnoozeSelector = useCallback(() => {
+    setSelectionModalTarget('selected');
+    setSelectionModalType('snooze');
+  }, []);
+
+  const openAddSnoozeSelector = useCallback(() => {
+    setSelectionModalTarget('add');
+    setSelectionModalType('snooze');
+  }, []);
+
+  const openOffsetSelector = useCallback(() => {
+    if (!selectedItem || selectedItem.offsetMinutes === 0) {
+      return;
+    }
+    setSelectionModalTarget('selected');
+    setSelectionModalType('offset');
+  }, [selectedItem]);
+
+  const openAddOffsetSelector = useCallback(() => {
+    setAddOffsetDirection(addOffsetMinutes < 0 ? 'before' : 'after');
+    setSelectionModalTarget('add');
+    setSelectionModalType('offset');
+  }, [addOffsetMinutes]);
+
+  const handleSetAddOffsetDirection = useCallback(
+    (nextDirection: 'before' | 'after') => {
+      setAddOffsetDirection(nextDirection);
+      const shouldBeBefore = nextDirection === 'before';
+      const isBefore = addOffsetMinutes < 0;
+      if (shouldBeBefore === isBefore) {
+        return;
+      }
+      const abs = Math.abs(addOffsetMinutes);
+      const mirrored = OFFSET_PRESETS.find(o =>
+        shouldBeBefore ? o === -abs : o === abs,
+      );
+      if (mirrored != null) {
+        setAddOffsetMinutes(mirrored);
+        return;
+      }
+      setAddOffsetMinutes(shouldBeBefore ? -15 : 15);
+    },
+    [addOffsetMinutes],
+  );
+
+  const openDaysSelector = useCallback(() => {
+    setSelectionModalTarget('selected');
+    setSelectionModalType('days');
+  }, []);
+
+  const openAddDaysSelector = useCallback(() => {
+    setSelectionModalTarget('add');
+    setSelectionModalType('days');
+  }, []);
+
+  const closeSelectionModal = useCallback(() => {
+    setSelectionModalType(null);
+  }, []);
+
+  const formatSnoozeLabel = useCallback(
+    (minutes: number) =>
+      minutes === 0
+        ? t('notifications.detail.snoozeOff')
+        : `${minutes}${t('notifications.detail.minuteShort')}`,
+    [t],
+  );
+
+  const formatOffsetValue = useCallback(
+    (minutes: number) => `${Math.abs(minutes)}${t('notifications.detail.minuteShort')}`,
+    [t],
+  );
+
+  const formatDaysValue = useCallback(
+    (days: NotificationDays) => {
+      const activeIndices = days
+        .map((enabled, index) => (enabled ? index : -1))
+        .filter(index => index >= 0);
+      if (activeIndices.length === 7) {
+        return t('notifications.detail.allDaysSelected');
+      }
+      if (activeIndices.length === 0) {
+        return t('notifications.detail.noDaysSelected');
+      }
+      return activeIndices.map(index => dayLabelsShort[index]).join(', ');
+    },
+    [dayLabelsShort, t],
+  );
+
+  const handleToggleDayInModal = useCallback(
+    (dayIndex: number) => {
+      const current = getDaysByTarget();
+      const next = [...current] as NotificationDays;
+      next[dayIndex] = !next[dayIndex];
+      updateDaysByTarget(next);
+    },
+    [getDaysByTarget, updateDaysByTarget],
+  );
+
+  const handleToggleAllDaysInModal = useCallback(() => {
+    const current = getDaysByTarget();
+    const nextValue = !current.every(Boolean);
+    updateDaysByTarget([
+      nextValue,
+      nextValue,
+      nextValue,
+      nextValue,
+      nextValue,
+      nextValue,
+      nextValue,
+    ] as NotificationDays);
+  }, [getDaysByTarget, updateDaysByTarget]);
+
   const handleAddNotification = useCallback(() => {
     // Check if same offset already exists
     const exists = items.some(i => i.offsetMinutes === addOffsetMinutes);
@@ -427,17 +568,47 @@ export default function PrayerNotificationDetail() {
       enabled: true,
       sound: addSoundOption,
       snoozeMinutes: addSnoozeMinutes,
-      days: [true, true, true, true, true, true, true],
+      days: addDays,
     };
     dispatch(addNotificationItem({ prayerKey, item: newItem }));
     setSelectedItemId(newId);
     closeAddSheet();
-  }, [addOffsetMinutes, addSnoozeMinutes, addSoundOption, closeAddSheet, dispatch, items, prayerKey, t]);
+  }, [
+    addDays,
+    addOffsetMinutes,
+    addSnoozeMinutes,
+    addSoundOption,
+    closeAddSheet,
+    dispatch,
+    items,
+    prayerKey,
+    t,
+  ]);
 
   const sortedItems = useMemo(
     () => [...items].sort((a, b) => a.offsetMinutes - b.offsetMinutes),
     [items],
   );
+
+  const addOffsetDirectionOptions = useMemo(
+    () => [
+      {
+        label: t('notifications.detail.beforeLabel'),
+        value: 'before',
+      },
+      {
+        label: t('notifications.detail.afterLabel'),
+        value: 'after',
+      },
+    ],
+    [t],
+  );
+
+  const isSelectionModalOpen = selectionModalType !== null;
+  const showStandaloneSelectorModal =
+    isSelectionModalOpen && selectionModalTarget === 'selected';
+  const showAddSheetSelectorOverlay =
+    showAddSheet && isSelectionModalOpen && selectionModalTarget === 'add';
 
   const styles = useMemo(
     () => createStyles(currentTheme, fontScaleMultiplier),
@@ -497,9 +668,24 @@ export default function PrayerNotificationDetail() {
         </View>
 
         {/* Notification flow */}
-        <Text style={styles.sectionTitle}>
-          {uc(t('notifications.detail.flowTitle'))}
-        </Text>
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionTitle}>
+            {uc(t('notifications.detail.flowTitle'))}
+          </Text>
+          <Pressable
+            onPress={openAddSheet}
+            style={({ pressed }) => [
+              styles.flowAddInlineButton,
+              pressed && styles.flowAddInlineButtonPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={t('notifications.detail.addButton')}
+          >
+            <Text style={styles.flowAddInlineText}>
+              {t('notifications.detail.addButton')}
+            </Text>
+          </Pressable>
+        </View>
         <View style={styles.card}>
           {sortedItems.map((item, index) => {
             const isSelected = item.id === selectedItemId;
@@ -606,27 +792,8 @@ export default function PrayerNotificationDetail() {
           })}
         </View>
 
-        {/* Add notification button */}
-        <Pressable
-          onPress={openAddSheet}
-          style={({ pressed }) => [
-            styles.addButton,
-            pressed && styles.addButtonPressed,
-          ]}
-        >
-          <Icon
-            type={Icons.MaterialDesignIcons}
-            name="plus"
-            size={18 * fontScaleMultiplier}
-            color={currentTheme.primary}
-          />
-          <Text style={styles.addButtonText}>
-            {t('notifications.detail.addButton')}
-          </Text>
-        </Pressable>
-
         {/* Settings for selected notification */}
-        {selectedItem && (
+        {selectedItem && selectedItem.enabled && (
           <>
             <Text style={styles.sectionTitle}>
               {uc(t('notifications.detail.settingsTitle'))}
@@ -645,218 +812,433 @@ export default function PrayerNotificationDetail() {
                 </Text>
               </View>
 
-              {/* Sound */}
-              <View style={styles.settingsRow}>
-                <View style={styles.settingsRowLeft}>
-                  <View style={styles.settingsIconBox}>
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="volume-high"
-                      size={18 * fontScaleMultiplier}
-                      color={currentTheme.primary}
-                    />
-                  </View>
-                  <Text style={styles.settingsRowLabel}>
-                    {t('notifications.detail.sound')}
-                  </Text>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.snoozeRow}
+              <View style={styles.settingsListCard}>
+                {/* Sound */}
+                <Pressable
+                  onPress={openSoundSelector}
+                  style={({ pressed }) => [
+                    styles.settingsListRow,
+                    pressed && styles.settingsListRowPressed,
+                  ]}
                 >
-                    {SOUND_OPTIONS.map(opt => (
-                    <Pressable
-                      key={opt}
-                      onPress={() => handleUpdateSound(opt)}
-                      style={[
-                        styles.snoozeChip,
-                        selectedItem.sound === opt && styles.snoozeChipSelected,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.snoozeChipText,
-                          selectedItem.sound === opt &&
-                            styles.snoozeChipTextSelected,
-                        ]}
-                      >
-                        {t(`notifications.detail.sound_${opt}`)}
-                      </Text>
-                      {opt !== 'default' && (
-                        <Pressable
-                          onPress={() => handlePreviewSound(opt)}
-                          hitSlop={6}
-                          style={styles.soundPreviewBtn}
-                        >
-                          <Icon
-                            type={Icons.MaterialDesignIcons}
-                            name={
-                              playingSound === opt
-                                ? 'stop-circle-outline'
-                                : 'play-circle-outline'
-                            }
-                            size={24 * fontScaleMultiplier}
-                            color={
-                              selectedItem.sound === opt
-                                ? currentTheme.primary
-                                : currentTheme.placeholderTextColor
-                            }
-                          />
-                        </Pressable>
-                      )}
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-
-              <View style={styles.settingsDivider} />
-
-              {/* Snooze */}
-              <View style={styles.settingsRow}>
-                <View style={styles.settingsRowLeft}>
-                  <View style={styles.settingsIconBox}>
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="timer-outline"
-                      size={18 * fontScaleMultiplier}
-                      color={currentTheme.primary}
-                    />
-                  </View>
-                  <Text style={styles.settingsRowLabel}>
-                    {t('notifications.detail.snooze')}
-                  </Text>
-                </View>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.snoozeRow}
-                >
-                  {SNOOZE_OPTIONS.map(opt => (
-                    <Pressable
-                      key={opt}
-                      onPress={() => handleUpdateSnooze(opt)}
-                      style={[
-                        styles.snoozeChip,
-                        selectedItem.snoozeMinutes === opt &&
-                          styles.snoozeChipSelected,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.snoozeChipText,
-                          selectedItem.snoozeMinutes === opt &&
-                            styles.snoozeChipTextSelected,
-                        ]}
-                      >
-                        {opt === 0
-                          ? t('notifications.detail.snoozeOff')
-                          : `${opt}${t('notifications.detail.minuteShort')}`}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-
-              {/* Offset editing – only for before/after notifications */}
-              {selectedItem.offsetMinutes !== 0 && (
-                <>
-                  <View style={styles.settingsDivider} />
-                  <View style={styles.settingsRow}>
-                    <View style={styles.settingsRowLeft}>
-                      <View style={styles.settingsIconBox}>
-                        <Icon
-                          type={Icons.MaterialDesignIcons}
-                          name="clock-edit-outline"
-                          size={18 * fontScaleMultiplier}
-                          color={currentTheme.primary}
-                        />
-                      </View>
+                  <View style={styles.settingsRowLeft}>
+                    <View style={styles.settingsIconBox}>
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="volume-high"
+                        size={18 * fontScaleMultiplier}
+                        color={currentTheme.primary}
+                      />
+                    </View>
+                    <View style={styles.settingsTextBlock}>
                       <Text style={styles.settingsRowLabel}>
-                        {selectedItem.offsetMinutes < 0
-                          ? t('notifications.detail.beforeLabel')
-                          : t('notifications.detail.afterLabel')}
+                        {t('notifications.detail.sound')}
+                      </Text>
+                      <Text style={styles.settingsRowDescription}>
+                        {t('notifications.detail.soundDescription')}
                       </Text>
                     </View>
-                    <ScrollView
-                      ref={settingsOffsetScrollRef}
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.snoozeRow}
-                    >
-                      {OFFSET_PRESETS.filter(o =>
-                        selectedItem.offsetMinutes < 0 ? o < 0 : o > 0,
-                      ).map(offset => (
-                        <Pressable
-                          key={offset}
-                          onPress={() => handleUpdateOffset(offset)}
-                          onLayout={e => {
-                            settingsOffsetChipLayoutRef.current[offset] = e.nativeEvent.layout.x;
-                          }}
-                          style={[
-                            styles.snoozeChip,
-                            selectedItem.offsetMinutes === offset &&
-                              styles.snoozeChipSelected,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.snoozeChipText,
-                              selectedItem.offsetMinutes === offset &&
-                                styles.snoozeChipTextSelected,
-                            ]}
-                          >
-                            {Math.abs(offset)}
-                            {t('notifications.detail.minuteShort')}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
                   </View>
-                </>
-              )}
-            </View>
+                  <View style={styles.settingsRowRight}>
+                    <Text numberOfLines={1} style={styles.settingsValueText}>
+                      {t(`notifications.detail.sound_${selectedItem.sound}`)}
+                    </Text>
+                    <Icon
+                      type={Icons.MaterialDesignIcons}
+                      name="chevron-right"
+                      size={20 * fontScaleMultiplier}
+                      color={currentTheme.placeholderTextColor}
+                    />
+                  </View>
+                </Pressable>
 
-            {/* Days section */}
-            <View style={styles.daysSectionHeader}>
-              <Text style={styles.sectionTitle}>
-                {uc(t('notifications.detail.daysTitle'))}
-              </Text>
-              <Pressable onPress={handleToggleAllDays}>
-                <Text style={styles.daysAllText}>
-                  {allDaysActive
-                    ? t('notifications.detail.allDaysActive')
-                    : t('notifications.detail.activateAllDays')}
-                </Text>
-              </Pressable>
-            </View>
-            <View style={[styles.card, styles.daysCard]}>
-              {dayLabels.map((label, index) => {
-                const isActive = selectedItem.days?.[index] ?? true;
-                return (
-                  <Pressable
-                    key={index}
-                    onPress={() => handleToggleDay(index)}
-                    style={[
-                      styles.dayChip,
-                      isActive && styles.dayChipActive,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.dayChipText,
-                        isActive && styles.dayChipTextActive,
+                <View style={styles.settingsDivider} />
+
+                {/* Snooze */}
+                <Pressable
+                  onPress={openSnoozeSelector}
+                  style={({ pressed }) => [
+                    styles.settingsListRow,
+                    pressed && styles.settingsListRowPressed,
+                  ]}
+                >
+                  <View style={styles.settingsRowLeft}>
+                    <View style={styles.settingsIconBox}>
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="timer-outline"
+                        size={18 * fontScaleMultiplier}
+                        color={currentTheme.primary}
+                      />
+                    </View>
+                    <View style={styles.settingsTextBlock}>
+                      <Text style={styles.settingsRowLabel}>
+                        {t('notifications.detail.snooze')}
+                      </Text>
+                      <Text style={styles.settingsRowDescription}>
+                        {t('notifications.detail.snoozeDescription')}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.settingsRowRight}>
+                    <Text numberOfLines={1} style={styles.settingsValueText}>
+                      {formatSnoozeLabel(selectedItem.snoozeMinutes)}
+                    </Text>
+                    <Icon
+                      type={Icons.MaterialDesignIcons}
+                      name="chevron-right"
+                      size={20 * fontScaleMultiplier}
+                      color={currentTheme.placeholderTextColor}
+                    />
+                  </View>
+                </Pressable>
+
+                {/* Offset editing – only for before/after notifications */}
+                {selectedItem.offsetMinutes !== 0 && (
+                  <>
+                    <View style={styles.settingsDivider} />
+                    <Pressable
+                      onPress={openOffsetSelector}
+                      style={({ pressed }) => [
+                        styles.settingsListRow,
+                        pressed && styles.settingsListRowPressed,
                       ]}
                     >
-                      {label}
+                      <View style={styles.settingsRowLeft}>
+                        <View style={styles.settingsIconBox}>
+                          <Icon
+                            type={Icons.MaterialDesignIcons}
+                            name="clock-edit-outline"
+                            size={18 * fontScaleMultiplier}
+                            color={currentTheme.primary}
+                          />
+                        </View>
+                        <View style={styles.settingsTextBlock}>
+                          <Text style={styles.settingsRowLabel}>
+                            {selectedItem.offsetMinutes < 0
+                              ? t('notifications.detail.beforeLabel')
+                              : t('notifications.detail.afterLabel')}
+                          </Text>
+                          <Text style={styles.settingsRowDescription}>
+                            {t('notifications.detail.offsetDescription')}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.settingsRowRight}>
+                        <Text numberOfLines={1} style={styles.settingsValueText}>
+                          {formatOffsetValue(selectedItem.offsetMinutes)}
+                        </Text>
+                        <Icon
+                          type={Icons.MaterialDesignIcons}
+                          name="chevron-right"
+                          size={20 * fontScaleMultiplier}
+                          color={currentTheme.placeholderTextColor}
+                        />
+                      </View>
+                    </Pressable>
+                  </>
+                )}
+
+                <View style={styles.settingsDivider} />
+                <Pressable
+                  onPress={openDaysSelector}
+                  style={({ pressed }) => [
+                    styles.settingsListRow,
+                    pressed && styles.settingsListRowPressed,
+                  ]}
+                >
+                  <View style={styles.settingsRowLeft}>
+                    <View style={styles.settingsIconBox}>
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="calendar-month-outline"
+                        size={18 * fontScaleMultiplier}
+                        color={currentTheme.primary}
+                      />
+                    </View>
+                    <View style={styles.settingsTextBlock}>
+                      <Text style={styles.settingsRowLabel}>
+                        {t('notifications.detail.daysTitle')}
+                      </Text>
+                      <Text style={styles.settingsRowDescription}>
+                        {t('notifications.detail.daysDescription')}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.settingsRowRight}>
+                    <Text numberOfLines={1} style={styles.settingsValueText}>
+                      {formatDaysValue(selectedItem.days)}
                     </Text>
-                  </Pressable>
-                );
-              })}
+                    <Icon
+                      type={Icons.MaterialDesignIcons}
+                      name="chevron-right"
+                      size={20 * fontScaleMultiplier}
+                      color={currentTheme.placeholderTextColor}
+                    />
+                  </View>
+                </Pressable>
+              </View>
             </View>
           </>
         )}
       </ScrollView>
+
+      {/* Selector modal (sound/snooze/offset/days) */}
+      <Modal
+        visible={showStandaloneSelectorModal}
+        transparent
+        animationType="fade"
+        onRequestClose={closeSelectionModal}
+      >
+        <Pressable
+          style={styles.selectorModalOverlay}
+          onPress={closeSelectionModal}
+        >
+          <Pressable
+            style={[
+              styles.selectorModalCard,
+              { backgroundColor: currentTheme.cardViewBackgroundColor },
+            ]}
+            onPress={() => {}}
+          >
+            <Text style={styles.selectorModalTitle}>
+              {selectionModalType === 'sound'
+                ? t('notifications.detail.sound')
+                : selectionModalType === 'snooze'
+                ? t('notifications.detail.snooze')
+                : selectionModalType === 'days'
+                ? t('notifications.detail.daysTitle')
+                : selectionModalTarget === 'add'
+                ? t('notifications.detail.offsetDescription')
+                : selectedItem?.offsetMinutes != null && selectedItem.offsetMinutes < 0
+                ? t('notifications.detail.beforeLabel')
+                : t('notifications.detail.afterLabel')}
+            </Text>
+            {selectionModalType === 'days' ? (
+              <>
+                <Pressable
+                  onPress={handleToggleAllDaysInModal}
+                  style={styles.daysModalToggleAll}
+                >
+                  <Text style={styles.daysModalToggleAllText}>
+                    {allDaysActive
+                      ? t('notifications.detail.disableAllDays')
+                      : t('notifications.detail.activateAllDays')}
+                  </Text>
+                </Pressable>
+                <ScrollView
+                  style={styles.daysModalListScroll}
+                  contentContainerStyle={styles.daysModalList}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {dayLabelsLong.map((label, index) => {
+                    const isActive = modalDays[index];
+                    return (
+                      <Pressable
+                        key={index}
+                        onPress={() => handleToggleDayInModal(index)}
+                        style={[
+                          styles.daysModalRow,
+                          isActive && styles.daysModalRowActive,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.daysModalRowText,
+                            isActive && styles.daysModalRowTextActive,
+                          ]}
+                        >
+                          {label}
+                        </Text>
+                        {isActive && (
+                          <Icon
+                            type={Icons.MaterialDesignIcons}
+                            name="check"
+                            size={20 * fontScaleMultiplier}
+                            color={currentTheme.primary}
+                          />
+                        )}
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+                <Pressable
+                  onPress={closeSelectionModal}
+                  style={[
+                    styles.daysModalDoneButton,
+                    { backgroundColor: currentTheme.primary },
+                  ]}
+                >
+                  <Text style={styles.daysModalDoneText}>
+                    {t('notifications.detail.modalDone')}
+                  </Text>
+                </Pressable>
+              </>
+            ) : (
+              <ScrollView
+                style={styles.selectorModalList}
+                showsVerticalScrollIndicator={false}
+              >
+              {selectionModalType === 'sound'
+                ? SOUND_OPTIONS.map(opt => {
+                    const isSelected =
+                      selectionModalTarget === 'add'
+                        ? addSoundOption === opt
+                        : selectedItem?.sound === opt;
+                    return (
+                      <Pressable
+                        key={opt}
+                        onPress={() => {
+                          if (selectionModalTarget === 'add') {
+                            setAddSoundOption(opt);
+                          } else {
+                            handleUpdateSound(opt);
+                          }
+                          closeSelectionModal();
+                        }}
+                        style={[
+                          styles.selectorOptionRow,
+                          isSelected && styles.selectorOptionRowSelected,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.selectorOptionText,
+                            isSelected && styles.selectorOptionTextSelected,
+                          ]}
+                        >
+                          {t(`notifications.detail.sound_${opt}`)}
+                        </Text>
+                        <View style={styles.selectorOptionActions}>
+                          {opt !== 'default' && (
+                            <Pressable
+                              onPress={() => handlePreviewSound(opt)}
+                              hitSlop={8}
+                            >
+                              <Icon
+                                type={Icons.MaterialDesignIcons}
+                                name={
+                                  playingSound === opt
+                                    ? 'stop-circle-outline'
+                                    : 'play-circle-outline'
+                                }
+                                size={22 * fontScaleMultiplier}
+                                color={
+                                  isSelected
+                                    ? currentTheme.primary
+                                    : currentTheme.placeholderTextColor
+                                }
+                              />
+                            </Pressable>
+                          )}
+                          {isSelected && (
+                            <Icon
+                              type={Icons.MaterialDesignIcons}
+                              name="check"
+                              size={20 * fontScaleMultiplier}
+                              color={currentTheme.primary}
+                            />
+                          )}
+                        </View>
+                      </Pressable>
+                    );
+                  })
+                : selectionModalType === 'snooze'
+                ? SNOOZE_OPTIONS.map(opt => {
+                    const isSelected =
+                      selectionModalTarget === 'add'
+                        ? addSnoozeMinutes === opt
+                        : selectedItem?.snoozeMinutes === opt;
+                    return (
+                      <Pressable
+                        key={opt}
+                        onPress={() => {
+                          if (selectionModalTarget === 'add') {
+                            setAddSnoozeMinutes(opt);
+                          } else {
+                            handleUpdateSnooze(opt);
+                          }
+                          closeSelectionModal();
+                        }}
+                        style={[
+                          styles.selectorOptionRow,
+                          isSelected && styles.selectorOptionRowSelected,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.selectorOptionText,
+                            isSelected && styles.selectorOptionTextSelected,
+                          ]}
+                        >
+                          {formatSnoozeLabel(opt)}
+                        </Text>
+                        {isSelected && (
+                          <Icon
+                            type={Icons.MaterialDesignIcons}
+                            name="check"
+                            size={20 * fontScaleMultiplier}
+                            color={currentTheme.primary}
+                          />
+                        )}
+                      </Pressable>
+                    );
+                  })
+                : OFFSET_PRESETS.filter(offset => {
+                    if (selectionModalTarget === 'add') {
+                      return offset !== 0;
+                    }
+                    return selectedItem?.offsetMinutes != null &&
+                      selectedItem.offsetMinutes < 0
+                      ? offset < 0
+                      : offset > 0;
+                  }).map(offset => {
+                    const isSelected =
+                      selectionModalTarget === 'add'
+                        ? addOffsetMinutes === offset
+                        : selectedItem?.offsetMinutes === offset;
+                    return (
+                      <Pressable
+                        key={offset}
+                        onPress={() => {
+                          if (selectionModalTarget === 'add') {
+                            setAddOffsetMinutes(offset);
+                          } else {
+                            handleUpdateOffset(offset);
+                          }
+                          closeSelectionModal();
+                        }}
+                        style={[
+                          styles.selectorOptionRow,
+                          isSelected && styles.selectorOptionRowSelected,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.selectorOptionText,
+                            isSelected && styles.selectorOptionTextSelected,
+                          ]}
+                        >
+                          {selectionModalTarget === 'add'
+                            ? formatOffset(offset, t)
+                            : formatOffsetValue(offset)}
+                        </Text>
+                        {isSelected && (
+                          <Icon
+                            type={Icons.MaterialDesignIcons}
+                            name="check"
+                            size={20 * fontScaleMultiplier}
+                            color={currentTheme.primary}
+                          />
+                        )}
+                      </Pressable>
+                    );
+                  })}
+              </ScrollView>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {/* Add notification bottom sheet */}
       {showAddSheet && (
@@ -885,164 +1267,175 @@ export default function PrayerNotificationDetail() {
                   {t('notifications.detail.addSheetSubtitle')}
                 </Text>
 
-                <Text style={styles.offsetSectionLabel}>
-                  {uc(t('notifications.detail.beforeLabel'))}
-                </Text>
-                <ScrollView
-                  ref={beforeScrollRef}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.offsetRow}
+                <View
+                  style={[
+                    styles.settingsListCard,
+                    styles.addSheetSettingsListCard,
+                  ]}
                 >
-                  {OFFSET_PRESETS.filter(o => o < 0).map(offset => (
-                    <Pressable
-                      key={offset}
-                      onPress={() => setAddOffsetMinutes(offset)}
-                      onLayout={e => {
-                        beforeChipLayoutRef.current[offset] = e.nativeEvent.layout.x;
-                      }}
-                      style={[
-                        styles.offsetChip,
-                        addOffsetMinutes === offset && styles.offsetChipSelected,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.offsetChipText,
-                          addOffsetMinutes === offset &&
-                            styles.offsetChipTextSelected,
-                        ]}
-                      >
-                        {Math.abs(offset)}
-                        {t('notifications.detail.minuteShort')}
+                  <Pressable
+                    onPress={openAddOffsetSelector}
+                    style={({ pressed }) => [
+                      styles.settingsListRow,
+                      styles.addSheetSettingsListRow,
+                      pressed && styles.settingsListRowPressed,
+                    ]}
+                  >
+                    <View style={styles.settingsRowLeft}>
+                      <View style={styles.settingsIconBox}>
+                        <Icon
+                          type={Icons.MaterialDesignIcons}
+                          name="clock-edit-outline"
+                          size={18 * fontScaleMultiplier}
+                          color={currentTheme.primary}
+                        />
+                      </View>
+                      <View style={styles.settingsTextBlock}>
+                        <Text style={styles.settingsRowLabel}>
+                          {t('notifications.detail.offsetDescription')}
+                        </Text>
+                        <Text style={styles.settingsRowDescription}>
+                          {formatOffset(addOffsetMinutes, t)}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.settingsRowRight}>
+                      <Text numberOfLines={1} style={styles.settingsValueText}>
+                        {formatOffset(addOffsetMinutes, t)}
                       </Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="chevron-right"
+                        size={20 * fontScaleMultiplier}
+                        color={currentTheme.placeholderTextColor}
+                      />
+                    </View>
+                  </Pressable>
 
-                <Text style={styles.offsetSectionLabel}>
-                  {uc(t('notifications.detail.afterLabel'))}
-                </Text>
-                <ScrollView
-                  ref={afterScrollRef}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.offsetRow}
-                >
-                  {OFFSET_PRESETS.filter(o => o > 0).map(offset => (
-                    <Pressable
-                      key={offset}
-                      onPress={() => setAddOffsetMinutes(offset)}
-                      onLayout={e => {
-                        afterChipLayoutRef.current[offset] = e.nativeEvent.layout.x;
-                      }}
-                      style={[
-                        styles.offsetChip,
-                        addOffsetMinutes === offset && styles.offsetChipSelected,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.offsetChipText,
-                          addOffsetMinutes === offset &&
-                            styles.offsetChipTextSelected,
-                        ]}
-                      >
-                        {offset}
-                        {t('notifications.detail.minuteShort')}
+                  <View style={styles.settingsDivider} />
+
+                  <Pressable
+                    onPress={openAddSnoozeSelector}
+                    style={({ pressed }) => [
+                      styles.settingsListRow,
+                      styles.addSheetSettingsListRow,
+                      pressed && styles.settingsListRowPressed,
+                    ]}
+                  >
+                    <View style={styles.settingsRowLeft}>
+                      <View style={styles.settingsIconBox}>
+                        <Icon
+                          type={Icons.MaterialDesignIcons}
+                          name="timer-outline"
+                          size={18 * fontScaleMultiplier}
+                          color={currentTheme.primary}
+                        />
+                      </View>
+                      <View style={styles.settingsTextBlock}>
+                        <Text style={styles.settingsRowLabel}>
+                          {t('notifications.detail.snooze')}
+                        </Text>
+                        <Text style={styles.settingsRowDescription}>
+                          {t('notifications.detail.snoozeDescription')}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.settingsRowRight}>
+                      <Text numberOfLines={1} style={styles.settingsValueText}>
+                        {formatSnoozeLabel(addSnoozeMinutes)}
                       </Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="chevron-right"
+                        size={20 * fontScaleMultiplier}
+                        color={currentTheme.placeholderTextColor}
+                      />
+                    </View>
+                  </Pressable>
 
-                <View style={styles.sheetDivider} />
-                <Text style={styles.offsetSectionLabel}>
-                  {uc(t('notifications.detail.snooze'))}
-                </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.offsetRow}
-                >
-                  {SNOOZE_OPTIONS.map(opt => (
-                    <Pressable
-                      key={opt}
-                      onPress={() => setAddSnoozeMinutes(opt)}
-                      style={[
-                        styles.snoozeChip,
-                        addSnoozeMinutes === opt && styles.snoozeChipSelected,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.snoozeChipText,
-                          addSnoozeMinutes === opt &&
-                            styles.snoozeChipTextSelected,
-                        ]}
-                      >
-                        {opt === 0
-                          ? t('notifications.detail.snoozeOff')
-                          : `${opt}${t('notifications.detail.minuteShort')}`}
+                  <View style={styles.settingsDivider} />
+
+                  <Pressable
+                    onPress={openAddSoundSelector}
+                    style={({ pressed }) => [
+                      styles.settingsListRow,
+                      styles.addSheetSettingsListRow,
+                      pressed && styles.settingsListRowPressed,
+                    ]}
+                  >
+                    <View style={styles.settingsRowLeft}>
+                      <View style={styles.settingsIconBox}>
+                        <Icon
+                          type={Icons.MaterialDesignIcons}
+                          name="volume-high"
+                          size={18 * fontScaleMultiplier}
+                          color={currentTheme.primary}
+                        />
+                      </View>
+                      <View style={styles.settingsTextBlock}>
+                        <Text style={styles.settingsRowLabel}>
+                          {t('notifications.detail.sound')}
+                        </Text>
+                        <Text style={styles.settingsRowDescription}>
+                          {t('notifications.detail.soundDescription')}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.settingsRowRight}>
+                      <Text numberOfLines={1} style={styles.settingsValueText}>
+                        {t(`notifications.detail.sound_${addSoundOption}`)}
                       </Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="chevron-right"
+                        size={20 * fontScaleMultiplier}
+                        color={currentTheme.placeholderTextColor}
+                      />
+                    </View>
+                  </Pressable>
 
-                <View style={styles.sheetDivider} />
-                <Text style={styles.offsetSectionLabel}>
-                  {uc(t('notifications.detail.sound'))}
-                </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.offsetRow}
-                >
-                  {SOUND_OPTIONS.map(opt => (
-                    <Pressable
-                      key={opt}
-                      onPress={() => setAddSoundOption(opt)}
-                      style={[
-                        styles.snoozeChip,
-                        addSoundOption === opt && styles.snoozeChipSelected,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.snoozeChipText,
-                          addSoundOption === opt && styles.snoozeChipTextSelected,
-                        ]}
-                      >
-                        {t(`notifications.detail.sound_${opt}`)}
+                  <View style={styles.settingsDivider} />
+
+                  <Pressable
+                    onPress={openAddDaysSelector}
+                    style={({ pressed }) => [
+                      styles.settingsListRow,
+                      styles.addSheetSettingsListRow,
+                      pressed && styles.settingsListRowPressed,
+                    ]}
+                  >
+                    <View style={styles.settingsRowLeft}>
+                      <View style={styles.settingsIconBox}>
+                        <Icon
+                          type={Icons.MaterialDesignIcons}
+                          name="calendar-month-outline"
+                          size={18 * fontScaleMultiplier}
+                          color={currentTheme.primary}
+                        />
+                      </View>
+                      <View style={styles.settingsTextBlock}>
+                        <Text style={styles.settingsRowLabel}>
+                          {t('notifications.detail.daysTitle')}
+                        </Text>
+                        <Text style={styles.settingsRowDescription}>
+                          {t('notifications.detail.daysDescription')}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.settingsRowRight}>
+                      <Text numberOfLines={1} style={styles.settingsValueText}>
+                        {formatDaysValue(addDays)}
                       </Text>
-                      {opt !== 'default' && (
-                        <Pressable
-                          onPress={() => handlePreviewSound(opt)}
-                          hitSlop={6}
-                          style={styles.soundPreviewBtn}
-                        >
-                          <Icon
-                            type={Icons.MaterialDesignIcons}
-                            name={
-                              playingSound === opt
-                                ? 'stop-circle-outline'
-                                : 'play-circle-outline'
-                            }
-                            size={16 * fontScaleMultiplier}
-                            color={
-                              addSoundOption === opt
-                                ? currentTheme.primary
-                                : currentTheme.placeholderTextColor
-                            }
-                          />
-                        </Pressable>
-                      )}
-                    </Pressable>
-                  ))}
-                </ScrollView>
+                      <Icon
+                        type={Icons.MaterialDesignIcons}
+                        name="chevron-right"
+                        size={20 * fontScaleMultiplier}
+                        color={currentTheme.placeholderTextColor}
+                      />
+                    </View>
+                  </Pressable>
+                </View>
 
-                <Text style={styles.selectedOffsetPreview}>
-                  {formatOffset(addOffsetMinutes, t)}
-                </Text>
                 <Pressable
                   onPress={handleAddNotification}
                   style={({ pressed }) => [
@@ -1055,8 +1448,251 @@ export default function PrayerNotificationDetail() {
                     {t('notifications.detail.addConfirm')}
                   </Text>
                 </Pressable>
+
               </Pressable>
             </Animated.View>
+            {showAddSheetSelectorOverlay && (
+              <Pressable
+                style={styles.addSheetSelectorOverlay}
+                onPress={closeSelectionModal}
+              >
+                <Pressable
+                  style={[
+                    styles.selectorModalCard,
+                    { backgroundColor: currentTheme.cardViewBackgroundColor },
+                  ]}
+                  onPress={() => {}}
+                >
+                  <Text style={styles.selectorModalTitle}>
+                    {selectionModalType === 'sound'
+                      ? t('notifications.detail.sound')
+                      : selectionModalType === 'snooze'
+                      ? t('notifications.detail.snooze')
+                      : selectionModalType === 'days'
+                      ? t('notifications.detail.daysTitle')
+                      : t('notifications.detail.offsetDescription')}
+                  </Text>
+                  {selectionModalType === 'days' ? (
+                    <>
+                      <Pressable
+                        onPress={handleToggleAllDaysInModal}
+                        style={styles.daysModalToggleAll}
+                      >
+                        <Text style={styles.daysModalToggleAllText}>
+                          {allDaysActive
+                            ? t('notifications.detail.disableAllDays')
+                            : t('notifications.detail.activateAllDays')}
+                        </Text>
+                      </Pressable>
+                      <ScrollView
+                        style={styles.daysModalListScroll}
+                        contentContainerStyle={styles.daysModalList}
+                        showsVerticalScrollIndicator={false}
+                      >
+                        {dayLabelsLong.map((label, index) => {
+                          const isActive = modalDays[index];
+                          return (
+                            <Pressable
+                              key={index}
+                              onPress={() => handleToggleDayInModal(index)}
+                              style={[
+                                styles.daysModalRow,
+                                isActive && styles.daysModalRowActive,
+                              ]}
+                            >
+                              <Text
+                                style={[
+                                  styles.daysModalRowText,
+                                  isActive && styles.daysModalRowTextActive,
+                                ]}
+                              >
+                                {label}
+                              </Text>
+                              {isActive && (
+                                <Icon
+                                  type={Icons.MaterialDesignIcons}
+                                  name="check"
+                                  size={20 * fontScaleMultiplier}
+                                  color={currentTheme.primary}
+                                />
+                              )}
+                            </Pressable>
+                          );
+                        })}
+                      </ScrollView>
+                      <Pressable
+                        onPress={closeSelectionModal}
+                        style={[
+                          styles.daysModalDoneButton,
+                          { backgroundColor: currentTheme.primary },
+                        ]}
+                      >
+                        <Text style={styles.daysModalDoneText}>
+                          {t('notifications.detail.modalDone')}
+                        </Text>
+                      </Pressable>
+                    </>
+                  ) : (
+                    <>
+                      {selectionModalType === 'offset' && (
+                        <View style={styles.offsetDirectionSegmentedWrap}>
+                          <FormSegmentedControl
+                            options={addOffsetDirectionOptions}
+                            value={addOffsetDirection}
+                            onChange={value =>
+                              handleSetAddOffsetDirection(
+                                value as 'before' | 'after',
+                              )
+                            }
+                            compact
+                            fontScaleMultiplier={fontScaleMultiplier}
+                          />
+                        </View>
+                      )}
+                      <ScrollView
+                        style={styles.selectorModalList}
+                        showsVerticalScrollIndicator={false}
+                      >
+                        {selectionModalType === 'sound'
+                          ? SOUND_OPTIONS.map(opt => {
+                              const isSelected = addSoundOption === opt;
+                              return (
+                                <Pressable
+                                  key={opt}
+                                  onPress={() => {
+                                    setAddSoundOption(opt);
+                                    closeSelectionModal();
+                                  }}
+                                  style={[
+                                    styles.selectorOptionRow,
+                                    isSelected && styles.selectorOptionRowSelected,
+                                  ]}
+                                >
+                                  <Text
+                                    style={[
+                                      styles.selectorOptionText,
+                                      isSelected &&
+                                        styles.selectorOptionTextSelected,
+                                    ]}
+                                  >
+                                    {t(`notifications.detail.sound_${opt}`)}
+                                  </Text>
+                                  <View style={styles.selectorOptionActions}>
+                                    {opt !== 'default' && (
+                                      <Pressable
+                                        onPress={() => handlePreviewSound(opt)}
+                                        hitSlop={8}
+                                      >
+                                        <Icon
+                                          type={Icons.MaterialDesignIcons}
+                                          name={
+                                            playingSound === opt
+                                              ? 'stop-circle-outline'
+                                              : 'play-circle-outline'
+                                          }
+                                          size={22 * fontScaleMultiplier}
+                                          color={
+                                            isSelected
+                                              ? currentTheme.primary
+                                              : currentTheme.placeholderTextColor
+                                          }
+                                        />
+                                      </Pressable>
+                                    )}
+                                    {isSelected && (
+                                      <Icon
+                                        type={Icons.MaterialDesignIcons}
+                                        name="check"
+                                        size={20 * fontScaleMultiplier}
+                                        color={currentTheme.primary}
+                                      />
+                                    )}
+                                  </View>
+                                </Pressable>
+                              );
+                            })
+                          : selectionModalType === 'snooze'
+                          ? SNOOZE_OPTIONS.map(opt => {
+                              const isSelected = addSnoozeMinutes === opt;
+                              return (
+                                <Pressable
+                                  key={opt}
+                                  onPress={() => {
+                                    setAddSnoozeMinutes(opt);
+                                    closeSelectionModal();
+                                  }}
+                                  style={[
+                                    styles.selectorOptionRow,
+                                    isSelected && styles.selectorOptionRowSelected,
+                                  ]}
+                                >
+                                  <Text
+                                    style={[
+                                      styles.selectorOptionText,
+                                      isSelected &&
+                                        styles.selectorOptionTextSelected,
+                                    ]}
+                                  >
+                                    {formatSnoozeLabel(opt)}
+                                  </Text>
+                                  {isSelected && (
+                                    <Icon
+                                      type={Icons.MaterialDesignIcons}
+                                      name="check"
+                                      size={20 * fontScaleMultiplier}
+                                      color={currentTheme.primary}
+                                    />
+                                  )}
+                                </Pressable>
+                              );
+                            })
+                          : OFFSET_PRESETS.filter(offset =>
+                              addOffsetDirection === 'before'
+                                ? offset < 0
+                                : offset > 0,
+                            ).map(offset => {
+                              const isSelected = addOffsetMinutes === offset;
+                              return (
+                                <Pressable
+                                  key={offset}
+                                  onPress={() => {
+                                    setAddOffsetMinutes(offset);
+                                    setAddOffsetDirection(
+                                      offset < 0 ? 'before' : 'after',
+                                    );
+                                    closeSelectionModal();
+                                  }}
+                                  style={[
+                                    styles.selectorOptionRow,
+                                    isSelected && styles.selectorOptionRowSelected,
+                                  ]}
+                                >
+                                  <Text
+                                    style={[
+                                      styles.selectorOptionText,
+                                      isSelected &&
+                                        styles.selectorOptionTextSelected,
+                                    ]}
+                                  >
+                                    {formatOffset(offset, t)}
+                                  </Text>
+                                  {isSelected && (
+                                    <Icon
+                                      type={Icons.MaterialDesignIcons}
+                                      name="check"
+                                      size={20 * fontScaleMultiplier}
+                                      color={currentTheme.primary}
+                                    />
+                                  )}
+                                </Pressable>
+                              );
+                            })}
+                      </ScrollView>
+                    </>
+                  )}
+                </Pressable>
+              </Pressable>
+            )}
           </Pressable>
         </Modal>
       )}
@@ -1133,6 +1769,25 @@ const createStyles = (theme: any, fsm: number) =>
       letterSpacing: 0.5,
       marginBottom: 8,
       marginLeft: 4,
+    },
+    sectionHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    flowAddInlineButton: {
+      paddingHorizontal: 6,
+      paddingVertical: 4,
+      marginRight: 2,
+      marginBottom: 6,
+    },
+    flowAddInlineButtonPressed: {
+      opacity: 0.65,
+    },
+    flowAddInlineText: {
+      fontSize: 13 * fsm,
+      fontWeight: '600',
+      color: theme.primary,
     },
     card: {
       backgroundColor: theme.cardViewBackgroundColor,
@@ -1226,36 +1881,10 @@ const createStyles = (theme: any, fsm: number) =>
     flowItemSwitch: {
       transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
     },
-    // Add button
-    addButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-      borderRadius: 14,
-      paddingVertical: 15,
-      marginBottom: 20,
-      backgroundColor: theme.cardViewBackgroundColor,
-      borderWidth: 1.5,
-      borderColor: theme.primary + '50',
-      shadowColor: theme.shadowColor,
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.06,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    addButtonPressed: {
-      opacity: 0.7,
-    },
-    addButtonText: {
-      fontSize: 15 * fsm,
-      color: theme.primary,
-      fontWeight: '600',
-    },
     // Settings
     settingsSelectedBorder: {
-      borderLeftWidth: 3,
-      borderLeftColor: theme.primary,
+      borderWidth: 1,
+      borderColor: theme.gray + '30',
     },
     selectedNotifIndicator: {
       flexDirection: 'row',
@@ -1270,18 +1899,46 @@ const createStyles = (theme: any, fsm: number) =>
       color: theme.primary,
       fontWeight: '600',
     },
-    settingsRow: {
+    settingsListCard: {
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: theme.gray + '35',
+      marginHorizontal: 12,
+      marginTop: 4,
+      marginBottom: 12,
+      overflow: 'hidden',
+      backgroundColor: theme.cardViewBackgroundColor,
+    },
+    addSheetSettingsListCard: {
+      borderWidth: 0,
+      marginHorizontal: 0,
+      marginTop: 0,
+      marginBottom: 4,
+      backgroundColor: 'transparent',
+    },
+    settingsListRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 16,
-      paddingVertical: 12,
       gap: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+    },
+    addSheetSettingsListRow: {
+      paddingHorizontal: 6,
+    },
+    settingsListRowPressed: {
+      backgroundColor: theme.primary + '08',
     },
     settingsRowLeft: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
+      flex: 1,
+    },
+    settingsTextBlock: {
+      flex: 1,
+      justifyContent: 'center',
     },
     settingsIconBox: {
       width: 32 * fsm,
@@ -1294,87 +1951,162 @@ const createStyles = (theme: any, fsm: number) =>
     settingsRowLabel: {
       fontSize: 14 * fsm,
       color: theme.textColor,
-      fontWeight: '500',
+      fontWeight: '600',
+      flexShrink: 1,
     },
-    settingsRowValue: {
-      fontSize: 14 * fsm,
+    settingsRowDescription: {
+      fontSize: 11 * fsm,
       color: theme.placeholderTextColor,
+      marginTop: 2,
+    },
+    settingsRowRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      gap: 4,
+      maxWidth: '42%',
+      flexShrink: 1,
+    },
+    settingsValueText: {
+      fontSize: 13 * fsm,
+      color: theme.primary,
+      fontWeight: '600',
     },
     settingsDivider: {
       height: StyleSheet.hairlineWidth,
       backgroundColor: theme.gray + '40',
       marginHorizontal: 16,
     },
-    snoozeRow: {
-      gap: 6,
-      paddingVertical: 2,
-    },
-    snoozeChip: {
-      flexDirection: 'row',
+    selectorModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.4)',
       alignItems: 'center',
-      gap: 4,
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 8,
-      backgroundColor: theme.inputBackgroundColor,
-      borderWidth: 1.5,
-      borderColor: 'transparent',
+      justifyContent: 'center',
+      paddingHorizontal: 20,
     },
-    snoozeChipSelected: {
-      backgroundColor: theme.primary + '12',
-      borderColor: theme.primary,
+    addSheetSelectorOverlay: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      zIndex: 20,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 20,
     },
-    snoozeChipText: {
-      fontSize: 12 * fsm,
+    selectorModalCard: {
+      width: '100%',
+      borderRadius: 16,
+      padding: 14,
+      maxHeight: SCREEN_HEIGHT * 0.64,
+      shadowColor: theme.shadowColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+    selectorModalTitle: {
+      fontSize: 17 * fsm,
+      fontWeight: '700',
       color: theme.textColor,
-      fontWeight: '500',
+      marginBottom: 10,
     },
-    snoozeChipTextSelected: {
+    daysModalToggleAll: {
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      backgroundColor: theme.primary + '10',
+      marginBottom: 10,
+      alignItems: 'center',
+    },
+    daysModalToggleAllText: {
+      fontSize: 13 * fsm,
       color: theme.primary,
       fontWeight: '700',
     },
-    soundPreviewBtn: {
-      marginLeft: 2,
+    daysModalList: {
+      gap: 8,
+      paddingBottom: 4,
     },
-    // Days
-    daysSectionHeader: {
+    daysModalListScroll: {
+      maxHeight: SCREEN_HEIGHT * 0.5,
+      marginBottom: 12,
+    },
+    daysModalRow: {
+      minHeight: 44,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      backgroundColor: theme.inputBackgroundColor,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 10,
+    },
+    daysModalRowActive: {
+      backgroundColor: theme.primary + '14',
+      borderWidth: 1.2,
+      borderColor: theme.primary + '88',
+    },
+    daysModalRowText: {
+      flex: 1,
+      fontSize: 14 * fsm,
+      color: theme.textColor,
+      fontWeight: '500',
+    },
+    daysModalRowTextActive: {
+      color: theme.primary,
+      fontWeight: '700',
+    },
+    daysModalDoneButton: {
+      borderRadius: 12,
+      paddingVertical: 12,
+      alignItems: 'center',
+    },
+    daysModalDoneText: {
+      fontSize: 14 * fsm,
+      color: '#FFFFFF',
+      fontWeight: '700',
+    },
+    selectorModalList: {
+      maxHeight: SCREEN_HEIGHT * 0.52,
+    },
+    offsetDirectionSegmentedWrap: {
+      marginBottom: 10,
+    },
+    selectorOptionRow: {
+      minHeight: 44,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      backgroundColor: theme.inputBackgroundColor,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       marginBottom: 8,
-      marginLeft: 4,
+      gap: 10,
     },
-    daysAllText: {
-      fontSize: 13 * fsm,
-      color: theme.primary,
-      fontWeight: '600',
+    selectorOptionRowSelected: {
+      backgroundColor: theme.primary + '14',
+      borderWidth: 1.2,
+      borderColor: theme.primary + '88',
     },
-    daysCard: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      padding: 12,
-      gap: 8,
-    },
-    dayChip: {
-      paddingHorizontal: 13,
-      paddingVertical: 8,
-      borderRadius: 10,
-      backgroundColor: theme.inputBackgroundColor,
-      borderWidth: 1.5,
-      borderColor: 'transparent',
-    },
-    dayChipActive: {
-      backgroundColor: theme.primary + '12',
-      borderColor: theme.primary,
-    },
-    dayChipText: {
-      fontSize: 13 * fsm,
-      color: theme.placeholderTextColor,
+    selectorOptionText: {
+      flex: 1,
+      fontSize: 14 * fsm,
+      color: theme.textColor,
       fontWeight: '500',
     },
-    dayChipTextActive: {
+    selectorOptionTextSelected: {
       color: theme.primary,
       fontWeight: '700',
+    },
+    selectorOptionActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
     },
     // Bottom sheet
     sheetOverlay: {
@@ -1385,7 +2117,7 @@ const createStyles = (theme: any, fsm: number) =>
     sheetContainer: {
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
-      paddingHorizontal: 16,
+      paddingHorizontal: 12,
       paddingBottom: 40,
       paddingTop: 12,
       maxHeight: SCREEN_HEIGHT * 0.75,
@@ -1397,11 +2129,6 @@ const createStyles = (theme: any, fsm: number) =>
       backgroundColor: theme.gray + '60',
       alignSelf: 'center',
       marginBottom: 16,
-    },
-    sheetDivider: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: theme.gray + '40',
-      marginVertical: 12,
     },
     sheetTitle: {
       fontSize: 18 * fsm,
@@ -1420,38 +2147,6 @@ const createStyles = (theme: any, fsm: number) =>
       color: theme.placeholderTextColor,
       letterSpacing: 0.4,
       marginBottom: 8,
-    },
-    offsetRow: {
-      gap: 8,
-      paddingBottom: 12,
-    },
-    offsetChip: {
-      paddingHorizontal: 14,
-      paddingVertical: 9,
-      borderRadius: 10,
-      backgroundColor: theme.inputBackgroundColor,
-      borderWidth: 1.5,
-      borderColor: 'transparent',
-    },
-    offsetChipSelected: {
-      backgroundColor: theme.primary + '18',
-      borderColor: theme.primary,
-    },
-    offsetChipText: {
-      fontSize: 13 * fsm,
-      color: theme.textColor,
-      fontWeight: '500',
-    },
-    offsetChipTextSelected: {
-      color: theme.primary,
-      fontWeight: '700',
-    },
-    selectedOffsetPreview: {
-      fontSize: 16 * fsm,
-      fontWeight: '600',
-      color: theme.primary,
-      textAlign: 'center',
-      marginVertical: 12,
     },
     addConfirmButton: {
       borderRadius: 14,

@@ -42,8 +42,11 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
   const containerInset = compact ? 4 : 6;
   const containerRadius = compact ? 20 : 24;
   const optionRadius = compact ? 16 : 18;
-  const optionMinHeight = compact ? 36 : 42;
-  const optionVerticalPadding = compact ? 7 : 10;
+  const optionLabelFontSize = 14 * fontScaleMultiplier;
+  const optionMinHeight = compact
+    ? Math.max(36, Math.round(optionLabelFontSize * 2))
+    : 42;
+  const optionVerticalPadding = compact ? 6 : 10;
 
   useEffect(() => {
     if (!containerWidth) return;
@@ -128,11 +131,14 @@ const FormSegmentedControl: React.FC<GenderSegmentedControlProps> = ({
                 )}
 
                 <Text
+                  numberOfLines={1}
+                  allowFontScaling={false}
                   style={[
                     styles.genderChipText,
                     {
                       color: active ? primary : currentTheme.textColor,
-                      fontSize: 14 * fontScaleMultiplier,
+                      fontSize: optionLabelFontSize,
+                      lineHeight: Math.round(optionLabelFontSize * 1.15),
                     },
                   ]}
                 >
@@ -172,7 +178,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   genderChip: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 18,
@@ -197,9 +202,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     flexShrink: 1,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   optionContent: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
