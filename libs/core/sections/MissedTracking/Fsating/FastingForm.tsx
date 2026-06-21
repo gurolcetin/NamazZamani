@@ -140,7 +140,7 @@ const FastingForm: React.FC<FastingFormProps> = ({ onWarningDetected }) => {
   const toggleDatePicker = () => setShowDatePicker(prev => !prev);
 
   // --- BUSINESS: eski onSubmit bire bir korunuyor ----------------------------
-  const onSubmit = (data: FastingFormValues) => {
+  const onSubmit = async (data: FastingFormValues) => {
     let errorMessage: string = StringConstants.EMPTY_STRING;
     let shouldScrollToWarning = false;
 
@@ -172,10 +172,10 @@ const FastingForm: React.FC<FastingFormProps> = ({ onWarningDetected }) => {
 
     const selectedBirthDate = data.date as Date;
     let missedFastingCount =
-      calculateRamadanCountBetweenDates(fastingCalculatorDate, new Date()) * 30;
+      (await calculateRamadanCountBetweenDates(fastingCalculatorDate, new Date())) * 30;
 
     if (data.gender === Gender.Female) {
-      const ramadanCount = calculateRamadanCountBetweenDates(
+      const ramadanCount = await calculateRamadanCountBetweenDates(
         selectedBirthDate,
         fastingCalculatorDate,
       );

@@ -275,13 +275,6 @@ export default function TimeTable() {
           t('prayerTimeApi.deviceDateInvalidTitle'),
           t('prayerTimeApi.deviceDateInvalidMessage'),
         );
-      } else {
-        Alert.alert(
-          t('prayerTimeApi.fetchErrorTitle', {
-            defaultValue: 'Vakit bilgisi alınamadı',
-          }),
-          t('errors.prayerTimesFetchFailed'),
-        );
       }
     } finally {
       setLoading(false);

@@ -820,17 +820,33 @@ export default function PrayerTime() {
     setDateLocale(i18n.language ?? LanguagePrefix.TURKISH);
   }, [i18n.language]);
 
-  const isRamadanWindow = useMemo(() => {
-    const hijriToday = convertMiladiDateToHicriDate(nowTick);
-    if (hijriToday.month === 9) {
-      return true;
-    }
-    if (hijriToday.month === 8 && hijriToday.dayOfMonth >= 29) {
-      // Keep countdown visible on the day before Ramadan begins.
-      return true;
-    }
-    return false;
-  }, [nowTick]);
+  const [isRamadanWindow, setIsRamadanWindow] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    convertMiladiDateToHicriDate(nowTick)
+      .then(hijriToday => {
+        if (!mounted) {
+          return;
+        }
+        if (hijriToday.month === 9) {
+          setIsRamadanWindow(true);
+        } else if (hijriToday.month === 8 && hijriToday.dayOfMonth >= 29) {
+          // Keep countdown visible on the day before Ramadan begins.
+          setIsRamadanWindow(true);
+        } else {
+          setIsRamadanWindow(false);
+        }
+      })
+      .catch(err => {
+        console.warn('Hijri date fetch failed (isRamadanWindow)', err);
+      });
+    return () => {
+      mounted = false;
+    };
+  // nowTick changes every minute; cached responses return immediately from AsyncStorage.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nowTick.toDateString()]);
 
   const shouldShowRamadanCountdown =
     showRamadanCountdownPreference || isRamadanWindow;
@@ -1028,10 +1044,44 @@ export default function PrayerTime() {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }, [dtf, seqBaseDate]);
 
-  const hijriDateLabel = useMemo(() => {
-    const h = convertMiladiDateToHicriDate(seqBaseDate);
-    return `${h.dayOfMonth} ${h.monthText} ${h.year}`;
+  const [hijriDateLabel, setHijriDateLabel] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    convertMiladiDateToHicriDate(seqBaseDate)
+      .then(h => {
+        if (mounted) {
+          setHijriDateLabel(`${h.dayOfMonth} ${h.monthText} ${h.year}`);
+        }
+      })
+      .catch(err => {
+        console.warn('Hijri date fetch failed (hijriDateLabel)', err);
+        if (mounted) {
+          setHijriDateLabel('');
+        }
+      });
+    return () => {
+      mounted = false;
+    };
   }, [seqBaseDate]);
+
+  const handleDevConvertHijriDate = useCallback(async () => {
+    try {
+      const hijriDate = await convertMiladiDateToHicriDate(seqBaseDate);
+      Alert.alert(
+        'Hicri Tarih Kontrol',
+        [
+          `Miladi: ${seqDateLabel}`,
+          `Hicri: ${hijriDate.dayOfMonth} ${hijriDate.monthText} ${hijriDate.year}`,
+          `Raw: ${hijriDate.rawHijriDate}`,
+          `Method: ${hijriDate.method}`,
+        ].join('\n'),
+      );
+    } catch (error) {
+      console.warn('Hijri date fetch failed (dev button)', error);
+      Alert.alert('Hicri Tarih Kontrol', 'Hicri tarih hesaplanamadı.');
+    }
+  }, [seqBaseDate, seqDateLabel]);
 
   // --- LOAD (timestamp'li) --------------------------------------------------
   const load = useCallback(
@@ -1196,13 +1246,6 @@ export default function PrayerTime() {
               },
             );
           }
-        } else {
-          Alert.alert(
-            t('prayerTimeApi.fetchErrorTitle', {
-              defaultValue: 'Vakit bilgisi alınamadı',
-            }),
-            t('errors.prayerTimesFetchFailed'),
-          );
         }
         return;
       } finally {
@@ -1822,8 +1865,9 @@ export default function PrayerTime() {
     if (intervalRef.current) clearInterval(intervalRef.current);
 
     const softRecalc = (now = new Date()) => {
-      // Reload sırasında veya seq günü eşleşmiyorsa dokunma
-      if (!seqRef.current || seqBaseDayRef.current !== ymd(now)) {
+      // Seq henüz hiç yüklenmemişse dokunma; stale (eski güne ait) data varsa
+      // yaklaşık doğru sonuç üretir – API yanıtı gelince zaten güncellenir.
+      if (!seqRef.current) {
         return;
       }
       const info = computeNext(seqRef.current, now);
@@ -1848,15 +1892,15 @@ export default function PrayerTime() {
       const tzChanged = now.getTimezoneOffset() !== lastOffsetRef.current;
 
       if (dayChanged || tzChanged) {
-        // Güne veya timezone'a göre gerçekten yeniden senkronize et
+        // Güne veya timezone'a göre yeniden senkronize et
         setUtcLabel(getUTCLabel());
         load(now);
         lastDayRef.current = now.getDate();
         lastOffsetRef.current = now.getTimezoneOffset();
-      } else {
-        // Diğer tüm durumlarda (örn. uygulamadan geri dönme) sadece yerel hesaplamayı tazele
-        softRecalc(now);
       }
+      // Yükleme devam etse veya başarısız olsa da mevcut seq ile saati güncelle;
+      // böylece hata, arka plan sonrası açılış vb. durumlarda saat donmaz.
+      softRecalc(now);
 
       if (jumped) {
         // Uzun beklemelerden sonra interval drift edebiliyor, sadece timer'ı sıfırla
@@ -2145,6 +2189,33 @@ export default function PrayerTime() {
                   seqDateLabel={seqDateLabel}
                   hijriDateLabel={hijriDateLabel}
                 />
+                {IS_DEV_FEATURES_ENABLED && (
+                  <Pressable
+                    style={[
+                      styles.devTestNotificationButton,
+                      {
+                        backgroundColor: currentTheme.cardViewBackgroundColor,
+                        borderColor: `${currentTheme.primary}66`,
+                      },
+                    ]}
+                    onPress={handleDevConvertHijriDate}
+                  >
+                    <Icon
+                      type={Icons.MaterialDesignIcons}
+                      name="calendar-refresh"
+                      size={18}
+                      color={currentTheme.primary}
+                    />
+                    <Text
+                      style={[
+                        styles.devTestNotificationButtonText,
+                        { color: currentTheme.primary },
+                      ]}
+                    >
+                      Hicri Tarihi Kontrol Et
+                    </Text>
+                  </Pressable>
+                )}
                 {IS_DEV_FEATURES_ENABLED && (
                   <Pressable
                     style={[
