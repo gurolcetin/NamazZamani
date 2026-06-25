@@ -8,25 +8,64 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		5A1000010000000000000001 /* PrayerTimeWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 5A1000060000000000000006 /* PrayerTimeWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5A1000020000000000000002 /* PrayerTimeWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A1000070000000000000007 /* PrayerTimeWidget.swift */; };
+		5A1000030000000000000003 /* PrayerWidgetBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A10000A000000000000000A /* PrayerWidgetBridge.swift */; };
+		5A1000040000000000000004 /* PrayerWidgetBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A10000B000000000000000B /* PrayerWidgetBridge.m */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		7B7D137A7D246753010FDA98 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		AA1B2C3D4E5F67890A1B2C3D /* big_bell.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F67890A1B2C3E /* big_bell.mp3 */; };
+		AA1B2C3D4E5F67890A1B2C4D /* ezan_sesi1.wav in Resources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F67890A1B2C4E /* ezan_sesi1.wav */; };
+		AA1B2C3D4E5F67890A1B2C5D /* ezan_sesi2.wav in Resources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F67890A1B2C5E /* ezan_sesi2.wav */; };
+		AA1B2C3D4E5F67890A1B2C6D /* ezan_sesi3.wav in Resources */ = {isa = PBXBuildFile; fileRef = AA1B2C3D4E5F67890A1B2C6E /* ezan_sesi3.wav */; };
 		C1D2E3F40123456789ABC001 /* zil_sesi_1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C1D2E3F40123456789ABC011 /* zil_sesi_1.mp3 */; };
 		C1D2E3F40123456789ABC002 /* zil_sesi_2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C1D2E3F40123456789ABC012 /* zil_sesi_2.mp3 */; };
 		C1D2E3F40123456789ABC003 /* zil_sesi_3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C1D2E3F40123456789ABC013 /* zil_sesi_3.mp3 */; };
 		BEC40C002567FBB76D9B7D83 /* libPods-NamazDefteri.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F26D57DCFCF3F0D672647A5D /* libPods-NamazDefteri.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		5A1000170000000000000017 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5A1000110000000000000011;
+			remoteInfo = PrayerTimeWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5A1000150000000000000015 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				5A1000010000000000000001 /* PrayerTimeWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* NamazDefteri.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NamazDefteri.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = NamazDefteri/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = NamazDefteri/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = NamazDefteri/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		5A1000060000000000000006 /* PrayerTimeWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PrayerTimeWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A1000070000000000000007 /* PrayerTimeWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerTimeWidget.swift; sourceTree = "<group>"; };
+		5A1000080000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5A1000090000000000000009 /* PrayerTimeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PrayerTimeWidget.entitlements; sourceTree = "<group>"; };
+		5A10000A000000000000000A /* PrayerWidgetBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PrayerWidgetBridge.swift; path = NamazDefteri/PrayerWidgetBridge.swift; sourceTree = "<group>"; };
+		5A10000B000000000000000B /* PrayerWidgetBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PrayerWidgetBridge.m; path = NamazDefteri/PrayerWidgetBridge.m; sourceTree = "<group>"; };
+		5A10000C000000000000000C /* NamazDefteri.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = NamazDefteri.entitlements; path = NamazDefteri/NamazDefteri.entitlements; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = NamazDefteri/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = NamazDefteri/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8570105E61F1076CE235A8AF /* Pods-NamazDefteri.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazDefteri.release.xcconfig"; path = "Target Support Files/Pods-NamazDefteri/Pods-NamazDefteri.release.xcconfig"; sourceTree = "<group>"; };
-		AA1B2C3D4E5F67890A1B2C3E /* big_bell.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = big_bell.mp3; path = NamazDefteri/big_bell.mp3; sourceTree = "<group>"; };
+		AA1B2C3D4E5F67890A1B2C4E /* ezan_sesi1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = ezan_sesi1.wav; path = NamazDefteri/ezan_sesi1.wav; sourceTree = "<group>"; };
+		AA1B2C3D4E5F67890A1B2C5E /* ezan_sesi2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = ezan_sesi2.wav; path = NamazDefteri/ezan_sesi2.wav; sourceTree = "<group>"; };
+		AA1B2C3D4E5F67890A1B2C6E /* ezan_sesi3.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; name = ezan_sesi3.wav; path = NamazDefteri/ezan_sesi3.wav; sourceTree = "<group>"; };
 		B57165458741A0D6D4A20CCD /* Pods-NamazDefteri.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NamazDefteri.debug.xcconfig"; path = "Target Support Files/Pods-NamazDefteri/Pods-NamazDefteri.debug.xcconfig"; sourceTree = "<group>"; };
 		C1D2E3F40123456789ABC011 /* zil_sesi_1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = zil_sesi_1.mp3; path = NamazDefteri/zil_sesi_1.mp3; sourceTree = "<group>"; };
 		C1D2E3F40123456789ABC012 /* zil_sesi_2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = zil_sesi_2.mp3; path = NamazDefteri/zil_sesi_2.mp3; sourceTree = "<group>"; };
@@ -45,6 +84,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5A10000E000000000000000E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -53,11 +99,16 @@
 			children = (
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
+				5A10000A000000000000000A /* PrayerWidgetBridge.swift */,
+				5A10000B000000000000000B /* PrayerWidgetBridge.m */,
 				F6E2AB8E2F056F2C00D24E91 /* NamazDefteri-Bridging-Header.h */,
+				5A10000C000000000000000C /* NamazDefteri.entitlements */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
-				AA1B2C3D4E5F67890A1B2C3E /* big_bell.mp3 */,
+				AA1B2C3D4E5F67890A1B2C4E /* ezan_sesi1.wav */,
+				AA1B2C3D4E5F67890A1B2C5E /* ezan_sesi2.wav */,
+				AA1B2C3D4E5F67890A1B2C6E /* ezan_sesi3.wav */,
 				C1D2E3F40123456789ABC011 /* zil_sesi_1.mp3 */,
 				C1D2E3F40123456789ABC012 /* zil_sesi_2.mp3 */,
 				C1D2E3F40123456789ABC013 /* zil_sesi_3.mp3 */,
@@ -85,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07FAE1A68108700A75B9A /* NamazDefteri */,
+				5A10000D000000000000000D /* PrayerTimeWidget */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
@@ -99,8 +151,19 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* NamazDefteri.app */,
+				5A1000060000000000000006 /* PrayerTimeWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		5A10000D000000000000000D /* PrayerTimeWidget */ = {
+			isa = PBXGroup;
+			children = (
+				5A1000070000000000000007 /* PrayerTimeWidget.swift */,
+				5A1000080000000000000008 /* Info.plist */,
+				5A1000090000000000000009 /* PrayerTimeWidget.entitlements */,
+			);
+			path = PrayerTimeWidget;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -123,6 +186,7 @@
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
+				5A1000150000000000000015 /* Embed App Extensions */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				2004AA5DC3336C6462DF4CEC /* [CP] Embed Pods Frameworks */,
 				1EBB0EFF3CCA77D1A0974392 /* [CP] Copy Pods Resources */,
@@ -131,11 +195,29 @@
 			buildRules = (
 			);
 			dependencies = (
+				5A1000160000000000000016 /* PBXTargetDependency */,
 			);
 			name = NamazDefteri;
 			productName = NamazDefteri;
 			productReference = 13B07F961A680F5B00A75B9A /* NamazDefteri.app */;
 			productType = "com.apple.product-type.application";
+		};
+		5A1000110000000000000011 /* PrayerTimeWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A1000120000000000000012 /* Build configuration list for PBXNativeTarget "PrayerTimeWidget" */;
+			buildPhases = (
+				5A1000100000000000000010 /* Sources */,
+				5A10000E000000000000000E /* Frameworks */,
+				5A10000F000000000000000F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PrayerTimeWidget;
+			productName = PrayerTimeWidget;
+			productReference = 5A1000060000000000000006 /* PrayerTimeWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -147,6 +229,9 @@
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1120;
+					};
+					5A1000110000000000000011 = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -164,6 +249,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* NamazDefteri */,
+				5A1000110000000000000011 /* PrayerTimeWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -176,10 +262,19 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				7B7D137A7D246753010FDA98 /* PrivacyInfo.xcprivacy in Resources */,
-				AA1B2C3D4E5F67890A1B2C3D /* big_bell.mp3 in Resources */,
+				AA1B2C3D4E5F67890A1B2C4D /* ezan_sesi1.wav in Resources */,
+				AA1B2C3D4E5F67890A1B2C5D /* ezan_sesi2.wav in Resources */,
+				AA1B2C3D4E5F67890A1B2C6D /* ezan_sesi3.wav in Resources */,
 				C1D2E3F40123456789ABC001 /* zil_sesi_1.mp3 in Resources */,
 				C1D2E3F40123456789ABC002 /* zil_sesi_2.mp3 in Resources */,
 				C1D2E3F40123456789ABC003 /* zil_sesi_3.mp3 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A10000F000000000000000F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,10 +374,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+				5A1000030000000000000003 /* PrayerWidgetBridge.swift in Sources */,
+				5A1000040000000000000004 /* PrayerWidgetBridge.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A1000100000000000000010 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A1000020000000000000002 /* PrayerTimeWidget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5A1000160000000000000016 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5A1000110000000000000011 /* PrayerTimeWidget */;
+			targetProxy = 5A1000170000000000000017 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
@@ -292,9 +405,10 @@
 				APP_DISPLAY_NAME = "Namaz Defteri Dev";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconDev;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = NamazDefteri/NamazDefteri.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = 4JUR4D44S2;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = NamazDefteri/Info.plist;
@@ -303,7 +417,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.0.10;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -327,7 +441,8 @@
 				APP_DISPLAY_NAME = "Namaz Defteri";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CODE_SIGN_ENTITLEMENTS = NamazDefteri/NamazDefteri.entitlements;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = 4JUR4D44S2;
 				INFOPLIST_FILE = NamazDefteri/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -335,7 +450,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.0.10;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -347,6 +462,63 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		5A1000130000000000000013 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = PrayerTimeWidget/PrayerTimeWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10;
+				DEVELOPMENT_TEAM = 4JUR4D44S2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PrayerTimeWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.10;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gmsac.namazdefteri.dev.PrayerTimeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5A1000140000000000000014 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = PrayerTimeWidget/PrayerTimeWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10;
+				DEVELOPMENT_TEAM = 4JUR4D44S2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PrayerTimeWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.10;
+				PRODUCT_BUNDLE_IDENTIFIER = com.gmsac.namazdefteri.PrayerTimeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -502,6 +674,15 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A1000120000000000000012 /* Build configuration list for PBXNativeTarget "PrayerTimeWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A1000130000000000000013 /* Debug */,
+				5A1000140000000000000014 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

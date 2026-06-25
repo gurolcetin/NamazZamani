@@ -95,8 +95,8 @@ android {
         applicationId "com.gmsac.namazdefteri"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.0.0"
+        versionCode 10
+        versionName "1.0.10"
     }
     signingConfigs {
         debug {
@@ -115,6 +115,8 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
             manifestPlaceholders = [usesCleartextTraffic: "true"]
         }
         release {

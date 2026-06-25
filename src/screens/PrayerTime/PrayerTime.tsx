@@ -83,6 +83,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import RamadanIcon from '../../../libs/components/svg/icons/ramadan-icon';
 import { convertMiladiDateToHicriDate } from '../../../libs/core/helpers/hicriDate.helper';
+import { updatePrayerWidgetSnapshot } from '../../services/prayerWidgetService';
 import type { RootState } from '../../../libs/redux/store';
 import {
   prayerNotificationManager,
@@ -1021,6 +1022,48 @@ export default function PrayerTime() {
       return acc;
     }, {} as Record<PrayerTimeKey, string>);
   }, [t]);
+
+  const widgetTheme = useMemo(
+    () => ({
+      primary: currentTheme.primary,
+      cardBackground: currentTheme.cardViewBackgroundColor,
+      textColor: currentTheme.textColor,
+      mutedTextColor: currentTheme.placeholderTextColor || currentTheme.gray,
+      borderColor: currentTheme.cardViewBorderColor,
+    }),
+    [
+      currentTheme.cardViewBackgroundColor,
+      currentTheme.cardViewBorderColor,
+      currentTheme.gray,
+      currentTheme.placeholderTextColor,
+      currentTheme.primary,
+      currentTheme.textColor,
+    ],
+  );
+
+  useEffect(() => {
+    if (!timings) {
+      return;
+    }
+
+    updatePrayerWidgetSnapshot({
+      timings,
+      locationLabel: locationLabel || null,
+      utcLabel: utcLabel || null,
+      coords,
+      sequenceBaseDate: seqBaseDate.toISOString(),
+      labels: prayerLabels,
+      theme: widgetTheme,
+    });
+  }, [
+    coords,
+    locationLabel,
+    prayerLabels,
+    seqBaseDate,
+    timings,
+    utcLabel,
+    widgetTheme,
+  ]);
 
   const advancedNotifications = useSelector(
     (state: RootState) => state.advancedNotifications,

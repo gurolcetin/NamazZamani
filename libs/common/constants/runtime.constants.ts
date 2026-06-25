@@ -3,7 +3,7 @@
  * false => Dev build'de dev araçlarını ve reklamları kapatır.
  * true  => Dev build'de dev araçlarını ve reklamları açar.
  */
-export const ENABLE_DEV_FEATURES_AND_ADS = true;
+export const ENABLE_DEV_FEATURES_AND_ADS = false;
 
 const IS_NATIVE_DEV_BUILD = __DEV__;
 
