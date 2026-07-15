@@ -114,14 +114,64 @@ export async function fetchPrayerTimeMethods(): Promise<
   }
 }
 
+/**
+ * ISO 3166-1 alpha-2 ülke kodu → AlAdhan method ID eşleşmesi.
+ * Bir ülke için resmi/yaygın bir hesaplama yöntemi varsa buraya eklenir.
+ */
+const COUNTRY_METHOD_MAP: Record<string, number> = {
+  tr: 13, // Türkiye → Diyanet İşleri Başkanlığı
+  eg: 5,  // Mısır → Egyptian General Authority of Survey
+  sa: 4,  // Suudi Arabistan → Umm Al-Qura (Mekke)
+  pk: 1,  // Pakistan → University of Islamic Sciences, Karachi
+  ir: 7,  // İran → Institute of Geophysics, Tehran
+  kw: 9,  // Kuveyt → Kuwait
+  qa: 10, // Katar → Qatar
+  sg: 11, // Singapur → MUIS Singapore
+  fr: 12, // Fransa → UOIF France
+  ru: 14, // Rusya → Spiritual Administration of Muslims of Russia
+  ae: 16, // BAE → Dubai (experimental)
+  my: 17, // Malezya → JAKIM
+  tn: 18, // Tunus → Tunisia
+  dz: 19, // Cezayir → Algeria
+  id: 20, // Endonezya → KEMENAG
+  ma: 21, // Fas → Morocco
+  pt: 22, // Portekiz → Comunidade Islamica de Lisboa
+  jo: 23, // Ürdün → Ministry of Awqaf, Jordan
+  ps: 23, // Filistin → Jordan (yakın bölge)
+  us: 2,  // ABD → ISNA
+  ca: 2,  // Kanada → ISNA
+  bh: 8,  // Bahreyn → Gulf Region
+  om: 8,  // Umman → Gulf Region
+  ye: 8,  // Yemen → Gulf Region
+  iq: 3,  // Irak → Muslim World League
+  sy: 3,  // Suriye → Muslim World League
+  lb: 3,  // Lübnan → Muslim World League
+  ly: 5,  // Libya → Egyptian (yakın bölge)
+  sd: 5,  // Sudan → Egyptian (yakın bölge)
+};
+
 export const findClosestPrayerMethod = (
   methods: PrayerTimeMethodOption[],
   latitude: number,
   longitude: number,
+  countryCode?: string | null,
 ): PrayerTimeMethodOption | null => {
   if (!methods?.length) {
     return null;
   }
+
+  // 1) Ülke koduna göre doğrudan eşleşme dene
+  if (countryCode) {
+    const preferredId = COUNTRY_METHOD_MAP[countryCode.toLowerCase()];
+    if (preferredId !== undefined) {
+      const preferred = methods.find(m => m.id === preferredId);
+      if (preferred) {
+        return preferred;
+      }
+    }
+  }
+
+  // 2) Ülke eşleşmesi bulunamadıysa koordinat yakınlığına göre seç
   let winner: PrayerTimeMethodOption | null = null;
   let bestDistance = Number.POSITIVE_INFINITY;
   for (const method of methods) {

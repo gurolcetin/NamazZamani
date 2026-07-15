@@ -17,7 +17,7 @@ export type PlaceParts = {
 };
 
 const FALLBACK_LABEL = 'Bilinmeyen konum';
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 saat
+const CACHE_TTL_MS = 60 * 24 * 60 * 60 * 1000; // 60 gün — koordinata bağlı idari veri (şehir adı, ülke kodu) bu sürede değişmez
 const ERROR_CACHE_TTL_MS = 5 * 60 * 1000; // hata durumunda kısa süreliğine tekrar etme
 const MAX_CACHE_ENTRIES = 20;
 const REVERSE_CACHE_STORAGE_KEY = '@locationiq/reverse-cache:v1';
@@ -32,6 +32,7 @@ const REVERSE_CACHE_COORD_PRECISION = 3;
 type CacheEntry = {
   label: string;
   expiresAt: number;
+  countryCode?: string | null;
 };
 
 const reverseGeocodeCache = new Map<string, CacheEntry>();
@@ -130,7 +131,12 @@ function getCachedLabel(key: string) {
   return entry.label;
 }
 
-function setCache(key: string, label: string, ttlMs = CACHE_TTL_MS) {
+function setCache(
+  key: string,
+  label: string,
+  ttlMs = CACHE_TTL_MS,
+  countryCode?: string | null,
+) {
   if (reverseGeocodeCache.size >= MAX_CACHE_ENTRIES) {
     const oldestKey = reverseGeocodeCache.keys().next().value;
     if (oldestKey) {
@@ -140,6 +146,7 @@ function setCache(key: string, label: string, ttlMs = CACHE_TTL_MS) {
   reverseGeocodeCache.set(key, {
     label,
     expiresAt: Date.now() + ttlMs,
+    countryCode: countryCode ?? null,
   });
   schedulePersistCache();
 }
@@ -229,10 +236,14 @@ async function fetchReverseGeocode(
 
     const parts = [city, admin].filter(Boolean);
     const result = parts.length ? parts.join(', ') : FALLBACK_LABEL;
-    setCache(cacheKey, result);
+    const countryCode =
+      typeof a.country_code === 'string'
+        ? a.country_code.toLowerCase()
+        : null;
+    setCache(cacheKey, result, CACHE_TTL_MS, countryCode);
     return result;
   } catch {
-    setCache(cacheKey, FALLBACK_LABEL, ERROR_CACHE_TTL_MS);
+    setCache(cacheKey, FALLBACK_LABEL, ERROR_CACHE_TTL_MS, null);
     return FALLBACK_LABEL;
   }
 }
@@ -242,6 +253,37 @@ function normalize(str?: string): string | undefined {
   const s = str.trim();
   if (!s) return undefined;
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/**
+ * Koordinatlar için ülke kodunu döner (ISO 3166-1 alpha-2, küçük harf).
+ * reverseGeocode() daha önce çağrıldıysa önbellekten okur; aksi hâlde
+ * ayrı bir istek atar.
+ */
+export async function reverseGeocodeCountryCode(
+  latitude: number,
+  longitude: number,
+): Promise<string | null> {
+  if (!LOCATIONIQ_API_KEY) {
+    return null;
+  }
+
+  await hydrateCache();
+
+  const cacheKey = toCacheKey(latitude, longitude);
+  const cached = reverseGeocodeCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.countryCode ?? null;
+  }
+
+  // Tam geocode isteği at; bu hem label hem country_code'u önbelleğe yazar.
+  try {
+    await fetchReverseGeocode(latitude, longitude, cacheKey);
+  } catch {
+    return null;
+  }
+
+  return reverseGeocodeCache.get(cacheKey)?.countryCode ?? null;
 }
 
 export function getUTCLabel(): string {

@@ -46,7 +46,7 @@ import {
   SafeAreaWithStatusBar,
 } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
-import { reverseGeocode, getUTCLabel } from './reverse-geocode';
+import { reverseGeocode, reverseGeocodeCountryCode, getUTCLabel } from './reverse-geocode';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { PrayerTimeScreens } from '../../navigation/Routes';
 import {
@@ -1172,11 +1172,19 @@ export default function PrayerTime() {
           label = activeResolved.label;
         }
 
-        if (!label && latitude != null && longitude != null) {
+        if (latitude != null && longitude != null) {
+          // reverseGeocode'u her zaman çağır: hem label yoksa doldurur hem de
+          // country_code'u cache'e yazar. Böylece aşağıdaki reverseGeocodeCountryCode
+          // çağrısı her koşulda cache hit'ten okur — ekstra API token harcanmaz.
           try {
-            label = await reverseGeocode(latitude, longitude);
+            const geocoded = await reverseGeocode(latitude, longitude);
+            if (!label) {
+              label = geocoded;
+            }
           } catch {
-            label = t('prayerTime.locationNotFound');
+            if (!label) {
+              label = t('prayerTime.locationNotFound');
+            }
           }
         }
 
@@ -1185,10 +1193,16 @@ export default function PrayerTime() {
             const fetcher = ensurePrayerMethodsRef.current;
             const methods = fetcher ? await fetcher() : [];
             if (methods.length > 0 && !locationMethodManuallySet) {
+              const countryCode = await reverseGeocodeCountryCode(
+                latitude,
+                longitude,
+              ).catch(() => null);
+              console.log("countryCode for method selection:", countryCode);
               const closest = findClosestPrayerMethod(
                 methods,
                 latitude,
                 longitude,
+                countryCode,
               );
               if (closest?.id && closest.id !== methodId) {
                 methodId = closest.id;
