@@ -1757,10 +1757,14 @@ export default function PrayerTime() {
   );
 
   const handleDevTestNotification = useCallback(async () => {
-    const sent = await prayerNotificationManager.sendTestNotification({
-      title: t('notifications.testTitle'),
-      message: t('notifications.testBody'),
-    });
+    const sent = await prayerNotificationManager.sendTestNotification(
+      {
+        title: t('notifications.testTitle'),
+        message: t('notifications.testBody'),
+      },
+      2500,
+      'ezan_sesi1',
+    );
 
     if (!sent) {
       Alert.alert(

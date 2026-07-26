@@ -47,17 +47,34 @@ type SyncOptions = {
   storeKey?: string;
 };
 
-const CHANNEL_ID = 'prayer-call-channel';
+// Bump this when notification channel configuration changes (e.g. new sounds added).
+// Android channels are immutable once created; incrementing this forces recreation.
+const CHANNEL_VERSION = 'v2';
 
-// Per-sound channel IDs for Android (sound is set at channel level on Android 8+)
+const CHANNEL_VERSION_STORE_KEY = 'prayerNotifications:channelVersion';
+
+// Sound keys that have their own dedicated channel
+const CUSTOM_SOUND_KEYS = [
+  'zil_sesi_1',
+  'zil_sesi_2',
+  'zil_sesi_3',
+  'ezan_sesi1',
+  'ezan_sesi2',
+  'ezan_sesi3',
+] as const;
+
+function buildChannelId(sound: string, version: string): string {
+  if (sound === 'default') return `prayer-call-channel-${version}`;
+  return `prayer-call-channel-${sound.replace(/_/g, '-')}-${version}`;
+}
+
+const CHANNEL_ID = buildChannelId('default', CHANNEL_VERSION);
+
 const SOUND_CHANNEL_IDS: Record<string, string> = {
-  default: 'prayer-call-channel',
-  zil_sesi_1: 'prayer-call-channel-zil-sesi-1',
-  zil_sesi_2: 'prayer-call-channel-zil-sesi-2',
-  zil_sesi_3: 'prayer-call-channel-zil-sesi-3',
-  ezan_sesi1: 'prayer-call-channel-ezan-sesi-1',
-  ezan_sesi2: 'prayer-call-channel-ezan-sesi-2',
-  ezan_sesi3: 'prayer-call-channel-ezan-sesi-3',
+  default: CHANNEL_ID,
+  ...Object.fromEntries(
+    CUSTOM_SOUND_KEYS.map(key => [key, buildChannelId(key, CHANNEL_VERSION)]),
+  ),
 };
 
 function getChannelId(sound: string): string {
@@ -200,100 +217,63 @@ class PrayerNotificationManager {
     });
 
     if (Platform.OS === 'android') {
-      PushNotification.createChannel(
-        {
-          channelId: CHANNEL_ID,
-          channelName: 'Prayer Call Alerts',
-          channelDescription:
-            'Plays an audible reminder when a prayer time arrives.',
-          playSound: true,
-          soundName: 'default',
-          importance: Importance.HIGH,
-          vibrate: true,
-        },
-        () => {},
-      );
-      PushNotification.createChannel(
-        {
-          channelId: SOUND_CHANNEL_IDS.zil_sesi_1,
-          channelName: 'Prayer Call Alerts (Zil Sesi 1)',
-          channelDescription:
-            'Plays the Zil Sesi 1 sound when a prayer time arrives.',
-          playSound: true,
-          soundName: resolveSoundName('zil_sesi_1'),
-          importance: Importance.HIGH,
-          vibrate: true,
-        },
-        () => {},
-      );
-      PushNotification.createChannel(
-        {
-          channelId: SOUND_CHANNEL_IDS.zil_sesi_2,
-          channelName: 'Prayer Call Alerts (Zil Sesi 2)',
-          channelDescription:
-            'Plays the Zil Sesi 2 sound when a prayer time arrives.',
-          playSound: true,
-          soundName: resolveSoundName('zil_sesi_2'),
-          importance: Importance.HIGH,
-          vibrate: true,
-        },
-        () => {},
-      );
-      PushNotification.createChannel(
-        {
-          channelId: SOUND_CHANNEL_IDS.zil_sesi_3,
-          channelName: 'Prayer Call Alerts (Zil Sesi 3)',
-          channelDescription:
-            'Plays the Zil Sesi 3 sound when a prayer time arrives.',
-          playSound: true,
-          soundName: resolveSoundName('zil_sesi_3'),
-          importance: Importance.HIGH,
-          vibrate: true,
-        },
-        () => {},
-      );
-      PushNotification.createChannel(
-        {
-          channelId: SOUND_CHANNEL_IDS.ezan_sesi1,
-          channelName: 'Prayer Call Alerts (Ezan Sesi 1)',
-          channelDescription:
-            'Plays the Ezan Sesi 1 sound when a prayer time arrives.',
-          playSound: true,
-          soundName: resolveSoundName('ezan_sesi1'),
-          importance: Importance.HIGH,
-          vibrate: true,
-        },
-        () => {},
-      );
-      PushNotification.createChannel(
-        {
-          channelId: SOUND_CHANNEL_IDS.ezan_sesi2,
-          channelName: 'Prayer Call Alerts (Ezan Sesi 2)',
-          channelDescription:
-            'Plays the Ezan Sesi 2 sound when a prayer time arrives.',
-          playSound: true,
-          soundName: resolveSoundName('ezan_sesi2'),
-          importance: Importance.HIGH,
-          vibrate: true,
-        },
-        () => {},
-      );
-      PushNotification.createChannel(
-        {
-          channelId: SOUND_CHANNEL_IDS.ezan_sesi3,
-          channelName: 'Prayer Call Alerts (Ezan Sesi 3)',
-          channelDescription:
-            'Plays the Ezan Sesi 3 sound when a prayer time arrives.',
-          playSound: true,
-          soundName: resolveSoundName('ezan_sesi3'),
-          importance: Importance.HIGH,
-          vibrate: true,
-        },
-        () => {},
-      );
+      // Delete stale channels from previous versions and register current ones.
+      // This runs async but channel creation is fire-and-forget — safe to not await here.
+      this.syncAndroidChannels();
     }
 
     this.initialized = true;
+  }
+
+  private async syncAndroidChannels(): Promise<void> {
+    const storedVersion = await AsyncStorage.getItem(CHANNEL_VERSION_STORE_KEY).catch(() => null);
+
+    if (storedVersion !== CHANNEL_VERSION) {
+      // Delete all channels from the previous version
+      const oldVersion = storedVersion ?? 'v1';
+      const allSoundKeys = ['default', ...CUSTOM_SOUND_KEYS];
+      allSoundKeys.forEach(key => {
+        PushNotification.deleteChannel(buildChannelId(key, oldVersion));
+      });
+      // Also delete the unversioned legacy channels (initial release)
+      PushNotification.deleteChannel('prayer-call-channel');
+      CUSTOM_SOUND_KEYS.forEach(key => {
+        PushNotification.deleteChannel(
+          `prayer-call-channel-${key.replace(/_/g, '-')}`,
+        );
+      });
+    }
+
+    // Create/ensure current version channels
+    PushNotification.createChannel(
+      {
+        channelId: CHANNEL_ID,
+        channelName: 'Prayer Call Alerts',
+        channelDescription:
+          'Plays an audible reminder when a prayer time arrives.',
+        playSound: true,
+        soundName: 'default',
+        importance: Importance.HIGH,
+        vibrate: true,
+      },
+      () => {},
+    );
+    CUSTOM_SOUND_KEYS.forEach(key => {
+      PushNotification.createChannel(
+        {
+          channelId: SOUND_CHANNEL_IDS[key],
+          channelName: `Prayer Call Alerts (${key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())})`,
+          channelDescription: `Plays the ${key} sound when a prayer time arrives.`,
+          playSound: true,
+          soundName: resolveSoundName(key),
+          importance: Importance.HIGH,
+          vibrate: true,
+        },
+        () => {},
+      );
+    });
+
+    await AsyncStorage.setItem(CHANNEL_VERSION_STORE_KEY, CHANNEL_VERSION).catch(() => {});
   }
 
   private async isPermissionGranted(): Promise<boolean> {
@@ -482,6 +462,7 @@ class PrayerNotificationManager {
   async sendTestNotification(
     content: NotificationContent,
     delayMs = 2500,
+    sound: string = 'default',
   ): Promise<boolean> {
     const granted = await this.requestPermission();
     if (!granted) {
@@ -491,11 +472,11 @@ class PrayerNotificationManager {
     this.initialize();
     PushNotification.localNotificationSchedule({
       id: '299',
-      channelId: CHANNEL_ID,
+      channelId: getChannelId(sound),
       allowWhileIdle: true,
       autoCancel: true,
       playSound: true,
-      soundName: 'default',
+      soundName: resolveSoundName(sound),
       importance: 'high',
       title: content.title,
       message: content.message,
