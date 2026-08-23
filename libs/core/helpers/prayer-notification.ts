@@ -49,7 +49,8 @@ type SyncOptions = {
 
 // Bump this when notification channel configuration changes (e.g. new sounds added).
 // Android channels are immutable once created; incrementing this forces recreation.
-const CHANNEL_VERSION = 'v2';
+const CHANNEL_VERSION = 'v5';
+const PREVIOUS_CHANNEL_VERSIONS = ['v1', 'v2', 'v3', 'v4'] as const;
 
 const CHANNEL_VERSION_STORE_KEY = 'prayerNotifications:channelVersion';
 
@@ -81,10 +82,9 @@ function getChannelId(sound: string): string {
   return SOUND_CHANNEL_IDS[sound] ?? CHANNEL_ID;
 }
 
-// Use extension for custom sounds on both platforms to avoid
-// vendor-specific parsing bugs in notification channel creation.
 function resolveSoundName(sound: string): string {
   if (sound === 'default') return 'default';
+  if (Platform.OS === 'android') return sound;
   if (sound.startsWith('ezan_sesi')) {
     return `${sound}.wav`;
   }
@@ -157,6 +157,7 @@ const toAndroidSchedulableId = (key: PrayerTimeKey, date: Date) => {
 
 class PrayerNotificationManager {
   private initialized = false;
+  private androidChannelSyncPromise: Promise<void> | null = null;
 
   private cancelById(id: string | number | undefined) {
     if (id == null) return;
@@ -216,25 +217,64 @@ class PrayerNotificationManager {
       requestPermissions: false,
     });
 
+    this.initialized = true;
+
     if (Platform.OS === 'android') {
-      // Delete stale channels from previous versions and register current ones.
-      // This runs async but channel creation is fire-and-forget — safe to not await here.
-      this.syncAndroidChannels();
+      this.ensureAndroidChannels();
+    }
+  }
+
+  private ensureAndroidChannels(): Promise<void> {
+    if (Platform.OS !== 'android') {
+      return Promise.resolve();
     }
 
-    this.initialized = true;
+    if (!this.androidChannelSyncPromise) {
+      this.androidChannelSyncPromise = this.syncAndroidChannels().catch(
+        error => {
+          this.androidChannelSyncPromise = null;
+          console.warn(
+            '[prayer-notification] Failed to sync Android channels',
+            error,
+          );
+        },
+      );
+    }
+
+    return this.androidChannelSyncPromise;
+  }
+
+  private createAndroidChannel(
+    channel: Parameters<typeof PushNotification.createChannel>[0],
+  ): Promise<void> {
+    return new Promise(resolve => {
+      PushNotification.createChannel(channel, () => {
+        resolve();
+      });
+    });
   }
 
   private async syncAndroidChannels(): Promise<void> {
-    const storedVersion = await AsyncStorage.getItem(CHANNEL_VERSION_STORE_KEY).catch(() => null);
+    const storedVersion = await AsyncStorage.getItem(
+      CHANNEL_VERSION_STORE_KEY,
+    ).catch(() => null);
 
-    if (storedVersion !== CHANNEL_VERSION) {
-      // Delete all channels from the previous version
-      const oldVersion = storedVersion ?? 'v1';
+    const shouldResetChannels = storedVersion !== CHANNEL_VERSION;
+
+    if (shouldResetChannels) {
       const allSoundKeys = ['default', ...CUSTOM_SOUND_KEYS];
-      allSoundKeys.forEach(key => {
-        PushNotification.deleteChannel(buildChannelId(key, oldVersion));
+      const versionsToDelete = new Set<string>([
+        ...PREVIOUS_CHANNEL_VERSIONS,
+        ...(storedVersion ? [storedVersion] : []),
+      ]);
+      versionsToDelete.delete(CHANNEL_VERSION);
+
+      versionsToDelete.forEach(version => {
+        allSoundKeys.forEach(key => {
+          PushNotification.deleteChannel(buildChannelId(key, version));
+        });
       });
+
       // Also delete the unversioned legacy channels (initial release)
       PushNotification.deleteChannel('prayer-call-channel');
       CUSTOM_SOUND_KEYS.forEach(key => {
@@ -242,10 +282,12 @@ class PrayerNotificationManager {
           `prayer-call-channel-${key.replace(/_/g, '-')}`,
         );
       });
+
+      await this.clearAllPrayerNotifications();
     }
 
     // Create/ensure current version channels
-    PushNotification.createChannel(
+    await this.createAndroidChannel(
       {
         channelId: CHANNEL_ID,
         channelName: 'Prayer Call Alerts',
@@ -256,24 +298,26 @@ class PrayerNotificationManager {
         importance: Importance.HIGH,
         vibrate: true,
       },
-      () => {},
     );
-    CUSTOM_SOUND_KEYS.forEach(key => {
-      PushNotification.createChannel(
-        {
+    await Promise.all(
+      CUSTOM_SOUND_KEYS.map(key =>
+        this.createAndroidChannel({
           channelId: SOUND_CHANNEL_IDS[key],
-          channelName: `Prayer Call Alerts (${key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())})`,
+          channelName: `Prayer Call Alerts (${key
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, c => c.toUpperCase())})`,
           channelDescription: `Plays the ${key} sound when a prayer time arrives.`,
           playSound: true,
           soundName: resolveSoundName(key),
           importance: Importance.HIGH,
           vibrate: true,
-        },
-        () => {},
-      );
-    });
+        }),
+      ),
+    );
 
-    await AsyncStorage.setItem(CHANNEL_VERSION_STORE_KEY, CHANNEL_VERSION).catch(() => {});
+    await AsyncStorage.setItem(CHANNEL_VERSION_STORE_KEY, CHANNEL_VERSION).catch(
+      () => {},
+    );
   }
 
   private async isPermissionGranted(): Promise<boolean> {
@@ -343,6 +387,7 @@ class PrayerNotificationManager {
     storeKey = DEFAULT_STORE_KEY,
   }: SyncOptions): Promise<boolean> {
     this.initialize();
+    await this.ensureAndroidChannels();
     await this.clearAllPrayerNotifications([storeKey]);
 
     if (enabledKeys && enabledKeys.length === 0) {
@@ -470,6 +515,7 @@ class PrayerNotificationManager {
     }
 
     this.initialize();
+    await this.ensureAndroidChannels();
     PushNotification.localNotificationSchedule({
       id: '299',
       channelId: getChannelId(sound),
@@ -533,6 +579,7 @@ class PrayerNotificationManager {
     storeKey = ADVANCED_STORE_KEY,
   }: AdvancedSyncOptions): Promise<boolean> {
     this.initialize();
+    await this.ensureAndroidChannels();
     await this.clearAllPrayerNotifications([storeKey]);
 
     // Check if any notification is enabled

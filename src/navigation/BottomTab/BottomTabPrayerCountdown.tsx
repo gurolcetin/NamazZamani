@@ -121,8 +121,11 @@ const BottomTabPrayerCountdown = memo(() => {
     return () => clearInterval(timer);
   }, [prayerSnapshot.timings]);
 
-  const countdownText =
-    secondsLeft == null ? '--:--:--' : fmtClock(secondsLeft);
+  if (secondsLeft == null) {
+    return null;
+  }
+
+  const countdownText = fmtClock(secondsLeft);
 
   return (
     <View

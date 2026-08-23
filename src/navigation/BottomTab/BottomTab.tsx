@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { useSelector } from 'react-redux';
 import { FontScaleOption } from '../../../libs/common/enums';
-import { getFontScaleMultiplier } from '../../../libs/core/helpers';
+import { getFontScaleMultiplier, isPersonalizedAdsAllowed } from '../../../libs/core/helpers';
 import BottomTabPrayerCountdown from './BottomTabPrayerCountdown';
 import { StackRoutes } from '../Routes';
 
@@ -193,7 +193,7 @@ const CustomTabBar = ({ state, navigation }: any) => {
             <BannerAd
               unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
               size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-              requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+              requestOptions={{ requestNonPersonalizedAdsOnly: !isPersonalizedAdsAllowed() }}
               onAdLoaded={() => {
                 setBannerLoaded(true);
               }}

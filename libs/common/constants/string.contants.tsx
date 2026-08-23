@@ -4,6 +4,7 @@ export const MenuIconConstants = {
   Dhikr: 'counter',
   Tools: 'view-grid',
   Settings: 'cogs',
+  Debug: 'bug-outline',
 };
 
 export const AsyncStorageConstants = {

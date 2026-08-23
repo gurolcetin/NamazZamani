@@ -4,3 +4,4 @@ export * from './hapticFeedbackHelper';
 export * from './dhikr.helper';
 export * from './timezone';
 export * from './font-scale';
+export { isPersonalizedAdsAllowed, isPrivacyOptionsRequired } from './adsConsentManager';

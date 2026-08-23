@@ -12,10 +12,11 @@ import {
   Alert,
   AppState,
   FlatList,
+  Linking,
   ListRenderItemInfo,
   Modal,
+  Platform,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -35,6 +36,7 @@ import {
   requestLocationPermission,
   getCurrentPosition,
   hasLocationPermission,
+  LocationServicesDisabledError,
 } from './permission';
 import {
   BottomTabScreenViewContainer,
@@ -46,7 +48,11 @@ import {
   SafeAreaWithStatusBar,
 } from '../../../libs/components';
 import { useTheme } from '../../../libs/core/providers';
-import { reverseGeocode, reverseGeocodeCountryCode, getUTCLabel } from './reverse-geocode';
+import {
+  reverseGeocode,
+  reverseGeocodeCountryCode,
+  getUTCLabel,
+} from './reverse-geocode';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { PrayerTimeScreens } from '../../navigation/Routes';
 import {
@@ -78,17 +84,13 @@ import {
 import {
   LanguageLocaleKeys,
   LanguagePrefix,
-  IS_DEV_FEATURES_ENABLED,
 } from '../../../libs/common/constants';
 import { useTranslation } from 'react-i18next';
 import RamadanIcon from '../../../libs/components/svg/icons/ramadan-icon';
 import { convertMiladiDateToHicriDate } from '../../../libs/core/helpers/hicriDate.helper';
 import { updatePrayerWidgetSnapshot } from '../../services/prayerWidgetService';
 import type { RootState } from '../../../libs/redux/store';
-import {
-  prayerNotificationManager,
-  type ScheduledLocalNotification,
-} from '../../../libs/core/helpers/prayer-notification';
+import { prayerNotificationManager } from '../../../libs/core/helpers/prayer-notification';
 import { FontScaleOption } from '../../../libs/common/enums';
 import {
   savePrayerSnapshot,
@@ -163,36 +165,6 @@ function fmtClock(totalSec: number) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(
     sec,
   ).padStart(2, '0')}`;
-}
-
-function parseClockToMinutes(hhmm: string) {
-  const pureTime = hhmm.split(' ')[0];
-  const [h, m] = pureTime.split(':').map(Number);
-  if (!Number.isFinite(h) || !Number.isFinite(m)) {
-    return null;
-  }
-  return h * 60 + m;
-}
-
-function diffInMinutes(base: string, tuned: string) {
-  const baseMin = parseClockToMinutes(base);
-  const tunedMin = parseClockToMinutes(tuned);
-  if (baseMin == null || tunedMin == null) {
-    return null;
-  }
-  return tunedMin - baseMin;
-}
-
-function parseNotificationDate(
-  notification: ScheduledLocalNotification,
-): Date | null {
-  const rawDate = notification.date ?? notification.fireDate;
-  if (rawDate == null) return null;
-  if (rawDate instanceof Date) {
-    return Number.isNaN(rawDate.getTime()) ? null : rawDate;
-  }
-  const parsed = new Date(rawDate);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function progressBetween(start: Date, end: Date, now = new Date()) {
@@ -690,7 +662,6 @@ export default function PrayerTime() {
     cachedPrayerSnapshot.timings,
   );
   const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const methodKey =
     activeResolved.type === 'device' ? DEVICE_METHOD_KEY : activeResolved.id;
   const activeMethodPref =
@@ -725,7 +696,8 @@ export default function PrayerTime() {
   );
   const activeMethodInfo = useMemo(() => {
     const rawMethodName =
-      methodNameLookup.get(activeMethodId) ?? t('locationSelector.methodUnknown');
+      methodNameLookup.get(activeMethodId) ??
+      t('locationSelector.methodUnknown');
     return {
       methodName: formatMethodName(rawMethodName),
       pref: {
@@ -758,23 +730,15 @@ export default function PrayerTime() {
     cachedPrayerSnapshot.coords,
   );
   const [nowTick, setNowTick] = useState(new Date());
-  const [scheduledNotificationsModalVisible, setScheduledNotificationsModalVisible] =
-    useState(false);
-  const [scheduledNotificationsLoading, setScheduledNotificationsLoading] =
-    useState(false);
-  const [scheduledNotifications, setScheduledNotifications] = useState<
-    ScheduledLocalNotification[]
-  >([]);
-  const [expandedNotificationDays, setExpandedNotificationDays] = useState<
-    Record<string, boolean>
-  >({});
-  const [tuneDraft, setTuneDraft] = useState<PrayerTimeTuneSettings>(
-    prayerTimeTune,
-  );
+  const [tuneDraft, setTuneDraft] =
+    useState<PrayerTimeTuneSettings>(prayerTimeTune);
   const [locationPermissionGranted, setLocationPermissionGranted] = useState<
     boolean | null
   >(null);
   const prevLocationPermissionRef = useRef<boolean | null>(null);
+  const [locationServicesDisabled, setLocationServicesDisabled] =
+    useState(false);
+  const locationServicesDisabledRef = useRef(false);
 
   // Senkron durumu: hem ref (timer closure güvenliği) hem state (UI)
   const isResyncingRef = useRef<boolean>(false);
@@ -845,71 +809,14 @@ export default function PrayerTime() {
     return () => {
       mounted = false;
     };
-  // nowTick changes every minute; cached responses return immediately from AsyncStorage.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // nowTick changes every minute; cached responses return immediately from AsyncStorage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nowTick.toDateString()]);
 
   const shouldShowRamadanCountdown =
     showRamadanCountdownPreference || isRamadanWindow;
 
   const currentDateKey = useMemo(() => getCurrentDateKey(nowTick), [nowTick]);
-
-  const scheduledNotificationGroups = useMemo(() => {
-    const grouped = new Map<
-      string,
-      {
-        label: string;
-        sortTs: number;
-        items: ScheduledLocalNotification[];
-      }
-    >();
-
-    scheduledNotifications.forEach(notification => {
-      const dateObj = parseNotificationDate(notification);
-      const dayKey = dateObj ? ymd(dateObj) : 'undated';
-      const dayStartTs = dateObj
-        ? new Date(
-            dateObj.getFullYear(),
-            dateObj.getMonth(),
-            dateObj.getDate(),
-          ).getTime()
-        : Number.MAX_SAFE_INTEGER;
-      const dayLabel = dateObj
-        ? dateObj.toLocaleDateString(dateLocale || undefined, {
-            weekday: 'long',
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-          })
-        : 'Tarih bilgisi olmayanlar';
-
-      const existing = grouped.get(dayKey);
-      if (existing) {
-        existing.items.push(notification);
-      } else {
-        grouped.set(dayKey, {
-          label: dayLabel,
-          sortTs: dayStartTs,
-          items: [notification],
-        });
-      }
-    });
-
-    return Array.from(grouped.entries())
-      .map(([key, value]) => ({
-        key,
-        label: value.label,
-        sortTs: value.sortTs,
-        items: value.items.sort((a, b) => {
-          const aTime =
-            parseNotificationDate(a)?.getTime() ?? Number.MAX_SAFE_INTEGER;
-          const bTime =
-            parseNotificationDate(b)?.getTime() ?? Number.MAX_SAFE_INTEGER;
-          return aTime - bTime;
-        }),
-      }))
-      .sort((a, b) => a.sortTs - b.sortTs);
-  }, [dateLocale, scheduledNotifications]);
 
   const refreshLocationPermissionStatus = useCallback(async () => {
     try {
@@ -954,6 +861,10 @@ export default function PrayerTime() {
   useEffect(() => {
     ensurePrayerMethodsRef.current = ensurePrayerMethods;
   }, [ensurePrayerMethods]);
+
+  useEffect(() => {
+    locationServicesDisabledRef.current = locationServicesDisabled;
+  }, [locationServicesDisabled]);
 
   useEffect(() => {
     refreshLocationPermissionStatus();
@@ -1108,24 +1019,6 @@ export default function PrayerTime() {
     };
   }, [seqBaseDate]);
 
-  const handleDevConvertHijriDate = useCallback(async () => {
-    try {
-      const hijriDate = await convertMiladiDateToHicriDate(seqBaseDate);
-      Alert.alert(
-        'Hicri Tarih Kontrol',
-        [
-          `Miladi: ${seqDateLabel}`,
-          `Hicri: ${hijriDate.dayOfMonth} ${hijriDate.monthText} ${hijriDate.year}`,
-          `Raw: ${hijriDate.rawHijriDate}`,
-          `Method: ${hijriDate.method}`,
-        ].join('\n'),
-      );
-    } catch (error) {
-      console.warn('Hijri date fetch failed (dev button)', error);
-      Alert.alert('Hicri Tarih Kontrol', 'Hicri tarih hesaplanamadı.');
-    }
-  }, [seqBaseDate, seqDateLabel]);
-
   // --- LOAD (timestamp'li) --------------------------------------------------
   const load = useCallback(
     async (
@@ -1197,7 +1090,7 @@ export default function PrayerTime() {
                 latitude,
                 longitude,
               ).catch(() => null);
-              console.log("countryCode for method selection:", countryCode);
+              console.log('countryCode for method selection:', countryCode);
               const closest = findClosestPrayerMethod(
                 methods,
                 latitude,
@@ -1237,6 +1130,7 @@ export default function PrayerTime() {
             },
           );
           setTimings(data);
+          setLocationServicesDisabled(false);
 
           // UTC etiketi de o tarihe göre
           const tz = getTimeZoneByCoords(latitude, longitude);
@@ -1277,6 +1171,10 @@ export default function PrayerTime() {
         deviceDateAlertShownRef.current = false;
       } catch (error: any) {
         console.warn('[prayer-time] load failed', error);
+        if (error instanceof LocationServicesDisabledError) {
+          setLocationServicesDisabled(true);
+          return;
+        }
         const isDeviceDateError =
           error?.prayerTimesCode === 'NETWORK_OR_DEVICE_DATE' ||
           error?.message === 'PRAYER_TIMES_NETWORK_ERROR' ||
@@ -1311,7 +1209,13 @@ export default function PrayerTime() {
         setIsResyncing(false);
       }
     },
-    [activeResolved, dispatch, effectiveTuneOffsets, getMethodPreferenceForKey, t],
+    [
+      activeResolved,
+      dispatch,
+      effectiveTuneOffsets,
+      getMethodPreferenceForKey,
+      t,
+    ],
   );
   const loadRef = useRef(load);
   useEffect(() => {
@@ -1592,24 +1496,6 @@ export default function PrayerTime() {
     }
   }, [activeResolved, load]);
 
-  // Pull-to-refresh için handler
-  const handleRefresh = useCallback(async () => {
-    if (!IS_DEV_FEATURES_ENABLED) {
-      return;
-    }
-    if (isResyncingRef.current) {
-      // Zaten reload çalışıyorsa ikinci isteğe gerek yok
-      return;
-    }
-    deviceDateAlertShownRef.current = false;
-    setRefreshing(true);
-    try {
-      await load(new Date());
-    } finally {
-      setRefreshing(false);
-    }
-  }, [load]);
-
   const activeLocationModalLabel = useMemo(() => {
     if (locationLabel && locationLabel.trim().length > 0) {
       return locationLabel;
@@ -1756,171 +1642,6 @@ export default function PrayerTime() {
     [t, tuneDraft],
   );
 
-  const handleDevTestNotification = useCallback(async () => {
-    const sent = await prayerNotificationManager.sendTestNotification(
-      {
-        title: t('notifications.testTitle'),
-        message: t('notifications.testBody'),
-      },
-      2500,
-      'ezan_sesi1',
-    );
-
-    if (!sent) {
-      Alert.alert(
-        t('notifications.permissionDeniedTitle'),
-        t('notifications.permissionDeniedMessage'),
-      );
-      return;
-    }
-
-    Alert.alert(
-      t('notifications.testTitle'),
-      t('notifications.testScheduledMessage'),
-    );
-  }, [t]);
-
-  const handleCalculatePrayerTimesForDate = useCallback(
-    async (date: Date) => {
-      try {
-        setLoading(true);
-        const latitude =
-          activeResolved.type === 'device'
-            ? coords?.lat
-            : activeResolved.latitude;
-        const longitude =
-          activeResolved.type === 'device'
-            ? coords?.lon
-            : activeResolved.longitude;
-        if (latitude == null || longitude == null) {
-          Alert.alert(
-            t('prayerTime.locationRequiredTitle'),
-            t('prayerTime.locationRequiredMessage'),
-          );
-          return;
-        }
-        const methodPref = getMethodPreferenceForKey(
-          activeResolved.type === 'device'
-            ? DEVICE_METHOD_KEY
-            : activeResolved.id,
-        );
-        const methodId = methodPref?.methodId ?? DEFAULT_METHOD_ID;
-
-        const untunedData = await fetchPrayerTimesByCoords(
-          latitude,
-          longitude,
-          date,
-          methodId,
-          {
-            tune: null, // deliberately omit tune parameter
-          },
-        );
-        const tunedData = await fetchPrayerTimesByCoords(
-          latitude,
-          longitude,
-          date,
-          methodId,
-          {
-            tune: effectiveTuneOffsets,
-          },
-        );
-
-        const lines = PRAYER_ORDER.map(key => {
-          const untuned = untunedData[key];
-          const tuned = tunedData[key];
-          const diff = diffInMinutes(untuned, tuned);
-          const diffText =
-            diff == null ? '?' : `${diff > 0 ? '+' : ''}${diff} dk`;
-          return `${prayerLabels[key]}: Temkinsiz ${untuned} | Temkinli ${tuned} (${diffText})`;
-        });
-        const allDiffZero = PRAYER_ORDER.every(key => {
-          const untuned = untunedData[key];
-          const tuned = tunedData[key];
-          return diffInMinutes(untuned, tuned) === 0;
-        });
-
-        Alert.alert(
-          t('prayerTime.calculatedTimesTitle'),
-          [
-            `Tarih: ${date.toLocaleDateString()}`,
-            `Method: ${methodId}`,
-            `Tune: ${effectiveTuneOffsets.join(',')}`,
-            '',
-            ...lines,
-            ...(allDiffZero && methodId === 13
-              ? [
-                  '',
-                  'Not: Method 13 (Diyanet) için API varsayılan tune değerleri ile',
-                  'seçili tune aynı olduğunda fark 0 dk görünür.',
-                ]
-              : []),
-          ].join('\n'),
-        );
-      } catch (error) {
-        console.warn('Error calculating prayer times for date', error);
-        Alert.alert(
-          t('prayerTime.calculationErrorTitle'),
-          t('prayerTime.calculationErrorMessage'),
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [
-      activeResolved,
-      coords,
-      effectiveTuneOffsets,
-      getMethodPreferenceForKey,
-      prayerLabels,
-      t,
-    ],
-  );
-
-  const handleListScheduledNotifications = useCallback(async () => {
-    setScheduledNotificationsModalVisible(true);
-    setScheduledNotificationsLoading(true);
-
-    try {
-      const notifications =
-        await prayerNotificationManager.getScheduledLocalNotifications();
-
-      const sorted = [...notifications].sort((a, b) => {
-        const aTime =
-          parseNotificationDate(a)?.getTime() ?? Number.MAX_SAFE_INTEGER;
-        const bTime =
-          parseNotificationDate(b)?.getTime() ?? Number.MAX_SAFE_INTEGER;
-        return aTime - bTime;
-      });
-
-      setScheduledNotifications(sorted);
-      const expanded: Record<string, boolean> = {};
-      sorted.forEach(item => {
-        const dateObj = parseNotificationDate(item);
-        const dayKey = dateObj ? ymd(dateObj) : 'undated';
-        expanded[dayKey] = true;
-      });
-      setExpandedNotificationDays(expanded);
-    } catch (error) {
-      console.warn('[prayer-time] failed to list scheduled notifications', error);
-      Alert.alert('Hata', 'Kayıtlı bildirimler alınamadı.');
-      setScheduledNotifications([]);
-      setExpandedNotificationDays({});
-    } finally {
-      setScheduledNotificationsLoading(false);
-    }
-  }, []);
-
-  const closeScheduledNotificationsModal = useCallback(() => {
-    setScheduledNotificationsModalVisible(false);
-  }, []);
-
-  const toggleDayExpanded = useCallback((dayKey: string) => {
-    setExpandedNotificationDays(prev => ({
-      ...prev,
-      [dayKey]: !prev[dayKey],
-    }));
-  }, []);
-
   // Timer'ı kur/yeniden kur
   const startTimer = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -1993,7 +1714,11 @@ export default function PrayerTime() {
           startTimer();
           refreshLocationPermissionStatus();
           if (prevState === 'background' || prevState === 'inactive') {
-            checkDeviceLocationChange();
+            if (locationServicesDisabledRef.current) {
+              load(new Date());
+            } else {
+              checkDeviceLocationChange();
+            }
           }
         } else if (s === 'background') {
           if (intervalRef.current) {
@@ -2013,6 +1738,7 @@ export default function PrayerTime() {
       };
     }, [
       checkDeviceLocationChange,
+      load,
       refreshLocationPermissionStatus,
       startTimer,
     ]),
@@ -2107,6 +1833,8 @@ export default function PrayerTime() {
 
   const shouldShowLocationPermissionCard =
     locationPermissionGranted === false && savedLocations.length === 0;
+  const shouldShowLocationServicesCard =
+    locationServicesDisabled && !timings && activeResolved.type === 'device';
 
   // ------- render -----------------------------------------------------------
   if (shouldShowLocationPermissionCard) {
@@ -2165,6 +1893,75 @@ export default function PrayerTime() {
               >
                 <Text style={styles.permissionButtonText}>
                   {t('prayerTime.permissionCardButton')}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </BottomTabScreenViewContainer>
+      </SafeAreaWithStatusBar>
+    );
+  }
+
+  if (shouldShowLocationServicesCard) {
+    return (
+      <SafeAreaWithStatusBar>
+        <BottomTabScreenViewContainer>
+          <View style={styles.permissionCardScreen}>
+            <View
+              style={[
+                styles.permissionCard,
+                { backgroundColor: currentTheme.cardViewBackgroundColor },
+              ]}
+            >
+              <View
+                style={[
+                  styles.permissionIconCircle,
+                  { backgroundColor: `${currentTheme.primary}1A` },
+                ]}
+              >
+                <Icon
+                  type={Icons.MaterialDesignIcons}
+                  name="crosshairs-gps"
+                  size={28}
+                  color={currentTheme.primary}
+                />
+              </View>
+              <Text
+                style={[
+                  styles.permissionTitle,
+                  { color: currentTheme.textColor },
+                ]}
+              >
+                {t('prayerTime.locationServicesDisabledTitle')}
+              </Text>
+              <Text
+                style={[
+                  styles.permissionDescription,
+                  {
+                    color:
+                      currentTheme.placeholderTextColor || 'rgba(15,23,42,0.7)',
+                  },
+                ]}
+              >
+                {t('prayerTime.locationServicesDisabledMessage')}
+              </Text>
+              <Pressable
+                style={[
+                  styles.permissionButton,
+                  { backgroundColor: currentTheme.primary },
+                ]}
+                onPress={() => {
+                  if (Platform.OS === 'android') {
+                    Linking.sendIntent(
+                      'android.settings.LOCATION_SOURCE_SETTINGS',
+                    ).catch(() => Linking.openSettings());
+                  } else {
+                    Linking.openSettings();
+                  }
+                }}
+              >
+                <Text style={styles.permissionButtonText}>
+                  {t('prayerTime.locationServicesOpenSettings')}
                 </Text>
               </Pressable>
             </View>
@@ -2250,114 +2047,6 @@ export default function PrayerTime() {
                   seqDateLabel={seqDateLabel}
                   hijriDateLabel={hijriDateLabel}
                 />
-                {IS_DEV_FEATURES_ENABLED && (
-                  <Pressable
-                    style={[
-                      styles.devTestNotificationButton,
-                      {
-                        backgroundColor: currentTheme.cardViewBackgroundColor,
-                        borderColor: `${currentTheme.primary}66`,
-                      },
-                    ]}
-                    onPress={handleDevConvertHijriDate}
-                  >
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="calendar-refresh"
-                      size={18}
-                      color={currentTheme.primary}
-                    />
-                    <Text
-                      style={[
-                        styles.devTestNotificationButtonText,
-                        { color: currentTheme.primary },
-                      ]}
-                    >
-                      Hicri Tarihi Kontrol Et
-                    </Text>
-                  </Pressable>
-                )}
-                {IS_DEV_FEATURES_ENABLED && (
-                  <Pressable
-                    style={[
-                      styles.devTestNotificationButton,
-                      {
-                        backgroundColor: currentTheme.cardViewBackgroundColor,
-                        borderColor: `${currentTheme.primary}66`,
-                      },
-                    ]}
-                    onPress={handleDevTestNotification}
-                  >
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="bell-ring-outline"
-                      size={18}
-                      color={currentTheme.primary}
-                    />
-                    <Text
-                      style={[
-                        styles.devTestNotificationButtonText,
-                        { color: currentTheme.primary },
-                      ]}
-                    >
-                      {t('prayerTime.sendTestNotification')}
-                    </Text>
-                  </Pressable>
-                )}
-                {IS_DEV_FEATURES_ENABLED && (
-                  <Pressable
-                    style={[
-                      styles.devTestNotificationButton,
-                      {
-                        backgroundColor: currentTheme.cardViewBackgroundColor,
-                        borderColor: `${currentTheme.primary}66`,
-                      },
-                    ]}
-                    onPress={handleCalculatePrayerTimesForDate.bind(null, new Date())}
-                  >
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="calculator-variant"
-                      size={18}
-                      color={currentTheme.primary}
-                    />
-                    <Text
-                      style={[
-                        styles.devTestNotificationButtonText,
-                        { color: currentTheme.primary },
-                      ]}
-                    >
-                      Temkinli Vakitleri Kontrol Et
-                    </Text>
-                  </Pressable>
-                )}
-                {IS_DEV_FEATURES_ENABLED && (
-                  <Pressable
-                    style={[
-                      styles.devTestNotificationButton,
-                      {
-                        backgroundColor: currentTheme.cardViewBackgroundColor,
-                        borderColor: `${currentTheme.primary}66`,
-                      },
-                    ]}
-                    onPress={handleListScheduledNotifications}
-                  >
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="format-list-bulleted"
-                      size={18}
-                      color={currentTheme.primary}
-                    />
-                    <Text
-                      style={[
-                        styles.devTestNotificationButtonText,
-                        { color: currentTheme.primary },
-                      ]}
-                    >
-                      Kayıtlı Push Notificationları Listele
-                    </Text>
-                  </Pressable>
-                )}
               </>
             }
             ListFooterComponent={listFooter}
@@ -2367,22 +2056,6 @@ export default function PrayerTime() {
             removeClippedSubviews
             initialNumToRender={6}
             windowSize={7}
-            refreshing={IS_DEV_FEATURES_ENABLED ? refreshing : false}
-            onRefresh={IS_DEV_FEATURES_ENABLED ? handleRefresh : undefined}
-            refreshControl={
-              IS_DEV_FEATURES_ENABLED ? (
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={handleRefresh}
-                  // Android için spinner rengi
-                  colors={[currentTheme.primary]}
-                  // iOS için spinner rengi
-                  tintColor={currentTheme.primary}
-                  // İstersen arka plan da tema ile uyumlu olsun:
-                  progressBackgroundColor={currentTheme.cardViewBackgroundColor}
-                />
-              ) : undefined
-            }
             onScroll={({ nativeEvent }) => {
               if (isCloseToBottom(nativeEvent)) {
                 dispatch(updateAppConfig({ isScrollReachToBottom: true }));
@@ -2591,14 +2264,16 @@ export default function PrayerTime() {
                             style={[
                               styles.tuneStepper,
                               {
-                                backgroundColor: currentTheme.inputBackgroundColor,
+                                backgroundColor:
+                                  currentTheme.inputBackgroundColor,
                               },
                             ]}
                           >
                             <Pressable
                               style={[
                                 styles.tuneStepperButton,
-                                isDecrementDisabled && styles.tuneStepperDisabled,
+                                isDecrementDisabled &&
+                                  styles.tuneStepperDisabled,
                               ]}
                               onPress={() =>
                                 handleTuneStep(item.key, -TUNE_STEP)
@@ -2617,13 +2292,16 @@ export default function PrayerTime() {
                             <View
                               style={[
                                 styles.tuneStepperDivider,
-                                { backgroundColor: `${currentTheme.textColor}22` },
+                                {
+                                  backgroundColor: `${currentTheme.textColor}22`,
+                                },
                               ]}
                             />
                             <Pressable
                               style={[
                                 styles.tuneStepperButton,
-                                isIncrementDisabled && styles.tuneStepperDisabled,
+                                isIncrementDisabled &&
+                                  styles.tuneStepperDisabled,
                               ]}
                               onPress={() =>
                                 handleTuneStep(item.key, TUNE_STEP)
@@ -2645,192 +2323,6 @@ export default function PrayerTime() {
                     })}
                   </View>
                 </ScrollView>
-              </View>
-            </View>
-          </Modal>
-          <Modal
-            visible={scheduledNotificationsModalVisible}
-            transparent
-            animationType="slide"
-            onRequestClose={closeScheduledNotificationsModal}
-          >
-            <View style={styles.scheduledNotifModalOverlay}>
-              <Pressable
-                style={styles.scheduledNotifModalBackdrop}
-                onPress={closeScheduledNotificationsModal}
-              />
-              <View
-                style={[
-                  styles.scheduledNotifModalCard,
-                  {
-                    backgroundColor: currentTheme.cardViewBackgroundColor,
-                    borderColor: `${currentTheme.primary}33`,
-                  },
-                ]}
-              >
-                <View style={styles.scheduledNotifModalHeader}>
-                  <Text
-                    style={[
-                      styles.scheduledNotifModalTitle,
-                      { color: currentTheme.textColor },
-                    ]}
-                  >
-                    Kayıtlı Push Notificationlar ({scheduledNotifications.length})
-                  </Text>
-                  <Pressable
-                    style={[
-                      styles.scheduledNotifCloseButton,
-                      { borderColor: `${currentTheme.primary}66` },
-                    ]}
-                    onPress={closeScheduledNotificationsModal}
-                  >
-                    <Icon
-                      type={Icons.MaterialDesignIcons}
-                      name="close"
-                      size={18}
-                      color={currentTheme.primary}
-                    />
-                  </Pressable>
-                </View>
-                {scheduledNotificationsLoading ? (
-                  <View style={styles.scheduledNotifLoadingWrap}>
-                    <ActivityIndicator size="small" color={currentTheme.primary} />
-                  </View>
-                ) : scheduledNotificationGroups.length === 0 ? (
-                  <Text
-                    style={[
-                      styles.scheduledNotifEmptyText,
-                      { color: currentTheme.placeholderTextColor || '#6B7280' },
-                    ]}
-                  >
-                    Planlanmış push notification yok.
-                  </Text>
-                ) : (
-                  <ScrollView
-                    style={styles.scheduledNotifScroll}
-                    contentContainerStyle={styles.scheduledNotifScrollContent}
-                    showsVerticalScrollIndicator={false}
-                  >
-                    {scheduledNotificationGroups.map(group => {
-                      const expanded = !!expandedNotificationDays[group.key];
-                      return (
-                        <View
-                          key={group.key}
-                          style={[
-                            styles.scheduledNotifDayCard,
-                            { borderColor: `${currentTheme.primary}22` },
-                          ]}
-                        >
-                          <Pressable
-                            style={styles.scheduledNotifDayHeader}
-                            onPress={() => toggleDayExpanded(group.key)}
-                          >
-                            <View style={styles.scheduledNotifDayHeaderLeft}>
-                              <Text
-                                style={[
-                                  styles.scheduledNotifDayTitle,
-                                  { color: currentTheme.textColor },
-                                ]}
-                              >
-                                {group.label}
-                              </Text>
-                              <Text
-                                style={[
-                                  styles.scheduledNotifDayCount,
-                                  {
-                                    color:
-                                      currentTheme.placeholderTextColor ||
-                                      '#6B7280',
-                                  },
-                                ]}
-                              >
-                                {group.items.length} bildirim
-                              </Text>
-                            </View>
-                            <Icon
-                              type={Icons.MaterialDesignIcons}
-                              name={expanded ? 'chevron-up' : 'chevron-down'}
-                              size={20}
-                              color={currentTheme.primary}
-                            />
-                          </Pressable>
-                          {expanded && (
-                            <View style={styles.scheduledNotifItemsWrap}>
-                              {group.items.map((item, index) => {
-                                const dateObj = parseNotificationDate(item);
-                                const timeText = dateObj
-                                  ? dateObj.toLocaleTimeString(
-                                      dateLocale || undefined,
-                                      {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                      },
-                                    )
-                                  : 'Saat yok';
-                                const idText = item.id != null ? String(item.id) : '-';
-                                const titleText =
-                                  typeof item.title === 'string' && item.title.trim()
-                                    ? item.title
-                                    : '(başlık yok)';
-                                const messageText =
-                                  typeof item.message === 'string' && item.message.trim()
-                                    ? item.message
-                                    : '(mesaj yok)';
-
-                                return (
-                                  <View
-                                    key={`${group.key}-${idText}-${index}`}
-                                    style={[
-                                      styles.scheduledNotifItem,
-                                      {
-                                        borderColor:
-                                          currentTheme.placeholderTextColor ||
-                                          '#D1D5DB',
-                                      },
-                                    ]}
-                                  >
-                                    <Text
-                                      style={[
-                                        styles.scheduledNotifItemMeta,
-                                        {
-                                          color:
-                                            currentTheme.placeholderTextColor ||
-                                            '#6B7280',
-                                        },
-                                      ]}
-                                    >
-                                      {timeText} • id: {idText}
-                                    </Text>
-                                    <Text
-                                      style={[
-                                        styles.scheduledNotifItemTitle,
-                                        { color: currentTheme.textColor },
-                                      ]}
-                                    >
-                                      {titleText}
-                                    </Text>
-                                    <Text
-                                      style={[
-                                        styles.scheduledNotifItemMessage,
-                                        {
-                                          color:
-                                            currentTheme.placeholderTextColor ||
-                                            '#6B7280',
-                                        },
-                                      ]}
-                                    >
-                                      {messageText}
-                                    </Text>
-                                  </View>
-                                );
-                              })}
-                            </View>
-                          )}
-                        </View>
-                      );
-                    })}
-                  </ScrollView>
-                )}
               </View>
             </View>
           </Modal>
@@ -2884,22 +2376,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     position: 'relative',
-  },
-  devTestNotificationButton: {
-    marginTop: 4,
-    marginBottom: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    alignSelf: 'flex-start',
-  },
-  devTestNotificationButtonText: {
-    fontSize: 13,
-    fontWeight: '700',
   },
   methodModalOverlay: {
     flex: 1,
@@ -3023,110 +2499,6 @@ const styles = StyleSheet.create({
     lineHeight: 32,
     fontWeight: '400',
     marginTop: -2,
-  },
-  scheduledNotifModalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(2,6,23,0.35)',
-    justifyContent: 'flex-end',
-  },
-  scheduledNotifModalBackdrop: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  scheduledNotifModalCard: {
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 24,
-    height: '82%',
-  },
-  scheduledNotifModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    gap: 10,
-  },
-  scheduledNotifModalTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    flexShrink: 1,
-  },
-  scheduledNotifCloseButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scheduledNotifLoadingWrap: {
-    paddingVertical: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scheduledNotifEmptyText: {
-    fontSize: 14,
-    lineHeight: 20,
-    paddingVertical: 8,
-  },
-  scheduledNotifScroll: {
-    flex: 1,
-    marginTop: 4,
-  },
-  scheduledNotifScrollContent: {
-    paddingBottom: 8,
-    gap: 10,
-  },
-  scheduledNotifDayCard: {
-    borderRadius: 14,
-    borderWidth: 1,
-    overflow: 'hidden',
-  },
-  scheduledNotifDayHeader: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  scheduledNotifDayHeaderLeft: {
-    flex: 1,
-  },
-  scheduledNotifDayTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  scheduledNotifDayCount: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-  scheduledNotifItemsWrap: {
-    paddingHorizontal: 10,
-    paddingBottom: 10,
-    gap: 8,
-  },
-  scheduledNotifItem: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  scheduledNotifItemMeta: {
-    fontSize: 11,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  scheduledNotifItemTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    marginBottom: 2,
-  },
-  scheduledNotifItemMessage: {
-    fontSize: 12,
-    lineHeight: 17,
   },
   screenInner: {
     flex: 1,

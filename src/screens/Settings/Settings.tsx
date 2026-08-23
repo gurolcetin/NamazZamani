@@ -38,7 +38,9 @@ import {
   ThemeSettingsConstants,
   FontSizeSettingsConstants,
   IS_DEV_FEATURES_ENABLED,
+  IS_ADS_ENABLED,
 } from '../../../libs/common/constants';
+import { AdsConsent } from 'react-native-google-mobile-ads';
 import { Accent, Theme, FontScaleOption } from '../../../libs/common/enums';
 import { useTheme } from '../../../libs/core/providers';
 import {
@@ -50,7 +52,7 @@ import {
   setShowQuranAyahCard,
 } from '../../../libs/redux/reducers/ApplicationSettings';
 import { createStyles } from './style';
-import { getFontScaleMultiplier } from '../../../libs/core/helpers';
+import { getFontScaleMultiplier, isPrivacyOptionsRequired } from '../../../libs/core/helpers';
 
 const accentOptions: Accent[] = [
   Accent.TEAL,
@@ -409,6 +411,14 @@ const Settings = ({}: SettingsProps) => {
     }
   }, [t]);
 
+  const handleManagePrivacy = useCallback(async () => {
+    try {
+      await AdsConsent.showPrivacyOptionsForm();
+    } catch (error) {
+      console.warn('Privacy options form failed:', error);
+    }
+  }, []);
+
   const handleSendFeedback = useCallback(() => {
     const subjectText = t(
       SettingsScreenLanguageConstants.FeedbackEmailSubject.key,
@@ -755,6 +765,51 @@ const Settings = ({}: SettingsProps) => {
                 </View>
               )}
             </View>
+
+            {/* Gizlilik Tercihleri */}
+            {IS_ADS_ENABLED && isPrivacyOptionsRequired() && (
+              <View style={styles.card}>
+                <Pressable
+                  onPress={handleManagePrivacy}
+                  android_ripple={{ color: currentTheme.gray, borderless: false }}
+                  style={{
+                    backgroundColor: currentTheme.inputBackgroundColor,
+                    borderRadius: 24,
+                    paddingHorizontal: 20,
+                    paddingVertical: 18,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        color: currentTheme.textColor,
+                        fontSize: 16 * fontScaleMultiplier,
+                        fontWeight: '600',
+                      }}
+                    >
+                      {t(SettingsScreenLanguageConstants.PrivacyPreferencesTitle.key)}
+                    </Text>
+                    <Text
+                      style={{
+                        color: currentTheme.gray,
+                        fontSize: 13 * fontScaleMultiplier,
+                        marginTop: 6,
+                      }}
+                    >
+                      {t(SettingsScreenLanguageConstants.PrivacyPreferencesSubtitle.key)}
+                    </Text>
+                  </View>
+                  <Icon
+                    type={Icons.MaterialDesignIcons}
+                    name="chevron-right"
+                    size={largeIconSize}
+                    color={currentTheme.gray}
+                  />
+                </Pressable>
+              </View>
+            )}
 
             {/* Geri Bildirim */}
             <View style={styles.card}>

@@ -5,6 +5,7 @@ import {
   BOTTOM_TAB_BANNER_AD_UNIT_ID,
   IS_ADS_ENABLED,
 } from '../../common/constants';
+import { isPersonalizedAdsAllowed } from '../../core/helpers/adsConsentManager';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type BottomBannerAdProps = {
@@ -37,7 +38,7 @@ const BottomBannerAd: React.FC<BottomBannerAdProps> = ({ containerStyle }) => {
       <BannerAd
         unitId={BOTTOM_TAB_BANNER_AD_UNIT_ID}
         size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-        requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+        requestOptions={{ requestNonPersonalizedAdsOnly: !isPersonalizedAdsAllowed() }}
         onAdLoaded={() => setIsLoaded(true)}
         onAdFailedToLoad={() => setIsLoaded(false)}
       />

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/ezan_sesi1,@raw/ezan_sesi2,@raw/ezan_sesi3,@raw/zil_sesi_1,@raw/zil_sesi_2,@raw/zil_sesi_3" />

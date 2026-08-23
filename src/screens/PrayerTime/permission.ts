@@ -10,6 +10,18 @@ import {
 
 export type LocationPermissionResult = 'granted' | 'denied' | 'blocked';
 
+/**
+ * Thrown when the device's location services (GPS) are disabled at the system level,
+ * even though the app has been granted location permission.
+ * Error codes: 2 (POSITION_UNAVAILABLE) and 5 (SETTINGS_NOT_SATISFIED) on Android.
+ */
+export class LocationServicesDisabledError extends Error {
+  constructor() {
+    super('LOCATION_SERVICES_DISABLED');
+    this.name = 'LocationServicesDisabledError';
+  }
+}
+
 const getPermissionType = () =>
   Platform.OS === 'ios'
     ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
@@ -56,7 +68,15 @@ export function getCurrentPosition(): Promise<{
           longitude: pos.coords.longitude,
         });
       },
-      err => reject(err),
+      err => {
+        // Codes 2 (POSITION_UNAVAILABLE) and 5 (SETTINGS_NOT_SATISFIED) mean
+        // the device's location services (GPS toggle) are off at the system level.
+        if (err.code === 2 || err.code === 5) {
+          reject(new LocationServicesDisabledError());
+        } else {
+          reject(err);
+        }
+      },
       {
         enableHighAccuracy: true,
         timeout: 15000,

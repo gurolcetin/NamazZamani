@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import mobileAds from 'react-native-google-mobile-ads';
 import { resetHintRuntimeState } from './libs/redux/reducers/ContextualHints';
 import { IS_ADS_ENABLED } from './libs/common/constants';
+import { gatherAdsConsent } from './libs/core/helpers/adsConsentManager';
 
 LogBox.ignoreLogs(['Sending...']);
 enableScreens();
@@ -64,12 +65,12 @@ const App = () => {
 
     const initAds = async () => {
       try {
-        await mobileAds().setRequestConfiguration({
-          testDeviceIdentifiers: [
-            'EMULATOR', // Android/iOS simülatörler için
-            'a8ac00e6ebc87db82a1f53a559e17a2c', // iOS cihaz örneği
-          ],
-        });
+        const testDeviceIdentifiers = [
+          'EMULATOR',
+          'a8ac00e6ebc87db82a1f53a559e17a2c',
+        ];
+        await mobileAds().setRequestConfiguration({ testDeviceIdentifiers });
+        await gatherAdsConsent(testDeviceIdentifiers, __DEV__);
         await mobileAds().initialize();
       } catch (error) {
         console.warn('Mobile Ads init failed', error);

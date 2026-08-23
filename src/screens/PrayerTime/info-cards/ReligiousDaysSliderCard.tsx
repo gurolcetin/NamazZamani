@@ -6,12 +6,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -250,34 +248,6 @@ const createStyles = (
       color: colors.muted,
       marginTop: 2,
     },
-    devRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginTop: 6,
-      gap: 12,
-    },
-    devActions: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-    },
-    devButton: {
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 8,
-      backgroundColor: 'rgba(148,163,184,0.12)',
-    },
-    devButtonText: {
-      fontSize: 11 * fontScale,
-      fontWeight: '600',
-      color: colors.primary,
-    },
-    devPickerWrapper: {
-      marginTop: 12,
-      borderRadius: 12,
-      overflow: 'hidden',
-    },
     sliderContainer: {
       marginTop: 8,
     },
@@ -394,12 +364,13 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
   }, []);
 
   const [now, setNow] = useState(new Date());
-  const [testDate, setTestDate] = useState<Date | null>(null);
-  const [showTestDatePicker, setShowTestDatePicker] = useState(false);
   const [slideWidth, setSlideWidth] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [dateLocale, setDateLocale] = useState<string>(
     LanguageLocaleKeys.TURKISH,
+  );
+  const debugReligiousDaysDate = useSelector(
+    (s: RootState) => s.applicationSettings?.debugReligiousDaysDate ?? null,
   );
   const [religiousDays, setReligiousDays] = useState<ReligiousDayInstance[]>(
     [],
@@ -413,19 +384,20 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     () => dateFromYMD(currentDateKey),
     [currentDateKey],
   );
+  const debugStartDate = useMemo(() => {
+    if (!IS_DEV_FEATURES_ENABLED || !debugReligiousDaysDate) {
+      return null;
+    }
+    const parsed = dateFromYMD(debugReligiousDaysDate);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }, [debugReligiousDaysDate]);
 
   const startOfActiveDay = useMemo(() => {
-    if (!testDate) {
-      return defaultStartOfToday;
-    }
-    return new Date(
-      testDate.getFullYear(),
-      testDate.getMonth(),
-      testDate.getDate(),
-    );
-  }, [defaultStartOfToday, testDate]);
+    const source = debugStartDate ?? defaultStartOfToday;
+    return new Date(source.getFullYear(), source.getMonth(), source.getDate());
+  }, [debugStartDate, defaultStartOfToday]);
 
-  const isCustomTestDateActive = Boolean(testDate);
+  const isCustomTestDateActive = Boolean(debugStartDate);
 
   const loadReligiousDays = useCallback(async () => {
     if (!isMountedRef.current) {
@@ -461,8 +433,8 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
   }, [loadReligiousDays]);
 
   useEffect(() => {
-    if (isCustomTestDateActive && testDate) {
-      setNow(testDate);
+    if (isCustomTestDateActive && debugStartDate) {
+      setNow(debugStartDate);
       return;
     }
 
@@ -470,7 +442,7 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     updateNow();
     const id = setInterval(updateNow, 1000);
     return () => clearInterval(id);
-  }, [isCustomTestDateActive, testDate]);
+  }, [debugStartDate, isCustomTestDateActive]);
 
   useEffect(() => {
     setDateLocale(currentLanguage);
@@ -560,8 +532,7 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
 
     const offsetX = e.nativeEvent.contentOffset.x;
     const extendedIndex = Math.round(offsetX / slideWidth);
-    const normalizedIndex =
-      ((extendedIndex - 1) % count + count) % count;
+    const normalizedIndex = (((extendedIndex - 1) % count) + count) % count;
 
     if (normalizedIndex !== activeIndexRef.current) {
       activeIndexRef.current = normalizedIndex;
@@ -592,40 +563,12 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
     );
   };
 
-  const handleApplyTestDate = (picked: Date | undefined | null) => {
-    if (picked) {
-      setTestDate(picked);
-    }
-  };
-
-  const handleTestDateChange = (event: any, picked?: Date) => {
-    if (Platform.OS === 'android') {
-      if (event?.type === 'dismissed') {
-        setShowTestDatePicker(false);
-        return;
-      }
-      setShowTestDatePicker(false);
-      handleApplyTestDate(picked);
-      return;
-    }
-
-    handleApplyTestDate(picked);
-  };
-
-  const toggleTestDatePicker = () => setShowTestDatePicker(prev => !prev);
-  const closeTestDatePicker = () => setShowTestDatePicker(false);
-  const clearTestDate = () => {
-    setTestDate(null);
-    closeTestDatePicker();
-  };
-
   const handleRetryFetch = () => {
     if (!isLoadingDays) {
       loadReligiousDays();
     }
   };
 
-  const formattedActiveDate = formatDate(startOfActiveDay);
   const hasSlides = upcomingEvents.length > 0;
 
   let content = null;
@@ -705,44 +648,8 @@ const ReligiousDaysSliderCardComponent: React.FC<Props> = ({
           <Text style={styles.title}>
             {t('prayerTime.religiousDays.title')}
           </Text>
-          {IS_DEV_FEATURES_ENABLED && (
-            <View style={styles.devRow}>
-              <Text style={styles.subtitle}>{formattedActiveDate}</Text>
-              <View style={styles.devActions}>
-                <Pressable
-                  onPress={toggleTestDatePicker}
-                  style={styles.devButton}
-                >
-                  <Text style={styles.devButtonText}>
-                    {t('monthlyCalendar.changeDate')}
-                  </Text>
-                </Pressable>
-                {isCustomTestDateActive && (
-                  <Pressable onPress={clearTestDate} style={styles.devButton}>
-                    <Text style={styles.devButtonText}>
-                      {t('monthlyCalendar.today')}
-                    </Text>
-                  </Pressable>
-                )}
-              </View>
-            </View>
-          )}
         </View>
       </View>
-
-      {IS_DEV_FEATURES_ENABLED && showTestDatePicker && (
-        <View style={styles.devPickerWrapper}>
-          <DateTimePicker
-            display={Platform.OS === 'ios' ? 'inline' : 'default'}
-            mode="date"
-            value={testDate ?? startOfActiveDay}
-            minimumDate={new Date(1900, 0, 1)}
-            accentColor={currentTheme.primary}
-            locale={dateLocale}
-            onChange={handleTestDateChange}
-          />
-        </View>
-      )}
 
       {content}
     </View>

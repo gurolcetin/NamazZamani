@@ -172,6 +172,7 @@ export default function PrayerNotificationDetail() {
   ]);
   const [playingSound, setPlayingSound] = useState<string | null>(null);
   const activeSoundRef = useRef<InstanceType<typeof Sound> | null>(null);
+  const soundPreviewTokenRef = useRef(0);
 
   const sheetAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
@@ -194,6 +195,28 @@ export default function PrayerNotificationDetail() {
     }
   }, [items, selectedItemId]);
 
+  const stopActiveSoundPreview = useCallback((resetPlayingState = true) => {
+    soundPreviewTokenRef.current += 1;
+    const activeSound = activeSoundRef.current;
+    activeSoundRef.current = null;
+    if (resetPlayingState) {
+      setPlayingSound(null);
+    }
+
+    if (activeSound) {
+      activeSound.stop(() => {
+        activeSound.release();
+      });
+    }
+  }, []);
+
+  useEffect(
+    () => () => {
+      stopActiveSoundPreview(false);
+    },
+    [stopActiveSoundPreview],
+  );
+
   const openAddSheet = useCallback(() => {
     setAddOffsetMinutes(-15);
     setAddOffsetDirection('before');
@@ -211,6 +234,7 @@ export default function PrayerNotificationDetail() {
   }, [sheetAnim]);
 
   const closeAddSheet = useCallback(() => {
+    stopActiveSoundPreview();
     setSelectionModalType(null);
     setSelectionModalTarget('selected');
     Animated.timing(sheetAnim, {
@@ -218,7 +242,7 @@ export default function PrayerNotificationDetail() {
       duration: 250,
       useNativeDriver: true,
     }).start(() => setShowAddSheet(false));
-  }, [sheetAnim]);
+  }, [sheetAnim, stopActiveSoundPreview]);
 
   const prayerHasAnyEnabled = useMemo(
     () => items.some(i => i.enabled),
@@ -355,29 +379,26 @@ export default function PrayerNotificationDetail() {
 
   const handlePreviewSound = useCallback(
     (sound: NotificationSound) => {
-      // Stop any currently playing sound first
-      if (activeSoundRef.current) {
-        activeSoundRef.current.stop(() => {
-          activeSoundRef.current?.release();
-          activeSoundRef.current = null;
-        });
-        if (playingSound === sound) {
-          // Same sound tapped again — just stop
-          setPlayingSound(null);
-          return;
-        }
-        setPlayingSound(null);
+      const isSameSoundPlaying =
+        playingSound === sound && Boolean(activeSoundRef.current);
+      stopActiveSoundPreview();
+
+      if (isSameSoundPlaying) {
+        return;
       }
 
       if (sound === 'default') return; // No preview for system default
+
+      const previewToken = soundPreviewTokenRef.current + 1;
+      soundPreviewTokenRef.current = previewToken;
 
       // Play custom sound (Android'de cihaz/packaging farkları için fallback denemeleri)
       const extension = sound.startsWith('ezan_sesi') ? 'wav' : 'mp3';
       const candidates: Array<{ filename: string; basePath: string }> =
         Platform.OS === 'android'
           ? [
-              { filename: `${sound}.${extension}`, basePath: Sound.MAIN_BUNDLE },
               { filename: sound, basePath: Sound.MAIN_BUNDLE },
+              { filename: `${sound}.${extension}`, basePath: Sound.MAIN_BUNDLE },
               { filename: sound, basePath: '' },
             ]
           : [{ filename: `${sound}.${extension}`, basePath: Sound.MAIN_BUNDLE }];
@@ -395,6 +416,11 @@ export default function PrayerNotificationDetail() {
 
         const { filename, basePath } = candidates[index];
         const s = new Sound(filename, basePath, err => {
+          if (soundPreviewTokenRef.current !== previewToken) {
+            s.release();
+            return;
+          }
+
           if (err) {
             errors.push(`${basePath || '<empty>'}/${filename}`);
             s.release();
@@ -404,16 +430,18 @@ export default function PrayerNotificationDetail() {
           activeSoundRef.current = s;
           setPlayingSound(sound);
           s.play(() => {
-            setPlayingSound(null);
-            activeSoundRef.current = null;
-            s.release();
+            if (soundPreviewTokenRef.current === previewToken) {
+              setPlayingSound(null);
+              activeSoundRef.current = null;
+              s.release();
+            }
           });
         });
       };
 
       tryLoad(0);
     },
-    [playingSound],
+    [playingSound, stopActiveSoundPreview],
   );
 
   const handleUpdateSound = useCallback(
@@ -495,8 +523,9 @@ export default function PrayerNotificationDetail() {
   }, []);
 
   const closeSelectionModal = useCallback(() => {
+    stopActiveSoundPreview();
     setSelectionModalType(null);
-  }, []);
+  }, [stopActiveSoundPreview]);
 
   const formatSnoozeLabel = useCallback(
     (minutes: number) =>

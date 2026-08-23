@@ -43,6 +43,7 @@ type ApplicationSettingsState = {
   prayerTimeMethodManuallySet: boolean;
   prayerTimeMethodPreferences: PrayerTimeMethodPreferenceMap;
   prayerTimeTune: PrayerTimeTuneSettings;
+  debugReligiousDaysDate: string | null;
 };
 
 const buildDefaultNotificationPreferences = (): PrayerNotificationPreferences =>
@@ -71,6 +72,7 @@ const initialState: ApplicationSettingsState = {
     },
   },
   prayerTimeTune: { ...DEFAULT_PRAYER_TIME_TUNE },
+  debugReligiousDaysDate: null,
 };
 
 const ensureNotificationPreferences = (
@@ -201,12 +203,20 @@ const ApplicationSettings = createSlice({
     ) => {
       const tune = ensurePrayerTimeTune(state);
       const payload = action.payload ?? DEFAULT_PRAYER_TIME_TUNE;
-      for (const key of Object.keys(DEFAULT_PRAYER_TIME_TUNE) as PrayerTuneKey[]) {
+      for (const key of Object.keys(
+        DEFAULT_PRAYER_TIME_TUNE,
+      ) as PrayerTuneKey[]) {
         const value = payload[key];
         tune[key] = Number.isFinite(value)
           ? Math.max(-120, Math.min(120, Math.trunc(value)))
           : DEFAULT_PRAYER_TIME_TUNE[key];
       }
+    },
+    setDebugReligiousDaysDate: (
+      state,
+      action: PayloadAction<string | null>,
+    ) => {
+      state.debugReligiousDaysDate = action.payload;
     },
   },
 });
@@ -224,6 +234,7 @@ export const {
   setPrayerTimeMethodOptions,
   setPrayerTimeTuneValue,
   setPrayerTimeTuneValues,
+  setDebugReligiousDaysDate,
 } = ApplicationSettings.actions;
 
 export default ApplicationSettings.reducer;

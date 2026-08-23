@@ -2,6 +2,8 @@
   "name": "NamazDefteri",
   "displayName": "NamazDefteri",
   "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-1664398990145686~3000574564"
+    "android_app_id": "ca-app-pub-1664398990145686~3000574564",
+    "ios_app_id": "ca-app-pub-1664398990145686~1027456849",
+    "delay_app_measurement_init": true
   }
 }

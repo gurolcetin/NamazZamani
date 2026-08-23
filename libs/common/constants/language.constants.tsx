@@ -115,6 +115,14 @@ export class SettingsScreenLanguageConstants {
     key: 'settings.AppVersion',
     defaultValue: 'Uygulama Sürümü',
   };
+  static PrivacyPreferencesTitle: LanguageModel = {
+    key: 'settings.PrivacyPreferencesTitle',
+    defaultValue: 'Gizlilik Tercihlerini Yönet',
+  };
+  static PrivacyPreferencesSubtitle: LanguageModel = {
+    key: 'settings.PrivacyPreferencesSubtitle',
+    defaultValue: 'Reklam kişiselleştirme iznini düzenleyin',
+  };
 }
 
 export class LanguageSettingsConstants {
@@ -182,6 +190,10 @@ export class MenuNameLanguageConstants {
   static Settings: LanguageModel = {
     key: 'menu.Settings',
     defaultValue: 'Ayarlar',
+  };
+  static Debug: LanguageModel = {
+    key: 'menu.Debug',
+    defaultValue: 'Debug',
   };
 }
 
@@ -466,7 +478,8 @@ export class QiblaLanguageConstants {
   };
   static LocationUnavailable: LanguageModel = {
     key: 'qibla.locationUnavailable',
-    defaultValue: 'Konum alınamadı. Lütfen internet ve konum servislerini kontrol edin.',
+    defaultValue:
+      'Konum alınamadı. Lütfen internet ve konum servislerini kontrol edin.',
   };
   static LocationTimeout: LanguageModel = {
     key: 'qibla.locationTimeout',

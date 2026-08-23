@@ -7,7 +7,7 @@ export const Routes = {
 };
 
 export const PrayerTimeScreens = {
-  LocationSelector: 'LocationSelector'
+  LocationSelector: 'LocationSelector',
 };
 
 export const ToolsRoutes = {
@@ -28,6 +28,7 @@ export const StackRoutes = {
   DhikrStack: 'DhikrStack',
   SettingsStack: 'SettingsStack',
   ToolsStack: 'ToolsStack',
+  DebugStack: 'DebugStack',
 };
 
 export const RootRoutes = {
